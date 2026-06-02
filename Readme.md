@@ -1,5 +1,5 @@
 
-1. Arquitectura del Repositorio (Monorepo)
+## 1. Arquitectura del Repositorio (Monorepo)
 El proyecto opera bajo un modelo de Monorepo estructurado por dominios de responsabilidad. La regla fundamental es el aislamiento estricto de dependencias. Ningún entorno virtual ni gestor de paquetes debe inicializarse en la raíz del proyecto.
 
 /frontend: Contiene exclusivamente el código cliente, interfaces y dependencias de UI (ej. node_modules).
@@ -10,7 +10,7 @@ El proyecto opera bajo un modelo de Monorepo estructurado por dominios de respon
 
 .gitignore: Configurado a nivel raíz para bloquear la subida de entornos virtuales (venv), carpetas de módulos, archivos compilados y credenciales/variables de entorno (.env). Cero secretos en la nube.
 
-2. Gestión de Ramas (Branching Model)
+## 2. Gestión de Ramas (Branching Model)
 El ciclo de vida del código se administra mediante un modelo basado en ramas protegidas por políticas de equipo (Pacto de Honor, dado que el repositorio es privado en plan gratuito).
 
 main (Producción): Es la fuente de la verdad. Contiene código 100% probado y desplegable. Queda estrictamente prohibido realizar un git push directo a esta rama.
@@ -25,7 +25,7 @@ back/nombre-de-tarea
 
 db/nombre-de-tarea
 
-3. Protocolo Diario de Desarrollo (Subida de Cambios)
+## 3. Protocolo Diario de Desarrollo (Subida de Cambios)
 Todo desarrollador debe apegarse al siguiente ciclo de trabajo para introducir nuevo código al proyecto:
 
 Sincronización: Actualizar el entorno local con los últimos cambios de integración.
@@ -50,7 +50,7 @@ Integración (Pull Request): Acceder a GitHub y abrir un Pull Request desde la r
 
 Política de Aprobación: Para mantener agilidad, el mismo autor puede aprobar y fusionar (Merge) su propio PR, bajo la responsabilidad ineludible de haber probado el código localmente sin detectar errores.
 
-4. Despliegue a Producción (develop hacia main)
+## 4. Despliegue a Producción (develop hacia main)
 La promoción de código de integración a producción no es un proceso diario. Se realiza únicamente cuando el equipo define que hay una versión estable.
 
 Un responsable (Tech Lead o encargado de despliegue) se sitúa en GitHub.
@@ -63,7 +63,7 @@ Una vez verificado, se realiza el Merge a main.
 
 (Opcional pero recomendado) Se genera un "Release" o un "Tag" en GitHub (ej. v1.0.0) para marcar el hito de producción.
 
-5. Protocolo de Mitigación de Daños (Recuperación de Errores)
+## 5. Protocolo de Mitigación de Daños (Recuperación de Errores)
 Los errores humanos ocurrirán. La política establece que nunca se debe utilizar git push --force para reescribir la historia pública. Se utilizarán métodos seguros de reversión:
 
 Escenario A: Un error ya se fusionó en develop o main
