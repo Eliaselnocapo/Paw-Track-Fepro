@@ -16,7 +16,7 @@ Para evitar conflictos de código y mantener el orden, el repositorio se divide 
 
 Debido a que el repositorio es **Privado**, GitHub no bloqueará físicamente los envíos accidentales por la terminal. Por lo tanto, la seguridad del proyecto depende de la disciplina de estos 5 pilares:
 
-## 🤝 El "Pacto de Honor" (Los 5 Pilares)
+##  El "Pacto de Honor" (Los 5 Pilares)
 
 Debido a que el repositorio es **Privado**, GitHub no bloqueará físicamente los envíos accidentales por la terminal. Por lo tanto, la seguridad del proyecto depende de la disciplina de nuestro equipo basada en estos 5 pilares:
 
