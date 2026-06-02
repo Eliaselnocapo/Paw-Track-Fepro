@@ -28,55 +28,56 @@ db/nombre-de-tarea
 ## 3. Protocolo Diario de Desarrollo (Subida de Cambios)
 Todo desarrollador debe apegarse al siguiente ciclo de trabajo para introducir nuevo código al proyecto:
 
-Sincronización: Actualizar el entorno local con los últimos cambios de integración.
+1. Sincronización: Actualizar el entorno local con los últimos cambios de integración.
+
+        git checkout develop
+        git pull origin develop
+    
+2. Aislamiento: Crear la rama de trabajo específica.
+
+        git checkout -b rol/nombre-tarea
+   
+4. Desarrollo y Commits: Realizar confirmaciones atómicas y descriptivas.
 
 
-    git checkout develop
-    git pull origin develop
-Aislamiento: Crear la rama de trabajo específica.
+        git add .
+        git commit -m "Descripción clara de la funcionalidad o corrección"
+        
+5. Publicación de la Rama: Subir la rama de trabajo al repositorio remoto.
 
-Bash
-git checkout -b rol/nombre-tarea
-Desarrollo y Commits: Realizar confirmaciones atómicas y descriptivas.
-
-Bash
-git add .
-git commit -m "Descripción clara de la funcionalidad o corrección"
-Publicación de la Rama: Subir la rama de trabajo al repositorio remoto.
-
-Bash
-git push origin rol/nombre-tarea
-Integración (Pull Request): Acceder a GitHub y abrir un Pull Request desde la rama de trabajo hacia develop.
+        git push origin rol/nombre-tarea
+   
+6. Integración (Pull Request): Acceder a GitHub y abrir un Pull Request desde la rama de trabajo hacia develop.
 
 Política de Aprobación: Para mantener agilidad, el mismo autor puede aprobar y fusionar (Merge) su propio PR, bajo la responsabilidad ineludible de haber probado el código localmente sin detectar errores.
 
 ## 4. Despliegue a Producción (develop hacia main)
 La promoción de código de integración a producción no es un proceso diario. Se realiza únicamente cuando el equipo define que hay una versión estable.
 
-Un responsable (Tech Lead o encargado de despliegue) se sitúa en GitHub.
+1. Un responsable (Tech Lead o encargado de despliegue) se sitúa en GitHub.
 
-Abre un Pull Request desde la rama develop hacia la rama main.
+2. Abre un Pull Request desde la rama develop hacia la rama main.
 
-A diferencia del código diario, este PR sí requiere revisión del equipo. Los líderes de frontend y backend deben confirmar que todo es funcional.
+3. A diferencia del código diario, este PR sí requiere revisión del equipo. Los líderes de frontend y backend deben confirmar que todo es funcional.
 
-Una vez verificado, se realiza el Merge a main.
+4. Una vez verificado, se realiza el Merge a main.
 
-(Opcional pero recomendado) Se genera un "Release" o un "Tag" en GitHub (ej. v1.0.0) para marcar el hito de producción.
+5. (Opcional pero recomendado) Se genera un "Release" o un "Tag" en GitHub (ej. v1.0.0) para marcar el hito de producción.
 
 ## 5. Protocolo de Mitigación de Daños (Recuperación de Errores)
 Los errores humanos ocurrirán. La política establece que nunca se debe utilizar git push --force para reescribir la historia pública. Se utilizarán métodos seguros de reversión:
 
-Escenario A: Un error ya se fusionó en develop o main
+**Escenario A**: Un error ya se fusionó en develop o main
 No se debe borrar el commit defectuoso. Se debe generar un commit inverso que anule los cambios, preservando el registro histórico.
 
-Bash
-git log # (Para buscar el identificador/hash del commit problemático)
-git revert <HASH_DEL_COMMIT>
-git push origin develop
 
-Escenario B: Desastre en el entorno local (antes de subir a GitHub)
+        git log # (Para buscar el identificador/hash del commit problemático)
+        git revert <HASH_DEL_COMMIT>
+        git push origin develop
+
+**Escenario B**: Desastre en el entorno local (antes de subir a GitHub)
 Si un desarrollador elimina archivos, rompe su código o hace un git reset destructivo en su máquina, se debe utilizar el registro de movimientos del cabezal para viajar en el tiempo.
 
-Bash
-git reflog # (Lista todo el historial local, incluso lo borrado)
-git reset --hard HEAD@{numero_de_paso_previo_al_error}
+
+        git reflog # (Lista todo el historial local, incluso lo borrado)
+        git reset --hard HEAD@{numero_de_paso_previo_al_error}
