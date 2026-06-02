@@ -1,4 +1,6 @@
 ***************Esto es exlusivamente cuando hagas un cambio directo al main mamahuevaoso****
+
+
 Para pasar los cambios de develop hacia main (Producción), sigue estos pasos exactos:
 
 Paso 1: Abre el Pull Request en GitHub
