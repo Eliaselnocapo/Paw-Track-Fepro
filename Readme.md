@@ -30,9 +30,9 @@ Todo desarrollador debe apegarse al siguiente ciclo de trabajo para introducir n
 
 Sincronización: Actualizar el entorno local con los últimos cambios de integración.
 
-Bash
-git checkout develop
-git pull origin develop
+
+    git checkout develop
+    git pull origin develop
 Aislamiento: Crear la rama de trabajo específica.
 
 Bash
