@@ -1,0 +1,14 @@
+# Dependencias de Backend (Python)
+venv/
+__pycache__/
+*.pyc
+
+# Dependencias de Frontend
+frontend/node_modules/
+
+# Bases de datos locales
+*.sqlite3
+
+# Variables de entorno (¡Contraseñas y tokens!)
+*.env
+.env.local
