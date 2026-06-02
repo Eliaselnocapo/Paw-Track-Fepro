@@ -1,7 +1,3 @@
-Documento de Arquitectura y Protocolo de Control de Versiones
-Proyecto: Paw-Track-Fepro
-Modelo: Monorepo Privado
-Equipo: 5 Desarrolladores (1 BD, 2 Frontend, 2 Backend)
 
 1. Arquitectura del Repositorio (Monorepo)
 El proyecto opera bajo un modelo de Monorepo estructurado por dominios de responsabilidad. La regla fundamental es el aislamiento estricto de dependencias. Ningún entorno virtual ni gestor de paquetes debe inicializarse en la raíz del proyecto.
@@ -77,6 +73,7 @@ Bash
 git log # (Para buscar el identificador/hash del commit problemático)
 git revert <HASH_DEL_COMMIT>
 git push origin develop
+
 Escenario B: Desastre en el entorno local (antes de subir a GitHub)
 Si un desarrollador elimina archivos, rompe su código o hace un git reset destructivo en su máquina, se debe utilizar el registro de movimientos del cabezal para viajar en el tiempo.
 
