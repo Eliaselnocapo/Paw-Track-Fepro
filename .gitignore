@@ -12,3 +12,11 @@ frontend/node_modules/
 # Variables de entorno (¡Contraseñas y tokens!)
 *.env
 .env.local
+
+# Archivos multimedia subidos por usuarios (Backend)
+media/
+
+# Configuraciones de Editores de Código y SO
+.vscode/
+.idea/
+.DS_Store
