@@ -1,0 +1,7 @@
+{
+  "name": "pawtrack-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
