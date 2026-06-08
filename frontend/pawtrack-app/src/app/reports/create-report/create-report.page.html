@@ -1,0 +1,737 @@
+<div class="flex flex-col h-[100dvh] w-full relative overflow-x-hidden">
+
+  <!-- INPUT OCULTO PARA CÁMARA/ARCHIVOS -->
+  <input
+    #fileInput
+    type="file"
+    accept="image/*,video/*"
+    capture="environment"
+    class="hidden"
+    (change)="onFileSelected($event)"
+  />
+
+  <!-- ========================================== -->
+  <!-- HEADER DINÁMICO (Oculto en Paso 5)         -->
+  <!-- ========================================== -->
+  @if (pasoActual !== 5) {
+    <header class="flex justify-between items-center px-4 h-16 bg-surface shadow-sm shrink-0 z-50 relative">
+      <button (click)="regresarPaso()" class="text-primary hover:bg-surface-container-low transition-colors active:scale-95 p-2 rounded-full flex items-center justify-center">
+        @if (pasoActual === 1) {
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+        } @else {
+          <span class="material-symbols-outlined">arrow_back</span>
+        }
+      </button>
+      <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">PawTrack</h1>
+      <button class="text-primary hover:bg-surface-container-low transition-colors active:scale-95 p-2 rounded-full flex items-center justify-center relative">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+    </header>
+  }
+
+  <!-- ========================================== -->
+  <!-- BARRA DE PROGRESO UNIFICADA                -->
+  <!-- ========================================== -->
+  @if (pasoActual !== 5) {
+    <div class="w-full px-4 py-2 bg-surface shrink-0 z-40">
+      <div class="max-w-3xl mx-auto flex items-center gap-1">
+        @for (step of [1,2,3,4]; track step) {
+          <div class="h-1.5 flex-1 rounded-full transition-all duration-500"
+               [class.bg-primary]="pasoActual >= step"
+               [class.bg-surface-container-high]="pasoActual < step">
+          </div>
+        }
+      </div>
+      <p class="text-center font-label-md text-label-md text-primary mt-1.5">Paso {{ pasoActual }} de 4</p>
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- ZONA CENTRAL                               -->
+  <!-- ========================================== -->
+  <main class="flex-1 w-full mx-auto relative flex flex-col"
+        [class.overflow-y-auto]="pasoActual !== 3"
+        [class.overflow-hidden]="pasoActual === 3">
+
+    <!-- CONTENEDOR CON MÁRGENES (Pasos 1, 2 y 4) -->
+    @if (pasoActual === 1 || pasoActual === 2 || pasoActual === 4) {
+      <div class="px-4 md:px-12 py-6 flex flex-col flex-1 w-full max-w-3xl mx-auto">
+
+        <!-- ===== PASO 1: EVIDENCIA ===== -->
+        @if (pasoActual === 1) {
+          <div class="flex flex-col items-center justify-center mb-8">
+            <h2 class="font-headline-md text-headline-md text-center text-on-surface">Captura de Evidencia</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant text-center mt-2 max-w-[280px]">Documenta la situación con fotos o video de forma segura.</p>
+          </div>
+
+          <!-- Zona de carga: toca para abrir cámara o seleccionar archivo -->
+          <div class="glass-card rounded-xl p-4 mb-6">
+            <div (click)="abrirCamara()"
+                 class="dashed-upload h-48 flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-low transition-colors group rounded-xl">
+              <div class="bg-primary-container text-on-primary-container rounded-full p-4 mb-3 group-hover:scale-110 transition-transform shadow-md">
+                <span class="material-symbols-outlined text-[32px]">add_a_photo</span>
+              </div>
+              <span class="font-button-text text-button-text text-primary">Toca para Fotografiar o Cargar</span>
+              <span class="font-body-sm text-body-sm text-on-surface-variant mt-1">JPEG, PNG, MP4 hasta 50MB</span>
+            </div>
+          </div>
+
+          <!-- Botón alternativo para seleccionar desde galería -->
+          <button (click)="abrirGaleria()"
+                  class="mx-auto mb-6 flex items-center gap-2 text-primary font-label-md text-label-md hover:bg-surface-container px-4 py-2 rounded-full transition-colors">
+            <span class="material-symbols-outlined text-[18px]">photo_library</span>
+            Elegir desde Galería
+          </button>
+
+          <div class="mb-4">
+            <h3 class="font-title-lg text-title-lg text-on-surface mb-4 px-1">Evidencia Cargada</h3>
+            <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar">
+              @for (archivo of archivosSeleccionados; track archivo) {
+                <div class="snap-start shrink-0 relative w-40 h-40 rounded-xl overflow-hidden shadow-sm border border-outline-variant">
+                  <img [src]="archivo.preview" alt="Evidencia" class="w-full h-full object-cover"/>
+                  <div class="absolute top-2 right-2 bg-secondary-container text-on-secondary-container font-label-md text-label-md px-2 py-0.5 rounded-full shadow flex items-center gap-1 backdrop-blur-md">
+                    <span class="material-symbols-outlined text-[14px]">check_circle</span> Listo
+                  </div>
+                  <button (click)="eliminarArchivo(archivo)"
+                          class="absolute bottom-2 right-2 bg-error text-on-error rounded-full p-1 shadow">
+                    <span class="material-symbols-outlined text-[14px]">close</span>
+                  </button>
+                </div>
+              }
+              <!-- Si no hay archivos, mostrar placeholder -->
+              @if (archivosSeleccionados.length === 0) {
+                <div class="snap-start shrink-0 relative w-40 h-40 rounded-xl overflow-hidden shadow-sm border border-outline-variant">
+                  <img alt="Ejemplo de foto" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=400&auto=format&fit=crop"/>
+                  <div class="absolute top-2 right-2 bg-secondary-container text-on-secondary-container font-label-md text-label-md px-2 py-0.5 rounded-full shadow flex items-center gap-1 backdrop-blur-md">
+                    <span class="material-symbols-outlined text-[14px]">check_circle</span> Listo
+                  </div>
+                </div>
+              }
+              <div (click)="abrirCamara()"
+                   class="snap-start shrink-0 relative w-40 h-40 rounded-xl overflow-hidden border border-dashed border-outline-variant bg-surface flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined text-[28px] text-primary mb-2">add</span>
+                <span class="font-label-md text-label-md text-primary">Agregar más</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ===== PASO 2: DETALLES DEL ANIMAL ===== -->
+        @if (pasoActual === 2) {
+          <div class="flex flex-col items-center justify-center mb-8">
+            <h1 class="font-headline-md text-headline-md text-on-surface mb-2">Detalles del Animal</h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant text-center max-w-[280px]">Ayúdanos a identificar al animal para enviar la ayuda adecuada.</p>
+          </div>
+
+          <!-- TIPO DE ANIMAL -->
+          <section class="flex flex-col gap-4 mb-8">
+            <h2 class="font-title-lg text-title-lg text-on-surface">¿Qué tipo de animal es?</h2>
+            <div class="grid grid-cols-3 gap-3">
+
+              <!-- Perro -->
+              <button (click)="seleccionarTipo('perro')"
+                      class="relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 active:scale-95"
+                      [class.border-primary]="tipoAnimal === 'perro'"
+                      [class.bg-primary-container]="tipoAnimal === 'perro'"
+                      [class.shadow-md]="tipoAnimal === 'perro'"
+                      [class.scale-[1.03]]="tipoAnimal === 'perro'"
+                      [class.glass-card]="tipoAnimal !== 'perro'"
+                      [class.border-transparent]="tipoAnimal !== 'perro'"
+                      [class.hover:border-outline-variant]="tipoAnimal !== 'perro'">
+                @if (tipoAnimal === 'perro') {
+                  <div class="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
+                  </div>
+                }
+                <div class="w-14 h-14 flex items-center justify-center rounded-full shadow-sm mb-1 transition-colors"
+                     [class.bg-primary]="tipoAnimal === 'perro'"
+                     [class.text-on-primary]="tipoAnimal === 'perro'"
+                     [class.bg-surface]="tipoAnimal !== 'perro'"
+                     [class.text-on-surface-variant]="tipoAnimal !== 'perro'">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 30px;">pets</span>
+                </div>
+                <span class="font-label-md text-label-md"
+                      [class.text-primary]="tipoAnimal === 'perro'"
+                      [class.font-bold]="tipoAnimal === 'perro'"
+                      [class.text-on-surface]="tipoAnimal !== 'perro'">Perro</span>
+              </button>
+
+              <!-- Gato -->
+              <button (click)="seleccionarTipo('gato')"
+                      class="relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 active:scale-95"
+                      [class.border-primary]="tipoAnimal === 'gato'"
+                      [class.bg-primary-container]="tipoAnimal === 'gato'"
+                      [class.shadow-md]="tipoAnimal === 'gato'"
+                      [class.scale-[1.03]]="tipoAnimal === 'gato'"
+                      [class.glass-card]="tipoAnimal !== 'gato'"
+                      [class.border-transparent]="tipoAnimal !== 'gato'">
+                @if (tipoAnimal === 'gato') {
+                  <div class="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
+                  </div>
+                }
+                <div class="w-14 h-14 flex items-center justify-center rounded-full shadow-sm mb-1 transition-colors"
+                     [class.bg-primary]="tipoAnimal === 'gato'"
+                     [class.text-on-primary]="tipoAnimal === 'gato'"
+                     [class.bg-surface]="tipoAnimal !== 'gato'"
+                     [class.text-on-surface-variant]="tipoAnimal !== 'gato'">
+                  <span class="material-symbols-outlined" style="font-size: 30px;">cruelty_free</span>
+                </div>
+                <span class="font-label-md text-label-md"
+                      [class.text-primary]="tipoAnimal === 'gato'"
+                      [class.font-bold]="tipoAnimal === 'gato'"
+                      [class.text-on-surface]="tipoAnimal !== 'gato'">Gato</span>
+              </button>
+
+              <!-- Otro -->
+              <button (click)="seleccionarTipo('otro')"
+                      class="relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 active:scale-95"
+                      [class.border-primary]="tipoAnimal === 'otro'"
+                      [class.bg-primary-container]="tipoAnimal === 'otro'"
+                      [class.shadow-md]="tipoAnimal === 'otro'"
+                      [class.scale-[1.03]]="tipoAnimal === 'otro'"
+                      [class.glass-card]="tipoAnimal !== 'otro'"
+                      [class.border-transparent]="tipoAnimal !== 'otro'">
+                @if (tipoAnimal === 'otro') {
+                  <div class="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
+                  </div>
+                }
+                <div class="w-14 h-14 flex items-center justify-center rounded-full shadow-sm mb-1 transition-colors"
+                     [class.bg-primary]="tipoAnimal === 'otro'"
+                     [class.text-on-primary]="tipoAnimal === 'otro'"
+                     [class.bg-surface]="tipoAnimal !== 'otro'"
+                     [class.text-on-surface-variant]="tipoAnimal !== 'otro'">
+                  <span class="material-symbols-outlined" style="font-size: 30px;">help_center</span>
+                </div>
+                <span class="font-label-md text-label-md"
+                      [class.text-primary]="tipoAnimal === 'otro'"
+                      [class.font-bold]="tipoAnimal === 'otro'"
+                      [class.text-on-surface]="tipoAnimal !== 'otro'">Otro</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TAMAÑO APROXIMADO -->
+          <section class="flex flex-col gap-4 mb-8">
+            <h2 class="font-title-lg text-title-lg text-on-surface">Tamaño aproximado</h2>
+            <div class="grid grid-cols-3 gap-3">
+              @for (tam of [{key:'pequeno', label:'Pequeño', icon:'open_with'}, {key:'mediano', label:'Mediano', icon:'straighten'}, {key:'grande', label:'Grande', icon:'expand'}]; track tam.key) {
+                <button (click)="seleccionarTamano(tam.key)"
+                        class="relative flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 transition-all duration-200 active:scale-95"
+                        [class.border-primary]="tamanoAproximado === tam.key"
+                        [class.bg-primary-container]="tamanoAproximado === tam.key"
+                        [class.border-transparent]="tamanoAproximado !== tam.key"
+                        [class.glass-card]="tamanoAproximado !== tam.key"
+                        [class.hover:border-outline-variant]="tamanoAproximado !== tam.key">
+                  @if (tamanoAproximado === tam.key) {
+                    <div class="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                      <span class="material-symbols-outlined text-on-primary text-[12px]" style="font-variation-settings: 'FILL' 1;">check</span>
+                    </div>
+                  }
+                  <span class="material-symbols-outlined text-[28px] transition-colors"
+                        [class.text-primary]="tamanoAproximado === tam.key"
+                        [class.text-on-surface-variant]="tamanoAproximado !== tam.key">{{ tam.icon }}</span>
+                  <span class="font-label-md text-label-md text-center transition-colors"
+                        [class.text-primary]="tamanoAproximado === tam.key"
+                        [class.font-bold]="tamanoAproximado === tam.key"
+                        [class.text-on-surface]="tamanoAproximado !== tam.key">{{ tam.label }}</span>
+                </button>
+              }
+            </div>
+          </section>
+
+          <!-- CONDICIÓN VISIBLE -->
+          <section class="flex flex-col gap-4 mb-8">
+            <h2 class="font-title-lg text-title-lg text-on-surface">Condición Visible</h2>
+            <div class="grid grid-cols-1 gap-3">
+
+              <!-- Herido -->
+              <button (click)="toggleCondicion('herido')"
+                      class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left active:scale-[0.99]"
+                      [class.border-error]="tieneCondicion('herido')"
+                      [class.bg-red-50]="tieneCondicion('herido')"
+                      [class.shadow-md]="tieneCondicion('herido')"
+                      [class.border-outline-variant]="!tieneCondicion('herido')"
+                      [class.glass-card]="!tieneCondicion('herido')">
+                <!-- Checkbox visual -->
+                <div class="w-6 h-6 rounded-md border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-colors"
+                     [class.bg-error]="tieneCondicion('herido')"
+                     [class.border-error]="tieneCondicion('herido')"
+                     [class.border-outline-variant]="!tieneCondicion('herido')">
+                  @if (tieneCondicion('herido')) {
+                    <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+                  }
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-error-container text-error flex items-center justify-center mr-4 flex-shrink-0">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_hospital</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-title-lg text-title-lg"
+                      [class.text-error]="tieneCondicion('herido')"
+                      [class.text-on-surface]="!tieneCondicion('herido')">Herido</h3>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">Requiere atención médica urgente</p>
+                </div>
+                @if (tieneCondicion('herido')) {
+                  <span class="text-error font-label-md text-label-md">Seleccionado</span>
+                }
+              </button>
+
+              <!-- Atrapado -->
+              <button (click)="toggleCondicion('callejero')"
+                      class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left active:scale-[0.99]"
+                      [class.border-tertiary]="tieneCondicion('callejero')"
+                      [class.bg-amber-50]="tieneCondicion('callejero')"
+                      [class.shadow-md]="tieneCondicion('callejero')"
+                      [class.border-outline-variant]="!tieneCondicion('callejero')"
+                      [class.glass-card]="!tieneCondicion('callejero')">
+                <div class="w-6 h-6 rounded-md border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-colors"
+                     [class.bg-amber-500]="tieneCondicion('callejero')"
+                     [class.border-amber-500]="tieneCondicion('callejero')"
+                     [class.border-outline-variant]="!tieneCondicion('callejero')">
+                  @if (tieneCondicion('callejero')) {
+                    <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+                  }
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-tertiary-container text-on-tertiary-container flex items-center justify-center mr-4 flex-shrink-0">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">route</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-title-lg text-title-lg text-on-surface">Callejero</h3>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">Deambula sin dueño aparente</p>
+                </div>
+                @if (tieneCondicion('callejero')) {
+                  <span class="text-amber-600 font-label-md text-label-md">Seleccionado</span>
+                }
+              </button>
+
+              <!-- Extraviado -->
+              <button (click)="toggleCondicion('extraviado')"
+                      class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left active:scale-[0.99]"
+                      [class.border-primary]="tieneCondicion('extraviado')"
+                      [class.bg-primary-container]="tieneCondicion('extraviado')"
+                      [class.shadow-md]="tieneCondicion('extraviado')"
+                      [class.border-outline-variant]="!tieneCondicion('extraviado')"
+                      [class.glass-card]="!tieneCondicion('extraviado')">
+                <div class="w-6 h-6 rounded-md border-2 flex items-center justify-center mr-4 flex-shrink-0 transition-colors"
+                     [class.bg-primary]="tieneCondicion('extraviado')"
+                     [class.border-primary]="tieneCondicion('extraviado')"
+                     [class.border-outline-variant]="!tieneCondicion('extraviado')">
+                  @if (tieneCondicion('extraviado')) {
+                    <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+                  }
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-primary-container text-primary flex items-center justify-center mr-4 flex-shrink-0">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-title-lg text-title-lg text-on-surface">Extraviado</h3>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">Aparenta estar perdido o desorientado</p>
+                </div>
+                @if (tieneCondicion('extraviado')) {
+                  <span class="text-primary font-label-md text-label-md">Seleccionado</span>
+                }
+              </button>
+            </div>
+          </section>
+
+          <!-- VALIDACIÓN INLINE -->
+          @if (!tipoAnimal || condicionesVisibles.length === 0) {
+            <div class="flex items-center gap-2 bg-surface-container rounded-xl px-4 py-3 mb-4">
+              <span class="material-symbols-outlined text-outline text-[18px]">info</span>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">
+                @if (!tipoAnimal) { Selecciona el tipo de animal. }
+                @if (condicionesVisibles.length === 0) { Selecciona al menos una condición. }
+              </p>
+            </div>
+          }
+
+          <section class="flex flex-col gap-2 pb-8">
+            <h2 class="font-title-lg text-title-lg text-on-surface">Notas adicionales</h2>
+            <textarea
+              class="w-full bg-surface border border-outline-variant rounded-xl p-4 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-container transition-all resize-none h-32"
+              placeholder="Describe cualquier detalle importante (color del pelaje, collar, nombre si lo sabes...)"></textarea>
+          </section>
+        }
+
+        <!-- ===== PASO 4: REVISIÓN FINAL ===== -->
+        @if (pasoActual === 4) {
+          <div class="flex flex-col items-center justify-center mb-6">
+            <h1 class="font-headline-md text-headline-md text-center text-on-surface mb-2">Revisión Final</h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant text-center max-w-[280px]">Verifica que la información sea correcta antes de enviar.</p>
+          </div>
+
+          <!-- IMAGEN DE EVIDENCIA -->
+          <div class="relative w-full h-56 rounded-2xl overflow-hidden shadow-lg mb-5">
+            <div class="absolute inset-0 bg-cover bg-center"
+                 [style.background-image]="archivosSeleccionados.length > 0 ? 'url(' + archivosSeleccionados[0].preview + ')' : 'url(https://lh3.googleusercontent.com/aida-public/AB6AXuB7AspRaepoGorWNTml-fo0_vz7FXAwjXroTe3Bl9bk3Mv0kUe3-SbwNvUC_XiCwPvxVpAI6iGCh_7avTs4rn6ifS9XheAYXsZ_aNqD91pLl716BqxrhOEq8ujLDD6wnZV_9kFTW7w2Qjv16ifzMezhCkMrYwbmf0FqGfh82U3pV-0GSi0VUICgFYk4_OlS79VMxYQ-LfLtajDDizmRSKu_DoHhp1Z2RPoh6YmD1JbKXkFq9EDXOZ5Zqp2ZVpmOphCLi6s7CWHml3cS)'">
+            </div>
+            <!-- Overlay gradient -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/10"></div>
+            <!-- Badge de prioridad -->
+            <div class="absolute top-3 left-3 bg-error text-on-error px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+              <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+              <span class="font-label-md text-label-md uppercase tracking-wide">Alta Prioridad</span>
+            </div>
+            <!-- Botón editar foto -->
+            <button class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-sm text-on-surface hover:bg-white transition-colors">
+              <span class="material-symbols-outlined text-[20px]">edit</span>
+            </button>
+            <!-- Pie de imagen -->
+            <div class="absolute bottom-0 w-full p-4">
+              <div class="flex items-center text-white gap-2">
+                <span class="material-symbols-outlined text-[16px]">image</span>
+                <span class="font-body-sm text-body-sm text-white">{{ archivosSeleccionados.length || 1 }} Evidencia adjunta</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DETALLES DEL ANIMAL -->
+          <div class="glass-card rounded-2xl overflow-hidden mb-4 border border-outline-variant/30">
+            <div class="flex justify-between items-center px-4 py-3 border-b border-outline-variant/30 bg-surface-container-low">
+              <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                <h2 class="font-title-lg text-title-lg text-on-surface">Detalles del Animal</h2>
+              </div>
+              <button (click)="pasoActual = 2" class="font-label-md text-label-md text-primary uppercase hover:bg-surface-container px-3 py-1 rounded-lg transition-colors">Editar</button>
+            </div>
+            <div class="divide-y divide-outline-variant/20">
+              <div class="flex items-center px-4 py-3 gap-3">
+                <span class="font-label-md text-label-md text-outline uppercase tracking-wide w-24 shrink-0">Especie</span>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                  <span class="font-body-md text-body-md text-on-surface capitalize font-semibold">{{ tipoAnimal || '—' }}</span>
+                </div>
+              </div>
+              <div class="flex items-center px-4 py-3 gap-3">
+                <span class="font-label-md text-label-md text-outline uppercase tracking-wide w-24 shrink-0">Tamaño</span>
+                <span class="font-body-md text-body-md text-on-surface capitalize">{{ tamanoAproximado || 'No especificado' }}</span>
+              </div>
+              <div class="flex items-center px-4 py-3 gap-3">
+                <span class="font-label-md text-label-md text-outline uppercase tracking-wide w-24 shrink-0">Condición</span>
+                <span class="font-body-md text-body-md capitalize"
+                      [class.text-error]="tieneCondicion('herido')"
+                      [class.font-semibold]="tieneCondicion('herido')"
+                      [class.text-on-surface]="!tieneCondicion('herido') && condicionesVisibles.length > 0"
+                      [class.text-outline]="condicionesVisibles.length === 0">
+                  {{ condicionesTexto }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- UBICACIÓN -->
+          <div class="glass-card rounded-2xl overflow-hidden mb-4 border border-outline-variant/30">
+            <div class="flex justify-between items-center px-4 py-3 border-b border-outline-variant/30 bg-surface-container-low">
+              <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                <h2 class="font-title-lg text-title-lg text-on-surface">Ubicación</h2>
+              </div>
+              <button (click)="irAMapa()" class="font-label-md text-label-md text-primary uppercase hover:bg-surface-container px-3 py-1 rounded-lg transition-colors">Editar</button>
+            </div>
+            <div class="px-4 py-3">
+              <p class="font-body-md text-body-md font-semibold text-on-surface">{{ direccionActual }}</p>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">{{ ciudadActual }}</p>
+              <!-- Mini mapa Leaflet (no interactivo) -->
+              <div class="mt-3 relative w-full h-36 rounded-xl overflow-hidden border border-outline-variant/40">
+                <div id="mapa-preview" class="w-full h-full"></div>
+                <!-- Botón flotante editar -->
+                <button (click)="irAMapa()"
+                        class="absolute bottom-2 right-2 z-[500] bg-surface-container-lowest/90 backdrop-blur-sm
+                               px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-outline-variant/30
+                               text-primary font-label-md text-label-md hover:bg-white transition-colors">
+                  <span class="material-symbols-outlined text-[14px]">edit_location</span>
+                  Cambiar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFO REPORTANTE -->
+          <div class="glass-card rounded-2xl overflow-hidden mb-6 border border-outline-variant/30">
+            <div class="flex justify-between items-center px-4 py-3 border-b border-outline-variant/30 bg-surface-container-low">
+              <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">person</span>
+                <h2 class="font-title-lg text-title-lg text-on-surface">Tu Información</h2>
+              </div>
+            </div>
+            <div class="px-4 py-3 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+                <span class="material-symbols-outlined">person</span>
+              </div>
+              <div>
+                <p class="font-body-md text-body-md font-semibold text-on-surface">Reporte Anónimo</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">Notificaciones desactivadas</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DISCLAIMER -->
+          <div class="flex items-start gap-3 bg-surface-container rounded-xl px-4 py-3 mb-4">
+            <span class="material-symbols-outlined text-outline text-[18px] mt-0.5">info</span>
+            <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Al enviar confirmas que la información es veraz y aceptas los <span class="text-primary underline cursor-pointer">términos de servicio</span> de PawTrack.
+            </p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ===== PASO 3: MAPA (FULL BLEED) ===== -->
+    @if (pasoActual === 3) {
+      <div class="absolute inset-0 w-full h-full bg-surface-variant overflow-hidden"
+           (mousedown)="searchInput.blur()"
+           (touchstart)="searchInput.blur()">
+
+        <!-- Mapa Leaflet -->
+        <div id="mapa-interactivo" class="absolute inset-0 w-full h-full z-10"></div>
+
+        <!-- Overlay degradado -->
+        <div class="absolute inset-0 bg-gradient-to-b from-surface/30 via-transparent to-surface/50 pointer-events-none z-20"></div>
+
+        <!-- Buscador -->
+        <div class="absolute top-4 left-4 right-4 max-w-lg mx-auto z-40">
+          <div class="bg-surface-container-lowest rounded-2xl shadow-lg flex items-center px-4 py-3 border border-outline-variant/20
+                      focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <span class="material-symbols-outlined text-outline mr-3">search</span>
+            <input #searchInput
+                   (input)="buscarDireccion(searchInput.value)"
+                   class="flex-grow bg-transparent border-none focus:ring-0 font-body-md text-body-md text-on-surface placeholder-outline outline-none"
+                   placeholder="Buscar dirección..."
+                   type="text"
+                   value="Plaza de la Constitución"/>
+            <button class="text-primary p-1 rounded-full hover:bg-surface-container transition-colors ml-2">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mic</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Marcador central fijo tipo gota -->
+        <div class="absolute top-1/2 left-1/2 z-30 pointer-events-none"
+             style="transform: translate(-50%, -100%); margin-top: -12px;">
+          <!-- Pin SVG limpio -->
+          <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-lg">
+            <path d="M18 0C8.06 0 0 8.06 0 18C0 31.5 18 48 18 48C18 48 36 31.5 36 18C36 8.06 27.94 0 18 0Z" fill="#ba1a1a"/>
+            <circle cx="18" cy="18" r="8" fill="white" opacity="0.9"/>
+            <circle cx="18" cy="18" r="5" fill="#ba1a1a"/>
+          </svg>
+        </div>
+        <!-- Sombra del pin -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 z-20 pointer-events-none" style="margin-top: 8px;">
+          <div class="w-5 h-2 bg-black/25 rounded-full blur-[3px]"></div>
+        </div>
+        <!-- Anillo de pulso -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+          <div class="w-10 h-10 bg-error/15 rounded-full pulse-marker"></div>
+        </div>
+
+        <!-- Botón GPS -->
+        <button class="absolute bottom-56 right-4 z-40 bg-surface-container-lowest shadow-lg rounded-2xl p-3 border border-outline-variant/30
+                       hover:bg-surface-container transition-colors active:scale-95">
+          <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">my_location</span>
+        </button>
+
+        <!-- Panel inferior -->
+        <section class="absolute bottom-0 w-full z-50 bg-surface-container-lowest rounded-t-3xl
+                        shadow-[0_-8px_32px_rgba(0,0,0,0.12)] border-t border-outline-variant/20
+                        flex flex-col pt-3 pb-4 px-4 transform transition-transform duration-300 ease-out">
+          <div class="w-12 h-1.5 bg-outline-variant/50 rounded-full mx-auto mb-5"></div>
+          <div class="flex flex-col gap-4 max-w-3xl mx-auto w-full">
+            <h2 class="font-title-lg text-title-lg text-on-surface font-semibold">Ubicación del Evento</h2>
+            <div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant/30 flex items-start gap-3">
+              <div class="mt-0.5 bg-primary-container text-primary p-2 rounded-xl flex-shrink-0">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">location_city</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2" [class.opacity-50]="cargandoDireccion">
+                  @if (cargandoDireccion) {
+                    <div class="flex items-center gap-2">
+                      <span class="material-symbols-outlined text-primary text-[16px] animate-spin">progress_activity</span>
+                      <span class="font-body-sm text-body-sm text-outline">Obteniendo dirección...</span>
+                    </div>
+                  } @else {
+                    <p class="font-body-md text-body-md text-on-surface font-medium leading-snug">{{ direccionActual }}</p>
+                  }
+                </div>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">{{ ciudadActual }}</p>
+                <p class="font-body-sm text-body-sm text-outline mt-1 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[12px]">gps_fixed</span>
+                  {{ latActual | number:'1.6-6' }}, {{ lngActual | number:'1.6-6' }}
+                </p>
+              </div>
+            </div>
+            <button (click)="siguientePaso()"
+                    class="w-full h-14 bg-gradient-to-r from-primary to-[#004799] text-on-primary rounded-2xl
+                           flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">location_on</span>
+              <span class="font-button-text text-button-text tracking-wide">Confirmar Ubicación</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+
+    <!-- ===== PASO 5: REPORTE EXITOSO ===== -->
+    @if (pasoActual === 5) {
+      <div class="fixed inset-0 pointer-events-none z-[999] overflow-hidden" id="confetti-container"></div>
+
+      <div class="relative z-10 flex flex-col items-center px-4 pt-6 pb-10 w-full max-w-lg mx-auto">
+        <!-- Progress dots -->
+        <div class="flex items-center gap-2 mb-8">
+          <div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+          <div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+          <div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+          <div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+          <div class="w-8 h-2 rounded-full bg-primary"></div>
+        </div>
+
+        <!-- Ícono de éxito -->
+        <div class="w-24 h-24 bg-primary rounded-full flex items-center justify-center mb-4 shadow-xl shadow-primary/30 relative">
+          <span class="material-symbols-outlined text-white text-[48px]" style="font-variation-settings: 'FILL' 1;">check</span>
+          <div class="absolute -top-2 -right-2 w-8 h-8 bg-secondary-container rounded-full flex items-center justify-center animate-bounce shadow-md">
+            <span class="material-symbols-outlined text-on-secondary-container text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+          </div>
+        </div>
+
+        <!-- Mensaje de éxito -->
+        <div class="text-center mb-6">
+          <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2">¡Reporte Enviado!</h1>
+          <p class="font-body-md text-body-md text-on-surface-variant">Gracias por tu ayuda. Hemos notificado a los rescatistas cercanos.</p>
+        </div>
+
+        <!-- Tarjeta de caso -->
+        <div class="w-full bg-surface-container-lowest rounded-2xl shadow-sm border border-surface-variant mb-6">
+          <div class="px-5 pt-5 pb-4">
+            <!-- Folio + badge -->
+            <div class="flex justify-between items-start mb-5">
+              <div>
+                <p class="font-label-md text-label-md text-outline mb-1 uppercase tracking-wider">Folio del Caso</p>
+                <p class="text-[26px] font-bold text-primary leading-none">#PT-8429</p>
+              </div>
+              <div class="bg-error-container text-on-error-container px-3 py-1.5 rounded-full flex items-center gap-1.5 shrink-0">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+                <span class="font-label-md text-label-md">Prioridad Alta</span>
+              </div>
+            </div>
+            <!-- Separador -->
+            <div class="border-t border-outline-variant/20 -mx-5 mb-4"></div>
+            <!-- Animal -->
+            <div class="flex items-start gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+              </div>
+              <div>
+                <p class="font-label-md text-label-md text-outline uppercase tracking-wide mb-0.5">Animal</p>
+                <p class="font-body-md text-body-md text-on-surface font-semibold capitalize">{{ tipoAnimal || '—' }}</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant capitalize">{{ condicionesTexto }}</p>
+              </div>
+            </div>
+            <!-- Ubicación -->
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">location_on</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-label-md text-label-md text-outline uppercase tracking-wide mb-0.5">Ubicación</p>
+                <p class="font-body-md text-body-md text-on-surface font-semibold leading-snug">{{ direccionActual || '—' }}</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant leading-snug mt-0.5">{{ ciudadActual }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline de próximos pasos -->
+        <div class="w-full bg-surface-container rounded-2xl p-4 mb-8">
+          <h3 class="font-title-lg text-title-lg text-on-surface mb-4">Próximos Pasos</h3>
+          <div class="flex flex-col">
+            @for (paso of proximosPasos; track paso.id; let last = $last) {
+              <div class="flex gap-3">
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-[#00714d]">
+                    <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">{{ paso.icon }}</span>
+                  </div>
+                  @if (!last) {
+                    <div class="w-0.5 h-6 bg-outline-variant/50 my-1"></div>
+                  }
+                </div>
+                <div class="pb-4">
+                  <p class="font-body-md text-body-md text-on-surface">{{ paso.texto }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="w-full flex flex-col gap-3 mt-auto">
+          <button class="w-full h-14 bg-primary text-on-primary font-button-text text-button-text rounded-2xl
+                         flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all duration-100">
+            <span>Ir al Dashboard</span>
+            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+          </button>
+          <button class="w-full h-12 bg-surface-container-lowest border-2 border-primary text-primary font-button-text text-button-text
+                         rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-container transition-colors active:scale-[0.98] shadow-sm">
+            <span class="material-symbols-outlined text-[20px]">my_location</span>
+            <span>Ver Seguimiento en Vivo</span>
+          </button>
+        </div>
+      </div>
+    }
+  </main>
+
+  <!-- ========================================== -->
+  <!-- FOOTER / NAVBAR (Ocultos en Paso 5)        -->
+  <!-- ========================================== -->
+  @if (pasoActual !== 5) {
+    <div class="shrink-0 w-full px-4 pt-2 pb-6 flex flex-col gap-4 relative z-50 bg-background">
+
+      <!-- Botón principal según el paso -->
+      @if (pasoActual === 1) {
+        <button (click)="siguientePaso()"
+                class="w-full max-w-3xl mx-auto gradient-button text-white font-button-text text-button-text h-12 rounded-full
+                       flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-md">
+          Continuar
+          <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+        </button>
+      }
+
+      @if (pasoActual === 2) {
+        <button (click)="siguientePaso()"
+                [disabled]="!tipoAnimal || condicionesVisibles.length === 0"
+                class="w-full max-w-3xl mx-auto gradient-button text-white font-button-text text-button-text h-12 rounded-full
+                       flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-md
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100">
+          Continuar
+          <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+        </button>
+      }
+
+      @if (pasoActual === 4) {
+        <button (click)="siguientePaso()"
+                class="w-full max-w-3xl mx-auto h-12 rounded-2xl font-button-text text-button-text text-white
+                       bg-primary
+                       flex items-center justify-center gap-2 active:scale-[0.98] transition-transform duration-200 shadow-md">
+          <span class="material-symbols-outlined text-[20px]">send</span>
+          <span>Enviar Reporte Oficial</span>
+        </button>
+      }
+
+      <!-- NAVBAR TIPO PÍLDORA -->
+      <nav class="w-full max-w-[360px] mx-auto flex justify-between items-center px-3 py-2 bg-inverse-surface shadow-2xl rounded-full">
+        <a class="flex flex-col items-center justify-center text-outline-variant hover:text-white transition-all active:scale-90 duration-200 w-16 h-12" href="#">
+          <span class="material-symbols-outlined text-[24px]">home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-outline-variant hover:text-white transition-all active:scale-90 duration-200 w-16 h-12" href="#">
+          <span class="material-symbols-outlined text-[24px]">map</span>
+        </a>
+        <a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full w-20 h-12 shadow-inner transition-all active:scale-90 duration-200" href="#">
+          <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-outline-variant hover:text-white transition-all active:scale-90 duration-200 w-16 h-12" href="#">
+          <span class="material-symbols-outlined text-[24px]">person</span>
+        </a>
+      </nav>
+    </div>
+  }
+</div>
