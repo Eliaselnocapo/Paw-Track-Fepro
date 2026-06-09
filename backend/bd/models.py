@@ -65,7 +65,7 @@ class Animal(models.Model):
 # 4. Tabla Incidencia 
 class Incidencia(models.Model):
     # Llaves Foráneas (Relaciones)
-    usuario_reporta = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='incidencias_reportadas') # Relación 'reporta' 
+    usuario_reporta = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='incidencias_reportadas')
     animal = models.ForeignKey(Animal, on_delete=models.CASCADE, related_name='incidencias') # Relación 'involucra' 
 
     patrocinador = models.ForeignKey(PerfilPatrocinador, on_delete=models.SET_NULL, null=True, blank=True, related_name='casos_apoyados' )

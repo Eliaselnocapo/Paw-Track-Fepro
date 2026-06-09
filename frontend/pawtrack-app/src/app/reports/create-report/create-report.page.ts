@@ -1,20 +1,24 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { ReportService } from '../../services/report.service';
 
-declare const L: any; // Leaflet global
+declare const L: any;
 
 interface ArchivoEvidencia {
   preview: string;
   nombre: string;
   tipo: string;
+  file: File;          // ← archivo original para el FormData
 }
 
 @Component({
   selector: 'app-create-report',
   standalone: true,
-  imports: [CommonModule, DecimalPipe],
+  imports: [CommonModule, DecimalPipe, HttpClientModule],
   templateUrl: './create-report.page.html',
   styleUrls: ['./create-report.page.scss'],
+  providers: [ReportService],
 })
 export class CreateReportPage implements OnInit, AfterViewInit {
 
@@ -22,6 +26,13 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   // ESTADO DE PASOS
   // =====================
   pasoActual: number = 1;
+
+  // =====================
+  // ESTADO DE ENVÍO
+  // =====================
+  enviando: boolean = false;
+  errorEnvio: string | null = null;
+  folioGenerado: number | null = null;
 
   // =====================
   // PASO 1: ARCHIVOS
@@ -33,8 +44,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   // =====================
   tipoAnimal: string = '';
   tamanoAproximado: string = '';
-  /** Multi-selección: puede tener más de una condición */
   condicionesVisibles: string[] = [];
+  notasAdicionales: string = '';
 
   // =====================
   // PASO 3: MAPA
@@ -58,6 +69,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     { id: 3, icon: 'notifications_active', texto: 'Te notificaremos cuando el animal esté seguro' },
   ];
 
+  constructor(private reportService: ReportService) {}
+
   ngOnInit(): void {}
   ngAfterViewInit(): void {}
 
@@ -67,36 +80,57 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   siguientePaso(): void {
     if (this.pasoActual < 5) {
       this.pasoActual++;
-      if (this.pasoActual === 3) {
-        setTimeout(() => this.initMapa(), 250);
-      }
-      if (this.pasoActual === 4) {
-        setTimeout(() => this.initMapaPreview(), 300);
-      }
-      if (this.pasoActual === 5) {
-        setTimeout(() => this.lanzarConfeti(), 300);
-      }
+      if (this.pasoActual === 3) setTimeout(() => this.initMapa(), 250);
+      if (this.pasoActual === 4) setTimeout(() => this.initMapaPreview(), 300);
+      if (this.pasoActual === 5) this.enviarReporte();
     }
   }
 
   regresarPaso(): void {
     if (this.pasoActual > 1) {
-      // Destruir mapa ANTES de salir para evitar bugs al volver
-      if (this.pasoActual === 3) {
-        this.destruirMapa();
-      }
+      if (this.pasoActual === 3) this.destruirMapa();
       this.pasoActual--;
-      if (this.pasoActual === 3) {
-        setTimeout(() => this.initMapa(), 250);
-      }
+      if (this.pasoActual === 3) setTimeout(() => this.initMapa(), 250);
     }
   }
 
-  /** Navegar al mapa desde el botón EDITAR ubicación (paso 4 → 3) */
   irAMapa(): void {
-    this.destruirMapa();          // limpiar instancia previa si existe
+    this.destruirMapa();
     this.pasoActual = 3;
     setTimeout(() => this.initMapa(), 250);
+  }
+
+  // =====================
+  // ENVÍO AL BACKEND
+  // =====================
+  private enviarReporte(): void {
+    this.enviando = true;
+    this.errorEnvio = null;
+
+    const imagenFile = this.archivosSeleccionados.length > 0
+      ? this.archivosSeleccionados[0].file
+      : undefined;
+
+    this.reportService.crearReporte({
+      tipo_animal:      this.tipoAnimal,
+      tamano_animal:    this.tamanoAproximado,
+      condicion_animal: this.condicionesVisibles.join(','),
+      notas_animal:     this.notasAdicionales,
+      latitud:          this.latActual,
+      longitud:         this.lngActual,
+      imagen:           imagenFile,
+    }).subscribe({
+      next: (respuesta) => {
+        this.enviando = false;
+        this.folioGenerado = respuesta.id;
+        setTimeout(() => this.lanzarConfeti(), 300);
+      },
+      error: (err) => {
+        this.enviando = false;
+        this.errorEnvio = 'No se pudo enviar el reporte. Intenta de nuevo.';
+        console.error('Error al enviar reporte:', err);
+      },
+    });
   }
 
   // =====================
@@ -133,6 +167,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
           preview: e.target?.result as string,
           nombre: file.name,
           tipo: file.type,
+          file: file,           // ← guardar referencia original
         });
       };
       reader.readAsDataURL(file);
@@ -146,22 +181,14 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   // =====================
   // PASO 2: SELECCIONES
   // =====================
-  seleccionarTipo(tipo: string): void {
-    this.tipoAnimal = tipo;
-  }
+  seleccionarTipo(tipo: string): void { this.tipoAnimal = tipo; }
+  seleccionarTamano(tamano: string): void { this.tamanoAproximado = tamano; }
 
-  seleccionarTamano(tamano: string): void {
-    this.tamanoAproximado = tamano;
-  }
-
-  /** Toggle multi-selección — callejero y extraviado son mutuamente excluyentes */
   toggleCondicion(condicion: string): void {
     const idx = this.condicionesVisibles.indexOf(condicion);
     if (idx > -1) {
-      // Ya estaba → deseleccionar
       this.condicionesVisibles.splice(idx, 1);
     } else {
-      // Si es callejero o extraviado, quitar el otro antes de agregar
       if (condicion === 'callejero' || condicion === 'extraviado') {
         this.condicionesVisibles = this.condicionesVisibles.filter(
           c => c !== 'callejero' && c !== 'extraviado'
@@ -171,20 +198,18 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     }
   }
 
-  /** Verifica si una condición está seleccionada */
   tieneCondicion(condicion: string): boolean {
     return this.condicionesVisibles.includes(condicion);
   }
 
-  /** Texto legible de condiciones seleccionadas */
   get condicionesTexto(): string {
     if (this.condicionesVisibles.length === 0) return 'No especificada';
     const etiquetas: Record<string, string> = {
-      herido: 'Herido',
-      callejero: 'Callejero',
-      extraviado: 'Extraviado',
+      herido: 'Herido', callejero: 'Callejero', extraviado: 'Extraviado',
     };
-    return this.condicionesVisibles.map(c => etiquetas[c] ?? (c.charAt(0).toUpperCase() + c.slice(1))).join(' + ');
+    return this.condicionesVisibles
+      .map(c => etiquetas[c] ?? (c.charAt(0).toUpperCase() + c.slice(1)))
+      .join(' + ');
   }
 
   // =====================
@@ -193,131 +218,78 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   private initMapaPreview(): void {
     const contenedor = document.getElementById('mapa-preview');
     if (!contenedor) return;
-
-    // Destruir instancia previa
-    if (this.mapaPreview) {
-      this.mapaPreview.remove();
-      this.mapaPreview = null;
-    }
+    if (this.mapaPreview) { this.mapaPreview.remove(); this.mapaPreview = null; }
 
     this.mapaPreview = L.map('mapa-preview', {
-      center: [this.latActual, this.lngActual],
-      zoom: 16,
-      zoomControl: false,
-      attributionControl: false,
-      dragging: false,
-      touchZoom: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      tap: false,
+      center: [this.latActual, this.lngActual], zoom: 16,
+      zoomControl: false, attributionControl: false,
+      dragging: false, touchZoom: false, scrollWheelZoom: false,
+      doubleClickZoom: false, boxZoom: false, keyboard: false, tap: false,
     });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(this.mapaPreview);
-
-    // Marcador circular rojo
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 })
+      .addTo(this.mapaPreview);
     L.circleMarker([this.latActual, this.lngActual], {
-      radius: 10,
-      fillColor: '#ba1a1a',
-      color: '#ffffff',
-      weight: 3,
-      opacity: 1,
-      fillOpacity: 1,
+      radius: 10, fillColor: '#ba1a1a', color: '#ffffff', weight: 3, fillOpacity: 1,
     }).addTo(this.mapaPreview);
-
     setTimeout(() => this.mapaPreview?.invalidateSize(), 150);
   }
 
   private destruirMapa(): void {
-    if (this.mapa) {
-      this.mapa.off();
-      this.mapa.remove();
-      this.mapa = null;
-    }
-    if (this.mapaPreview) {
-      this.mapaPreview.remove();
-      this.mapaPreview = null;
-    }
+    if (this.mapa)       { this.mapa.off(); this.mapa.remove(); this.mapa = null; }
+    if (this.mapaPreview) { this.mapaPreview.remove(); this.mapaPreview = null; }
   }
 
   private initMapa(): void {
     const contenedor = document.getElementById('mapa-interactivo');
     if (!contenedor) return;
-
-    // Destruir instancia previa para evitar el bug de "mapa ya inicializado"
     this.destruirMapa();
 
     this.mapa = L.map('mapa-interactivo', {
-      center: [this.latActual, this.lngActual],
-      zoom: 16,
-      zoomControl: false,
-      attributionControl: false,
+      center: [this.latActual, this.lngActual], zoom: 16,
+      zoomControl: false, attributionControl: false,
     });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 })
+      .addTo(this.mapa);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(this.mapa);
-
-    // Hacer reverse geocoding al soltar el mapa (más eficiente que 'move')
     this.mapa.on('moveend', () => {
       const centro = this.mapa.getCenter();
       this.latActual = centro.lat;
       this.lngActual = centro.lng;
       this.reverseGeocode(centro.lat, centro.lng);
     });
-
-    // Geocoding inicial al cargar
     this.reverseGeocode(this.latActual, this.lngActual);
-
     setTimeout(() => this.mapa.invalidateSize(), 150);
   }
 
-  /** Reverse geocoding con Nominatim - actualiza dirección exacta */
   private reverseGeocode(lat: number, lng: number): void {
-    // Debounce para no saturar la API
     clearTimeout(this.geocodeTimeout);
     this.cargandoDireccion = true;
-
     this.geocodeTimeout = setTimeout(() => {
       fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=es`,
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
         { headers: { 'Accept-Language': 'es' } }
       )
         .then(r => r.json())
         .then(data => {
           this.cargandoDireccion = false;
-          if (!data || !data.address) return;
-
+          if (!data?.address) return;
           const a = data.address;
-
-          // Construir nombre de calle + número
-          const calle  = a.road || a.pedestrian || a.footway || a.street || a.avenue || '';
+          const calle  = a.road || a.pedestrian || a.footway || '';
           const numero = a.house_number || 'S/N';
-          this.direccionActual = calle
-            ? `${calle} ${numero}`.trim()
-            : data.display_name?.split(',')[0] ?? 'Dirección desconocida';
-
-          // Construir colonia + delegación + ciudad
-          const colonia    = a.suburb || a.neighbourhood || a.quarter || a.residential || '';
+          this.direccionActual = calle ? `${calle} ${numero}`.trim() : data.display_name?.split(',')[0] ?? 'Dirección desconocida';
+          const colonia    = a.suburb || a.neighbourhood || '';
           const delegacion = a.city_district || a.borough || '';
-          const ciudad     = a.city || a.town || a.village || a.municipality || 'Ciudad de México';
+          const ciudad     = a.city || a.town || a.village || 'Ciudad de México';
           const estado     = a.state || '';
-
-          this.ciudadActual = [colonia, delegacion, ciudad, estado]
-            .filter(Boolean)
-            .join(', ');
+          this.ciudadActual = [colonia, delegacion, ciudad, estado].filter(Boolean).join(', ');
         })
         .catch(() => {
           this.cargandoDireccion = false;
           this.direccionActual = 'No se pudo obtener la dirección';
         });
-    }, 600); // Esperar 600ms tras soltar el mapa
+    }, 600);
   }
 
-  /** Búsqueda de dirección con Nominatim */
   buscarDireccion(query: string): void {
     if (!query || query.length < 3) return;
     clearTimeout(this.geocodeTimeout);
@@ -331,10 +303,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
           if (results.length > 0 && this.mapa) {
             const { lat, lon } = results[0];
             this.mapa.flyTo([parseFloat(lat), parseFloat(lon)], 17);
-            // reverseGeocode se llamará automáticamente en el evento moveend
           }
-        })
-        .catch(err => console.error('Error buscando dirección:', err));
+        });
     }, 400);
   }
 
@@ -344,16 +314,13 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   private lanzarConfeti(): void {
     const contenedor = document.getElementById('confetti-container');
     if (!contenedor) return;
-    contenedor.innerHTML = ''; // limpiar confeti previo
-
+    contenedor.innerHTML = '';
     const colores = ['#0058be', '#6cf8bb', '#ffd300', '#ff6b6b', '#a78bfa', '#ffffff', '#00714d'];
     const formas  = ['50%', '2px', '0'];
-
     for (let i = 0; i < 80; i++) {
       const pieza = document.createElement('div');
       pieza.style.cssText = `
-        position: absolute;
-        top: -20px;
+        position: absolute; top: -20px;
         left: ${Math.random() * 100}%;
         width: ${6 + Math.random() * 10}px;
         height: ${8 + Math.random() * 16}px;
@@ -366,8 +333,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       `;
       contenedor.appendChild(pieza);
     }
-
-    // Inyectar keyframes dinámicos si no existen
     if (!document.getElementById('paw-confetti-style')) {
       const style = document.createElement('style');
       style.id = 'paw-confetti-style';
@@ -379,7 +344,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       ].join('\n');
       document.head.appendChild(style);
     }
-
     setTimeout(() => { contenedor.innerHTML = ''; }, 6000);
   }
 }
