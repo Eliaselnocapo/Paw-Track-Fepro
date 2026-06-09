@@ -1,3 +1,4 @@
+<ion-content [fullscreen]="true">
 <div class="flex flex-col h-[100dvh] w-full relative overflow-x-hidden">
 
   <!-- INPUT OCULTO PARA CÁMARA/ARCHIVOS -->
@@ -684,7 +685,7 @@
   <!-- FOOTER / NAVBAR (Ocultos en Paso 5)        -->
   <!-- ========================================== -->
   @if (pasoActual !== 5) {
-    <div class="shrink-0 w-full px-4 pt-2 pb-6 flex flex-col gap-4 relative z-50 bg-background">
+    <div class="shrink-0 w-full px-4 pt-2 pb-2 flex flex-col gap-4 relative z-50 bg-background mb-24">
 
       <!-- Botón principal según el paso -->
       @if (pasoActual === 1) {
@@ -716,22 +717,11 @@
           <span>Enviar Reporte Oficial</span>
         </button>
       }
-
-      <!-- NAVBAR TIPO PÍLDORA -->
-      <nav class="w-full max-w-[360px] mx-auto flex justify-between items-center px-3 py-2 bg-inverse-surface shadow-2xl rounded-full">
-        <a class="flex flex-col items-center justify-center text-outline-variant hover:text-white transition-all active:scale-90 duration-200 w-16 h-12" href="#">
-          <span class="material-symbols-outlined text-[24px]">home</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-outline-variant hover:text-white transition-all active:scale-90 duration-200 w-16 h-12" href="#">
-          <span class="material-symbols-outlined text-[24px]">map</span>
-        </a>
-        <a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full w-20 h-12 shadow-inner transition-all active:scale-90 duration-200" href="#">
-          <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-outline-variant hover:text-white transition-all active:scale-90 duration-200 w-16 h-12" href="#">
-          <span class="material-symbols-outlined text-[24px]">person</span>
-        </a>
-      </nav>
     </div>
+
+    <!-- NAVBAR SIEMPRE FIJA (excepto paso 5) -->
+    <app-navbar></app-navbar>
+
   }
 </div>
+</ion-content>

@@ -1,6 +1,10 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { IonContent } from '@ionic/angular/standalone';
 import { HttpClientModule } from '@angular/common/http';
+
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { ReportService } from '../../services/report.service';
 
 declare const L: any;
@@ -15,7 +19,7 @@ interface ArchivoEvidencia {
 @Component({
   selector: 'app-create-report',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, HttpClientModule],
+  imports: [CommonModule, DecimalPipe, HttpClientModule, IonContent, NavbarComponent],
   templateUrl: './create-report.page.html',
   styleUrls: ['./create-report.page.scss'],
   providers: [ReportService],
@@ -69,7 +73,10 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     { id: 3, icon: 'notifications_active', texto: 'Te notificaremos cuando el animal esté seguro' },
   ];
 
-  constructor(private reportService: ReportService) {}
+  constructor(
+  private reportService: ReportService,
+  private router: Router
+) {}
 
   ngOnInit(): void {}
   ngAfterViewInit(): void {}
