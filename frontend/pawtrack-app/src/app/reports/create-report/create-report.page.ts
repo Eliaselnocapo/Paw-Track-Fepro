@@ -1,5 +1,8 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { IonContent } from '@ionic/angular/standalone';
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
 
 declare const L: any; // Leaflet global
 
@@ -12,7 +15,7 @@ interface ArchivoEvidencia {
 @Component({
   selector: 'app-create-report',
   standalone: true,
-  imports: [CommonModule, DecimalPipe],
+  imports: [CommonModule, DecimalPipe, IonContent, NavbarComponent],
   templateUrl: './create-report.page.html',
   styleUrls: ['./create-report.page.scss'],
 })
@@ -382,4 +385,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
 
     setTimeout(() => { contenedor.innerHTML = ''; }, 6000);
   }
+
+    constructor(private router: Router) {}
 }
