@@ -1,0 +1,64 @@
+<ion-content [fullscreen]="true">
+  
+  @if (esPantallaGrande) {
+<app-view-web
+  [pasoActual]="pasoActual"
+  [tipoAnimal]="tipoAnimal"
+  [tamanoAproximado]="tamanoAproximado"
+  [condicionesVisibles]="condicionesVisibles"
+  [archivosSeleccionados]="archivosSeleccionados"
+  [direccionActual]="direccionActual"
+  [ciudadActual]="ciudadActual"
+  [latActual]="latActual"
+  [lngActual]="lngActual"
+  [cargandoDireccion]="cargandoDireccion"
+  [condicionesTexto]="condicionesTexto"
+  [proximosPasos]="proximosPasos"
+  [notasAdicionales]="notasAdicionales"
+  [folioGenerado]="folioGenerado"
+  
+
+  (onFileSelectedEvent)="onFileSelected($event)"
+  (regresarPasoEvent)="regresarPaso()"
+  (abrirCamaraEvent)="abrirCamara()"
+  (abrirGaleriaEvent)="abrirGaleria()"
+  (eliminarArchivoEvent)="eliminarArchivo($event)"
+  (seleccionarTipoEvent)="seleccionarTipo($event)"
+  (seleccionarTamanoEvent)="seleccionarTamano($event)"
+  (toggleCondicionEvent)="toggleCondicion($event)"
+  (irAMapaEvent)="irAMapa()"
+  (buscarDireccionEvent)="buscarDireccion($event)"
+  (siguientePasoEvent)="siguientePaso()">
+  
+</app-view-web>
+  } @else {
+    <!-- Aquí conectamos al Hijo con el Cerebro -->
+<app-view-movil
+  [pasoActual]="pasoActual"
+  [tipoAnimal]="tipoAnimal"
+  [tamanoAproximado]="tamanoAproximado"
+  [condicionesVisibles]="condicionesVisibles"
+  [archivosSeleccionados]="archivosSeleccionados"
+  [direccionActual]="direccionActual"
+  [ciudadActual]="ciudadActual"
+  [latActual]="latActual"
+  [lngActual]="lngActual"
+  [cargandoDireccion]="cargandoDireccion"
+  [condicionesTexto]="condicionesTexto"
+  [proximosPasos]="proximosPasos"
+
+  (onFileSelectedEvent)="onFileSelected($event)"
+  (regresarPasoEvent)="regresarPaso()"
+  (abrirCamaraEvent)="abrirCamara()"
+  (abrirGaleriaEvent)="abrirGaleria()"
+  (eliminarArchivoEvent)="eliminarArchivo($event)"
+  (seleccionarTipoEvent)="seleccionarTipo($event)"
+  (seleccionarTamanoEvent)="seleccionarTamano($event)"
+  (toggleCondicionEvent)="toggleCondicion($event)"
+  (irAMapaEvent)="irAMapa()"
+  (buscarDireccionEvent)="buscarDireccion($event)"
+  (siguientePasoEvent)="siguientePaso()">
+</app-view-movil>
+  }
+
+</ion-content>

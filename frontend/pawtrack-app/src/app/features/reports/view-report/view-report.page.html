@@ -1,0 +1,15 @@
+<ion-content [fullscreen]="true">
+  
+  @if (esPantallaGrande) {
+    <app-view-web
+       [reporte]="reporte"
+       (regresarEvent)="regresar()">
+    </app-view-web>
+  } @else {
+    <app-view-movil
+       [reporte]="reporte"
+       (regresarEvent)="regresar()">
+    </app-view-movil>
+  }
+
+</ion-content>
