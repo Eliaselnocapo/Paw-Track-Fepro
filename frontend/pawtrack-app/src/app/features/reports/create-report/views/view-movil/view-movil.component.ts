@@ -8,6 +8,7 @@ import { NavbarComponent } from '../../../../../shared/ui-layouts/navbar-views/n
   standalone: true,
   imports: [CommonModule, NavbarComponent, IonContent],
   templateUrl: './view-movil.component.html',
+  styleUrl: './view-movil.component.scss'
 })
 export class ViewMovilComponent {
   // === PUERTAS DE ENTRADA (Datos del Cerebro) ===

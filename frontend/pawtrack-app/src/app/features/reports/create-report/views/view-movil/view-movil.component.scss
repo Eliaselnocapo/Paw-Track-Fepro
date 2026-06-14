@@ -1,0 +1,9 @@
+ion-content {
+  --background: transparent;
+}
+
+:host .gradient-button {
+  background-image: linear-gradient(90deg, #0058be 0%, #2170e4 100%);
+  background-color: #0058be;
+  color: #ffffff;
+}
