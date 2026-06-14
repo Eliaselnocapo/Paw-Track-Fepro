@@ -8,7 +8,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { ViewWebComponent } from './views/view-web/view-web.component';
 import { ViewMovilComponent } from './views/view-movil/view-movil.component';
 
-import { NavbarComponent } from '../../../shared/ui-layouts/navbar/navbar.component';
+import { NavbarComponent } from '../../../shared/ui-layouts/navbar-views/navbar/navbar.component';
 import { ReportService } from '../../../core/services/report.service';
 
 declare const L: any;

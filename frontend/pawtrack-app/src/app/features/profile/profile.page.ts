@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
-import { NavbarComponent } from '../../shared/ui-layouts/navbar/navbar.component';
+import { NavbarComponent } from '../../shared/ui-layouts/navbar-views/navbar/navbar.component';
 
 @Component({
   selector: 'app-profile',
