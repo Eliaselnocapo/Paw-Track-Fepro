@@ -1,0 +1,87 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden p-6">
+  
+  <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-60"></div>
+  
+  <div class="absolute top-[10%] right-[-5%] w-[450px] h-[450px] bg-emerald-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-60"></div>
+  
+  <div class="absolute -bottom-20 left-[20%] w-[600px] h-[600px] bg-indigo-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-60"></div>
+
+
+  <div class="w-full max-w-[1000px] min-h-[600px] bg-white/80 backdrop-blur-xl flex flex-col lg:flex-row shadow-2xl rounded-3xl relative z-10 border border-white/60 overflow-hidden">
+    
+    <div class="w-full lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center bg-white/60">
+      <div class="max-w-[380px] w-full mx-auto">
+        
+        <div class="mb-8">
+          <h1 class="text-xl font-bold text-blue-700 mb-1">PawTrack</h1>
+          <h2 class="text-3xl font-bold text-slate-900 mb-2">Bienvenido de nuevo</h2>
+          <p class="text-sm text-slate-600">Inicia sesión para continuar coordinando la ayuda para los animales.</p>
+        </div>
+        
+        <form class="space-y-5">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1.5" for="email">Correo Electrónico</label>
+            <input class="w-full h-11 px-4 rounded-lg border border-slate-300 bg-white/80 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-slate-700 text-sm" id="email" name="email" placeholder="Ingresa tu correo" type="email"/>
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-sm font-bold text-slate-700" for="password">Contraseña</label>
+              <a class="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer">¿Olvidaste tu contraseña?</a>
+            </div>
+            <input class="w-full h-11 px-4 rounded-lg border border-slate-300 bg-white/80 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-slate-700 text-sm" id="password" name="password" placeholder="Ingresa tu contraseña" type="password"/>
+          </div>
+          
+          <div class="flex items-center pt-1">
+            <input class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 bg-white cursor-pointer" id="remember" type="checkbox"/>
+            <label class="ml-2 text-sm text-slate-600 cursor-pointer select-none" for="remember">Recordarme</label>
+          </div>
+          
+          <button class="w-full h-12 mt-2 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors shadow-md active:scale-[0.98]" type="button">
+            Iniciar Sesión
+          </button>
+        </form>
+        
+        <div class="mt-8">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-slate-300/60"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-3 bg-transparent text-slate-500 font-medium">O continuar con</span>
+            </div>
+          </div>
+          
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <button class="flex items-center justify-center h-11 rounded-lg border border-slate-300 bg-white/80 hover:bg-white transition-colors font-bold text-slate-700 text-sm shadow-sm">
+              <span class="material-symbols-outlined mr-2 text-[18px]">account_circle</span>
+              Google
+            </button>
+            <button class="flex items-center justify-center h-11 rounded-lg border border-slate-300 bg-white/80 hover:bg-white transition-colors font-bold text-slate-700 text-sm shadow-sm">
+              <span class="material-symbols-outlined mr-2 text-[18px]">group</span>
+              Facebook
+            </button>
+          </div>
+        </div>
+        
+        <p class="mt-8 text-center text-sm text-slate-600 font-medium">
+          ¿No tienes una cuenta? <a class="text-blue-700 font-bold hover:text-blue-900 transition-colors cursor-pointer" routerLink="/register">Regístrate</a>
+        </p>
+      </div>
+    </div>
+    
+    <div class="hidden lg:block w-1/2 relative bg-slate-200">
+      <div class="absolute inset-0 bg-gradient-to-l from-transparent to-white/30 z-10 pointer-events-none"></div>
+      
+      <img alt="Perrito rescatado" class="absolute inset-0 w-full h-full object-cover object-center z-0" src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"/>
+      
+      <div class="absolute bottom-12 left-10 right-10 z-20 text-white">
+        <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-2xl">
+          <p class="text-xl font-bold mb-1">"Cada animal merece una segunda oportunidad."</p>
+          <p class="text-white/80 text-sm font-medium">— La Misión de PawTrack</p>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

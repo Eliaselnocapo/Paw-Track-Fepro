@@ -1,10 +1,8 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonContent } from '@ionic/angular/standalone';
-
 import { ProfileViewWebComponent } from './views/view-web/profile-view-web/profile-view-web.component';
 import { ProfileViewMovilComponent } from './views/view-movil/profile-view-movil/profile-view-movil.component';
-
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',

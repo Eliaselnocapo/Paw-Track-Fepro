@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../../../../../shared/ui-layouts/navbar/navbar.component';
+import { NavbarComponent } from 'src/app/shared/ui-layouts/navbar-views/navbar/navbar.component';
 
 @Component({
   selector: 'app-profile-view-movil',

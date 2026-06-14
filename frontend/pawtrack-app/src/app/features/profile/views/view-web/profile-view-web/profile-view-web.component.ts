@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarWebComponent } from '../../../../../shared/ui-layouts/navbar-web/navbar-web.component';
-import { FooterWebComponent } from '../../../../../shared/ui-layouts/footer-web/footer-web.component';
+import { NavbarWebComponent } from 'src/app/shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
 @Component({
   selector: 'app-profile-view-web',

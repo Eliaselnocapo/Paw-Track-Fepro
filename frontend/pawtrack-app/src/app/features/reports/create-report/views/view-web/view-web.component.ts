@@ -1,12 +1,13 @@
 import { Component, Input, Output, EventEmitter, } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { NavbarWebComponent } from '../../../../../shared/ui-layouts/navbar-web/navbar-web.component';
+import { NavbarWebComponent } from '../../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
 @Component({
   selector: 'app-view-web',
   templateUrl: './view-web.component.html',
   styleUrls: ['./view-web.component.scss'],
-  imports: [CommonModule, DecimalPipe, NavbarWebComponent],
+  imports: [CommonModule, DecimalPipe, NavbarWebComponent, FooterWebComponent],
   standalone: true,
 })
 export class ViewWebComponent{

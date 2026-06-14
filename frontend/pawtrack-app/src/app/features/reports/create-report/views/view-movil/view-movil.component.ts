@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonContent } from '@ionic/angular/standalone'; // Esto cura el error del <ion-content>
-import { NavbarComponent } from '../../../../../shared/ui-layouts/navbar/navbar.component';
+import { NavbarComponent } from '../../../../../shared/ui-layouts/navbar-views/navbar/navbar.component';
 
 @Component({
   selector: 'app-view-movil',
