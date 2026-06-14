@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarWebComponent } from '../../../../../shared/ui-layouts/navbar-web/navbar-web.component';
+import { NavbarWebComponent } from '../../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 
 declare const L: any;
 
