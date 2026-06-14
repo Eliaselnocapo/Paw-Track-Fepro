@@ -1,17 +1,15 @@
 import { Component } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
-
-// Importamos a los dos albañiles del login
 import { ViewWebComponent } from './views/view-web/view-web.component';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.page.html',
+  selector: 'app-register',
   standalone: true,
-  imports: [ ViewWebComponent]
+  imports: [ViewWebComponent],
+  templateUrl: './register.page.html',
+  styleUrls: ['./register.page.scss']
 })
-export class LoginPage {
-  
+export class RegisterPage {
   esPantallaGrande: boolean = false;
 
   constructor(private breakpointObserver: BreakpointObserver) {

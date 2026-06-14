@@ -1,17 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-view-web',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink], // <-- Obligatorio para los botones
   templateUrl: './view-web.component.html',
   styleUrls: ['./view-web.component.scss']
 })
-export class ViewWebComponent  implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {}
-
+export class ViewWebComponent {
+  // Lógica futura para el formulario
 }
