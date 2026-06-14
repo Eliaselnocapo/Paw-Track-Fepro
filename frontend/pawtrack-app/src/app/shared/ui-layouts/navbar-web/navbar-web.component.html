@@ -1,6 +1,6 @@
 <header class="bg-primary shadow-md w-full z-50 h-16 flex items-center transition-all duration-200">
   <div class="max-w-[1280px] mx-auto px-4 md:px-12 w-full flex justify-between items-center">
-    
+
     <!-- Logo -->
     <div class="flex items-center gap-4 cursor-pointer">
       <span class="text-xl font-bold text-white font-headline-md tracking-tight">PawTrack</span>
@@ -8,11 +8,29 @@
 
     <!-- Links de Navegación -->
     <nav class="hidden md:flex gap-8 h-full items-center">
-      <a class="text-white/80 hover:text-white transition-colors text-sm font-semibold h-full flex items-center" href="#">Inicio</a>
+      <a
+        routerLink="/home"
+        routerLinkActive="border-b-2 border-white text-white font-bold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-white/80 hover:text-white transition-colors text-sm font-semibold h-full flex items-center border-b-2 border-transparent">Inicio</a>
       <!-- Ejemplo de link activo -->
-      <a class="text-white border-b-2 border-white transition-colors text-sm font-bold h-full flex items-center" href="#">Casos</a>
-      <a class="text-white/80 hover:text-white transition-colors text-sm font-semibold h-full flex items-center" href="#">Impacto</a>
-      <a class="text-white/80 hover:text-white transition-colors text-sm font-semibold h-full flex items-center" href="#">Perfil</a>
+      <a
+        routerLink="/reports/create-report"
+        routerLinkActive="border-b-2 border-white text-white font-bold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-white/80 hover:text-white transition-colors text-sm font-semibold h-full flex items-center border-b-2 border-transparent">Casos</a>
+      <a
+        routerLink="/impact"
+        routerLinkActive="border-b-2 border-white text-white font-bold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-white/80 hover:text-white transition-colors text-sm font-semibold h-full flex items-center border-b-2 border-transparent">Impacto</a>
+      <a
+        routerLink="/profile"
+        routerLinkActive="border-b-2 border-white text-white font-bold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-white/80 hover:text-white transition-colors text-sm font-semibold h-full flex items-center border-b-2 border-transparent">
+        Perfil
+      </a>
     </nav>
 
     <!-- Botón de Acción -->
