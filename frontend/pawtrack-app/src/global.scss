@@ -35,3 +35,8 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+html, body {
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto; // Deja que el navegador maneje el scroll nativo
+}
