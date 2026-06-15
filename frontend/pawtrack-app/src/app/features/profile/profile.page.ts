@@ -1,8 +1,9 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonContent } from '@ionic/angular/standalone';
-import { ProfileViewWebComponent } from './views/view-web/profile-view-web/profile-view-web.component';
-import { ProfileViewMovilComponent } from './views/view-movil/profile-view-movil/profile-view-movil.component';
+import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
+import { NavbarWebComponent } from '../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -11,8 +12,8 @@ import { ProfileViewMovilComponent } from './views/view-movil/profile-view-movil
   imports: [
     CommonModule,
     IonContent,
-    ProfileViewWebComponent,
-    ProfileViewMovilComponent
+    FooterWebComponent,
+    NavbarWebComponent
   ],
 })
 export class ProfilePage implements OnInit {

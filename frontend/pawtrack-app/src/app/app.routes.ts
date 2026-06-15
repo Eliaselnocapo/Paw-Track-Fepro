@@ -16,7 +16,7 @@ export const routes: Routes = [
   },
   {
     path: 'view-report',
-    loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportPage)
+    loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportComponent)
   },
   {
     path: 'profile',

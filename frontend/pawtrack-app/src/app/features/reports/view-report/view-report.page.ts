@@ -1,53 +1,89 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { BreakpointObserver } from '@angular/cdk/layout';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
-// Importamos a los dos albañiles
-import { ViewMovilComponent } from './views/view-movil/view-movil.component';
-import { ViewWebComponent } from './views/view-web/view-web.component';
+declare const L: any;
 
 @Component({
   selector: 'app-view-report',
-  templateUrl: './view-report.page.html',
-  styleUrls: ['./view-report.page.scss'],
   standalone: true,
-  // ¡Asegúrate de que ambos estén aquí!
-  imports: [IonContent, ViewMovilComponent, ViewWebComponent], 
+  imports: [CommonModule, NavbarWebComponent, RouterLink, IonContent, FooterWebComponent],
+  templateUrl: './view-report.page.html',
+  styleUrls: ['./view-report.page.scss']
 })
-export class ViewReportPage {
-
-  esPantallaGrande: boolean = false;
-
-  // Los datos viven en el Cerebro
-  reporte = {
-    folio: '4092',
-    tipoAnimal: 'perro',
-    tamano: 'mediano',
-    condicionPrincipal: 'herido',
-    descripcionCondicion: 'Pierna visible lastimada cubierta con un vendaje sucio',
-    fotoUrl: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?q=80&w=800&auto=format&fit=crop',
-    tiempoTranscurrido: '2h',
-    direccion: 'Avenida Insurgentes Sur 123, Roma Norte',
-    ciudad: 'Mexico City',
-    lat: 19.4195,
-    lng: -99.1617,
-    timeline: [
-      { id: 1, hora: 'Today, 14:30', titulo: 'Voluntario Asignado', descripcion: 'Maria esta en ruta para apoyar al animal', activo: true },
-      { id: 2, hora: 'Today, 14:15', titulo: 'Caso Verificado', descripcion: 'Usuario confirmó detalles y situación', activo: false },
-      { id: 3, hora: 'Today, 14:00', titulo: 'Reporte Inicial', descripcion: 'Reporte creado por usuario anonimo en la app', activo: false }
-    ]
+export class ViewReportComponent implements AfterViewInit, OnDestroy {
+  constructor(private location: Location) {}
+  // Quitamos @Input() y asignamos datos temporales para evitar el error 'undefined'
+  // (Más adelante llenarás esto llamando a tu backend)
+  reporte: any = {
+    folio: '2024-05-17A',
+    estadoAnimal: 'En ruta a clínica',
+    urgencia: 75,
+    condiciones: {
+      herido: true,
+      deshidratado: false,
+      asustado: true
+    },
+    tipoAnimal: 'Perro',
+    direccion: 'Callejón del Gato Negro #14, CDMX',
+    lat: 19.432608, // Coordenada de prueba para tu mapa
+    lng: -99.133209 // Coordenada de prueba para tu mapa
   };
 
-  constructor(private router: Router, private breakpointObserver: BreakpointObserver) {
-    // Escuchamos el tamaño de la pantalla
-    this.breakpointObserver.observe('(min-width: 768px)').subscribe(result => {
-      this.esPantallaGrande = result.matches;
-    });
+  private mapaWeb: any = null;
+  
+  ngAfterViewInit(): void {
+    // Retraso para asegurar que el div del mapa ya exista en pantalla
+    setTimeout(() => this.initMapa(), 500);
   }
 
-  // La navegación la controla el Cerebro
-  regresar(): void {
-    this.router.navigate(['/home']);
+  ngOnDestroy(): void {
+    if (this.mapaWeb) {
+      this.mapaWeb.off();
+      this.mapaWeb.remove();
+      this.mapaWeb = null;
+    }
   }
+
+  private initMapa(): void {
+    const contenedor = document.getElementById('mapa-reporte-web');
+    if (!contenedor || this.mapaWeb || !this.reporte) return;
+
+    this.mapaWeb = L.map('mapa-reporte-web', {
+      center: [this.reporte.lat, this.reporte.lng],
+      zoom: 15,
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      touchZoom: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+    }).addTo(this.mapaWeb);
+
+    L.circleMarker([this.reporte.lat, this.reporte.lng], {
+      radius: 10,
+      fillColor: '#ba1a1a',
+      color: '#ffffff',
+      weight: 3,
+      opacity: 1,
+      fillOpacity: 1,
+    }).addTo(this.mapaWeb);
+
+    setTimeout(() => this.mapaWeb?.invalidateSize(), 150);
+    
+    
+  }
+  regresar() {
+    this.location.back(); // Esto te regresa a la página anterior exacta
+  }
+  
 }
