@@ -25,6 +25,14 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.page').then( m => m.LoginPage)
-  }
+  },
+
+  {
+  path: 'reports/:id/update',
+  loadComponent: () =>
+    import('./features/reports/update-report/update-report.page')
+      .then(m => m.UpdateReportPage)
+  },
+
 
 ];

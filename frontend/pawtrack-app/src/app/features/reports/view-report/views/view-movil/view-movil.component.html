@@ -1,16 +1,11 @@
-<ion-content [fullscreen]="true">
 <div class="flex flex-col w-full relative overflow-x-hidden">
 
   <!-- HEADER -->
-  <header class="fixed top-0 left-0 right-0 flex justify-between items-center px-4 h-16 bg-white shadow-md z-50 border-b border-outline-variant/20">
-    <button (click)="regresar()" class="text-primary hover:bg-surface-container-low transition-colors active:scale-95 p-2 rounded-full flex items-center justify-center">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <h1 class="font-bold text-primary text-lg" style="font-family: 'Montserrat', sans-serif;">PawTrack</h1>
-    <button class="text-primary hover:bg-surface-container-low transition-colors active:scale-95 p-2 rounded-full flex items-center justify-center">
-      <span class="material-symbols-outlined">notifications</span>
-    </button>
-  </header>
+  <app-header-movil
+    [titulo]="'Detalles del caso'"
+    [mostrarRegresar]="true"
+    [mostrarNotificaciones]="false">
+  </app-header-movil>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-1 w-full max-w-3xl mx-auto px-4 md:px-12 pt-24 pb-28 flex flex-col gap-5">
@@ -37,34 +32,47 @@
     </div>
 
     <!-- TARJETAS SUJETO Y CONDICIÓN -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-      <!-- SUJETO -->
-      <div class="glass-card rounded-2xl p-4">
-        <p class="text-xs font-semibold text-outline uppercase tracking-widest mb-2">Sujeto</p>
-        <p class="text-xl font-bold text-on-surface capitalize" style="font-family: 'Montserrat', sans-serif;">
-          {{ reporte.tipoAnimal }}
-        </p>
-        <p class="text-sm text-on-surface-variant capitalize mt-1">Tamaño {{ reporte.tamano }}</p>
-      </div>
+  <!-- SUJETO -->
+  <div class="glass-card rounded-2xl p-4 bg-white text-[#001b3d] border border-slate-200 shadow-sm">
+    <p class="text-xs font-semibold !text-slate-950 uppercase tracking-widest mb-2">
+      Sujeto
+    </p>
 
-      <!-- CONDICIONES VISIBLES -->
-      <div class="glass-card rounded-2xl p-4">
-        <p class="text-xs font-semibold text-outline uppercase tracking-widest mb-2">Condiciones Visibles</p>
-        <p class="text-base font-bold text-error uppercase" style="font-family: 'Montserrat', sans-serif;">
-          {{ reporte.condicionPrincipal }}
-        </p>
-        <p class="text-sm text-on-surface-variant mt-1">{{ reporte.descripcionCondicion }}</p>
-      </div>
-    </div>
+    <p class="text-xl font-bold !text-slate-900 capitalize" style="font-family: 'Montserrat', sans-serif;">
+      {{ reporte.tipoAnimal }}
+    </p>
+
+    <p class="text-sm !text-slate-600 capitalize mt-1">
+      Tamaño {{ reporte.tamano }}
+    </p>
+  </div>
+
+  <!-- CONDICIONES VISIBLES -->
+  <div class="glass-card rounded-2xl p-4 bg-white text-[#001b3d] border border-slate-200 shadow-sm">
+    <p class="text-xs font-semibold !text-slate-950 uppercase tracking-widest mb-2">
+      Condiciones Visibles
+    </p>
+
+    <p class="text-base font-bold !text-red-700 uppercase" style="font-family: 'Montserrat', sans-serif;">
+      {{ reporte.condicionPrincipal }}
+    </p>
+
+    <p class="text-sm !text-slate-600 mt-1">
+      {{ reporte.descripcionCondicion }}
+    </p>
+  </div>
+
+</div>
 
     <!-- BOTÓN ACTUALIZAR CASO -->
-    <div class="glass-card rounded-2xl p-4 flex justify-end">
-      <button class="bg-primary text-on-primary px-6 py-3 rounded-xl font-semibold flex items-center gap-2 active:scale-95 transition-transform shadow-md">
-        <span class="material-symbols-outlined text-[20px]">edit</span>
-        Actualizar caso
-      </button>
-    </div>
+    <button
+  [routerLink]="['/reports', reporte.folio, 'update']"
+  class="bg-primary text-on-primary px-6 py-3 rounded-xl font-semibold flex items-center gap-2 active:scale-95 transition-transform shadow-md">
+  <span class="material-symbols-outlined text-[20px]">edit</span>
+  Actualizar caso
+</button>
 
     <!-- UBICACIÓN -->
     <div class="glass-card rounded-2xl overflow-hidden border border-outline-variant/30">
