@@ -1,22 +1,26 @@
-import { Component } from '@angular/core';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { IonContent } from '@ionic/angular/standalone';
-import { ViewWebComponent } from './views/view-web/view-web.component';
-import { ViewMovilComponent } from './views/view-movil/view-movil.component';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router'; // <--- Importa RouterLink
+import { IonContent } from '@ionic/angular/standalone'; // Solo importa lo que realmente usas en el HTML
+import { NavbarWebComponent } from '../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component'; // Ajusta el nombre del archivo si es diferente
+import { FooterWebComponent } from '../../shared/ui-layouts/footer-views/footer-web/footer-web.component';     // Ajusta el nombre del archivo si es diferente
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonContent, ViewWebComponent, ViewMovilComponent]
+  imports: [
+    CommonModule,
+    RouterLink,
+    IonContent,
+    NavbarWebComponent, // <--- REGÍSTRALOS AQUÍ
+    FooterWebComponent  // <--- REGÍSTRALOS AQUÍ
+  ]
 })
-export class HomePage {
-  esPantallaGrande: boolean = false;
+export class HomePage implements OnInit {
+  constructor() { }
 
-  constructor(private breakpointObserver: BreakpointObserver) {
-    this.breakpointObserver.observe('(min-width: 768px)').subscribe(result => {
-      this.esPantallaGrande = result.matches;
-    });
+  ngOnInit() {
   }
 }
