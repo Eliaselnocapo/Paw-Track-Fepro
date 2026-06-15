@@ -10,8 +10,13 @@
         Reporta, rescata o apoya — tu acción sincroniza nuestra misión.
       </p>
       <div class="hero-buttons-container">
-        <button class="hero-btn">Comenzar </button>
-        <button class="hero-btn-secondary" routerLink="/login">Iniciar Sesión</button>
+        <button class="hero-btn" routerLink="/register">
+          Comenzar <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+        
+        <button class="hero-btn-secondary" routerLink="/login">
+          Iniciar Sesión <span class="material-symbols-outlined">login</span>
+        </button>
       </div>
     </div>
 
@@ -78,7 +83,7 @@
           <p>
             Veo a un animal en peligro y necesito alertar a los socorristas profesionales de inmediato. Tu rápida acción es el primer y más importante paso para salvar una vida. Al proporcionar información precisa, la ubicación exacta y fotos del estado del animal, permites que nuestros equipos de rescate actúen con rapidez y envíen la ayuda adecuada directamente al lugar.
           </p>
-          <button class="card-btn btn-reporter">Reportar Emergencia</button>
+          <button class="card-btn btn-reporter" routerLink="/dashboard/reporter">Reportar Emergencia</button>
         </div>
       </div>
 

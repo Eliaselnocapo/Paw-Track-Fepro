@@ -34,5 +34,17 @@ export const routes: Routes = [
       .then(m => m.UpdateReportPage)
   },
 
+  {
+    path: 'register',
+    loadComponent: () => import('./features/auth/register/register.page').then( m => m.RegisterPage)
+  },
+  {
+  path: 'dashboard/reporter',
+  loadComponent: () =>
+    import('./features/dashboards/reporter/reporter.page').then(
+      (m) => m.ReporterPage
+    ),
+  },
+
 
 ];
