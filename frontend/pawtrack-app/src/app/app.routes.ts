@@ -26,6 +26,14 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.page').then( m => m.LoginPage)
   },
+
+  {
+  path: 'reports/:id/update',
+  loadComponent: () =>
+    import('./features/reports/update-report/update-report.page')
+      .then(m => m.UpdateReportPage)
+  },
+
   {
     path: 'register',
     loadComponent: () => import('./features/auth/register/register.page').then( m => m.RegisterPage)
@@ -37,5 +45,6 @@ export const routes: Routes = [
       (m) => m.ReporterPage
     ),
   },
+
 
 ];

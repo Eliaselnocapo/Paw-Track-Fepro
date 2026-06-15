@@ -1,0 +1,97 @@
+<div class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md antialiased relative">
+
+  <app-navbar-web></app-navbar-web>
+
+  <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 py-8 flex flex-col gap-6">
+
+    <section class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6">
+      <div class="flex items-center gap-5">
+        <img
+          [src]="usuario.fotoUrl"
+          alt="Foto de perfil"
+          class="w-24 h-24 rounded-full object-cover border-2 border-outline-variant/30 shadow-md">
+
+        <div class="flex-1">
+          <div class="flex items-center gap-3">
+            <h1 class="text-3xl font-bold text-on-surface">
+              {{ usuario.nombre }}
+            </h1>
+
+            <span class="bg-primary text-on-primary px-3 py-1 rounded-full text-xs font-bold uppercase">
+              {{ usuario.rol }}
+            </span>
+          </div>
+
+          <p class="text-sm text-on-surface-variant mt-2">
+            {{ usuario.email }}
+          </p>
+
+          <p class="text-sm text-on-surface-variant">
+            {{ usuario.ubicacion }}
+          </p>
+        </div>
+
+        <div class="flex gap-3">
+          <button class="bg-primary text-white px-5 py-3 rounded-lg font-semibold shadow-sm">
+            Editar Perfil
+          </button>
+
+          <button class="border border-primary text-primary px-5 py-3 rounded-lg font-semibold">
+            Reputación
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6">
+        <p class="text-4xl font-bold text-on-surface">{{ usuario.reportesTotales }}</p>
+        <p class="text-xs text-outline uppercase tracking-widest mt-1">Reportes Totales</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6">
+        <p class="text-4xl font-bold text-on-surface">{{ usuario.animalesRescatados }}</p>
+        <p class="text-xs text-outline uppercase tracking-widest mt-1">Animales Rescatados</p>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+      <div class="px-5 py-4 border-b border-outline-variant/30 flex justify-between items-center">
+        <h2 class="font-bold text-on-surface">Reportes recientes</h2>
+        <button class="text-primary font-semibold text-sm">Ver todos</button>
+      </div>
+
+      <div class="divide-y divide-outline-variant/20">
+        @for (reporte of usuario.reportesRecientes; track reporte.id) {
+          <div class="flex items-center gap-4 px-5 py-4 hover:bg-surface-container-low transition-colors">
+            <img
+              [src]="reporte.fotoUrl"
+              alt="Foto del reporte"
+              class="w-20 h-20 rounded-xl object-cover">
+
+            <div class="flex-1">
+              <p class="font-bold text-on-surface">{{ reporte.titulo }}</p>
+              <p class="text-sm text-on-surface-variant line-clamp-2">
+                {{ reporte.descripcion }}
+              </p>
+              <p class="text-xs text-outline mt-1">
+                {{ reporte.fecha }} · {{ reporte.lugar }}
+              </p>
+            </div>
+
+            <span class="px-3 py-1 rounded-full text-xs font-bold"
+                  [class.bg-primary-container]="reporte.estado === 'Resuelto'"
+                  [class.text-primary]="reporte.estado === 'Resuelto'"
+                  [class.bg-error-container]="reporte.estado === 'Urgente'"
+                  [class.text-error]="reporte.estado === 'Urgente'">
+              {{ reporte.estado }}
+            </span>
+          </div>
+        }
+      </div>
+    </section>
+
+  </main>
+
+  <app-footer-web class="mt-auto"></app-footer-web>
+</div>

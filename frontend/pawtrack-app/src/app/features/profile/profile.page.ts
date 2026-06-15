@@ -1,17 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
-import { NavbarComponent } from '../../shared/ui-layouts/navbar-views/navbar/navbar.component';
-
+import { ProfileViewWebComponent } from './views/view-web/profile-view-web/profile-view-web.component';
+import { ProfileViewMovilComponent } from './views/view-movil/profile-view-movil/profile-view-movil.component';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonContent, NavbarComponent],
+  imports: [
+    CommonModule,
+    IonContent,
+    ProfileViewWebComponent,
+    ProfileViewMovilComponent
+  ],
 })
 export class ProfilePage implements OnInit {
+
+  esPantallaGrande = window.innerWidth >= 768;
 
   usuario = {
     nombre: 'Elena Rodriguez',
@@ -43,7 +49,10 @@ export class ProfilePage implements OnInit {
     ]
   };
 
-  constructor(private router: Router) {}
-
   ngOnInit(): void {}
+
+  @HostListener('window:resize')
+  onResize() {
+    this.esPantallaGrande = window.innerWidth >= 768;
+  }
 }

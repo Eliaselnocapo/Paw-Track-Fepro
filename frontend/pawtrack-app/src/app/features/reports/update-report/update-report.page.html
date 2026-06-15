@@ -1,0 +1,13 @@
+<ion-content [fullscreen]="true">
+  @if (esPantallaGrande) {
+    <app-view-web
+      [reporte]="reporte"
+      (actualizarReporte)="enviarActualizacion($event)">
+    </app-view-web>
+  } @else {
+    <app-view-movil
+      [reporte]="reporte"
+      (actualizarReporte)="enviarActualizacion($event)">
+    </app-view-movil>
+  }
+</ion-content>

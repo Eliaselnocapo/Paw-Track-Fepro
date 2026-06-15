@@ -1,0 +1,252 @@
+<div class="min-h-[100dvh] bg-[#f7f9ff] text-[#001b3d] overflow-x-hidden">
+
+  <app-header-movil
+    [titulo]="'PawTrack'"
+    [mostrarRegresar]="false"
+    [mostrarNotificaciones]="false">
+  </app-header-movil>
+
+  <main class="px-4 pt-24 pb-10 flex flex-col gap-8">
+
+    <!-- HERO -->
+    <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 overflow-hidden relative">
+
+      <div class="absolute -top-16 -right-16 w-40 h-40 bg-blue-100 rounded-full"></div>
+      <div class="absolute -bottom-16 -left-16 w-40 h-40 bg-red-100 rounded-full"></div>
+
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full mb-4">
+          <span class="material-symbols-outlined text-[16px]">pets</span>
+          Rescate animal inteligente
+        </span>
+
+        <h1 class="text-4xl font-black leading-tight text-[#001b3d] mb-4">
+          Cada Segundo Cuenta.
+          <br>
+          <span class="text-blue-700">Por Cada Vida.</span>
+        </h1>
+
+        <p class="text-sm text-slate-600 leading-relaxed mb-6">
+          La red profesional para la respuesta rápida en el rescate animal.
+          Reporta, rescata o apoya — tu acción sincroniza nuestra misión.
+        </p>
+
+        <div class="flex flex-col gap-3">
+          <button
+            routerLink="/reports/create-report"
+            class="w-full h-12 rounded-full bg-primary text-white font-bold shadow-md active:scale-95 transition-transform">
+            Comenzar
+          </button>
+
+          <button
+            routerLink="/login"
+            class="w-full h-12 rounded-full bg-white border border-slate-300 text-[#001b3d] font-bold active:scale-95 transition-transform">
+            Iniciar Sesión
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- BARRA DE ACCIONES -->
+    <section class="flex flex-col gap-3">
+
+      <button
+        routerLink="/reports/create-report"
+        class="w-full bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center justify-between active:scale-[0.98] transition-transform">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-700 flex items-center justify-center">
+            <span class="material-symbols-outlined">emergency</span>
+          </div>
+
+          <div class="text-left">
+            <p class="text-xs text-red-700 font-semibold">
+              Encontré un animal
+            </p>
+            <p class="text-base font-black text-red-900">
+              REPORTAR
+            </p>
+          </div>
+        </div>
+
+        <span class="material-symbols-outlined text-red-700">
+          arrow_forward
+        </span>
+      </button>
+
+      <button
+        routerLink="/rescues"
+        class="w-full bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center justify-between active:scale-[0.98] transition-transform">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center">
+            <span class="material-symbols-outlined">volunteer_activism</span>
+          </div>
+
+          <div class="text-left">
+            <p class="text-xs text-blue-700 font-semibold">
+              Quiero ayudar
+            </p>
+            <p class="text-base font-black text-blue-900">
+              VOLUNTARIO
+            </p>
+          </div>
+        </div>
+
+        <span class="material-symbols-outlined text-blue-700">
+          arrow_forward
+        </span>
+      </button>
+
+      <button
+        routerLink="/donations"
+        class="w-full bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between active:scale-[0.98] transition-transform">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <span class="material-symbols-outlined">favorite</span>
+          </div>
+
+          <div class="text-left">
+            <p class="text-xs text-emerald-700 font-semibold">
+              Quiero apoyar
+            </p>
+            <p class="text-base font-black text-emerald-900">
+              PATROCINADOR
+            </p>
+          </div>
+        </div>
+
+        <span class="material-symbols-outlined text-emerald-700">
+          arrow_forward
+        </span>
+      </button>
+
+    </section>
+
+    <!-- ROLES -->
+    <section>
+      <div class="mb-5">
+        <p class="text-xs uppercase tracking-widest font-bold text-blue-700">
+          Nuestros Roles Comunitarios
+        </p>
+
+        <h2 class="text-3xl font-black text-[#001b3d] mt-1">
+          Elige Tu Impacto
+        </h2>
+
+        <p class="text-sm text-slate-600 mt-2">
+          Únete al ecosistema exactamente donde más se te necesita.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-5">
+
+        <!-- Reportar -->
+        <article class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop"
+            alt="Reportar un rescate"
+            class="w-full h-44 object-cover">
+
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-4xl font-black text-red-100">01</span>
+
+              <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-700 flex items-center justify-center">
+                <span class="material-symbols-outlined">emergency</span>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-[#001b3d] mb-3">
+              Reportar
+            </h3>
+
+            <p class="text-sm text-slate-600 leading-relaxed mb-5">
+              Veo a un animal en peligro y necesito alertar a los socorristas profesionales de inmediato.
+              Tu rápida acción es el primer paso para salvar una vida.
+            </p>
+
+            <button
+              routerLink="/reports/create-report"
+              class="w-full h-12 rounded-full bg-red-600 text-white font-bold">
+              Reportar Emergencia
+            </button>
+          </div>
+        </article>
+
+        <!-- Voluntario -->
+        <article class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1606011334315-025e4baab810?q=80&w=800&auto=format&fit=crop"
+            alt="Ser voluntario"
+            class="w-full h-44 object-cover">
+
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-4xl font-black text-blue-100">02</span>
+
+              <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                <span class="material-symbols-outlined">volunteer_activism</span>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-[#001b3d] mb-3">
+              Voluntario
+            </h3>
+
+            <p class="text-sm text-slate-600 leading-relaxed mb-5">
+              Soy un socorrista capacitado, veterinario o transportista con vehículo listo
+              para asistir en casos de rescate activos.
+            </p>
+
+            <button
+              routerLink="/rescues"
+              class="w-full h-12 rounded-full bg-blue-700 text-white font-bold">
+              Unirse a la Misión
+            </button>
+          </div>
+        </article>
+
+        <!-- Patrocinador -->
+        <article class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=800&auto=format&fit=crop"
+            alt="Patrocinar un rescate"
+            class="w-full h-44 object-cover">
+
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-4xl font-black text-emerald-100">03</span>
+
+              <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <span class="material-symbols-outlined">favorite</span>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-[#001b3d] mb-3">
+              Patrocinador
+            </h3>
+
+            <p class="text-sm text-slate-600 leading-relaxed mb-5">
+              Quiero proporcionar recursos financieros o en especie para sostener
+              y expandir las operaciones diarias.
+            </p>
+
+            <button
+              routerLink="/donations"
+              class="w-full h-12 rounded-full bg-emerald-700 text-white font-bold">
+              Donar Recursos
+            </button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+
+  <div class="pb-28">
+    <app-footer-movil></app-footer-movil>
+  </div>
+
+  <app-navbar></app-navbar>
+
+</div>

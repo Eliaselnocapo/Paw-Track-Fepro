@@ -1,0 +1,126 @@
+<div class="flex flex-col w-full relative overflow-x-hidden">
+
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 right-0 flex justify-between items-center px-4 h-16 bg-white shadow-md z-50 border-b border-outline-variant/20">
+    <h1 class="font-bold text-primary text-lg" style="font-family: 'Montserrat', sans-serif;">PawTrack</h1>
+    <div class="flex items-center gap-2">
+      <button class="text-primary hover:bg-surface-container-low transition-colors active:scale-95 p-2 rounded-full flex items-center justify-center">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button class="text-primary hover:bg-surface-container-low transition-colors active:scale-95 p-2 rounded-full flex items-center justify-center">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 w-full max-w-3xl mx-auto px-4 md:px-12 pt-24 pb-28 flex flex-col gap-5">
+
+    <!-- TÍTULO -->
+    <div>
+      <h2 class="text-2xl font-bold text-on-surface" style="font-family: 'Montserrat', sans-serif;">Perfil de Usuario</h2>
+      <p class="text-sm text-on-surface-variant mt-1">Administra tus configuraciones y observa tu impacto.</p>
+    </div>
+
+    <!-- TARJETA PRINCIPAL -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <!-- INFO DEL USUARIO -->
+      <div class="glass-card rounded-2xl p-5 md:col-span-2 flex items-start gap-4">
+        <img [src]="usuario.fotoUrl" alt="Foto de perfil"
+             class="w-20 h-20 rounded-full object-cover shadow-md flex-shrink-0 border-2 border-outline-variant/30"/>
+        <div class="flex flex-col gap-1 flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="font-bold text-on-surface text-lg" style="font-family: 'Montserrat', sans-serif;">
+              {{ usuario.nombre }}
+            </h3>
+            <span class="bg-primary text-on-primary px-2 py-0.5 rounded-full text-xs font-semibold uppercase">
+              {{ usuario.rol }}
+            </span>
+          </div>
+          <p class="text-sm text-on-surface-variant flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">mail</span>
+            {{ usuario.email }}
+          </p>
+          <p class="text-sm text-on-surface-variant flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">location_on</span>
+            {{ usuario.ubicacion }}
+          </p>
+          <div class="flex gap-3 mt-3">
+            <button class="bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-semibold active:scale-95 transition-transform shadow-sm">
+              Editar Perfil
+            </button>
+            <button class="border-2 border-primary text-primary px-4 py-2 rounded-xl text-sm font-semibold active:scale-95 transition-transform">
+              Reputación
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTADÍSTICAS -->
+      <div class="flex flex-col gap-4">
+        <div class="glass-card rounded-2xl p-4 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">flag</span>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-on-surface" style="font-family: 'Montserrat', sans-serif;">{{ usuario.reportesTotales }}</p>
+            <p class="text-xs text-outline uppercase tracking-widest">Reportes Totales</p>
+          </div>
+        </div>
+        <div class="glass-card rounded-2xl p-4 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">pets</span>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-on-surface" style="font-family: 'Montserrat', sans-serif;">{{ usuario.animalesRescatados }}</p>
+            <p class="text-xs text-outline uppercase tracking-widest">Animales Rescatados</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTES RECIENTES -->
+    <div class="glass-card rounded-2xl overflow-hidden border border-outline-variant/30">
+      <div class="flex justify-between items-center px-4 py-3 border-b border-outline-variant/30 bg-surface-container-low">
+        <h3 class="font-semibold text-on-surface" style="font-family: 'Montserrat', sans-serif;">Reportes recientes</h3>
+        <button class="text-primary text-sm font-semibold hover:underline">Ver todos</button>
+      </div>
+      <div class="divide-y divide-outline-variant/20">
+        @for (reporte of usuario.reportesRecientes; track reporte.id) {
+          <div class="flex items-start gap-3 px-4 py-3 hover:bg-surface-container-low transition-colors cursor-pointer">
+            <img [src]="reporte.fotoUrl" alt="Foto del reporte"
+                 class="w-16 h-16 rounded-xl object-cover flex-shrink-0"/>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start gap-2">
+                <p class="font-semibold text-on-surface text-sm" style="font-family: 'Montserrat', sans-serif;">
+                  {{ reporte.titulo }}
+                </p>
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0"
+                      [class.bg-primary-container]="reporte.estado === 'Resuelto'"
+                      [class.text-primary]="reporte.estado === 'Resuelto'"
+                      [class.bg-error-container]="reporte.estado === 'Urgente'"
+                      [class.text-error]="reporte.estado === 'Urgente'">
+                  {{ reporte.estado }}
+                </span>
+              </div>
+              <p class="text-xs text-on-surface-variant mt-0.5 line-clamp-2">{{ reporte.descripcion }}</p>
+              <div class="flex items-center gap-3 mt-1">
+                <span class="text-xs text-outline">{{ reporte.fecha }}</span>
+                <span class="text-xs text-outline">{{ reporte.lugar }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </main>
+
+  <!-- NAVBAR PÍLDORA -->
+  <div class="fixed bottom-0 left-0 right-0 w-full px-4 pt-2 pb-6 flex justify-center z-50">
+    <app-navbar></app-navbar>
+  </div>
+
+</div>
+

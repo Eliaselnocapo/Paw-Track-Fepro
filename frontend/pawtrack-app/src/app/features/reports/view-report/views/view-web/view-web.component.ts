@@ -1,20 +1,22 @@
 import { Component, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarWebComponent } from '../../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { RouterLink } from '@angular/router';
+
 
 declare const L: any;
 
 @Component({
   selector: 'app-view-web',
   standalone: true,
-  imports: [CommonModule, NavbarWebComponent],
+  imports: [CommonModule, NavbarWebComponent, RouterLink],
   templateUrl: './view-web.component.html',
   styleUrls: ['./view-web.component.scss']
 })
 export class ViewWebComponent implements AfterViewInit, OnDestroy {
-  
+
   // Recibimos los datos y enviamos el evento
-  @Input() reporte: any; 
+  @Input() reporte: any;
   @Output() regresarEvent = new EventEmitter<void>();
 
   private mapaWeb: any = null;

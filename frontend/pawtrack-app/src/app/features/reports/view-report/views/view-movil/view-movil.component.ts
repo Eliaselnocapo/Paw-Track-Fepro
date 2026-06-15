@@ -1,6 +1,9 @@
 import { Component, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { IonContent } from '@ionic/angular/standalone';
+import {RouterLink} from "@angular/router";
+
+import { HeaderMovilComponent } from '../../../../../shared/ui-layouts/header-views/header-movil/header-movil.component';
 
 // Declaramos Leaflet aquí porque el Hijo dibuja el mapa
 declare const L: any;
@@ -8,14 +11,14 @@ declare const L: any;
 @Component({
   selector: 'app-view-movil',
   standalone: true,
-  imports: [CommonModule, IonContent, TitleCasePipe],
+  imports: [CommonModule, IonContent, TitleCasePipe, HeaderMovilComponent, RouterLink],
   templateUrl: './view-movil.component.html',
   styleUrls: ['./view-movil.component.scss']
 })
 export class ViewMovilComponent implements AfterViewInit, OnDestroy {
-  
+
   // Recibimos los datos y enviamos el evento
-  @Input() reporte: any; 
+  @Input() reporte: any;
   @Output() regresarEvent = new EventEmitter<void>();
 
   private mapaReporte: any = null;
