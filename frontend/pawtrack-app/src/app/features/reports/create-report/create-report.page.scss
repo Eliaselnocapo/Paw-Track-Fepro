@@ -2,13 +2,15 @@ ion-content {
   --background: transparent;
 }
 
-/* Aplicado a :host para que simule el body dentro del componente de Angular */
 :host {
-  display: block;
-  background: linear-gradient(135deg, #f8f9ff 0%, #e5eeff 100%);
-  height: 100vh;
-  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: auto;
+  overflow-y: auto;
+  background: #f8fafc; /* Color sólido y limpio */
   font-family: 'Montserrat', sans-serif;
+  padding-bottom: 16px;
 }
 
 .glass-card {
@@ -18,6 +20,7 @@ ion-content {
   box-shadow: 0 4px 24px rgba(0, 88, 190, 0.08);
 }
 
+
 .dashed-upload {
   background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%230058be' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   border-radius: 12px;
@@ -26,7 +29,6 @@ ion-content {
 .gradient-button {
   background: linear-gradient(90deg, #0058be 0%, #2170e4 100%);
   box-shadow: 0 4px 12px rgba(0, 88, 190, 0.3);
-
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -63,4 +65,77 @@ ion-content {
 @keyframes fall {
   0% { opacity: 1; top: -10%; transform: translateX(0) rotate(0deg); }
   100% { opacity: 0; top: 100%; transform: translateX(20px) rotate(360deg); }
+}
+
+.report-step-card {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.location-step-card {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  padding: 24px;
+  min-height: 560px;
+}
+
+.location-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+}
+
+.location-map-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  background: #e2e8f0;
+}
+
+.location-actions {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+google-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .location-step-card {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .location-panel {
+    min-height: auto;
+  }
+
+  .location-map-wrapper {
+    min-height: 380px;
+  }
+
+  .location-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .location-actions button {
+    width: 100%;
+    justify-content: center;
+  }
 }

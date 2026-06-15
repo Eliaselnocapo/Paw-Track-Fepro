@@ -1,21 +1,13 @@
 import { Component } from '@angular/core';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { ViewWebComponent } from './views/view-web/view-web.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ViewWebComponent],
+  imports: [RouterLink], // <-- Obligatorio para los botones
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss']
 })
 export class RegisterPage {
-  esPantallaGrande: boolean = false;
-
-  constructor(private breakpointObserver: BreakpointObserver) {
-    // Escucha el tamaño de la pantalla
-    this.breakpointObserver.observe('(min-width: 768px)').subscribe(result => {
-      this.esPantallaGrande = result.matches;
-    });
-  }
+  // Lógica futura para el formulario
 }

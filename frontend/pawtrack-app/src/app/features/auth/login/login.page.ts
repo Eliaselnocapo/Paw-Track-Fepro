@@ -1,23 +1,18 @@
-import { Component } from '@angular/core';
-import { BreakpointObserver } from '@angular/cdk/layout';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
-// Importamos a los dos albañiles del login
-import { ViewWebComponent } from './views/view-web/view-web.component';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.page.html',
   standalone: true,
-  imports: [ ViewWebComponent]
+  imports: [RouterLink],
+  templateUrl: './login.page.html',
+  styleUrls: ['./login.page.scss']
 })
-export class LoginPage {
-  
-  esPantallaGrande: boolean = false;
+export class LoginPage  implements OnInit {
 
-  constructor(private breakpointObserver: BreakpointObserver) {
-    // Escucha el tamaño de la pantalla
-    this.breakpointObserver.observe('(min-width: 768px)').subscribe(result => {
-      this.esPantallaGrande = result.matches;
-    });
-  }
+  constructor() { }
+
+  ngOnInit() {}
+
 }
