@@ -21,6 +21,15 @@ media/
 .idea/
 .DS_Store
 
+# Claude Code — memoria local del agente (no compartir entre usuarios)
+.claude/
+.specify/
+
+# Documentos locales de especificación y contrato (no subir al repo)
+CLAUDE.md
+SYSTEM_CONTRACT.md
+Especificacion_back_y_funcionaldiades_generales.md
+specs/
 node_modules/
 **/node_modules/
 .angular/

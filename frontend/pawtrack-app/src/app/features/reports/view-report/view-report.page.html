@@ -3,105 +3,143 @@
 
 <app-navbar-web></app-navbar-web>
 
-  <main class="flex-grow max-w-[1280px] w-full mx-auto px-4 md:px-12 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <!-- CARGANDO -->
+  @if (cargando) {
+    <main class="flex-grow flex items-center justify-center">
+      <p class="text-on-surface-variant animate-pulse">Cargando reporte...</p>
+    </main>
+  }
 
-    <div class="col-span-1 lg:col-span-12 flex items-center gap-3 mb-2">
-      <button (click)="regresar()" class="text-on-surface-variant hover:text-primary transition-colors flex items-center p-2 rounded-full hover:bg-surface-container-low">
-        <span class="material-symbols-outlined text-[24px]">arrow_back</span>
-      </button>
-      <h1 class="text-3xl font-bold text-on-surface font-headline-lg flex items-center gap-3">
-        Caso #{{ reporte.folio }}
-        <span class="bg-error-container text-on-error-container text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold border border-error/20 flex items-center gap-1 shadow-sm">
-          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">warning</span>
-          Urgente
-        </span>
-      </h1>
-    </div>
+  <!-- ERROR -->
+  @if (error) {
+    <main class="flex-grow flex flex-col items-center justify-center gap-4">
+      <span class="material-symbols-outlined text-error text-[48px]">cloud_off</span>
+      <p class="text-on-surface-variant">{{ error }}</p>
+      <button (click)="regresar()" class="text-primary underline">Volver</button>
+    </main>
+  }
 
-    <div class="col-span-1 lg:col-span-8 flex flex-col gap-6">
+  <!-- CONTENIDO -->
+  @if (!cargando && !error && reporte) {
+    <main class="flex-grow max-w-[1280px] w-full mx-auto px-4 md:px-12 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden relative group">
-        <img [src]="reporte.fotoUrl" alt="Evidencia" class="w-full h-auto object-cover max-h-[450px] transition-transform duration-700 group-hover:scale-105"/>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-        <div class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1.5 flex items-center gap-2 text-on-surface text-xs font-bold shadow-md">
-          <span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
-          Reportado hace {{ reporte.tiempoTranscurrido }}
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-2 hover:border-primary/30 transition-colors">
-          <span class="text-outline text-xs font-bold uppercase tracking-wider">Sujeto</span>
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-primary text-[32px] bg-primary-container p-2 rounded-xl" style="font-variation-settings: 'FILL' 1;">pets</span>
-            <div>
-              <p class="text-lg font-bold text-on-surface capitalize">{{ reporte.tipoAnimal }}</p>
-              <p class="text-sm text-on-surface-variant capitalize">Tamaño {{ reporte.tamano }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-2 md:col-span-2 hover:border-error/30 transition-colors">
-          <span class="text-outline text-xs font-bold uppercase tracking-wider">Condición Principal</span>
-          <div class="flex items-start gap-3">
-            <span class="material-symbols-outlined text-error text-[32px] bg-error-container p-2 rounded-xl" style="font-variation-settings: 'FILL' 1;">healing</span>
-            <div>
-              <p class="text-lg font-bold text-error uppercase">{{ reporte.condicionPrincipal }}</p>
-              <p class="text-sm text-on-surface-variant leading-relaxed">{{ reporte.descripcionCondicion }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-span-1 lg:col-span-4 flex flex-col gap-6">
-
-      <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-3">
-        <button [routerLink]="['/reports', reporte.folio, 'update']" class="w-full bg-primary hover:bg-[#004799] text-white font-bold h-12 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95">
-          <span class="material-symbols-outlined">update</span> Actualizar Caso
+      <!-- TÍTULO -->
+      <div class="col-span-1 lg:col-span-12 flex items-center gap-3 mb-2">
+        <button (click)="regresar()" class="text-on-surface-variant hover:text-primary transition-colors flex items-center p-2 rounded-full hover:bg-surface-container-low">
+          <span class="material-symbols-outlined text-[24px]">arrow_back</span>
         </button>
-        <button class="w-full bg-white hover:bg-surface-container border-2 border-primary text-primary font-bold h-12 rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-95">
-          <span class="material-symbols-outlined">support_agent</span> Contactar Voluntario
-        </button>
+        <h1 class="text-3xl font-bold text-on-surface font-headline-lg flex items-center gap-3">
+          Caso {{ reporte.folio ?? '#' + reporte.id }}
+          <span [class]="urgencyClass(reporte.urgency_score) + ' text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold border flex items-center gap-1 shadow-sm'">
+            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+            {{ urgencyLabel(reporte.urgency_score) }}
+          </span>
+        </h1>
       </div>
 
-      <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/30 flex flex-col">
-        <div class="p-4 border-b border-surface-container-high bg-surface-container-lowest">
-          <h3 class="text-base font-bold text-on-surface flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">location_on</span>
-            Ubicación
-          </h3>
-        </div>
-        <div class="h-[200px] w-full relative bg-surface-variant border-b border-outline-variant/30">
-           <div id="mapa-reporte-web" class="w-full h-full z-10"></div>
-        </div>
-        <div class="p-4">
-          <p class="text-sm font-bold text-on-surface">{{ reporte.direccion }}</p>
-          <p class="text-xs text-on-surface-variant mt-1">{{ reporte.ciudad }}</p>
-        </div>
-      </div>
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="col-span-1 lg:col-span-8 flex flex-col gap-6">
 
-      <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex-grow">
-        <h3 class="text-base font-bold text-on-surface flex items-center gap-2 mb-6">
-          <span class="material-symbols-outlined text-primary">history</span> Historial de Rescate
-        </h3>
-
-        <div class="flex flex-col relative before:absolute before:inset-0 before:ml-[11px] before:h-full before:w-0.5 before:bg-gradient-to-b before:from-outline-variant/80 before:to-transparent pl-8">
-          @for (evento of reporte.timeline; track evento.id; let first = $first) {
-            <div class="relative flex flex-col mb-6 last:mb-0 group">
-              <div class="absolute -left-8 top-1 w-6 h-6 rounded-full border-[3px] border-white z-10"
-                   [class.bg-primary]="first" [class.bg-outline-variant]="!first" [class.shadow-md]="first">
-                   @if(first){<div class="absolute inset-0 rounded-full animate-ping bg-primary/40"></div>}
-              </div>
-              <p class="text-[11px] font-bold text-outline uppercase tracking-wider mb-0.5">{{ evento.hora }}</p>
-              <p class="text-sm font-bold" [class.text-on-surface]="first" [class.text-on-surface-variant]="!first">{{ evento.titulo }}</p>
-              <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">{{ evento.descripcion }}</p>
+        <!-- FOTO -->
+        <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden relative group">
+          @if (imagenUrl(reporte.imagen)) {
+            <img [src]="imagenUrl(reporte.imagen)" alt="Evidencia" class="w-full h-auto object-cover max-h-[450px] transition-transform duration-700 group-hover:scale-105"/>
+          } @else {
+            <div class="w-full h-[300px] flex items-center justify-center bg-surface-container-low">
+              <span class="material-symbols-outlined text-outline text-[64px]" style="font-variation-settings: 'FILL' 1;">pets</span>
             </div>
           }
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+          <div class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1.5 flex items-center gap-2 text-on-surface text-xs font-bold shadow-md">
+            <span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
+            Reportado {{ tiempoTranscurrido(reporte.created_at) }}
+          </div>
+        </div>
+
+        <!-- CARDS DATOS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-2 hover:border-primary/30 transition-colors">
+            <span class="text-outline text-xs font-bold uppercase tracking-wider">Sujeto</span>
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary text-[32px] bg-primary-container p-2 rounded-xl" style="font-variation-settings: 'FILL' 1;">pets</span>
+              <div>
+                <p class="text-lg font-bold text-on-surface capitalize">{{ reporte.tipo_animal || 'Sin especificar' }}</p>
+                <p class="text-sm text-on-surface-variant capitalize">Tamaño {{ reporte.tamano_animal || '—' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-2 md:col-span-2 hover:border-error/30 transition-colors">
+            <span class="text-outline text-xs font-bold uppercase tracking-wider">Condición Principal</span>
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-error text-[32px] bg-error-container p-2 rounded-xl" style="font-variation-settings: 'FILL' 1;">healing</span>
+              <div>
+                <p class="text-lg font-bold text-error uppercase">{{ reporte.condicion_animal || 'No especificada' }}</p>
+                <p class="text-sm text-on-surface-variant leading-relaxed">{{ reporte.caracteristicas || 'Sin observaciones adicionales.' }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
+
+      <!-- COLUMNA DERECHA -->
+      <div class="col-span-1 lg:col-span-4 flex flex-col gap-6">
+
+        <!-- ACCIONES -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-3">
+          <button [routerLink]="['/reports', reporte.folio ?? reporte.id, 'update']"
+                  class="w-full bg-primary hover:bg-[#004799] text-white font-bold h-12 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95">
+            <span class="material-symbols-outlined">update</span> Actualizar Caso
+          </button>
+          <button class="w-full bg-white hover:bg-surface-container border-2 border-primary text-primary font-bold h-12 rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-95">
+            <span class="material-symbols-outlined">support_agent</span> Contactar Voluntario
+          </button>
+        </div>
+
+        <!-- MAPA -->
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/30 flex flex-col">
+          <div class="p-4 border-b border-surface-container-high bg-surface-container-lowest">
+            <h3 class="text-base font-bold text-on-surface flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+              Ubicación
+            </h3>
+          </div>
+          <div class="h-[200px] w-full relative bg-surface-variant border-b border-outline-variant/30">
+            <div id="mapa-reporte-web" class="w-full h-full z-10"></div>
+          </div>
+          <div class="p-4">
+            <p class="text-sm font-bold text-on-surface">Lat {{ reporte.lat_out | number:'1.4-4' }}, Lng {{ reporte.lng_out | number:'1.4-4' }}</p>
+            <p class="text-xs text-on-surface-variant mt-1">Coordenadas GPS registradas</p>
+          </div>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex-grow">
+          <h3 class="text-base font-bold text-on-surface flex items-center gap-2 mb-6">
+            <span class="material-symbols-outlined text-primary">history</span> Historial de Rescate
+          </h3>
+          <div class="flex flex-col relative before:absolute before:inset-0 before:ml-[11px] before:h-full before:w-0.5 before:bg-gradient-to-b before:from-outline-variant/80 before:to-transparent pl-8">
+            <div class="relative flex flex-col mb-6 last:mb-0 group">
+              <div class="absolute -left-8 top-1 w-6 h-6 rounded-full border-[3px] border-white bg-primary shadow-md z-10">
+                <div class="absolute inset-0 rounded-full animate-ping bg-primary/40"></div>
+              </div>
+              <p class="text-[11px] font-bold text-outline uppercase tracking-wider mb-0.5">Ahora</p>
+              <p class="text-sm font-bold text-on-surface">Estado: {{ reporte.estado }}</p>
+              <p class="text-xs text-on-surface-variant mt-1">Tipo: {{ reporte.tipo_incidencia }}</p>
+            </div>
+            <div class="relative flex flex-col mb-6 last:mb-0 group">
+              <div class="absolute -left-8 top-1 w-6 h-6 rounded-full border-[3px] border-white bg-outline-variant z-10"></div>
+              <p class="text-[11px] font-bold text-outline uppercase tracking-wider mb-0.5">Inicio</p>
+              <p class="text-sm font-bold text-on-surface-variant">Reporte creado</p>
+              <p class="text-xs text-on-surface-variant mt-1">{{ reporte.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  }
+
   <app-footer-web></app-footer-web>
 </div>
 </ion-content>

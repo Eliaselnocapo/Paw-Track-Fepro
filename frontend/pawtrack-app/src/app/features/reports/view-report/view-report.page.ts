@@ -1,9 +1,11 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+
+import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
+import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
 
 declare const L: any;
 
@@ -12,33 +14,37 @@ declare const L: any;
   standalone: true,
   imports: [CommonModule, NavbarWebComponent, RouterLink, IonContent, FooterWebComponent],
   templateUrl: './view-report.page.html',
-  styleUrls: ['./view-report.page.scss']
+  styleUrls: ['./view-report.page.scss'],
 })
-export class ViewReportComponent implements AfterViewInit, OnDestroy {
-  constructor(private location: Location) {}
-  // Quitamos @Input() y asignamos datos temporales para evitar el error 'undefined'
-  // (Más adelante llenarás esto llamando a tu backend)
-  reporte: any = {
-    folio: '2024-05-17A',
-    estadoAnimal: 'En ruta a clínica',
-    urgencia: 75,
-    condiciones: {
-      herido: true,
-      deshidratado: false,
-      asustado: true
-    },
-    tipoAnimal: 'Perro',
-    direccion: 'Callejón del Gato Negro #14, CDMX',
-    lat: 19.432608, // Coordenada de prueba para tu mapa
-    lng: -99.133209 // Coordenada de prueba para tu mapa
-  };
+export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
+  reporte: IncidenciaResponse | null = null;
+  cargando = true;
+  error: string | null = null;
 
   private mapaWeb: any = null;
-  
-  ngAfterViewInit(): void {
-    // Retraso para asegurar que el div del mapa ya exista en pantalla
-    setTimeout(() => this.initMapa(), 500);
+
+  constructor(
+    private location: Location,
+    private route: ActivatedRoute,
+    private reportService: ReportService,
+  ) {}
+
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.reportService.obtenerReporte(id).subscribe({
+      next: (data) => {
+        this.reporte = data;
+        this.cargando = false;
+        setTimeout(() => this.initMapa(), 300);
+      },
+      error: () => {
+        this.error = 'No se pudo cargar el reporte.';
+        this.cargando = false;
+      },
+    });
   }
+
+  ngAfterViewInit(): void {}
 
   ngOnDestroy(): void {
     if (this.mapaWeb) {
@@ -49,11 +55,12 @@ export class ViewReportComponent implements AfterViewInit, OnDestroy {
   }
 
   private initMapa(): void {
+    if (this.reporte?.lat_out == null || this.reporte?.lng_out == null) return;
     const contenedor = document.getElementById('mapa-reporte-web');
-    if (!contenedor || this.mapaWeb || !this.reporte) return;
+    if (!contenedor || this.mapaWeb) return;
 
     this.mapaWeb = L.map('mapa-reporte-web', {
-      center: [this.reporte.lat, this.reporte.lng],
+      center: [this.reporte.lat_out, this.reporte.lng_out],
       zoom: 15,
       zoomControl: false,
       attributionControl: false,
@@ -65,11 +72,9 @@ export class ViewReportComponent implements AfterViewInit, OnDestroy {
       keyboard: false,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(this.mapaWeb);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.mapaWeb);
 
-    L.circleMarker([this.reporte.lat, this.reporte.lng], {
+    L.circleMarker([this.reporte.lat_out, this.reporte.lng_out], {
       radius: 10,
       fillColor: '#ba1a1a',
       color: '#ffffff',
@@ -79,11 +84,36 @@ export class ViewReportComponent implements AfterViewInit, OnDestroy {
     }).addTo(this.mapaWeb);
 
     setTimeout(() => this.mapaWeb?.invalidateSize(), 150);
-    
-    
   }
-  regresar() {
-    this.location.back(); // Esto te regresa a la página anterior exacta
+
+  imagenUrl(imagen: string | null): string {
+    if (!imagen) return '';
+    if (imagen.startsWith('http')) return imagen;
+    return `http://localhost:8000${imagen}`;
   }
-  
+
+  tiempoTranscurrido(fecha: string): string {
+    const diff = Date.now() - new Date(fecha).getTime();
+    const h = Math.floor(diff / 3600000);
+    if (h < 1) return 'hace menos de 1 hora';
+    if (h < 24) return `hace ${h} hora${h > 1 ? 's' : ''}`;
+    const d = Math.floor(h / 24);
+    return `hace ${d} día${d > 1 ? 's' : ''}`;
+  }
+
+  urgencyLabel(score: number): string {
+    if (score >= 80) return 'Urgente';
+    if (score >= 40) return 'Moderado';
+    return 'Bajo';
+  }
+
+  urgencyClass(score: number): string {
+    if (score >= 80) return 'bg-error-container text-on-error-container border-error/20';
+    if (score >= 40) return 'bg-tertiary-container text-on-tertiary-container border-tertiary/20';
+    return 'bg-secondary-container text-on-secondary-container border-secondary/20';
+  }
+
+  regresar(): void {
+    this.location.back();
+  }
 }

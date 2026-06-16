@@ -151,7 +151,18 @@ REST_FRAMEWORK = {
 REST_AUTH = {
     'USE_JWT': True,
     'SESSION_LOGIN': False,
+    'USER_DETAILS_SERIALIZER': 'bd.serializers.UsuarioSerializer',
+    'REGISTER_SERIALIZER': 'bd.serializers.CustomRegisterSerializer',
 }
+
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # CORS — definido UNA sola vez
 CORS_ALLOWED_ORIGINS = [
