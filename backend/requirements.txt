@@ -1,0 +1,21 @@
+# Core de Django
+Django>=4.2,<5.0
+
+# API y Base de Datos
+djangorestframework>=3.14.0
+psycopg2-binary>=2.9.0
+
+# WebSockets y Tiempo Real
+channels>=4.0.0
+daphne>=4.0.0
+channels-redis>=4.1.0
+Pillow>=10.0.0
+
+# Autenticación y APIs
+djangorestframework>=3.14.0
+django-allauth>=0.54.0
+dj-rest-auth>=5.0.0
+djangorestframework-simplejwt>=5.3.0  # Obligatorio para conectar con Angular de forma segura
+
+requests>=2.31.0
+django-cors-headers==4.3.1

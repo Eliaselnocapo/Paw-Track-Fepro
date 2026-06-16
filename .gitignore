@@ -12,3 +12,25 @@ frontend/node_modules/
 # Variables de entorno (¡Contraseñas y tokens!)
 *.env
 .env.local
+
+# Archivos multimedia subidos por usuarios (Backend)
+media/
+
+# Configuraciones de Editores de Código y SO
+.vscode/
+.idea/
+.DS_Store
+
+# Claude Code — memoria local del agente (no compartir entre usuarios)
+.claude/
+.specify/
+
+# Documentos locales de especificación y contrato (no subir al repo)
+CLAUDE.md
+SYSTEM_CONTRACT.md
+Especificacion_back_y_funcionaldiades_generales.md
+specs/
+node_modules/
+**/node_modules/
+.angular/
+.vscode/

@@ -1,0 +1,46 @@
+================================================================================
+DOCUMENTACIÓN MVP RESCUENET (PawTrack) - MÓDULO DE REPORTES
+================================================================================
+
+1. ARQUITECTURA GENERAL
+--------------------------------------------------------------------------------
+- Stack Tecnológico: Angular (Standalone Components), TypeScript, Tailwind CSS, Leaflet (Mapas).
+- Puente Nativo: Preparado para integrarse con Capacitor (acceso a cámara y GPS del dispositivo).
+- Estructura UI: Diseño "Sándwich" con un Header fijo, una zona central dinámica con scroll independiente (overflow-y-auto) y un Footer fijo con barra de navegación tipo píldora.
+- Gestión de Estado: SPA (Single Page Application). Todo el flujo de reporte (5 pasos) vive en un solo componente (`create-report.page.html` y `.ts`), alternando vistas mediante la directiva `@if (pasoActual === X)` de Angular para una experiencia instantánea sin recargas de página.
+
+2. DESGLOSE DEL FLUJO (5 PASOS)
+--------------------------------------------------------------------------------
+[Paso 1] Captura de Evidencia:
+- Interfaz para subir archivos (arrastrar y soltar o abrir cámara nativa).
+- Carrusel de scroll horizontal (hide-scrollbar) para visualizar miniaturas de la evidencia subida (fotos/videos).
+
+[Paso 2] Detalles del Animal:
+- Formulario interactivo basado en botones seleccionables (sin inputs clásicos para mayor velocidad móvil).
+- Variables mapeadas en TypeScript: 
+  * Especie (tipoAnimal: perro, gato, otro)
+  * Tamaño (tamanoAproximado: pequeño, mediano, grande)
+  * Condición Visible (condicionVisible: herido, atrapado, extraviado)
+- Área de texto (textarea) para notas adicionales.
+
+[Paso 3] Ubicación del Evento (Mapa Interactivo):
+- Integración de Leaflet (OpenStreetMap) reemplazando la imagen estática.
+- Renderizado a pantalla completa ("Full Bleed") ocultando los márgenes del contenedor principal.
+- Marcador central fijo con animación CSS (@keyframes pulse-ring) que simula una mirilla.
+- Tarjeta inferior flotante estilo "Bento Box" con botón de confirmación.
+
+[Paso 4] Revisión Final:
+- Pantalla de resumen que consume las variables guardadas en los pasos anteriores mediante interpolación de Angular (ej. {{ tipoAnimal }}).
+- Muestra una previsualización de la foto principal, una tarjeta de los datos recabados, un mini-mapa estático referencial y la advertencia de envío oficial.
+
+[Paso 5] Reporte Exitoso:
+- Oculta dinámicamente la navegación global (Header y Footer) para enfocar al usuario en la confirmación.
+- Dispara una animación de confeti inyectada mediante manipulación del DOM desde TypeScript (función `lanzarConfeti()`).
+- Muestra el folio del caso generado y los próximos pasos del rescate.
+
+3. ARCHIVOS CLAVE DEL COMPONENTE
+--------------------------------------------------------------------------------
+- `index.html`: Contiene los scripts de Tailwind CSS por CDN, la configuración global de la paleta de colores personalizada (theme.extend.colors), y los enlaces de Leaflet.
+- `create-report.page.ts`: El "cerebro". Maneja las variables de estado, las funciones de navegación (`siguientePaso()`, `regresarPaso()`), la inicialización asíncrona del mapa de Leaflet y la lógica visual del confeti. Aquí también se preparará la futura conexión HTTP POST con el backend en Django/Rust.
+- `create-report.page.html`: La estructura del "Sándwich", renderizando las vistas condicionales y enlazando los eventos de clic a los métodos de TypeScript.
+- `create
