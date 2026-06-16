@@ -87,10 +87,12 @@
 
         <!-- ACCIONES -->
         <div class="bg-white rounded-xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-3">
-          <button [routerLink]="['/reports', reporte.folio ?? reporte.id, 'update']"
-                  class="w-full bg-primary hover:bg-[#004799] text-white font-bold h-12 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95">
-            <span class="material-symbols-outlined">update</span> Actualizar Caso
-          </button>
+          @if (puedeEditar()) {
+            <button [routerLink]="['/reports', reporte.folio ?? reporte.id, 'update']"
+                    class="w-full bg-primary hover:bg-[#004799] text-white font-bold h-12 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95">
+              <span class="material-symbols-outlined">update</span> Actualizar Caso
+            </button>
+          }
           <button class="w-full bg-white hover:bg-surface-container border-2 border-primary text-primary font-bold h-12 rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-95">
             <span class="material-symbols-outlined">support_agent</span> Contactar Voluntario
           </button>
