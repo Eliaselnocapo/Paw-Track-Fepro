@@ -1,102 +1,144 @@
 <ion-content [fullscreen]="true">
-<div class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md antialiased relative">
+  <div class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md antialiased relative">
 
-  <app-navbar-web></app-navbar-web>
+    <app-navbar-web></app-navbar-web>
 
-  <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 py-8 flex flex-col gap-6">
-
-    <section class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6">
-      <div class="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
-        
-        <img
-          [src]="usuario.fotoUrl"
-          alt="Foto de perfil"
-          class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-2 border-outline-variant/30 shadow-md shrink-0">
-
-        <div class="flex-1 w-full">
-          <div class="flex flex-col sm:flex-row items-center md:justify-start gap-3 justify-center">
-            <h1 class="text-3xl font-bold text-on-surface">
-              {{ usuario.nombre }}
-            </h1>
-            <span class="bg-primary text-on-primary px-3 py-1 rounded-full text-xs font-bold uppercase shrink-0">
-              {{ usuario.rol }}
-            </span>
-          </div>
-
-          <p class="text-sm text-on-surface-variant mt-2 md:mt-1">
-            {{ usuario.email }}
-          </p>
-
-          <p class="text-sm text-on-surface-variant">
-            {{ usuario.ubicacion }}
-          </p>
+    @if (cargando) {
+      <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 py-8">
+        <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-8 text-center text-slate-500 font-semibold">
+          Cargando perfil...
         </div>
-
-        <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3 mt-4 md:mt-0">
-          <button class="w-full sm:w-auto bg-primary text-white px-5 py-3 rounded-lg font-semibold shadow-sm hover:opacity-90 transition-opacity active:scale-[0.98]">
-            Editar Perfil
-          </button>
-
-          <button class="w-full sm:w-auto border border-primary text-primary px-5 py-3 rounded-lg font-semibold hover:bg-primary/5 transition-colors active:scale-[0.98]">
-            Reputación
-          </button>
+      </main>
+    } @else if (error) {
+      <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 py-8">
+        <div class="bg-white rounded-xl shadow-sm border border-red-200 p-8 text-center text-red-600 font-semibold">
+          {{ error }}
         </div>
-      </div>
-    </section>
+      </main>
+    } @else {
+      <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 py-8 flex flex-col gap-6">
 
-    <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 text-center sm:text-left">
-        <p class="text-4xl font-bold text-on-surface">{{ usuario.reportesTotales }}</p>
-        <p class="text-xs text-outline uppercase tracking-widest mt-1">Reportes Totales</p>
-      </div>
+        <section class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6">
+          <div class="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
 
-      <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 text-center sm:text-left">
-        <p class="text-4xl font-bold text-on-surface">{{ usuario.animalesRescatados }}</p>
-        <p class="text-xs text-outline uppercase tracking-widest mt-1">Animales Rescatados</p>
-      </div>
-    </section>
-
-    <section class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
-      <div class="px-5 py-4 border-b border-outline-variant/30 flex justify-between items-center">
-        <h2 class="font-bold text-on-surface">Reportes recientes</h2>
-        <button class="text-primary font-semibold text-sm hover:underline">Ver todos</button>
-      </div>
-
-      <div class="divide-y divide-outline-variant/20">
-        @for (reporte of usuario.reportesRecientes; track reporte.id) {
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 px-5 py-5 sm:py-4 hover:bg-surface-container-low transition-colors">
-            
             <img
-              [src]="reporte.fotoUrl"
-              alt="Foto del reporte"
-              class="w-full sm:w-20 h-40 sm:h-20 rounded-xl object-cover shrink-0">
+              [src]="usuario.fotoUrl"
+              alt="Foto de perfil"
+              class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-2 border-outline-variant/30 shadow-md shrink-0">
 
             <div class="flex-1 w-full">
-              <p class="font-bold text-on-surface text-lg sm:text-base mt-2 sm:mt-0">{{ reporte.titulo }}</p>
-              <p class="text-sm text-on-surface-variant line-clamp-2 mt-1 sm:mt-0">
-                {{ reporte.descripcion }}
+              <div class="flex flex-col sm:flex-row items-center md:justify-start gap-3 justify-center">
+                <h1 class="text-3xl font-bold text-on-surface">
+                  {{ usuario.nombre }}
+                </h1>
+
+                <span class="bg-primary text-on-primary px-3 py-1 rounded-full text-xs font-bold uppercase shrink-0">
+                  {{ usuario.rol }}
+                </span>
+              </div>
+
+              <p class="text-sm text-on-surface-variant mt-2 md:mt-1">
+                {{ usuario.email }}
               </p>
-              <p class="text-xs text-outline mt-2 sm:mt-1">
-                {{ reporte.fecha }} · {{ reporte.lugar }}
+
+              <p class="text-sm text-on-surface-variant">
+                {{ usuario.ubicacion }}
               </p>
             </div>
 
-            <div class="w-full sm:w-auto flex justify-start sm:justify-end mt-3 sm:mt-0">
-              <span class="px-3 py-1 rounded-full text-xs font-bold shrink-0"
-                  [class.bg-primary-container]="reporte.estado === 'Resuelto'"
-                  [class.text-primary]="reporte.estado === 'Resuelto'"
-                  [class.bg-error-container]="reporte.estado === 'Urgente'"
-                  [class.text-error]="reporte.estado === 'Urgente'">
-                {{ reporte.estado }}
-              </span>
+            <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3 mt-4 md:mt-0">
+              <button class="w-full sm:w-auto bg-primary text-white px-5 py-3 rounded-lg font-semibold shadow-sm hover:opacity-90 transition-opacity active:scale-[0.98]">
+                Editar Perfil
+              </button>
+
+              <button class="w-full sm:w-auto border border-primary text-primary px-5 py-3 rounded-lg font-semibold hover:bg-primary/5 transition-colors active:scale-[0.98]">
+                Reputación
+              </button>
             </div>
           </div>
-        }
-      </div>
-    </section>
+        </section>
 
-  </main>
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 text-center sm:text-left">
+            <p class="text-4xl font-bold text-on-surface">
+              {{ usuario.reportesTotales }}
+            </p>
+            <p class="text-xs text-outline uppercase tracking-widest mt-1">
+              Reportes Totales
+            </p>
+          </div>
 
-  <app-footer-web class="mt-auto"></app-footer-web>
-</div>
+          <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 text-center sm:text-left">
+            <p class="text-4xl font-bold text-on-surface">
+              {{ usuario.casosResueltos }}
+            </p>
+            <p class="text-xs text-outline uppercase tracking-widest mt-1">
+              Casos Resueltos
+            </p>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+          <div class="px-5 py-4 border-b border-outline-variant/30 flex justify-between items-center">
+            <h2 class="font-bold text-on-surface">
+              Reportes recientes
+            </h2>
+
+            <button class="text-primary font-semibold text-sm hover:underline">
+              Ver todos
+            </button>
+          </div>
+
+          <div class="divide-y divide-outline-variant/20">
+
+            @if (usuario.reportesRecientes.length === 0) {
+              <div class="px-5 py-8 text-center text-slate-500 font-medium">
+                Aún no hay reportes recientes.
+              </div>
+            } @else {
+              @for (reporte of usuario.reportesRecientes; track reporte.id) {
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 px-5 py-5 sm:py-4 hover:bg-surface-container-low transition-colors">
+
+                  <img
+                    [src]="reporte.fotoUrl"
+                    alt="Foto del reporte"
+                    class="w-full sm:w-20 h-40 sm:h-20 rounded-xl object-cover shrink-0">
+
+                  <div class="flex-1 w-full">
+                    <p class="font-bold text-on-surface text-lg sm:text-base mt-2 sm:mt-0">
+                      {{ reporte.titulo }}
+                    </p>
+
+                    <p class="text-sm text-on-surface-variant line-clamp-2 mt-1 sm:mt-0">
+                      {{ reporte.descripcion }}
+                    </p>
+
+                    <p class="text-xs text-outline mt-2 sm:mt-1">
+                      {{ reporte.fecha }} · {{ reporte.lugar }}
+                    </p>
+                  </div>
+
+                  <div class="w-full sm:w-auto flex justify-start sm:justify-end mt-3 sm:mt-0">
+                    <span
+                      class="px-3 py-1 rounded-full text-xs font-bold shrink-0"
+                      [class.bg-primary-container]="reporte.estado === 'Resuelto'"
+                      [class.text-primary]="reporte.estado === 'Resuelto'"
+                      [class.bg-error-container]="reporte.estado === 'Urgente'"
+                      [class.text-error]="reporte.estado === 'Urgente'">
+                      {{ reporte.estado }}
+                    </span>
+                  </div>
+                </div>
+              }
+            }
+
+          </div>
+        </section>
+
+      </main>
+    }
+
+    <app-footer-web class="mt-auto"></app-footer-web>
+
+  </div>
 </ion-content>
