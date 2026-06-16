@@ -9,7 +9,7 @@ export interface UsuarioResponse {
   first_name: string;
   last_name: string;
   email: string;
-  rol_principal: string;
+  roles: string[];
   telefono: string;
   foto_perfil: string | null;
   perfil_rescatista?: any;
@@ -45,11 +45,7 @@ export class ProfileService {
     return this.http.get<IncidenciaResponse[]>(this.incidenciasUrl);
   }
 
-  obtenerReportesDelUsuario(usuarioId: number): Observable<IncidenciaResponse[]> {
-    return this.listarIncidencias().pipe(
-      map((reportes) =>
-        reportes.filter((reporte) => reporte.usuario_reporta === usuarioId)
-      )
-    );
+  obtenerMisCasos(): Observable<IncidenciaResponse[]> {
+    return this.http.get<IncidenciaResponse[]>(`${this.incidenciasUrl}mis-casos/`);
   }
 }

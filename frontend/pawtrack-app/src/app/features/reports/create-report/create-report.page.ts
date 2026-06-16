@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
+import { ReportService } from '../../../core/services/report.service';
 
 declare let L: any;
 
@@ -43,7 +44,9 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   lngActual: number = -98.2012;
   cargandoDireccion: boolean = false;
 
-  folioGenerado: number | null = null;
+  folioGenerado: string | null = null;
+  enviando = false;
+  errorEnvio: string | null = null;
 
   // Instancias de Leaflet
   private mapInteractive: any;
@@ -57,7 +60,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     { id: 3, texto: 'El animal es trasladado a una veterinaria o refugio asociado.' }
   ];
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef, private reportService: ReportService) {}
 
   ngOnInit() {}
 
@@ -261,11 +264,29 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   }
 
   guardarEnBaseDeDatos() {
-    this.folioGenerado = Math.floor(1000 + Math.random() * 9000);
-    console.log('Enviando reporte a base de datos...', {
-      usuario: this.nombreUsuario,
-      telefono: this.telefonoUsuario,
-      folio: this.folioGenerado
+    this.enviando    = true;
+    this.errorEnvio  = null;
+
+    this.reportService.crearReporte({
+      tipo_animal:      this.tipoAnimal,
+      tamano_animal:    this.tamanoAproximado,
+      condicion_animal: this.condicionesTexto,
+      notas_animal:     this.notasAdicionales,
+      latitud:          this.latActual,
+      longitud:         this.lngActual,
+      imagen:           this.archivosSeleccionados[0]?.archivoFisico,
+    }).subscribe({
+      next: (res) => {
+        this.folioGenerado = res.folio ?? `#${res.id}`;
+        this.enviando      = false;
+        this.destroyPreviewMap();
+      },
+      error: () => {
+        this.errorEnvio = 'No se pudo enviar el reporte. Intenta de nuevo.';
+        this.enviando   = false;
+        // Regresa al paso anterior para que el usuario pueda reintentar
+        this.pasoActual = 4;
+      },
     });
   }
 

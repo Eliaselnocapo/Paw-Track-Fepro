@@ -447,9 +447,15 @@
 
         <div class="w-full md:w-7/12 p-10 flex flex-col justify-between bg-white">
           <div class="space-y-6">
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm animate-pulse">
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm" [class.animate-pulse]="enviando">
               <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Folio de Seguimiento</p>
-              <p class="text-2xl text-blue-700 font-bold">#PT-{{ folioGenerado || '8398' }}</p>
+              @if (enviando) {
+                <p class="text-base text-slate-400">Generando folio...</p>
+              } @else if (errorEnvio) {
+                <p class="text-sm text-red-600">{{ errorEnvio }}</p>
+              } @else {
+                <p class="text-2xl text-blue-700 font-bold">{{ folioGenerado }}</p>
+              }
             </div>
 
             <div class="grid grid-cols-2 gap-4">

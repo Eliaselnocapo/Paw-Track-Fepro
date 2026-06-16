@@ -54,10 +54,6 @@ export class ProfilePage implements OnInit {
   cargando = true;
   error = '';
 
-  // Temporal: usuario fijo para probar conexión con backend.
-  // El id debe venir del token/auth o de un endpoint /usuarios/me/.
-  private readonly usuarioIdPrueba = 1;
-
   usuario: UsuarioPerfil = {
     nombre: '',
     rol: '',
@@ -70,6 +66,15 @@ export class ProfilePage implements OnInit {
   };
 
   constructor(private profileService: ProfileService) {}
+
+  private getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('pawtrack_access');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.user_id ?? null;
+    } catch { return null; }
+  }
 
   ngOnInit(): void {
     this.cargarPerfil();
@@ -84,19 +89,25 @@ export class ProfilePage implements OnInit {
     this.cargando = true;
     this.error = '';
 
+    const userId = this.getUserIdFromToken();
+    if (!userId) {
+      this.error = 'Debes iniciar sesión para ver tu perfil.';
+      this.cargando = false;
+      return;
+    }
+
     forkJoin({
-      usuario: this.profileService.obtenerUsuario(this.usuarioIdPrueba),
-      reportes: this.profileService.obtenerReportesDelUsuario(this.usuarioIdPrueba)
+      usuario: this.profileService.obtenerUsuario(userId),
+      reportes: this.profileService.obtenerMisCasos(),
     }).subscribe({
       next: ({ usuario, reportes }) => {
         this.usuario = this.mapearPerfil(usuario, reportes);
         this.cargando = false;
       },
-      error: (error) => {
-        console.error('Error al cargar perfil:', error);
+      error: () => {
         this.error = 'No se pudo cargar el perfil. Por favor, inténtalo de nuevo más tarde.';
         this.cargando = false;
-      }
+      },
     });
   }
 
@@ -109,7 +120,7 @@ export class ProfilePage implements OnInit {
 
     return {
       nombre: nombreCompleto || usuarioBackend.username,
-      rol: this.formatearRol(usuarioBackend.rol_principal),
+      rol: this.formatearRol((usuarioBackend.roles ?? [])[0] ?? ''),
       email: usuarioBackend.email,
       ubicacion: this.obtenerUbicacion(usuarioBackend),
       fotoUrl: this.resolverUrlMedia(usuarioBackend.foto_perfil, usuarioBackend.username),

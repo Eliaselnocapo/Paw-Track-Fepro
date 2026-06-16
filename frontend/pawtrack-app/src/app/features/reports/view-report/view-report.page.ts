@@ -113,6 +113,16 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
     return 'bg-secondary-container text-on-secondary-container border-secondary/20';
   }
 
+  puedeEditar(): boolean {
+    if (!this.reporte || this.reporte.usuario_reporta == null) return false;
+    const token = localStorage.getItem('pawtrack_access');
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.user_id === this.reporte.usuario_reporta;
+    } catch { return false; }
+  }
+
   regresar(): void {
     this.location.back();
   }
