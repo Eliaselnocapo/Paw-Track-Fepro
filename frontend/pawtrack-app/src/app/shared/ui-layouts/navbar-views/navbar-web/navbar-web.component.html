@@ -1,37 +1,89 @@
 <header class="bg-blue-700 shadow-md w-full z-50 h-16 flex items-center transition-all duration-200">
-  <div class="max-w-[1280px] mx-auto px-4 md:px-12 w-full flex justify-between items-center">
+  <div class="max-w-[1280px] mx-auto px-3 md:px-12 w-full flex justify-between items-center">
 
-    <div class="flex items-center gap-10">
+    <div class="flex items-center gap-3 md:gap-10">
+
+      <app-menu-toggle class="md:hidden"></app-menu-toggle>
 
       <div class="flex items-center cursor-pointer" routerLink="/home">
-        <span class="text-2xl font-bold text-white tracking-tight">PawTrack</span>
+        <span class="text-lg md:text-2xl font-bold text-white tracking-tight">
+          PawTrack
+        </span>
       </div>
 
       <nav class="hidden md:flex gap-6 h-16 items-center">
-        <a routerLink="/home" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">Inicio</a>
+        <a
+          routerLink="/home"
+          routerLinkActive="border-b-2 border-white"
+          class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+          Inicio
+        </a>
 
-        <a routerLink="/reports/list-reports" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">Casos</a>
+        <a
+          routerLink="/reports/list-reports"
+          routerLinkActive="border-b-2 border-white"
+          class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+          Casos
+        </a>
 
         @if (isLoggedIn) {
-          <a routerLink="/impact" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">Impacto</a>
+          <a
+            routerLink="/impact"
+            routerLinkActive="border-b-2 border-white"
+            class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+            Impacto
+          </a>
 
-          <a routerLink="/profile" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">Perfil</a>
+          <a
+            routerLink="/profile"
+            routerLinkActive="border-b-2 border-white"
+            class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+            Perfil
+          </a>
         }
       </nav>
     </div>
 
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-2 md:gap-6">
 
       @if (!isLoggedIn) {
-        <a routerLink="/login" class="hidden md:block text-white hover:text-white/80 transition-colors text-sm font-semibold cursor-pointer">
+        <a
+          routerLink="/login"
+          class="hidden md:block text-white hover:text-white/80 transition-colors text-sm font-semibold cursor-pointer">
           Iniciar Sesión
         </a>
       }
 
-      <button class="bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors flex items-center gap-2 shadow-sm active:scale-95" routerLink="/reports/create-report">
-        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+      <!-- Botón móvil -->
+      <button
+        class="flex md:hidden bg-white text-blue-700 px-2.5 py-1.5 rounded-lg font-bold hover:bg-slate-100 transition-colors items-center gap-1.5 shadow-sm active:scale-95"
+        routerLink="/reports/create-report"
+        aria-label="Reportar emergencia">
+        <span
+          class="material-symbols-outlined text-[18px]"
+          style="font-variation-settings: 'FILL' 1;">
+          warning
+        </span>
+
+        <span class="flex flex-col text-[10px] leading-[11px] text-left">
+          <span>Reportar</span>
+          <span>Emergencia</span>
+        </span>
+      </button>
+
+      <!-- Botón escritorio -->
+      <button
+        class="hidden md:flex bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors items-center gap-2 shadow-sm active:scale-95"
+        routerLink="/reports/create-report">
+        <span
+          class="material-symbols-outlined text-[18px]"
+          style="font-variation-settings: 'FILL' 1;">
+          warning
+        </span>
+
         Reportar Emergencia
       </button>
+
     </div>
 
   </div>

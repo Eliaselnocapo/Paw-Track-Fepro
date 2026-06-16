@@ -70,7 +70,7 @@
   display: flex;
   gap: 20px; /* Esto es lo que los separa y evita que estén pegados */
   align-items: center;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 /* 2. Tu botón principal (sin muchos cambios, solo limpié la transición) */
@@ -111,12 +111,12 @@
   border: 1px solid rgba(255, 255, 255, 0.5); /* Borde sutil */
   cursor: pointer;
   /* Sombra más delicada para que no compita con el botón principal */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); 
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
 
   &:hover {
     /* Al pasar el mouse, cambia a un azulito MUY claro y amigable */
-    background-color: #e0edff; 
+    background-color: #e0edff;
     color: #0049a0; /* El texto se oscurece un poco para mejor contraste */
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -268,16 +268,16 @@
   align-items: stretch;
   border-radius: 20px;
   overflow: hidden;
-  
+
   /* 1. Fondo azul clarito/grisáceo muy sutil (en lugar de blanco puro) */
-  background: #f4f7fb; 
-  
+  background: #f4f7fb;
+
   /* 2. Adiós border-top. Le ponemos un borde blanco casi transparente para un efecto limpio */
-  border: 1px solid rgba(255, 255, 255, 0.8); 
-  
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
   /* 3. Hola Box-Shadow. Una sombra suave para dar volumen */
-  box-shadow: 0 8px 24px rgba(11, 28, 48, 0.05); 
-  
+  box-shadow: 0 8px 24px rgba(11, 28, 48, 0.05);
+
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 
   /* Efecto al pasar el mouse: flota un poco más y la sombra se intensifica */
@@ -287,8 +287,8 @@
   }
 
   /* Intercala las filas */
-  &:nth-child(even) { 
-    flex-direction: row-reverse; 
+  &:nth-child(even) {
+    flex-direction: row-reverse;
   }
 
   /* NOTA: Las clases con "border-top: 4px solid..." fueron eliminadas por completo */
@@ -490,3 +490,103 @@ ion-content {
   --background: transparent;
 }
 
+/* =========================
+   FIX RESPONSIVE HOME MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+  .page-container {
+    overflow-x: hidden;
+  }
+
+  .hero-section {
+    height: auto !important;
+    min-height: 100dvh !important;
+    padding: 96px 16px 40px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
+  }
+
+  .hero-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(3.7rem, 15vw, 5rem) !important;
+    line-height: 1.05 !important;
+  }
+
+  .hero-content p {
+    max-width: 92% !important;
+    font-size: 1rem !important;
+    line-height: 1.7 !important;
+  }
+
+  .hero-buttons-container {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 18px !important;
+  }
+
+  .hero-btn,
+  .hero-btn-secondary {
+    width: auto !important;
+    min-width: 165px !important;
+  }
+
+  .action-bar {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 32px !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .action-tab {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 72px !important;
+    border-radius: 20px !important;
+    padding: 0 18px !important;
+  }
+
+  .action-tab:hover {
+    transform: none !important;
+  }
+
+  .roles-section {
+    padding: 56px 16px 72px !important;
+  }
+
+  .role-row,
+  .role-row:nth-child(even) {
+    flex-direction: column !important;
+  }
+
+  .role-text {
+    padding: 28px 22px !important;
+    text-align: left !important;
+    align-items: flex-start !important;
+  }
+
+  .card-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    align-self: stretch !important;
+  }
+}

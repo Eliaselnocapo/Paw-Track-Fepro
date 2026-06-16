@@ -1,0 +1,152 @@
+.paw-menu {
+  --width: min(84vw, 330px);
+  --background: #ffffff;
+  z-index: 9999;
+}
+
+.paw-menu::part(backdrop) {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.paw-menu::part(container) {
+  background: #ffffff;
+  border-radius: 0 28px 28px 0;
+  box-shadow: 18px 0 45px rgba(15, 23, 42, 0.28);
+  overflow: hidden;
+}
+
+.menu-panel {
+  min-height: 100%;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%);
+  color: #001b3d;
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 6px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 18px;
+}
+
+.brand-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: #1d4ed8;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 22px rgba(29, 78, 216, 0.28);
+}
+
+.brand-icon span {
+  font-size: 26px;
+}
+
+.menu-brand h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #1d4ed8;
+}
+
+.menu-brand p {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-links a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 13px 14px;
+  border-radius: 16px;
+
+  color: #0f172a;
+  background: transparent;
+
+  font-size: 0.95rem;
+  font-weight: 750;
+  text-decoration: none;
+
+  transition: all 0.18s ease;
+}
+
+.menu-links a span {
+  font-size: 22px;
+  color: #2563eb;
+}
+
+.menu-links a:hover,
+.active-menu-link {
+  background: #eaf2ff !important;
+  color: #1d4ed8 !important;
+}
+
+.emergency-link {
+  margin-top: 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px;
+  border-radius: 18px;
+
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: white;
+  text-decoration: none;
+
+  box-shadow: 0 14px 28px rgba(220, 38, 38, 0.25);
+  transition: transform 0.18s ease;
+}
+
+.emergency-link:active {
+  transform: scale(0.97);
+}
+
+.emergency-link span {
+  font-size: 26px;
+  color: white;
+}
+
+.emergency-link strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.emergency-link small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.menu-footer {
+  margin-top: auto;
+  padding-top: 22px;
+}
+
+.menu-footer p {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-align: center;
+  margin: 0;
+}
