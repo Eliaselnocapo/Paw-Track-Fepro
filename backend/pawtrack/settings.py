@@ -3,6 +3,7 @@ Django settings for pawtrack project.
 """
 import os
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -187,3 +188,14 @@ CORS_ALLOW_HEADERS = [
     "origin",
     "x-requested-with",
 ]
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULE = {
+    'recalc-urgency-score': {
+        'task': 'notificaciones.tasks.recalc_urgency_score',
+        'schedule': crontab(minute='*/30'),
+    },
+}
