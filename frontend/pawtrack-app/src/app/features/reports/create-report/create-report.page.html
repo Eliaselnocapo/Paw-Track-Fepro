@@ -2,8 +2,8 @@
   
   <app-navbar-web class="w-full z-50"></app-navbar-web>
 
-  <div class="fixed top-[10%] left-[-5%] w-[500px] h-[500px] bg-blue-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 pointer-events-none z-0"></div>
-  <div class="fixed bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-emerald-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 pointer-events-none z-0"></div>
+  <!-- Degradado superior limpio exclusivo para el formulario (Cero distracciones) -->
+  <div class="fixed top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-blue-100/70 to-slate-50 pointer-events-none z-0"></div>
 
   @if (pasoActual !== 5) {
     <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 pt-28 pb-16 flex flex-col md:flex-row gap-8 relative z-10">
@@ -112,105 +112,132 @@
           </div>
         }
 
-        @if (pasoActual === 2) {
-          <div class="w-full bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-300 flex flex-col gap-8">
+@if (pasoActual === 2) {
+          <div class="w-full bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-8">
+            
             <section>
-              <h2 class="text-lg font-bold text-slate-900 mb-4">¿Qué tipo de animal es?</h2>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <button (click)="seleccionarTipo('perro')" class="relative flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md" [ngClass]="{'border-blue-600 bg-blue-50': tipoAnimal === 'perro', 'border-slate-300': tipoAnimal !== 'perro'}">
-                  <span class="material-symbols-outlined text-4xl mb-3" [ngClass]="{'text-blue-700': tipoAnimal === 'perro', 'text-slate-400': tipoAnimal !== 'perro'}" style="font-variation-settings: 'FILL' 1;">pets</span>
-                  <span class="font-bold text-sm" [ngClass]="{'text-blue-700': tipoAnimal === 'perro', 'text-slate-700': tipoAnimal !== 'perro'}">Perro</span>
-                  @if(tipoAnimal === 'perro') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-white text-[14px]">check</span></div> }
+              <h2 class="text-base font-black text-slate-900 mb-4">¿Qué tipo de animal es?</h2>
+              <!-- 2 Columnas, eliminada la opción "Otro" -->
+              <div class="grid grid-cols-2 gap-4">
+                
+                <button (click)="seleccionarTipo('perro')" class="relative flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'perro', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'perro'}">
+                  <img src="assets/icon/corgi.png" alt="Perro" class="w-14 h-14 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tipoAnimal === 'perro', 'opacity-50 grayscale': tipoAnimal !== 'perro'}">
+                  <span class="font-bold text-sm" [ngClass]="{'text-blue-800': tipoAnimal === 'perro', 'text-slate-700': tipoAnimal !== 'perro'}">Perro</span>
+                  @if(tipoAnimal === 'perro') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                 </button>
                 
-                <button (click)="seleccionarTipo('gato')" class="relative flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md" [ngClass]="{'border-blue-600 bg-blue-50': tipoAnimal === 'gato', 'border-slate-300': tipoAnimal !== 'gato'}">
-                  <span class="material-symbols-outlined text-4xl mb-3" [ngClass]="{'text-blue-700': tipoAnimal === 'gato', 'text-slate-400': tipoAnimal !== 'gato'}" style="font-variation-settings: 'FILL' 1;">cruelty_free</span>
-                  <span class="font-bold text-sm" [ngClass]="{'text-blue-700': tipoAnimal === 'gato', 'text-slate-700': tipoAnimal !== 'gato'}">Gato</span>
-                  @if(tipoAnimal === 'gato') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-white text-[14px]">check</span></div> }
+                <button (click)="seleccionarTipo('gato')" class="relative flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'gato', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'gato'}">
+                  <img src="assets/icon/exotic-shorthair.png" alt="Gato" class="w-14 h-14 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tipoAnimal === 'gato', 'opacity-50 grayscale': tipoAnimal !== 'gato'}">
+                  <span class="font-bold text-sm" [ngClass]="{'text-blue-800': tipoAnimal === 'gato', 'text-slate-700': tipoAnimal !== 'gato'}">Gato</span>
+                  @if(tipoAnimal === 'gato') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                 </button>
 
-                <button (click)="seleccionarTipo('otro')" class="relative flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md" [ngClass]="{'border-blue-600 bg-blue-50': tipoAnimal === 'otro', 'border-slate-300': tipoAnimal !== 'otro'}">
-                  <span class="material-symbols-outlined text-4xl mb-3" [ngClass]="{'text-blue-700': tipoAnimal === 'otro', 'text-slate-400': tipoAnimal !== 'otro'}">help_center</span>
-                  <span class="font-bold text-sm" [ngClass]="{'text-blue-700': tipoAnimal === 'otro', 'text-slate-700': tipoAnimal !== 'otro'}">Otro / No sé</span>
-                  @if(tipoAnimal === 'otro') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-white text-[14px]">check</span></div> }
-                </button>
               </div>
             </section>
 
-            <hr class="border-slate-200">
+            <hr class="border-slate-100">
+
+<section [class.opacity-50]="!tipoAnimal" [class.pointer-events-none]="!tipoAnimal" class="transition-opacity duration-300">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-base font-black text-slate-900">Tamaño aproximado</h2>
+                @if (!tipoAnimal) {
+                  <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded uppercase tracking-wider">Selecciona animal primero</span>
+                }
+              </div>
+
+              @if (tipoAnimal === 'gato') {
+                <!-- ================= OPIONES PARA GATO ================= -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-in">
+                  <button (click)="seleccionarTamano('cachorro')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'cachorro', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'cachorro'}">
+                    <img src="assets/icon/cat.png" alt="Cachorro" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'cachorro', 'opacity-50 grayscale': tamanoAproximado !== 'cachorro'}">
+                    <div>
+                      <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'cachorro', 'text-slate-700': tamanoAproximado !== 'cachorro'}">Cachorro</span>
+                      <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'cachorro', 'text-slate-500': tamanoAproximado !== 'cachorro'}">Menos de 6 meses</span>
+                    </div>
+                  </button>
+                  
+                  <button (click)="seleccionarTamano('adulto')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'adulto', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'adulto'}">
+                    <img src="assets/icon/cat_adult.png" alt="Adulto" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'adulto', 'opacity-50 grayscale': tamanoAproximado !== 'adulto'}">
+                    <div>
+                      <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'adulto', 'text-slate-700': tamanoAproximado !== 'adulto'}">Adulto</span>
+                      <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'adulto', 'text-slate-500': tamanoAproximado !== 'adulto'}">Tamaño estándar</span>
+                    </div>
+                  </button>
+                </div>
+              } @else {
+                <!-- ================= OPIONES PARA PERRO (O por defecto) ================= -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fade-in">
+                  <button (click)="seleccionarTamano('pequeño')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'pequeño', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'pequeño'}">
+                    <img src="assets/icon/small_dog.png" alt="Pequeño" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'pequeño', 'opacity-50 grayscale': tamanoAproximado !== 'pequeño'}">
+                    <div>
+                      <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'pequeño', 'text-slate-700': tamanoAproximado !== 'pequeño'}">Pequeño</span>
+                      <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'pequeño', 'text-slate-500': tamanoAproximado !== 'pequeño'}">&lt; 10 kg</span>
+                    </div>
+                  </button>
+                  
+                  <button (click)="seleccionarTamano('mediano')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'mediano', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'mediano'}">
+                    <img src="assets/icon/medium_dog.png" alt="Mediano" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'mediano', 'opacity-50 grayscale': tamanoAproximado !== 'mediano'}">
+                    <div>
+                      <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'mediano', 'text-slate-700': tamanoAproximado !== 'mediano'}">Mediano</span>
+                      <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'mediano', 'text-slate-500': tamanoAproximado !== 'mediano'}">10 - 25 kg</span>
+                    </div>
+                  </button>
+                  
+                  <button (click)="seleccionarTamano('grande')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'grande', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'grande'}">
+                    <img src="assets/icon/big_dog.png" alt="Grande" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'grande', 'opacity-50 grayscale': tamanoAproximado !== 'grande'}">
+                    <div>
+                      <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'grande', 'text-slate-700': tamanoAproximado !== 'grande'}">Grande</span>
+                      <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'grande', 'text-slate-500': tamanoAproximado !== 'grande'}">&gt; 25 kg</span>
+                    </div>
+                  </button>
+                </div>
+              }
+            </section>
+
+            <hr class="border-slate-100">
 
             <section>
-              <h2 class="text-lg font-bold text-slate-900 mb-4">Tamaño aproximado</h2>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <button (click)="seleccionarTamano('pequeño')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left" [ngClass]="{'border-blue-600 bg-blue-50': tamanoAproximado === 'pequeño', 'border-slate-300 hover:border-slate-400': tamanoAproximado !== 'pequeño'}">
-                  <span class="material-symbols-outlined text-3xl mr-3" [ngClass]="{'text-blue-700': tamanoAproximado === 'pequeño', 'text-slate-400': tamanoAproximado !== 'pequeño'}">open_with</span>
-                  <div>
-                    <span class="block font-bold text-sm" [ngClass]="{'text-blue-700': tamanoAproximado === 'pequeño'}">Pequeño</span>
-                    <span class="block text-xs text-slate-500 mt-0.5">&lt; 10 kg</span>
-                  </div>
-                </button>
-                <button (click)="seleccionarTamano('mediano')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left" [ngClass]="{'border-blue-600 bg-blue-50': tamanoAproximado === 'mediano', 'border-slate-300 hover:border-slate-400': tamanoAproximado !== 'mediano'}">
-                  <span class="material-symbols-outlined text-3xl mr-3" [ngClass]="{'text-blue-700': tamanoAproximado === 'mediano', 'text-slate-400': tamanoAproximado !== 'mediano'}">straighten</span>
-                  <div>
-                    <span class="block font-bold text-sm" [ngClass]="{'text-blue-700': tamanoAproximado === 'mediano'}">Mediano</span>
-                    <span class="block text-xs text-slate-500 mt-0.5">10 - 25 kg</span>
-                  </div>
-                </button>
-                <button (click)="seleccionarTamano('grande')" class="relative flex items-center p-4 rounded-xl border-2 transition-all duration-200 text-left" [ngClass]="{'border-blue-600 bg-blue-50': tamanoAproximado === 'grande', 'border-slate-300 hover:border-slate-400': tamanoAproximado !== 'grande'}">
-                  <span class="material-symbols-outlined text-3xl mr-3" [ngClass]="{'text-blue-700': tamanoAproximado === 'grande', 'text-slate-400': tamanoAproximado !== 'grande'}">expand</span>
-                  <div>
-                    <span class="block font-bold text-sm" [ngClass]="{'text-blue-700': tamanoAproximado === 'grande'}">Grande</span>
-                    <span class="block text-xs text-slate-500 mt-0.5">&gt; 25 kg</span>
-                  </div>
-                </button>
-              </div>
-            </section>
-
-            <hr class="border-slate-200">
-
-            <section>
-              <h2 class="text-lg font-bold text-slate-900 mb-4">Condición Visible</h2>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <button (click)="toggleCondicion('herido')" class="relative flex flex-col p-5 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-md" [ngClass]="{'border-red-500 bg-red-50': tieneCondicion('herido'), 'border-slate-300': !tieneCondicion('herido')}">
-                  <span class="material-symbols-outlined text-3xl mb-3" [ngClass]="{'text-red-600': tieneCondicion('herido'), 'text-slate-400': !tieneCondicion('herido')}">local_hospital</span>
-                  <span class="font-bold text-sm mb-1" [ngClass]="{'text-red-700': tieneCondicion('herido')}">Herido</span>
-                  <span class="text-xs text-slate-500 leading-tight">Muestra signos de dolor o sangrado.</span>
-                  @if(tieneCondicion('herido')) { <div class="absolute top-3 right-3 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-white text-[14px]">check</span></div> }
+              <h2 class="text-base font-black text-slate-900 mb-4">Condición Visible</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button (click)="toggleCondicion('herido')" class="relative flex flex-col p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-red-500 bg-red-50/50': tieneCondicion('herido'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('herido')}">
+                  <img src="assets/icon/medicine.png" alt="Herido" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('herido'), 'opacity-50 grayscale': !tieneCondicion('herido')}">
+                  <span class="font-bold text-sm mb-1" [ngClass]="{'text-red-700': tieneCondicion('herido'), 'text-slate-700': !tieneCondicion('herido')}">Herido</span>
+                  <span class="text-xs font-medium leading-snug" [ngClass]="{'text-red-600/80': tieneCondicion('herido'), 'text-slate-500': !tieneCondicion('herido')}">Signos de dolor o sangrado.</span>
+                  @if(tieneCondicion('herido')) { <div class="absolute top-3 right-3 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                 </button>
 
-                <button (click)="toggleCondicion('callejero')" class="relative flex flex-col p-5 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-md" [ngClass]="{'border-amber-500 bg-amber-50': tieneCondicion('callejero'), 'border-slate-300': !tieneCondicion('callejero')}">
-                  <span class="material-symbols-outlined text-3xl mb-3" [ngClass]="{'text-amber-600': tieneCondicion('callejero'), 'text-slate-400': !tieneCondicion('callejero')}">route</span>
-                  <span class="font-bold text-sm mb-1" [ngClass]="{'text-amber-700': tieneCondicion('callejero')}">Callejero</span>
-                  <span class="text-xs text-slate-500 leading-tight">Deambula sin dueño aparente.</span>
-                  @if(tieneCondicion('callejero')) { <div class="absolute top-3 right-3 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-white text-[14px]">check</span></div> }
+                <button (click)="toggleCondicion('callejero')" class="relative flex flex-col p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-amber-500 bg-amber-50/50': tieneCondicion('callejero'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('callejero')}">
+                  <img src="assets/icon/street.png" alt="Callejero" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('callejero'), 'opacity-50 grayscale': !tieneCondicion('callejero')}">
+                  <span class="font-bold text-sm mb-1" [ngClass]="{'text-amber-700': tieneCondicion('callejero'), 'text-slate-700': !tieneCondicion('callejero')}">Callejero</span>
+                  <span class="text-xs font-medium leading-snug" [ngClass]="{'text-amber-600/80': tieneCondicion('callejero'), 'text-slate-500': !tieneCondicion('callejero')}">Deambula sin dueño aparente.</span>
+                  @if(tieneCondicion('callejero')) { <div class="absolute top-3 right-3 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                 </button>
 
-                <button (click)="toggleCondicion('extraviado')" class="relative flex flex-col p-5 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-md" [ngClass]="{'border-blue-600 bg-blue-50': tieneCondicion('extraviado'), 'border-slate-300': !tieneCondicion('extraviado')}">
-                  <span class="material-symbols-outlined text-3xl mb-3" [ngClass]="{'text-blue-700': tieneCondicion('extraviado'), 'text-slate-400': !tieneCondicion('extraviado')}">explore</span>
-                  <span class="font-bold text-sm mb-1" [ngClass]="{'text-blue-700': tieneCondicion('extraviado')}">Extraviado</span>
-                  <span class="text-xs text-slate-500 leading-tight">Aparenta estar perdido o desorientado.</span>
-                  @if(tieneCondicion('extraviado')) { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-white text-[14px]">check</span></div> }
+                <button (click)="toggleCondicion('extraviado')" class="relative flex flex-col p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tieneCondicion('extraviado'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('extraviado')}">
+                  <img src="assets/icon/search.png" alt="Extraviado" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('extraviado'), 'opacity-50 grayscale': !tieneCondicion('extraviado')}">
+                  <span class="font-bold text-sm mb-1" [ngClass]="{'text-blue-700': tieneCondicion('extraviado'), 'text-slate-700': !tieneCondicion('extraviado')}">Extraviado</span>
+                  <span class="text-xs font-medium leading-snug" [ngClass]="{'text-blue-600/80': tieneCondicion('extraviado'), 'text-slate-500': !tieneCondicion('extraviado')}">Perdido o desorientado.</span>
+                  @if(tieneCondicion('extraviado')) { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                 </button>
               </div>
             </section>
 
-            <section class="mt-4">
-              <label class="block text-sm font-bold text-slate-900 mb-2">Notas adicionales (Opcional)</label>
-              <textarea [(ngModel)]="notasAdicionales" class="w-full rounded-xl border border-slate-300 bg-white p-4 text-sm text-slate-800 focus:border-blue-600 focus:ring-1 focus:outline-none transition-all resize-y" placeholder="Ej. Es de color negro con manchas blancas, tiene un collar rojo..." rows="3"></textarea>
+            <section class="mt-2">
+              <label class="block text-sm font-black text-slate-900 mb-2">Notas adicionales <span class="font-medium text-slate-400">(Opcional)</span></label>
+              <textarea [(ngModel)]="notasAdicionales" class="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all resize-y placeholder:text-slate-400" placeholder="Ej. Es de color negro con manchas blancas, tiene un collar rojo..." rows="3"></textarea>
             </section>
 
-            <div class="flex justify-between items-center mt-4 border-t border-slate-200 pt-6">
-              <button (click)="regresarPaso()" class="text-blue-700 font-semibold hover:bg-slate-100 px-6 py-3 rounded-lg transition-colors flex items-center gap-2">
-                <span class="material-symbols-outlined text-[20px]">arrow_back</span> Atrás
+            <div class="flex justify-between items-center mt-4 border-t border-slate-100 pt-6">
+              <button (click)="regresarPaso()" class="text-slate-600 font-bold hover:bg-slate-100 px-5 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 text-sm">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span> Atrás
               </button>
-              <button (click)="siguientePaso()" [disabled]="!tipoAnimal || condicionesVisibles.length === 0" class="bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md flex items-center gap-2">
+              <button (click)="siguientePaso()" [disabled]="!tipoAnimal || condicionesVisibles.length === 0" class="bg-blue-700 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2 text-sm active:scale-95">
                 Siguiente Paso
-                <span class="material-symbols-outlined">arrow_forward</span>
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
             </div>
           </div>
         }
-
         @if (pasoActual === 3) {
           <div class="w-full flex flex-col gap-6 bg-white p-4 md:p-8 rounded-2xl shadow-md border border-slate-300">
             
@@ -447,9 +474,15 @@
 
         <div class="w-full md:w-7/12 p-10 flex flex-col justify-between bg-white">
           <div class="space-y-6">
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm animate-pulse">
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm" [class.animate-pulse]="enviando">
               <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Folio de Seguimiento</p>
-              <p class="text-2xl text-blue-700 font-bold">#PT-{{ folioGenerado || '8398' }}</p>
+              @if (enviando) {
+                <p class="text-base text-slate-400">Generando folio...</p>
+              } @else if (errorEnvio) {
+                <p class="text-sm text-red-600">{{ errorEnvio }}</p>
+              } @else {
+                <p class="text-2xl text-blue-700 font-bold">{{ folioGenerado }}</p>
+              }
             </div>
 
             <div class="grid grid-cols-2 gap-4">

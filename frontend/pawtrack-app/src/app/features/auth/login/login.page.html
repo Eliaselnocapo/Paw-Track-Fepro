@@ -1,7 +1,7 @@
 <div class="w-full h-full">
 <div class="w-full h-full">
 <div class="w-full min-h-screen bg-slate-50 relative font-body overflow-x-hidden">
-  
+
   <header class="w-full h-16 flex items-center justify-between px-8 z-50 absolute top-0 left-0">
     <div class="text-2xl font-bold text-blue-700 flex items-center gap-2 cursor-pointer" routerLink="/home">
       <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
@@ -12,7 +12,7 @@
       Volver al inicio
     </a>
   </header>
-  
+
   <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-60 pointer-events-none"></div>
   <div class="absolute top-[10%] right-[-5%] w-[450px] h-[450px] bg-emerald-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-60 pointer-events-none"></div>
   <div class="absolute -bottom-20 left-[20%] w-[600px] h-[600px] bg-indigo-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-60 pointer-events-none"></div>
@@ -20,46 +20,72 @@
 <div class="relative z-10 w-full min-h-screen px-6 pt-24 pb-10 flex justify-center items-center">
 
   <div class="w-full max-w-[1000px] bg-white flex flex-col md:flex-row shadow-2xl rounded-3xl border border-slate-200 overflow-hidden">
-      
+
       <div class="w-full lg:w-1/2 p-7 lg:p-10 flex flex-col justify-center bg-white">
         <div class="max-w-[380px] w-full mx-auto">
-          
+
           <div class="mb-8">
             <h1 class="text-xl font-bold text-blue-700 mb-1">PawTrack</h1>
             <h2 class="text-3xl font-bold text-slate-900 mb-2">Bienvenido de nuevo</h2>
             <p class="text-sm text-slate-600">Inicia sesión para continuar coordinando la ayuda para los animales.</p>
           </div>
-          
-          <form class="space-y-5">
+
+          <!-- Mensaje de error -->
+          <div *ngIf="error" class="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 font-medium">
+            {{ error }}
+          </div>
+
+          <form class="space-y-5" (ngSubmit)="onSubmit()" #loginForm="ngForm">
             <div>
               <label class="block text-sm font-bold text-slate-700 mb-1.5" for="email">Correo Electrónico</label>
-              <input class="w-full h-11 px-4 rounded-lg border border-slate-400 bg-white text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-sm shadow-sm placeholder-slate-400" id="email" name="email" placeholder="Ingresa tu correo" type="email"/>
+              <input
+                class="w-full h-11 px-4 rounded border border-slate-400 bg-white text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-sm shadow-sm placeholder-slate-400"
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Ingresa tu correo"
+                [(ngModel)]="email"
+                required
+              />
             </div>
-            
+
             <div>
               <div class="flex justify-between items-center mb-1.5">
                 <label class="block text-sm font-bold text-slate-700" for="password">Contraseña</label>
                 <a class="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer">¿Olvidaste tu contraseña?</a>
               </div>
-              <input class="w-full h-11 px-4 rounded-lg border border-slate-400 bg-white text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-sm shadow-sm placeholder-slate-400" id="password" name="password" placeholder="Ingresa tu contraseña" type="password"/>
+              <input
+                class="w-full h-11 px-4 rounded border border-slate-400 bg-white text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-sm shadow-sm placeholder-slate-400"
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Ingresa tu contraseña"
+                [(ngModel)]="password"
+                required
+              />
             </div>
-            
+
             <div class="flex items-center pt-1">
               <input class="w-4 h-4 rounded border-slate-400 text-blue-600 focus:ring-blue-600 bg-white cursor-pointer" id="remember" type="checkbox"/>
               <label class="ml-2 text-sm text-slate-600 cursor-pointer select-none" for="remember">Recordarme</label>
             </div>
-            
-            <button class="w-full h-12 mt-2 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-all shadow-md active:scale-[0.98]" type="button">
-              Iniciar Sesión
+
+            <button
+              class="w-full h-12 mt-2 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-all shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              type="submit"
+              [disabled]="cargando"
+            >
+              <span *ngIf="cargando" class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+              {{ cargando ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
             </button>
           </form>
-          
+
           <div class="mt-8">
             <div class="relative">
               <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-300/60"></div></div>
               <div class="relative flex justify-center text-sm"><span class="px-3 bg-white text-slate-500 font-medium">O continuar con</span></div>
             </div>
-            
+
             <div class="mt-6 grid grid-cols-2 gap-3">
               <button class="flex items-center justify-center h-11 rounded-lg border border-slate-400 bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm shadow-sm">
                 <span class="material-symbols-outlined mr-2 text-[18px]">account_circle</span> Google
@@ -69,13 +95,13 @@
               </button>
             </div>
           </div>
-          
+
           <p class="mt-8 text-center text-sm text-slate-600 font-medium">
             ¿No tienes una cuenta? <a class="text-blue-700 font-bold hover:text-blue-900 transition-colors cursor-pointer" routerLink="/register">Regístrate</a>
           </p>
         </div>
       </div>
-      
+
       <div class="hidden lg:block w-1/2 relative bg-slate-200">
         <div class="absolute inset-0 bg-gradient-to-l from-transparent to-white/30 z-10 pointer-events-none"></div>
         <img alt="Perrito rescatado" class="absolute inset-0 w-full h-full object-cover object-center z-0" src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"/>
@@ -86,7 +112,7 @@
           </div>
         </div>
       </div>
-      
+
     </div>
   </div>
 </div>

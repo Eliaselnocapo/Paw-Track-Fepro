@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router'; // <--- Importa RouterLink
 import { IonContent } from '@ionic/angular/standalone'; // Solo importa lo que realmente usas en el HTML
 import { NavbarWebComponent } from '../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component'; // Ajusta el nombre del archivo si es diferente
 import { FooterWebComponent } from '../../shared/ui-layouts/footer-views/footer-web/footer-web.component';     // Ajusta el nombre del archivo si es diferente
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -22,5 +23,11 @@ export class HomePage implements OnInit {
   constructor() { }
 
   ngOnInit() {
+  }
+  private authService = inject(AuthService);
+
+  // Angular leerá esto para mostrar u ocultar los botones
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 }

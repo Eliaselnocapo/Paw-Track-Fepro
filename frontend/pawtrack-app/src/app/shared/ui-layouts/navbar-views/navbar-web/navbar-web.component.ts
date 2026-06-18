@@ -1,14 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { MenuToggleComponent } from '../../menu-toggle/menu-toggle.component'; 
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar-web',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive], // Importante agregar RouterLinkActive
+  imports: [CommonModule, RouterLink, RouterLinkActive, MenuToggleComponent],
   templateUrl: './navbar-web.component.html',
   styleUrls: ['./navbar-web.component.scss']
 })
 export class NavbarWebComponent {
-  // TODO: Esto cambiará dinámicamente cuando el login con el backend esté listo
-  isLoggedIn: boolean = false; 
+  
+  private authService = inject(AuthService);
+
+  // 💡 El getter ahora le pregunta directamente a tu excelente servicio
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn(); 
+  }
+
 }

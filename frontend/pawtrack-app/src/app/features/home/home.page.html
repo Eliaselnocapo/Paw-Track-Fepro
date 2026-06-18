@@ -11,28 +11,37 @@
         Reporta, rescata o apoya — tu acción sincroniza nuestra misión.
       </p>
       <div class="hero-buttons-container">
-        <button class="hero-btn" routerLink="/register">
-          Comenzar <span class="material-symbols-outlined">arrow_forward</span>
-        </button>
-        
-        <button class="hero-btn-secondary" routerLink="/login" fill="clear">
-          Iniciar Sesión <span class="material-symbols-outlined">login</span>
-        </button>
+        @if (!isLoggedIn) {
+            <button routerLink="/register" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 transition-colors">
+              Comenzar <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+            </button>
+            
+            <button routerLink="/login" class="bg-white text-slate-800 px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-slate-50 transition-colors">
+              Iniciar sesión <span class="material-symbols-outlined text-[20px]">login</span>
+            </button>
+          } @else {
+            <button routerLink="/reports/create-report" class="bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/30 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-all active:scale-95 text-lg">
+              <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+              Reportar Emergencia
+            </button>
+          }
       </div>
     </div>
 
     <!-- Barra de acciones -->
     <div class="action-bar">
-      <div class="action-tab tab-reporter">
-        <div class="tab-inner">
-          <span class="material-symbols-outlined tab-icon">emergency</span>
-          <div class="tab-labels">
-            <span class="tab-eyebrow">Encontré un animal</span>
-            <span class="tab-title">REPORTAR</span>
+      <a routerLink="/reports/create-report">
+        <div class="action-tab tab-reporter">
+          <div class="tab-inner">
+            <span class="material-symbols-outlined tab-icon">emergency</span>
+            <div class="tab-labels">
+              <span class="tab-eyebrow">Tengo una emergencia</span>
+              <span class="tab-title">REPORTAR</span>
+            </div>
           </div>
+          <span class="material-symbols-outlined arrow">arrow_forward</span>
         </div>
-        <span class="material-symbols-outlined arrow">arrow_forward</span>
-      </div>
+      </a>
 
       <div class="action-tab tab-volunteer">
         <div class="tab-inner">
@@ -61,7 +70,7 @@
   <section class="roles-section">
     <div class="section-header">
       <div class="section-eyebrow">Nuestros Roles Comunitarios</div>
-      <h2>Elige Tu Impacto</h2>
+      <h2>Elige tu impacto</h2>
       <p>Únete al ecosistema exactamente donde más se te necesita.</p>
     </div>
 
@@ -84,7 +93,7 @@
           <p>
             Veo a un animal en peligro y necesito alertar a los socorristas profesionales de inmediato. Tu rápida acción es el primer y más importante paso para salvar una vida. Al proporcionar información precisa, la ubicación exacta y fotos del estado del animal, permites que nuestros equipos de rescate actúen con rapidez y envíen la ayuda adecuada directamente al lugar.
           </p>
-          <button class="card-btn btn-reporter" routerLink="/dashboard/reporter">Reportar Emergencia</button>
+          <button class="card-btn btn-reporter" routerLink="/dashboard/reporter">Reportar emergencia</button>
         </div>
       </div>
 
@@ -105,7 +114,7 @@
           <p>
             Soy un socorrista capacitado, veterinario, o transportista con vehículo listo para asistir en casos de rescate activos. Únete a nuestro equipo de campo y genera un impacto directo en el terreno. Ya sea brindando primeros auxilios de emergencia, facilitando traslados seguros hacia las clínicas, o apoyando en los refugios temporales, tu tiempo y habilidades son invaluables para nosotros.
           </p>
-          <button class="card-btn btn-volunteer">Unirse a la Misión</button>
+          <button class="card-btn btn-volunteer">Unirse a la misión</button>
         </div>
       </div>
 
@@ -126,7 +135,7 @@
           <p>
             Quiero proporcionar recursos financieros o en especie para sostener y expandir las operaciones diarias. Tu apoyo económico es el motor que mantiene en movimiento a nuestros equipos médicos y de transporte. Cada donación se traduce directamente en alimento especializado, medicinas urgentes, cirugías que salvan vidas y el equipo esencial necesario para mantener los refugios asociados.
           </p>
-          <button class="card-btn btn-sponsor">Donar Recursos</button>
+          <button class="card-btn btn-sponsor">Donar recursos</button>
         </div>
       </div>
 

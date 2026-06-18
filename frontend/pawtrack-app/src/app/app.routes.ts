@@ -15,7 +15,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/reports/create-report/create-report.page').then( m => m.CreateReportPage)
   },
   {
-    path: 'view-report',
+    path: 'view-report/:id',
     loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportComponent)
   },
   {
@@ -39,12 +39,24 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register.page').then( m => m.RegisterPage)
   },
   {
-  path: 'dashboard/reporter',
-  loadComponent: () =>
-    import('./features/dashboards/reporter/reporter.page').then(
-      (m) => m.ReporterPage
-    ),
+    path: 'dashboard/reporter',
+    loadComponent: () =>
+      import('./features/dashboards/reporter/reporter.page').then(
+        (m) => m.ReporterPage
+      ),
   },
-
-
+  {
+    path: 'reports/list-reports',
+    loadComponent: () =>
+      import('./features/reports/list-reports/list-reports.page').then(
+        (m) => m.ListReportsPage
+      ),
+  },
+  {
+    path: 'dashboard/volunteer',
+    loadComponent: () =>
+      import('./features/dashboards/volunteer/volunteer.page').then(
+        (m) => m.VolunteerPage
+      ),
+  },
 ];
