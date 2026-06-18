@@ -52,4 +52,11 @@ export const routes: Routes = [
         (m) => m.ListReportsPage
       ),
   },
+  {
+    path: 'dashboard/volunteer',
+    loadComponent: () =>
+      import('./features/dashboards/volunteer/volunteer.page').then(
+        (m) => m.VolunteerPage
+      ),
+  },
 ];

@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { IonContent } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 
 interface ReporterReport {
   id: string;
@@ -30,6 +31,7 @@ interface ReporterReport {
   styleUrls: ['./reporter.page.scss'],
 })
 export class ReporterPage {
+  constructor(private router: Router) {}
   reports: ReporterReport[] = [
     {
       id: 'RPT-8429',
@@ -106,5 +108,19 @@ export class ReporterPage {
     if (status === 'pending_review') return 'Ver detalles';
 
     return 'Ver reporte';
+  }
+  ejecutarAccion(reporte: ReporterReport) {
+    if (reporte.status === 'validating') {
+      // Te lleva a: /reports/123/update
+      this.router.navigate(['/reports', reporte.id, 'update']);
+    } 
+    else if (reporte.status === 'on_way') {
+      // Te lleva a: /reports/123/track (o la ruta que decidas)
+      this.router.navigate(['/reports', reporte.id, 'track']);
+    }
+    else {
+      // Ruta por defecto
+      this.router.navigate(['/reports', reporte.id, 'view']);
+    }
   }
 }

@@ -1,0 +1,208 @@
+<ion-content [fullscreen]="true">
+  <div class="w-full min-h-screen bg-blue-50 relative overflow-hidden">
+    
+<div class="absolute top-1 md:top-2 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-[-5%] left-[-10%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 opacity-30"></div>
+      <div class="absolute top-[10%] right-0 w-[120px] h-[350px] md:w-[200px] md:h-[500px] rounded-l-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-30"></div>
+      
+      <div class="absolute top-[25%] left-[35%] md:left-[45%] w-[200px] h-[80px] md:w-[400px] md:h-[140px] rounded-full bg-gradient-to-r from-cyan-200 to-blue-200 opacity-30 rotate-6"></div>
+
+      <div class="absolute top-[45%] left-[-5%] md:left-[5%] w-[150px] h-[150px] md:w-[250px] md:h-[250px] rounded-3xl bg-gradient-to-tr from-rose-200 to-orange-200 opacity-30 rotate-12"></div>
+      
+      <div class="absolute bottom-[-5%] right-[-5%] w-[300px] h-[300px] md:w-[550px] md:h-[550px] rounded-tl-full bg-gradient-to-tl from-blue-200 to-cyan-300 opacity-30"></div>
+      <div class="absolute bottom-[10%] left-[30%] w-[100px] h-[100px] md:w-[150px] md:h-[150px] rounded-full bg-gradient-to-t from-purple-200 to-indigo-200 opacity-30"></div>
+    </div>
+
+    <app-navbar-web class="relative z-20"></app-navbar-web>
+
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-12">
+      
+      <section class="rounded bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8 relative">
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-emerald-700 font-bold px-3 py-1 rounded text-xs tracking-wider uppercase flex items-center gap-1.5 shadow-sm">
+                Sistema Activo
+              </span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-1">Centro de Operaciones</h1>
+            <p class="text-slate-600 font-medium">Sector asignado: <span class="font-bold text-slate-800">Zona Metropolitana, CDMX</span></p>
+          </div>
+
+          <button class="bg-slate-50 border border-slate-200 shadow-sm text-slate-700 font-bold px-5 py-3 rounded hover:bg-slate-100 transition-colors flex items-center gap-2 active:scale-95">
+            <span class="material-symbols-outlined text-[20px] text-blue-600">tune</span> Configurar radar
+          </button>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+
+        <section class="lg:col-span-8 flex flex-col gap-6">
+          
+          <div class="bg-white p-4 rounded shadow-md border border-slate-300 flex flex-col sm:flex-row gap-3 items-center">
+            <div class="relative flex-grow w-full">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+              <input 
+                type="text" 
+                [(ngModel)]="searchTerm" 
+                placeholder="Buscar por zona, animal o emergencia..." 
+                class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm transition-shadow">
+            </div>
+            <select 
+              [(ngModel)]="filtroActivo" 
+              class="w-full sm:w-auto bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded focus:ring-blue-600 focus:border-blue-600 block py-2 pl-3 pr-8 font-semibold cursor-pointer">
+              <option value="Todos">Todas las prioridades</option>
+              <option value="Urgente">Urgentes</option>
+              <option value="Alta">Prioridad Alta</option>
+              <option value="Moderada">Prioridad Moderada</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-5">
+            @for (caso of casosFiltrados; track caso.id) {
+              <article class="group bg-white rounded border border-slate-300 shadow-md hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col sm:flex-row">
+                
+                <div class="relative w-full sm:w-56 h-52 sm:h-auto shrink-0 overflow-hidden">
+                  <img [src]="caso.fotoUrl" [alt]="caso.titulo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                  
+                  <div class="absolute top-3 left-3 px-3 py-1.5 rounded text-[11px] font-black tracking-wider uppercase shadow-lg backdrop-blur-md flex items-center gap-1.5"
+                       [ngClass]="{
+                         'bg-red-600/90 text-white border border-red-400/50': caso.prioridad === 'Urgente',
+                         'bg-orange-500/90 text-white border border-orange-400/50': caso.prioridad === 'Alta',
+                         'bg-blue-100/90 text-blue-800 border border-blue-200/50': caso.prioridad === 'Moderada'
+                       }">
+                    <span class="material-symbols-outlined text-[16px]">
+                      {{ caso.prioridad === 'Urgente' ? 'warning' : 'priority_high' }}
+                    </span>
+                    {{ caso.prioridad }}
+                  </div>
+                </div>
+
+                <div class="p-6 flex flex-col flex-grow">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-xl font-black text-slate-800 line-clamp-1 group-hover:text-blue-700 transition-colors">{{ caso.titulo }}</h3>
+                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1 shrink-0 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 shadow-sm">
+                      <span class="material-symbols-outlined text-[14px] text-blue-500">schedule</span> {{ caso.tiempo }}
+                    </span>
+                  </div>
+                  
+                  <p class="text-sm font-bold text-slate-500 flex items-center gap-1.5 mb-3">
+                    <span class="material-symbols-outlined text-[18px] text-red-500">location_on</span>
+                    {{ caso.ubicacion }}
+                  </p>
+
+                  <p class="text-sm text-slate-600 line-clamp-2 mb-5 flex-grow leading-relaxed">{{ caso.descripcion }}</p>
+
+                  <div class="flex gap-3 mt-auto">
+                    <button routerLink="/reports/{{caso.id}}" class="flex-1 px-5 py-2.5 rounded bg-blue-100 border-2 border-blue-700 text-blue-700 font-bold text-sm hover:bg-blue-100 hover:shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                      <span class=""></span> Detalles
+                    </button>
+                    
+                    <button (click)="aceptarMision(caso.id)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded font-bold text-sm shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                      <span class=""></span> Aceptar Misión
+                    </button>
+                  </div>
+                </div>
+              </article>
+            } @empty {
+              <div class="bg-white p-12 rounded shadow-sm border border-slate-200 flex flex-col items-center text-center">
+                <span class="material-symbols-outlined text-7xl text-slate-300 mb-4 drop-shadow-sm">search_off</span>
+                <h3 class="text-xl font-black text-slate-800 mb-1">No se encontraron casos</h3>
+                <p class="text-slate-500 font-medium">Intenta cambiar los filtros o el término de búsqueda.</p>
+              </div>
+            }
+          </div>
+        </section>
+
+        <aside class="lg:col-span-4 flex flex-col gap-6">
+
+          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+              <h2 class="font-black text-slate-800 flex items-center gap-2 text-lg">
+                <span class="material-symbols-outlined text-red-500 animate-pulse">radar</span> Alertas cercanas
+              </h2>
+              <span class="bg-red-100 text-red-700 border border-red-200 text-xs font-black px-2.5 py-1 rounded shadow-sm">2 Activas</span>
+            </div>
+            
+            <div class="flex flex-col p-2 gap-2">
+              <div class="p-4 rounded hover:bg-slate-50 hover:shadow-sm transition-all cursor-pointer group border border-transparent hover:border-slate-100">
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">Reporte de maltrato</h4>
+                  <span class="text-[10px] font-black uppercase text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded shadow-sm">Prioridad Alta</span>
+                </div>
+                <p class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">map</span> Av. Chapultepec, Juárez</p>
+                <div class="flex items-center gap-3 text-xs font-bold text-slate-400">
+                  <span class="bg-white px-2 py-1 rounded shadow-sm border border-slate-100 flex items-center gap-1 text-slate-600"><span class="material-symbols-outlined text-[14px] text-blue-500">near_me</span> 1.2km</span>
+                  <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 10m</span>
+                </div>
+              </div>
+
+              <div class="p-4 rounded hover:bg-slate-50 hover:shadow-sm transition-all cursor-pointer group border border-transparent hover:border-slate-100">
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">Avistamiento fauna feral</h4>
+                  <span class="text-[10px] font-black uppercase text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded shadow-sm">Atención</span>
+                </div>
+                <p class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">map</span> Bosque de Chapultepec</p>
+                <div class="flex items-center gap-3 text-xs font-bold text-slate-400">
+                  <span class="bg-white px-2 py-1 rounded shadow-sm border border-slate-100 flex items-center gap-1 text-slate-600"><span class="material-symbols-outlined text-[14px] text-blue-500">near_me</span> 3.5km</span>
+                  <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 25m</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden">
+            <div class="p-5 border-b border-slate-200 bg-slate-50">
+              <h2 class="font-black text-slate-800 flex items-center gap-2 text-lg">
+                <span class="material-symbols-outlined text-emerald-500">health_and_safety</span> Protocolo de acción
+              </h2>
+            </div>
+            
+            <div class="p-5 flex flex-col gap-5">
+              <label class="flex items-start gap-4 cursor-pointer group p-2 -m-2 rounded hover:bg-slate-50 transition-colors">
+                <input type="checkbox" class="mt-1 w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer shadow-sm">
+                <div>
+                  <p class="font-bold text-sm text-slate-800 group-hover:text-emerald-700 transition-colors">1. Evaluación visual inicial</p>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">Mantén una distancia segura de 5 metros antes de interactuar.</p>
+                </div>
+              </label>
+              
+              <label class="flex items-start gap-4 cursor-pointer group p-2 -m-2 rounded hover:bg-slate-50 transition-colors">
+                <input type="checkbox" class="mt-1 w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer shadow-sm">
+                <div>
+                  <p class="font-bold text-sm text-slate-800 group-hover:text-emerald-700 transition-colors">2. Preparación de equipo</p>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">Verifica transportadora, correa de seguridad y guantes de protección.</p>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-4 cursor-pointer group p-2 -m-2 rounded hover:bg-slate-50 transition-colors">
+                <input type="checkbox" class="mt-1 w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer shadow-sm">
+                <div>
+                  <p class="font-bold text-sm text-slate-800 group-hover:text-emerald-700 transition-colors">3. Contacto con centro</p>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">Notifica llegada al lugar y estado general del animal en la app.</p>
+                </div>
+              </label>
+            </div>
+          </section>
+
+          <div class="rounded bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-900/20 p-6 relative overflow-hidden">
+            <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl opacity-20 transform -rotate-12 pointer-events-none">support_agent</span>
+            <div class="relative z-10 flex gap-4 items-start">
+              <span class="material-symbols-outlined text-3xl text-blue-200 drop-shadow-md">support</span>
+              <div>
+                <h3 class="font-black text-lg mb-1 drop-shadow-sm">Soporte Operativo</h3>
+                <p class="text-sm text-blue-50 font-medium leading-relaxed drop-shadow-sm">
+                  Si un caso se sale de control o el animal está herido de gravedad, presiona el botón de Emergencia en tu Navbar para contactar a protección civil.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+    </main>
+
+    <app-footer-web class="relative z-10 mt-auto"></app-footer-web>
+  </div>
+</ion-content>

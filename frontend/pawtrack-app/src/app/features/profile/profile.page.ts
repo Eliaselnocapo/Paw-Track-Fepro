@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonContent } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
-
+import { AuthService } from 'src/app/core/services/auth.service';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { NavbarWebComponent } from '../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 
@@ -65,7 +65,7 @@ export class ProfilePage implements OnInit {
     reportesRecientes: []
   };
 
-  constructor(private profileService: ProfileService) {}
+  constructor(private profileService: ProfileService, private authService: AuthService) {}
 
   private getUserIdFromToken(): number | null {
     const token = localStorage.getItem('pawtrack_access');
@@ -212,5 +212,8 @@ export class ProfilePage implements OnInit {
     return reportesBackend.filter((reporte) =>
       reporte.estado?.toUpperCase() === 'RESUELTO'
     ).length;
+  }
+  cerrarSesion() {
+    this.authService.logout();
   }
 }
