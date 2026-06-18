@@ -23,17 +23,19 @@ class PerfilPatrocinadorInline(admin.StackedInline):
 # -------------------------------------------------------------------
 class CustomUserAdmin(UserAdmin):
     inlines = (PerfilRescatistaInline, PerfilPatrocinadorInline)
-    
-     
+
     fieldsets = UserAdmin.fieldsets + (
         ('Información Extra', {
-            'fields': ('rol_principal', 'telefono', 'foto_perfil')
+            'fields': ('roles', 'telefono', 'foto_perfil')
         }),
     )
-    
-    # Lo que se ve en la tabla de resumen
-    list_display = ('username', 'email', 'first_name', 'rol_principal', 'is_staff')
-    list_filter = ('rol_principal', 'is_staff', 'is_superuser')
+
+    list_display = ('username', 'email', 'first_name', 'get_roles', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser')
+
+    @admin.display(description='Roles')
+    def get_roles(self, obj):
+        return ', '.join(obj.roles or [])
 
 # Registramos el Usuario 
 admin.site.register(Usuario, CustomUserAdmin)

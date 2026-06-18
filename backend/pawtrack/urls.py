@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 
-from bd.views import AnimalViewSet, IncidenciaViewSet, UsuarioViewSet, GoogleLogin
+from bd.views import AnimalViewSet, IncidenciaViewSet, UsuarioViewSet, GoogleLogin, LoginView
 
 #  Creamos el Router de DRF para que arme las rutas CRUD automáticamente
 router = DefaultRouter()
@@ -18,8 +18,9 @@ urlpatterns = [
     #  Rutas para el CRUD de nuestra API (ej. /api/usuarios/)
     path('api/', include(router.urls)),
     
-    #  Rutas oficiales para el Login/Logout (Devuelven el Token JWT)
-    # ej. /api/auth/login/
+    # Login propio (bypassa dj_rest_auth para evitar bug de refresh vacío con allauth 65)
+    path('api/auth/login/', LoginView.as_view(), name='login'),
+    # Logout y demás rutas de dj_rest_auth
     path('api/auth/', include('dj_rest_auth.urls')),
     
     # (Opcional por ahora) Rutas para el registro nativo de dj-rest-auth
