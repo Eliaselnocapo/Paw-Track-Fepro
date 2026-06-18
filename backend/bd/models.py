@@ -33,19 +33,41 @@ class PerfilRescatista(models.Model):
     esta_certificado = models.BooleanField(default=False) 
 
 class PerfilPatrocinador(models.Model):
+    TIPO_ENTIDAD_CHOICES = [
+        ('EMPRESA',    'Empresa'),
+        ('REFUGIO',    'Refugio Animal'),
+        ('ASOCIACION', 'Asociación Protectora'),
+        ('OTRO',       'Otro'),
+    ]
+    NIVEL_CHOICES = [
+        ('SILVER',   'Silver'),
+        ('GOLD',     'Gold'),
+        ('PLATINUM', 'Platinum'),
+    ]
+
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil_patrocinador')
 
+    # Datos de la entidad (base del prototipo BD)
+    nombre_entidad    = models.CharField(max_length=255)
+    ubicacion         = models.CharField(max_length=255)
+    telefono_contacto = models.CharField(max_length=20)
+    capacidad         = models.CharField(max_length=255, help_text='Descripción de recursos disponibles (alimento, transporte, veterinaria, etc.)')
+    horario           = models.CharField(max_length=100)
+    redes             = models.CharField(max_length=255, blank=True)
+    correo            = models.EmailField(help_text='Correo oficial de la entidad')
 
-    ubicacion = models.CharField(max_length=255)
-    capacidad = models.CharField(max_length=100)
-    horario = models.CharField(max_length=100) 
-    redes = models.CharField(max_length=255, blank=True) 
-    correo = models.EmailField() # string validado para correos 
-    
-    nivel = models.CharField(max_length=50, default='SILVER') # ej. "PATROCINADOR GOLD"
-    total_donado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    casos_soportados = models.IntegerField(default=0)
+    # Campos adicionales para verificación y clasificación
+    tipo_entidad   = models.CharField(max_length=50, choices=TIPO_ENTIDAD_CHOICES, default='OTRO')
+    rfc_o_registro = models.CharField(max_length=100, blank=True, help_text='RFC o número de registro legal de la entidad')
+
+    # Métricas de participación (calculadas por el sistema)
+    nivel                    = models.CharField(max_length=50, choices=NIVEL_CHOICES, default='SILVER')
+    total_donado             = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    casos_soportados         = models.IntegerField(default=0)
     fecha_inicio_coordinacion = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre_entidad} ({self.tipo_entidad})"
 
 # 2. Tabla Animal 
 class Animal(models.Model):
@@ -80,7 +102,12 @@ class Incidencia(models.Model):
     ubicacion = models.PointField(srid=4326)
     caracteristicas = models.TextField(blank=True, default='')
     estado = models.CharField(max_length=50, default='PENDIENTE')
-    tipo_incidencia = models.CharField(max_length=50, default='EMERGENCIA')
+    TIPO_INCIDENCIA_CHOICES = [
+        ('EMERGENCIA', 'Emergencia'),
+        ('EXTRAVIADO',  'Extraviado'),
+        ('CALLEJERO',   'Callejero'),
+    ]
+    tipo_incidencia = models.CharField(max_length=50, choices=TIPO_INCIDENCIA_CHOICES, default='EMERGENCIA')
     recompensa = models.FloatField(null=True, blank=True)
 
     # Campos calculados por el sistema
@@ -90,11 +117,18 @@ class Incidencia(models.Model):
 
     folio = models.CharField(max_length=20, unique=True, null=True, blank=True)
 
+    FOLIO_TIPO_MAP = {
+        'EMERGENCIA': 'EMG',
+        'EXTRAVIADO':  'EXT',
+        'CALLEJERO':   'CAL',
+    }
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if not self.folio:
-            year = self.created_at.year
-            self.folio = f"PT-{year}-{self.pk:04d}"
+            tipo_usuario = 'ANO' if self.usuario_reporta_id is None else 'REG'
+            tipo_reporte = self.FOLIO_TIPO_MAP.get(self.tipo_incidencia, 'OTR')
+            self.folio = f"{tipo_usuario}-{tipo_reporte}-{self.pk:05d}"
             super().save(update_fields=['folio'])
 
     def __str__(self):
