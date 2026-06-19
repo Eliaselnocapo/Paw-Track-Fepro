@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'rest_framework_simplejwt',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -144,9 +145,14 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
+    'PAGE_SIZE': 20,
+    'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
+    
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+    
 }
 
 REST_AUTH = {
