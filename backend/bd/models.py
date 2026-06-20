@@ -87,7 +87,7 @@ class PerfilPatrocinador(models.Model):
     # Datos de la entidad (base del prototipo BD)
     nombre_entidad    = models.CharField(max_length=255)
     ubicacion         = models.CharField(max_length=255)
-    telefono_contacto = models.CharField(max_length=20)
+    telefono_contacto = models.CharField(max_length=20, default='')
     capacidad         = models.CharField(max_length=255, help_text='Descripción de recursos disponibles (alimento, transporte, veterinaria, etc.)')
     horario           = models.CharField(max_length=100)
     redes             = models.CharField(max_length=255, blank=True)
