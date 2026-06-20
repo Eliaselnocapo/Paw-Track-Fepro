@@ -46,6 +46,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class CustomRegisterSerializer(RegisterSerializer):
     """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name."""
+    username = None
+
     first_name = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
     last_name  = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
     roles = serializers.ListField(

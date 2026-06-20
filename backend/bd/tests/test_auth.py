@@ -21,6 +21,8 @@ class RegistroTests(APITestCase):
             'last_name': 'Usuario',
             'roles': ['REPORTERO'],
         }, format='json')
+
+        
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('access', response.data)
         self.assertIn('refresh', response.data)
