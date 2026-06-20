@@ -1,18 +1,55 @@
 from django.db import models
 
 from django.contrib.gis.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+
+class UsuarioManager(BaseUserManager):
+    """
+    Manager personalizado para que el email sea el identificador único
+    para la autenticación, eliminando por completo el uso de username.
+    """
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El email es obligatorio para crear un usuario.')
+        
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('El superusuario debe tener is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('El superusuario debe tener is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
 
 # 1. Tabla Usuario 
 # Extendemos el usuario de Django para aprovechar el login, contraseñas y tokens de DRF
 class Usuario(AbstractUser):
     ROLES_VALIDOS = ['REPORTERO', 'RESCATISTA', 'PATROCINADOR']
 
+    username = None
+    
     email = models.EmailField(unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = UsuarioManager()
+    
     roles = models.JSONField(default=list, help_text="Lista de roles: REPORTERO, RESCATISTA, PATROCINADOR")
     telefono = models.CharField(max_length=20, blank=True)
     foto_perfil = models.ImageField(upload_to='usuarios/perfiles/', blank=True, null=True)
-
+    reputation_score = models.FloatField(default=100)
+    fraud_flags = models.IntegerField(default=0)
+    
     def tiene_rol(self, rol: str) -> bool:
         return rol in (self.roles or [])
 
@@ -34,7 +71,14 @@ class PerfilRescatista(models.Model):
 
 class PerfilPatrocinador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil_patrocinador')
-
+    nombre_entidad = models.CharField(max_length=255, default='')
+    tipo_entidad = models.CharField(max_length=50, choices=[
+            ('EMPRESA', 'Empresa'), 
+            ('REFUGIO', 'Refugio'), 
+            ('ASOCIACION', 'Asociación'), 
+            ('OTRO', 'Otro')
+        ], default='OTRO')
+    rfc_o_registro = models.CharField(max_length=100, blank=True, default='')
 
     ubicacion = models.CharField(max_length=255)
     capacidad = models.CharField(max_length=100)
