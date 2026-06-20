@@ -87,13 +87,32 @@
                         </span>
 
                         <span class="text-xs text-slate-400 font-semibold">
-                          #{{ report.id }}
+                          #{{ report.folio }}
                         </span>
                       </div>
 
                       <h3 class="font-bold text-slate-900 text-base md:text-lg">
                         {{ report.title }}
                       </h3>
+                      <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="text-xs px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200">
+                          {{ report.animalType | titlecase }}
+                        </span>
+
+                        <span class="text-xs px-2 py-1 bg-blue-50 text-blue-700 border border-blue-100">
+                          {{ report.tamanoAnimal | titlecase }}
+                        </span>
+
+                        <span class="text-xs px-2 py-1 bg-amber-50 text-amber-700 border border-amber-100">
+                          {{ report.condicionAnimal }}
+                        </span>
+                      </div>
+
+                      @if (report.notasAnimal) {
+                        <p class="text-sm text-slate-500 mt-2 line-clamp-2">
+                          {{ report.notasAnimal }}
+                        </p>
+                      }
 
                       <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
                         <span class="material-symbols-outlined text-[17px]">location_on</span>
@@ -102,20 +121,26 @@
 
                       <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
                         <span class="material-symbols-outlined text-[17px]">
-                          {{ report.eta ? 'directions_car' : 'schedule' }}
+                          schedule
                         </span>
-                        {{ report.eta || report.reportedAt }}
+                        {{ report.reportedAt }}
                       </p>
                     </div>
                   </div>
+                  <div class="md:self-end flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2">
+                    <a
+                      [routerLink]="['/view-report', report.folio]"
+                      class="w-full md:w-auto px-5 h-10 rounded border border-blue-700 text-blue-700 bg-white hover:bg-blue-50 text-sm font-bold transition-all active:scale-[0.98] flex items-center justify-center"
+                    >
+                      Ver detalle
+                    </a>
 
-                  <div class="md:self-end">
-                    <button
-                      type="button"
-                      (click)="ejecutarAccion(report)" 
-                      class="w-full md:w-auto px-5 h-10 rounded bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-700/20 transition-all active:scale-[0.98]">
-                      {{ getActionLabel(report.status) }}
-                    </button>
+                    <a
+                      [routerLink]="['/reports', report.folio, 'update']"
+                      class="w-full md:w-auto px-5 h-10 rounded bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-700/20 transition-all active:scale-[0.98] flex items-center justify-center"
+                    >
+                      Actualizar
+                    </a>
                   </div>
 
                 </div>

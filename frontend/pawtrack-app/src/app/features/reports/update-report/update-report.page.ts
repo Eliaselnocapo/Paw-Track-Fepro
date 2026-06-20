@@ -54,7 +54,7 @@ export class UpdateReportPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const folio = this.route.snapshot.paramMap.get('id') ?? '';
+    const folio = this.route.snapshot.paramMap.get('folio') ?? '';
     this.reportService.obtenerReportePorFolio(folio).subscribe({
       next: (data) => this.poblarFormulario(data),
       error: () => {

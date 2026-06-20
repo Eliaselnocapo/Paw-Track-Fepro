@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService } from '../../../core/services/report.service';
+import { LocalReportCacheService } from '../../../core/services/local-report-cache.service';
 
 declare let L: any;
 
@@ -30,6 +31,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   condicionesVisibles: string[] = [];
   condicionesTexto: string = 'Ninguna';
   notasAdicionales: string = '';
+  nombreCaso: string = '';
 
   archivosSeleccionados: { archivoFisico: File, preview: string, nombre: string }[] = [];
 
@@ -60,7 +62,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     { id: 3, texto: 'El animal es trasladado a una veterinaria o refugio asociado.' }
   ];
 
-  constructor(private cdr: ChangeDetectorRef, private reportService: ReportService) {}
+  constructor(private cdr: ChangeDetectorRef, private reportService: ReportService, private localReportCache: LocalReportCacheService,) {}
 
   ngOnInit() {}
 
@@ -268,6 +270,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     this.errorEnvio  = null;
 
     this.reportService.crearReporte({
+      nombre_caso:      this.nombreCaso,
       tipo_animal:      this.tipoAnimal,
       tamano_animal:    this.tamanoAproximado,
       condicion_animal: this.condicionesTexto,
@@ -276,11 +279,25 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       longitud:         this.lngActual,
       imagen:           this.archivosSeleccionados[0]?.archivoFisico,
     }).subscribe({
-      next: (res) => {
-        this.folioGenerado = res.folio ?? `#${res.id}`;
-        this.enviando      = false;
-        this.destroyPreviewMap();
-      },
+    next: (res) => {
+      console.log('REPORTE CREADO:', res);
+
+      this.folioGenerado = res.folio ?? `#${res.id}`;
+      this.enviando = false;
+
+      const haySesion = !!localStorage.getItem('pawtrack_access');
+
+      if (!haySesion && res.folio) {
+        this.localReportCache.guardarFolio(res.folio);
+
+        console.log(
+          'FOLIOS DE INVITADO DESPUÉS DE CREAR:',
+          this.localReportCache.obtenerFolios()
+        );
+      }
+
+      this.destroyPreviewMap();
+    },
       error: () => {
         this.errorEnvio = 'No se pudo enviar el reporte. Intenta de nuevo.';
         this.enviando   = false;

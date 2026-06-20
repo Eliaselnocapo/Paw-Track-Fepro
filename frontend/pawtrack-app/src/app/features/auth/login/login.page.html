@@ -1,37 +1,168 @@
-<div class="w-full h-full">
-<div class="w-full h-full">
-<div class="w-full min-h-screen bg-slate-50 relative font-body overflow-x-hidden">
+<ion-content [fullscreen]="true">
+<div class="w-full min-h-screen bg-slate-50 relative font-body overflow-hidden">
 
+  <!-- HEADER -->
   <header class="w-full h-16 flex items-center justify-between px-8 z-50 absolute top-0 left-0">
     <div class="text-2xl font-bold text-blue-700 flex items-center gap-2 cursor-pointer" routerLink="/home">
       <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
       PawTrack
     </div>
+
     <a routerLink="/home" class="text-blue-700 hover:text-blue-900 transition-colors font-bold flex items-center gap-1 cursor-pointer">
       <span class="material-symbols-outlined text-[20px]">arrow_back</span>
       Volver al inicio
     </a>
   </header>
 
-  <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-60 pointer-events-none"></div>
-  <div class="absolute top-[10%] right-[-5%] w-[450px] h-[450px] bg-emerald-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-60 pointer-events-none"></div>
-  <div class="absolute -bottom-20 left-[20%] w-[600px] h-[600px] bg-indigo-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-60 pointer-events-none"></div>
+  <!-- FONDO DECORATIVO -->
+  <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden isolate">
 
-<div class="relative z-10 w-full min-h-screen px-6 pt-24 pb-10 flex justify-center items-center">
+    <!-- Fondo base -->
+    <div class="absolute inset-0 bg-gradient-to-br from-[#eef6ff] via-[#f2fbff] to-[#eefaf3] z-[1]"></div>
 
-  <div class="w-full max-w-[1000px] bg-white flex flex-col md:flex-row shadow-2xl rounded-3xl border border-slate-200 overflow-hidden">
+    <!-- BLOBS / FIGURAS -->
+    <div class="absolute inset-0 z-[5] overflow-hidden">
 
+      <!-- Arriba izquierda -->
+      <div
+        class="absolute -top-[16%] -left-[1%] w-[34vw] h-[38vw] min-w-[320px] min-h-[360px] bg-[#dbeafe]"
+        style="border-radius: 58% 42% 63% 37% / 42% 53% 47% 58%;">
+      </div>
+
+      <!-- Arriba centro -->
+      <div
+        class="absolute -top-[10%] left-[30%] w-[44vw] h-[20vw] min-w-[430px] min-h-[180px] bg-[#d1fae5]"
+        style="border-radius: 30% 70% 24% 76% / 57% 32% 68% 43%;">
+      </div>
+
+      <!-- Arriba derecha grande -->
+      <div
+        class="absolute -top-[12%] right-[0%] w-[30vw] h-[44vw] min-w-[300px] min-h-[420px] bg-[#cffafe]"
+        style="border-radius: 44% 56% 25% 75% / 61% 38% 62% 39%;">
+      </div>
+
+      <!-- Centro izquierda -->
+      <div
+        class="absolute top-[32%] -left-[5%] w-[20vw] h-[26vw] min-w-[190px] min-h-[240px] bg-[#e0f2fe]"
+        style="border-radius: 65% 35% 48% 52% / 43% 59% 41% 57%;">
+      </div>
+
+      <!-- Centro derecha horizontal -->
+      <div
+        class="absolute top-[48%] right-[-15%] w-[38vw] h-[18vw] min-w-[380px] min-h-[170px] bg-[#cfe3ff]"
+        style="border-radius: 59% 41% 23% 77% / 39% 58% 42% 61%;">
+      </div>
+
+      <!-- Blob pequeño arriba medio -->
+      <div
+        class="absolute top-[14%] left-[568%] w-[12vw] h-[10vw] min-w-[120px] min-h-[100px] bg-[#dcfce7]"
+        style="border-radius: 43% 57% 61% 39% / 50% 36% 64% 50%;">
+      </div>
+
+      <!-- Abajo izquierda grande -->
+      <div
+        class="absolute bottom-[-14%] -left-[10%] w-[32vw] h-[22vw] min-w-[300px] min-h-[210px] bg-[#d1fae5]"
+        style="border-radius: 70% 30% 60% 40% / 42% 58% 42% 58%;">
+      </div>
+
+      <!-- Abajo centro -->
+      <div
+        class="absolute bottom-[-10%] left-[24%] w-[26vw] h-[16vw] min-w-[260px] min-h-[150px] bg-[#e0f7fa]"
+        style="border-radius: 37% 63% 48% 52% / 55% 42% 58% 45%;">
+      </div>
+
+      <!-- Abajo derecha grande -->
+      <div
+        class="absolute bottom-[-18%] right-[-12%] w-[36vw] h-[24vw] min-w-[340px] min-h-[220px] bg-[#dbeafe]"
+        style="border-radius: 28% 72% 35% 65% / 59% 35% 65% 41%;">
+      </div>
+
+      <!-- Figura media extra -->
+      <div
+        class="absolute bottom-[10%] right-[18%] w-[14vw] h-[10vw] min-w-[130px] min-h-[95px] bg-[#ccfbf1]"
+        style="border-radius: 62% 38% 57% 43% / 36% 56% 44% 64%;">
+      </div>
+
+      <!-- Figura extra izquierda abajo -->
+      <div
+        class="absolute top-[55%] left-[8%] w-[12vw] h-[9vw] min-w-[120px] min-h-[90px] bg-[#ecfeff]"
+        style="border-radius: 52% 48% 68% 32% / 43% 60% 40% 57%;">
+      </div>
+
+    </div>
+
+    <!-- HUELLITAS -->
+    <div class="absolute inset-0 z-[10] pointer-events-none">
+
+      <span class="absolute top-[8%] left-[7%] material-symbols-outlined text-[58px] text-blue-400/20 -rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[20%] left-[10%] material-symbols-outlined text-[42px] text-blue-400/20 rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[10%] left-[42%] material-symbols-outlined text-[54px] text-blue-400/20 -rotate-6"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[7%] right-[14%] material-symbols-outlined text-[64px] text-blue-400/20 rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[30%] left-[4%] material-symbols-outlined text-[48px] text-sky-400/20 rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[38%] left-[22%] material-symbols-outlined text-[40px] text-cyan-400/20 -rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[34%] right-[8%] material-symbols-outlined text-[52px] text-blue-400/20 rotate-6"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[54%] right-[4%] material-symbols-outlined text-[44px] text-sky-400/20 -rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[64%] left-[8%] material-symbols-outlined text-[62px] text-blue-400/20 -rotate-45"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[72%] left-[34%] material-symbols-outlined text-[44px] text-cyan-400/20 rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute top-[68%] right-[12%] material-symbols-outlined text-[54px] text-blue-400/20 rotate-45"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute bottom-[16%] left-[14%] material-symbols-outlined text-[50px] text-sky-400/20 rotate-45"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute bottom-[8%] left-[28%] material-symbols-outlined text-[60px] text-blue-400/20 -rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute bottom-[7%] left-[50%] material-symbols-outlined text-[42px] text-cyan-400/20 rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute bottom-[12%] right-[24%] material-symbols-outlined text-[48px] text-blue-400/20 -rotate-45"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+      <span class="absolute bottom-[14%] right-[8%] material-symbols-outlined text-[70px] text-sky-400/20 -rotate-12"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
+
+    </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="relative z-20 w-full min-h-screen px-6 pt-24 pb-10 flex justify-center items-center">
+    <div class="w-full max-w-[1000px] bg-white flex flex-col md:flex-row shadow-2xl rounded border border-slate-200 overflow-hidden">
+
+      <!-- FORMULARIO -->
       <div class="w-full lg:w-1/2 p-7 lg:p-10 flex flex-col justify-center bg-white">
         <div class="max-w-[380px] w-full mx-auto">
 
           <div class="mb-8">
             <h1 class="text-xl font-bold text-blue-700 mb-1">PawTrack</h1>
             <h2 class="text-3xl font-bold text-slate-900 mb-2">Bienvenido de nuevo</h2>
-            <p class="text-sm text-slate-600">Inicia sesión para continuar coordinando la ayuda para los animales.</p>
+            <p class="text-sm text-slate-600">
+              Inicia sesión para continuar coordinando la ayuda para los animales.
+            </p>
           </div>
 
           <!-- Mensaje de error -->
-          <div *ngIf="error" class="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 font-medium">
+          <div *ngIf="error" class="mb-4 px-4 py-3 bg-red-500 border border-red-200 rounded text-sm text-white font-medium">
             {{ error }}
           </div>
 
@@ -52,7 +183,9 @@
             <div>
               <div class="flex justify-between items-center mb-1.5">
                 <label class="block text-sm font-bold text-slate-700" for="password">Contraseña</label>
-                <a class="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer">¿Olvidaste tu contraseña?</a>
+                <a class="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer">
+                  ¿Olvidaste tu contraseña?
+                </a>
               </div>
               <input
                 class="w-full h-11 px-4 rounded border border-slate-400 bg-white text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-sm shadow-sm placeholder-slate-400"
@@ -82,29 +215,41 @@
 
           <div class="mt-8">
             <div class="relative">
-              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-300/60"></div></div>
-              <div class="relative flex justify-center text-sm"><span class="px-3 bg-white text-slate-500 font-medium">O continuar con</span></div>
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-300/60"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-3 bg-white text-slate-500 font-medium">O continuar con</span>
+              </div>
             </div>
 
             <div class="mt-6 grid grid-cols-2 gap-3">
-              <button class="flex items-center justify-center h-11 rounded-lg border border-slate-400 bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm shadow-sm">
+              <button class="flex items-center justify-center h-11 rounded border border-slate-400 bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm shadow-sm">
                 <span class="material-symbols-outlined mr-2 text-[18px]">account_circle</span> Google
               </button>
-              <button class="flex items-center justify-center h-11 rounded-lg border border-slate-400 bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm shadow-sm">
+              <button class="flex items-center justify-center h-11 rounded border border-slate-400 bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm shadow-sm">
                 <span class="material-symbols-outlined mr-2 text-[18px]">group</span> Facebook
               </button>
             </div>
           </div>
 
           <p class="mt-8 text-center text-sm text-slate-600 font-medium">
-            ¿No tienes una cuenta? <a class="text-blue-700 font-bold hover:text-blue-900 transition-colors cursor-pointer" routerLink="/register">Regístrate</a>
+            ¿No tienes una cuenta?
+            <a class="text-blue-700 font-bold hover:text-blue-900 transition-colors cursor-pointer" routerLink="/register">
+              Regístrate
+            </a>
           </p>
         </div>
       </div>
 
+      <!-- IMAGEN -->
       <div class="hidden lg:block w-1/2 relative bg-slate-200">
         <div class="absolute inset-0 bg-gradient-to-l from-transparent to-white/30 z-10 pointer-events-none"></div>
-        <img alt="Perrito rescatado" class="absolute inset-0 w-full h-full object-cover object-center z-0" src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"/>
+        <img
+          alt="Perrito rescatado"
+          class="absolute inset-0 w-full h-full object-cover object-center z-0"
+          src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"
+        />
         <div class="absolute bottom-12 left-10 right-10 z-20 text-white">
           <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/20 shadow-2xl">
             <p class="text-xl font-bold mb-1">"Cada animal merece una segunda oportunidad."</p>
@@ -116,5 +261,4 @@
     </div>
   </div>
 </div>
-</div>
-</div>
+</ion-content>
