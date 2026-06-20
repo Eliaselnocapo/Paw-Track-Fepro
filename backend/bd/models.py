@@ -139,6 +139,8 @@ class Incidencia(models.Model):
     ubicacion = models.PointField(srid=4326)
     caracteristicas = models.TextField(blank=True, default='')
     nombre_caso = models.CharField(max_length=150, blank=True, default='')
+    nombre_contacto = models.CharField(max_length=150, blank=True, default='')
+    telefono_contacto = models.CharField(max_length=20, blank=True, default='')
     estado = models.CharField(max_length=50, default='PENDIENTE')
     TIPO_INCIDENCIA_CHOICES = [
         ('EMERGENCIA', 'Emergencia'),

@@ -270,14 +270,16 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     this.errorEnvio  = null;
 
     this.reportService.crearReporte({
-      nombre_caso:      this.nombreCaso,
-      tipo_animal:      this.tipoAnimal,
-      tamano_animal:    this.tamanoAproximado,
-      condicion_animal: this.condicionesTexto,
-      notas_animal:     this.notasAdicionales,
-      latitud:          this.latActual,
-      longitud:         this.lngActual,
-      imagen:           this.archivosSeleccionados[0]?.archivoFisico,
+      nombre_caso:       this.nombreCaso,
+      tipo_animal:       this.tipoAnimal,
+      tamano_animal:     this.tamanoAproximado,
+      condicion_animal:  this.condicionesTexto,
+      notas_animal:      this.notasAdicionales,
+      latitud:           this.latActual,
+      longitud:          this.lngActual,
+      imagen:            this.archivosSeleccionados[0]?.archivoFisico,
+      nombre_contacto:   this.nombreUsuario   || undefined,
+      telefono_contacto: this.telefonoUsuario || undefined,
     }).subscribe({
     next: (res) => {
       console.log('REPORTE CREADO:', res);

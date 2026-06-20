@@ -130,7 +130,7 @@ export class UpdateReportPage implements OnInit {
       next: () => {
         this.mensajeExito = '¡Reporte actualizado correctamente!';
         this.guardando = false;
-        setTimeout(() => this.router.navigate(['/reports/list-reports']), 1500);
+        setTimeout(() => this.router.navigate(['/view-report', this.reporte.folio]), 1500);
       },
       error: (err) => {
         if (err.status === 401) {

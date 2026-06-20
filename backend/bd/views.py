@@ -116,7 +116,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
-        if self.action in ('update', 'partial_update', 'destroy', 'mis_casos'):
+        if self.action in ('destroy', 'mis_casos'):
             return [IsAuthenticated()]
         return [AllowAny()]
 

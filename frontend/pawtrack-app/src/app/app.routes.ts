@@ -18,7 +18,6 @@ export const routes: Routes = [
   {
     path: 'view-report/:folio',
     loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportComponent),
-    canActivate: [authGuard]
   },
   {
     path: 'profile',
@@ -34,7 +33,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/reports/update-report/update-report.page')
         .then(m => m.UpdateReportPage),
-    canActivate: [authGuard]
   },
   {
     path: 'register',
@@ -46,7 +44,6 @@ export const routes: Routes = [
       import('./features/dashboards/reporter/reporter.page').then(
         (m) => m.ReporterPage
       ),
-    canActivate: [authGuard]
   },
   {
     path: 'dashboard/volunteer',

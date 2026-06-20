@@ -134,7 +134,8 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'latitud', 'longitud',
             'lat_out', 'lng_out',
             'tipo_animal', 'tamano_animal', 'condicion_animal', 'edad_estimada', 'peso_estimado',
-            'nombre_caso', 'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
+            'nombre_caso', 'nombre_contacto', 'telefono_contacto',
+            'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
             'urgency_score', 'trust_score', 'created_at', 'folio',
         )
         extra_kwargs = {
@@ -147,6 +148,8 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'estado':              {'required': False, 'default': 'PENDIENTE'},
             'tipo_incidencia':     {'required': False, 'default': 'EMERGENCIA'},
             'nombre_caso':         {'required': False, 'allow_blank': True, 'default': ''},
+            'nombre_contacto':     {'required': False, 'allow_blank': True, 'default': ''},
+            'telefono_contacto':   {'required': False, 'allow_blank': True, 'default': ''},
             'caracteristicas':     {'required': False, 'allow_blank': True, 'default': ''},
             'urgency_score':       {'required': False},
             'trust_score':         {'read_only': True},
