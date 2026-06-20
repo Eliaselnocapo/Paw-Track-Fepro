@@ -66,6 +66,36 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    @action(detail=True, methods=['patch'], url_path='roles', permission_classes=[IsAuthenticated])
+    def add_roles(self, request, pk=None):
+        usuario = self.get_object()
+            
+        if usuario.id != request.user.id:
+            return Response({'code': 'not_owner', 'detail': 'No puedes modificar roles de otro usuario.', 'field_errors': {}}, status=403)
+                
+        nuevos = request.data.get('roles', [])
+            
+        if 'PATROCINADOR' in nuevos and not request.user.is_staff:
+            return Response({'code': 'role_requires_approval', 'detail': 'El rol PATROCINADOR requiere verificación.', 'field_errors': {}}, status=403)
+                
+        roles_actuales = usuario.roles or []
+        for rol in nuevos:
+            if rol not in ['REPORTERO', 'RESCATISTA', 'PATROCINADOR']:
+                return Response({'code': 'validation_error', 'detail': f'Rol inválido: {rol}', 'field_errors': {}}, status=400)
+            if rol not in roles_actuales:
+                roles_actuales.append(rol)
+                    
+        usuario.roles = roles_actuales
+        usuario.save(update_fields=['roles'])
+            
+        if 'RESCATISTA' in nuevos:
+            from .models import PerfilRescatista # Import local para evitar problemas si el modelo está abajo
+            PerfilRescatista.objects.get_or_create(usuario=usuario)
+                
+        from .serializers import UsuarioSerializer
+        return Response(UsuarioSerializer(usuario).data)
+        
+
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
@@ -171,3 +201,20 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Reporte no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path=r'seguimiento/(?P<folio>[^/.]+)', permission_classes=[AllowAny])
+    def seguimiento(self, request, folio=None):
+        try:
+            inc = Incidencia.objects.select_related('animal', 'rescatista_asignado').get(folio=folio)
+        except Incidencia.DoesNotExist:
+            return Response({'code': 'not_found', 'detail': 'Reporte no encontrado.', 'field_errors': {}}, status=404)
+                
+        return Response({
+                'folio': inc.folio,
+                'estado': inc.estado,
+                'tipo_incidencia': inc.tipo_incidencia,
+                'urgency_score': inc.urgency_score,
+                'created_at': inc.created_at,
+                'rescatista_asignado': inc.rescatista_asignado is not None,
+                'tipo_animal': inc.animal.tipo if inc.animal else None,
+                })    
