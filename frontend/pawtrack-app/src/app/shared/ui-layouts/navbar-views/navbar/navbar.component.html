@@ -1,32 +1,70 @@
-<nav class="w-full max-w-[360px] flex justify-between items-center px-3 py-2 bg-inverse-surface shadow-2xl rounded-full">
+<nav class="w-full max-w-[390px] flex justify-between items-center px-3 py-2 bg-inverse-surface shadow-2xl rounded-full">
+
+  <!-- Inicio -->
   <a routerLink="/home"
-     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 w-16 h-12"
-     [class.text-white]="rutaActiva === '/home'"
-     [class.text-outline-variant]="rutaActiva !== '/home'">
+     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 w-14 h-12"
+     [class.text-white]="estaActiva('/home')"
+     [class.text-outline-variant]="!estaActiva('/home')">
     <span class="material-symbols-outlined text-[24px]">home</span>
   </a>
-  <a routerLink="/map"
-     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 w-16 h-12"
-     [class.text-white]="rutaActiva === '/map'"
-     [class.text-outline-variant]="rutaActiva !== '/map'">
+
+  <!-- Mapa General -->
+  <a routerLink="/mapa"
+     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 w-14 h-12"
+     [class.text-white]="estaActiva('/mapa')"
+     [class.text-outline-variant]="!estaActiva('/mapa')">
     <span class="material-symbols-outlined text-[24px]">map</span>
   </a>
+
+  <!-- Reportes -->
+  <a routerLink="/dashboard/reporter"
+     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 w-14 h-12"
+     [class.text-white]="estaActiva('/dashboard/reporter')"
+     [class.text-outline-variant]="!estaActiva('/dashboard/reporter')">
+    <span class="material-symbols-outlined text-[24px]">assignment</span>
+  </a>
+
+  <!-- Crear reporte / botón principal -->
   <a routerLink="/reports/create-report"
-     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 w-16 h-12"
-     [class.bg-secondary-container]="rutaActiva === '/reports/create-report'"
-     [class.text-on-secondary-container]="rutaActiva === '/reports/create-report'"
-     [class.rounded-full]="rutaActiva === '/reports/create-report'"
-     [class.w-20]="rutaActiva === '/reports/create-report'"
-     [class.text-outline-variant]="rutaActiva !== '/reports/create-report'">
-    <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
+     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 h-12"
+     [class.bg-secondary-container]="estaActiva('/reports/create-report')"
+     [class.text-on-secondary-container]="estaActiva('/reports/create-report')"
+     [class.rounded-full]="estaActiva('/reports/create-report')"
+     [class.w-20]="estaActiva('/reports/create-report')"
+     [class.w-14]="!estaActiva('/reports/create-report')"
+     [class.text-outline-variant]="!estaActiva('/reports/create-report')">
+    <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">
+      emergency_share
+    </span>
   </a>
-  <a routerLink="/profile"
-     class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 w-16 h-12"
-     [class.bg-secondary-container]="rutaActiva === '/profile'"
-     [class.text-on-secondary-container]="rutaActiva === '/profile'"
-     [class.rounded-full]="rutaActiva === '/profile'"
-     [class.w-20]="rutaActiva === '/profile'"
-     [class.text-outline-variant]="rutaActiva !== '/profile'">
-    <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">person</span>
-  </a>
+
+  <!-- Si inició sesión: perfil. Si no: login -->
+  @if (isLoggedIn) {
+    <a routerLink="/profile"
+       class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 h-12"
+       [class.bg-secondary-container]="estaActiva('/profile')"
+       [class.text-on-secondary-container]="estaActiva('/profile')"
+       [class.rounded-full]="estaActiva('/profile')"
+       [class.w-20]="estaActiva('/profile')"
+       [class.w-14]="!estaActiva('/profile')"
+       [class.text-outline-variant]="!estaActiva('/profile')">
+      <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">
+        person
+      </span>
+    </a>
+  } @else {
+    <a routerLink="/login"
+       class="flex flex-col items-center justify-center transition-all active:scale-90 duration-200 h-12"
+       [class.bg-secondary-container]="estaActiva('/login')"
+       [class.text-on-secondary-container]="estaActiva('/login')"
+       [class.rounded-full]="estaActiva('/login')"
+       [class.w-20]="estaActiva('/login')"
+       [class.w-14]="!estaActiva('/login')"
+       [class.text-outline-variant]="!estaActiva('/login')">
+      <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">
+        login
+      </span>
+    </a>
+  }
+
 </nav>
