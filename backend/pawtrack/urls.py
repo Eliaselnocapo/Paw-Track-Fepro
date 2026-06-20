@@ -14,7 +14,8 @@ router.register(r'incidencias', IncidenciaViewSet, basename='incidencia')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
+
+    path('api/incidencias/seguimiento/<str:folio>/', IncidenciaViewSet.as_view({'get': 'seguimiento'}), name='incidencia-seguimiento'),    
     #  Rutas para el CRUD de nuestra API (ej. /api/usuarios/)
     path('api/', include(router.urls)),
     
