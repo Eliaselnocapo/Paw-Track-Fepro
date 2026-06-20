@@ -29,20 +29,27 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
     private reportService: ReportService,
   ) {}
 
-  ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.reportService.obtenerReporte(id).subscribe({
-      next: (data) => {
-        this.reporte = data;
-        this.cargando = false;
-        setTimeout(() => this.initMapa(), 300);
-      },
-      error: () => {
-        this.error = 'No se pudo cargar el reporte.';
-        this.cargando = false;
-      },
-    });
+ngOnInit(): void {
+  const folio = this.route.snapshot.paramMap.get('folio') ?? '';
+
+  if (!folio.trim()) {
+    this.error = 'Folio de reporte inválido.';
+    this.cargando = false;
+    return;
   }
+
+  this.reportService.obtenerReportePorFolio(folio).subscribe({
+    next: (data) => {
+      this.reporte = data;
+      this.cargando = false;
+      setTimeout(() => this.initMapa(), 300);
+    },
+    error: () => {
+      this.error = 'No se pudo cargar el reporte.';
+      this.cargando = false;
+    },
+  });
+}
 
   ngAfterViewInit(): void {}
 

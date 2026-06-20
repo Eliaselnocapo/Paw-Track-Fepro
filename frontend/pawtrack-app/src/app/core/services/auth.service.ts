@@ -62,11 +62,14 @@ export class AuthService {
 
   logout(): void {
     this.http.post(`${this.API}/logout/`, {}).subscribe({ error: () => {} });
+
     localStorage.removeItem('pawtrack_access');
     localStorage.removeItem('pawtrack_refresh');
+
     this.userSubject.next(null);
     this.activeRoleSubject.next('');
-    this.router.navigate(['/login']);
+
+    this.router.navigate(['/home']);
   }
 
   setActiveRole(role: string): void {

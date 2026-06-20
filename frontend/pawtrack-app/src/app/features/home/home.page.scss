@@ -1,592 +1,243 @@
-
-/* ==========================================================================
-   PAWTRACK — DISEÑO MEJORADO v2
-   ========================================================================== */
-
-.page-container {
-  background-color: #f0f4f9;
-  min-height: 100vh;
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #0b1c30;
-}
-
-/* ---------- HERO ---------- */
-.hero-section {
-  position: relative;
-  width: 100%;
-  height: 88vh;
-  min-height: 660px;
-  background-image: url('https://images.unsplash.com/photo-1527526029430-319f10814151?q=80&w=2000&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center 30%;
-  display: flex;
-  align-items: center;
-  overflow: visible; /* permite que la action-bar flote hacia abajo */
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      rgba(11, 28, 48, 0.97) 0%,
-      rgba(11, 28, 48, 0.62) 52%,
-      transparent 100%
-    );
-    z-index: 1;
-  }
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px;
-
-  h1 {
-    color: #ffffff;
-    font-size: 4.25rem;
-    font-weight: 800;
-    line-height: 1.08;
-    margin-bottom: 20px;
-    letter-spacing: -0.02em;
-
-    span { color: #4df5b2; }
-  }
-
-  p {
-    color: #94a3b8;
-    font-size: 1.1rem;
-    max-width: 480px;
-    margin-bottom: 40px;
-    line-height: 1.65;
-  }
-}
-
-/* 1. Asegúrate de envolver ambos botones en este contenedor en tu HTML */
-.hero-buttons-container {
-  display: flex;
-  gap: 20px; /* Esto es lo que los separa y evita que estén pegados */
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-/* 2. Tu botón principal (sin muchos cambios, solo limpié la transición) */
-.hero-btn {
-  background-color: #0058be;
-  color: #ffffff;
-  padding: 16px 32px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 88, 190, 0.45);
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #0049a0;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 88, 190, 0.5);
-  }
-}
-
-/* 3. El nuevo botón secundario más "ameno" */
-.hero-btn-secondary {
-  /* Un blanco con 95% de opacidad, se mezcla sutilmente con el fondo */
-  background-color: rgba(255, 255, 255, 0.95);
-  color: #0058be;
-  padding: 16px 32px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.5); /* Borde sutil */
-  cursor: pointer;
-  /* Sombra más delicada para que no compita con el botón principal */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-
-  &:hover {
-    /* Al pasar el mouse, cambia a un azulito MUY claro y amigable */
-    background-color: #e0edff;
-    color: #0049a0; /* El texto se oscurece un poco para mejor contraste */
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  }
-}
-
-/* ---------- ACTION BAR: pills flotantes, compactas, centradas ---------- */
-.action-bar {
-  position: absolute;
-  bottom: -38px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 80px);
-  max-width: 900px;
-  display: flex;
-  gap: 10px;
-  z-index: 20;
-
-  @media (max-width: 768px) {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    flex-direction: column;
-    width: 100%;
-    max-width: none;
-    gap: 8px;
-    padding: 12px;
-  }
-}
-
-.action-tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  height: 68px;
-  border-radius: 14px;
-  color: #ffffff;
-  cursor: pointer;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-
-  .tab-inner {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .tab-icon {
-    font-size: 1.5rem;
-    opacity: 0.85;
-  }
-
-  .tab-labels {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-
-    .tab-eyebrow {
-      font-size: 0.62rem;
-      font-weight: 500;
-      opacity: 0.6;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-
-    .tab-title {
-      font-size: 0.88rem;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-    }
-  }
-
-  .arrow {
-    font-size: 1.1rem;
-    opacity: 0.65;
-    transition: transform 0.2s ease, opacity 0.2s;
-  }
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
-
-    .arrow {
-      transform: translateX(5px);
-      opacity: 1;
-    }
-  }
-
-  /* Gradientes progresivos de azul oscuro → azul medio → azul vivo */
-  &.tab-reporter  { background: linear-gradient(140deg, #0b1f3a 0%, #002e68 100%); }
-  &.tab-volunteer { background: linear-gradient(140deg, #002e68 0%, #004aab 100%); }
-  &.tab-sponsor   { background: linear-gradient(140deg, #004aab 0%, #006ae3 100%); }
-}
-
-/* ---------- ROLES SECTION ---------- */
-.roles-section {
-  padding: 90px 40px 100px;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 4;
-}
-
-/* Header */
-.section-header {
-  text-align: center;
-  margin-bottom: 72px;
-}
-
-.section-eyebrow {
-  display: inline-block;
-  background: linear-gradient(135deg, #0058be, #007aff);
-  color: #fff;
-  padding: 5px 18px;
-  border-radius: 100px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-
-.section-header h2 {
-  font-size: 2.8rem;
-  font-weight: 800;
-  color: #0b1c30;
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
-}
-
-.section-header p {
-  color: #64748b;
-  font-size: 1.15rem;
-}
-
-/* ---------- ROLE ROWS ---------- */
-/* ---------- ROLE ROWS ---------- */
-.roles-list {
-  display: flex;
-  flex-direction: column;
-  gap: 40px; /* Un poco más de espacio para que respiren las sombras */
-}
-
-.role-row {
-  display: flex;
-  align-items: stretch;
-  border-radius: 20px;
-  overflow: hidden;
-
-  /* 1. Fondo azul clarito/grisáceo muy sutil (en lugar de blanco puro) */
-  background: #f4f7fb;
-
-  /* 2. Adiós border-top. Le ponemos un borde blanco casi transparente para un efecto limpio */
-  border: 1px solid rgba(255, 255, 255, 0.8);
-
-  /* 3. Hola Box-Shadow. Una sombra suave para dar volumen */
-  box-shadow: 0 8px 24px rgba(11, 28, 48, 0.05);
-
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-
-  /* Efecto al pasar el mouse: flota un poco más y la sombra se intensifica */
-  &:hover {
-    box-shadow: 0 16px 48px rgba(11, 28, 48, 0.12);
-    transform: translateY(-4px);
-  }
-
-  /* Intercala las filas */
-  &:nth-child(even) {
-    flex-direction: row-reverse;
-  }
-
-  /* NOTA: Las clases con "border-top: 4px solid..." fueron eliminadas por completo */
-
-  @media (max-width: 768px) {
-    flex-direction: column !important;
-  }
-}
-
-/* Imagen */
-.role-image-wrapper {
-  flex: 1.1;
-  position: relative;
-  min-height: 320px;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.45s ease;
-  }
-
-  &:hover img { transform: scale(1.06); }
-
-  /* Overlay de gradiente tintado, se aplica desde el rol padre */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  @media (max-width: 768px) {
-    min-height: 220px;
-  }
-}
-
-/* Tinte por rol en la imagen */
-.role-reporter  .role-image-wrapper::after {
-  background: linear-gradient(to top, rgba(185, 28, 28, 0.18) 0%, transparent 55%);
-}
-.role-volunteer .role-image-wrapper::after {
-  background: linear-gradient(to top, rgba(29, 78, 216, 0.18) 0%, transparent 55%);
-}
-.role-sponsor   .role-image-wrapper::after {
-  background: linear-gradient(to top, rgba(4, 120, 87, 0.18) 0%, transparent 55%);
-}
-
-/* Texto del rol */
-.role-text {
-  flex: 1;
-  padding: 48px 52px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-
-  /* Número de paso en watermark */
-  .step-num {
-    position: absolute;
-    top: 14px;
-    right: 22px;
-    font-size: 7rem;
-    font-weight: 900;
-    color: #0b1c30;
-    opacity: 0.04;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    user-select: none;
-    pointer-events: none;
-  }
-
-  h3 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 12px;
-    letter-spacing: -0.02em;
-  }
-
-  p {
-    color: #475569;
-    font-size: 1.05rem;
-    line-height: 1.7;
-    margin-bottom: 28px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 32px 28px;
-    text-align: center;
-    align-items: center;
-
-    .step-num { display: none; }
-  }
-}
-
-/* ---------- ICON BOX ---------- */
-.icon-box {
-  width: 60px;
-  height: 60px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-
-  .material-symbols-outlined { font-size: 1.7rem; }
-
-  &.red {
-    background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
-    color: #fff;
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
-  }
-
-  &.blue {
-    background: linear-gradient(135deg, #93c5fd 0%, #2563eb 100%);
-    color: #fff;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-  }
-
-  &.green {
-    background: linear-gradient(135deg, #6ee7b7 0%, #10b981 100%);
-    color: #fff;
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
-  }
-}
-
-/* ---------- BUTTONS ---------- */
-.card-btn {
-  padding: 13px 30px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  border: none;
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
-
-  @media (max-width: 768px) {
-    align-self: center;
-  }
-
-  &.btn-reporter {
-    background-color: #ef4444;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-
-    &:hover {
-      background-color: #dc2626;
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.42);
-      transform: translateY(-1px);
-    }
-  }
-
-  &.btn-volunteer {
-    background-color: #2563eb;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-
-    &:hover {
-      background-color: #1d4ed8;
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42);
-      transform: translateY(-1px);
-    }
-  }
-
-  &.btn-sponsor {
-    background-color: #10b981;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-
-    &:hover {
-      background-color: #059669;
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.42);
-      transform: translateY(-1px);
-    }
-  }
-}
 :host {
   display: block;
-  background: linear-gradient(135deg, #f8f9ff 0%, #e5eeff 100%);
-  min-height: 100vh;
-  font-family: 'Montserrat', sans-serif;
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4px 24px rgba(0, 88, 190, 0.08);
 }
 
 ion-content {
-  --background: transparent;
+  --background: #f6f8fb;
 }
 
 /* =========================
-   FIX RESPONSIVE HOME MOBILE
-   ========================= */
+   HERO BACKGROUND + FIGURAS
+========================= */
 
-@media (max-width: 768px) {
-  .page-container {
-    overflow-x: hidden;
+.home-hero {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(11, 24, 43, 0.94) 0%,
+      rgba(11, 24, 43, 0.82) 44%,
+      rgba(11, 24, 43, 0.32) 100%
+    ),
+    url("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1800&auto=format&fit=crop")
+      center right / cover no-repeat;
+}
+
+.hero-bg-shape {
+  position: absolute;
+  pointer-events: none;
+}
+
+.shape-outline {
+  width: 210px;
+  height: 210px;
+  right: 8%;
+  top: 17%;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  transform: rotate(28deg);
+}
+
+.shape-soft {
+  width: 300px;
+  height: 180px;
+  right: 14%;
+  bottom: 11%;
+  border-radius: 44px;
+  background: rgba(20, 184, 166, 0.18);
+  transform: rotate(16deg);
+}
+
+.shape-line {
+  width: 420px;
+  height: 1px;
+  left: 7vw;
+  bottom: 80px;
+  background: linear-gradient(90deg, rgba(94, 234, 212, 0.4), transparent);
+}
+
+/* =========================
+   DECORACIÓN ACCIONES
+========================= */
+
+.actions-bg-shape {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shape-blue {
+  width: 560px;
+  height: 560px;
+  right: -180px;
+  top: -160px;
+  border-radius: 44% 56% 55% 45%;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.shape-teal {
+  width: 360px;
+  height: 280px;
+  left: -120px;
+  bottom: -80px;
+  border-radius: 58% 42% 48% 52%;
+  background: rgba(20, 184, 166, 0.1);
+}
+
+.actions-bg-line {
+  position: absolute;
+  right: 11%;
+  bottom: 60px;
+  width: 190px;
+  height: 190px;
+  border: 2px solid rgba(37, 99, 235, 0.11);
+  transform: rotate(18deg);
+  z-index: 1;
+}
+
+/* =========================
+   TIMELINE
+========================= */
+
+.flow-section-v2::before {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  right: -160px;
+  bottom: -190px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.055);
+}
+
+
+/* =========================
+   MAPA DECORATIVO
+========================= */
+
+.map-section::before {
+  content: "";
+  position: absolute;
+  width: 620px;
+  height: 430px;
+  left: -220px;
+  top: -80px;
+  border-radius: 48% 52% 42% 58%;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.map-section::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  right: 7%;
+  bottom: 40px;
+  border: 2px solid rgba(15, 23, 42, 0.075);
+  transform: rotate(24deg);
+}
+
+.map-grid {
+  position: absolute;
+  inset: 22px;
+  border-radius: 18px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.72) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.72) 1px, transparent 1px),
+    linear-gradient(135deg, #bfdbfe, #dbeafe 48%, #ccfbf1);
+  background-size: 48px 48px, 48px 48px, cover;
+}
+
+.route-line {
+  position: absolute;
+  width: 54%;
+  height: 48%;
+  left: 25%;
+  top: 19%;
+  border-top: 14px solid rgba(37, 99, 235, 0.16);
+  border-right: 14px solid rgba(37, 99, 235, 0.16);
+  border-radius: 50%;
+  transform: rotate(12deg);
+}
+
+.map-marker {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px 16px 16px 4px;
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.24);
+  transform: rotate(-45deg);
+}
+
+.map-marker span {
+  transform: rotate(45deg);
+}
+
+.marker-a {
+  left: 31%;
+  top: 30%;
+}
+
+.marker-b {
+  right: 26%;
+  top: 40%;
+}
+
+.marker-c {
+  left: 52%;
+  bottom: 25%;
+}
+
+.map-marker.danger {
+  background: #ef3b3b;
+  box-shadow: 0 14px 28px rgba(239, 59, 59, 0.22);
+}
+
+/* =========================
+   CTA DECORACIÓN
+========================= */
+
+.final-shape {
+  position: absolute;
+  right: -120px;
+  top: -120px;
+  width: 360px;
+  height: 360px;
+  border-radius: 52% 48% 43% 57%;
+  background: rgba(20, 184, 166, 0.12);
+}
+
+/* =========================
+   RESPONSIVE ESPECIAL
+========================= */
+
+@media (max-width: 720px) {
+  .home-hero {
+    min-height: auto;
+    padding: 72px 22px 64px;
+    background:
+      linear-gradient(
+        90deg,
+        rgba(11, 24, 43, 0.96) 0%,
+        rgba(11, 24, 43, 0.88) 100%
+      ),
+      url("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1200&auto=format&fit=crop")
+        center / cover no-repeat;
   }
 
-  .hero-section {
-    height: auto !important;
-    min-height: 100dvh !important;
-    padding: 96px 16px 40px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: stretch !important;
-    overflow: hidden !important;
+  .map-grid {
+    inset: 16px;
   }
 
-  .hero-content {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  .route-line {
+    border-top-width: 10px;
+    border-right-width: 10px;
   }
 
-  .hero-content h1 {
-    font-size: clamp(3.7rem, 15vw, 5rem) !important;
-    line-height: 1.05 !important;
-  }
-
-  .hero-content p {
-    max-width: 92% !important;
-    font-size: 1rem !important;
-    line-height: 1.7 !important;
-  }
-
-  .hero-buttons-container {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 18px !important;
-  }
-
-  .hero-btn,
-  .hero-btn-secondary {
-    width: auto !important;
-    min-width: 165px !important;
-  }
-
-  .action-bar {
-    position: static !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-top: 32px !important;
-    padding: 0 !important;
-
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-
-  .action-tab {
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 72px !important;
-    border-radius: 20px !important;
-    padding: 0 18px !important;
-  }
-
-  .action-tab:hover {
-    transform: none !important;
-  }
-
-  .roles-section {
-    padding: 56px 16px 72px !important;
-  }
-
-  .role-row,
-  .role-row:nth-child(even) {
-    flex-direction: column !important;
-  }
-
-  .role-text {
-    padding: 28px 22px !important;
-    text-align: left !important;
-    align-items: flex-start !important;
-  }
-
-  .card-btn {
-    width: 100% !important;
-    justify-content: center !important;
-    align-self: stretch !important;
+  .map-marker {
+    width: 46px;
+    height: 46px;
   }
 }

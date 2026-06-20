@@ -15,7 +15,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/reports/create-report/create-report.page').then( m => m.CreateReportPage)
   },
   {
-    path: 'view-report/:id',
+    path: 'view-report/:folio',
     loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportComponent)
   },
   {
@@ -28,7 +28,7 @@ export const routes: Routes = [
   },
 
   {
-  path: 'reports/:id/update',
+  path: 'reports/:folio/update',
   loadComponent: () =>
     import('./features/reports/update-report/update-report.page')
       .then(m => m.UpdateReportPage)

@@ -114,7 +114,24 @@
 
 @if (pasoActual === 2) {
           <div class="w-full bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-8">
-            
+            <section>
+              <label class="block text-sm font-bold text-slate-900 mb-2">
+                Nombre del caso
+              </label>
+
+              <input
+                type="text"
+                [(ngModel)]="nombreCaso"
+                maxlength="60"
+                class="w-full h-12 border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition-all focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+                placeholder="Ej. Perrito herido cerca de CU"
+              >
+
+              <p class="mt-2 text-xs leading-relaxed text-slate-500">
+                Este nombre te ayudará a identificar el reporte después.
+              </p>
+            </section>
+            <hr class="border-slate-100">
             <section>
               <h2 class="text-base font-black text-slate-900 mb-4">¿Qué tipo de animal es?</h2>
               <!-- 2 Columnas, eliminada la opción "Otro" -->
@@ -231,7 +248,7 @@
               <button (click)="regresarPaso()" class="text-slate-600 font-bold hover:bg-slate-100 px-5 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 text-sm">
                 <span class="material-symbols-outlined text-[18px]">arrow_back</span> Atrás
               </button>
-              <button (click)="siguientePaso()" [disabled]="!tipoAnimal || condicionesVisibles.length === 0" class="bg-blue-700 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2 text-sm active:scale-95">
+              <button (click)="siguientePaso()" [disabled]="!nombreCaso.trim() || !tipoAnimal || !tamanoAproximado || condicionesVisibles.length === 0" class="bg-blue-700 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center gap-2 text-sm active:scale-95">
                 Siguiente Paso
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
@@ -341,7 +358,15 @@
                       <span class="material-symbols-outlined text-[18px]">edit</span> Editar
                     </button>
                   </div>
-                  
+                  <div class="mb-5 border-b border-slate-200 pb-4">
+                    <span class="text-xs font-bold text-slate-500 uppercase">
+                      Nombre del caso
+                    </span>
+
+                    <p class="mt-1 text-lg text-slate-900 font-semibold">
+                      {{ nombreCaso }}
+                    </p>
+                  </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-6">
                     <div class="flex flex-col gap-1">
                       <span class="text-xs font-bold text-slate-500 uppercase">Especie</span>

@@ -1,214 +1,283 @@
-<div class="w-full h-full">
-<div class="w-full min-h-screen bg-slate-50 relative font-body overflow-x-hidden">
+<ion-content [fullscreen]="true">
+  <div class="w-full min-h-screen bg-blue-50 relative font-body overflow-hidden">
 
-  <header class="w-full h-16 flex items-center justify-between px-8 z-50 absolute top-0 left-0">
-    <div class="text-2xl font-bold text-blue-700 flex items-center gap-2 cursor-pointer" routerLink="/home">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
-      PawTrack
-    </div>
+<!-- ================= FONDOS DECORATIVOS: SOFT WAVES FULL SCREEN ================= -->
+    
+<div class="absolute inset-0 z-0 pointer-events-none overflow-hidden isolate">
 
-    <a routerLink="/home" class="text-blue-700 hover:text-blue-900 transition-colors font-bold flex items-center gap-1 cursor-pointer">
-      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-      Volver al inicio
-    </a>
-  </header>
+  <!-- Fondo base -->
+  <div class="absolute inset-0 bg-gradient-to-br from-[#eef6ff] via-[#ecfeff] to-[#f0fdf4]"></div>
 
-  <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-60 pointer-events-none"></div>
-  <div class="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-emerald-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-50 pointer-events-none"></div>
+  <!-- BLOBS GRANDES -->
 
-  <div class="relative z-10 w-full min-h-screen px-6 pt-24 pb-10 flex justify-center items-center">
+  <!-- Arriba izquierda -->
+  <div
+    class="absolute -top-[6%] -left-[10%] w-[42vw] h-[42vw] min-w-[420px] min-h-[420px] bg-[#dbeafe] z-[1]"
+    style="border-radius: 71% 29% 36% 64% / 45% 36% 64% 55%;">
+  </div>
 
-    <div class="w-full max-w-[1000px] bg-white flex flex-col md:flex-row shadow-2xl rounded-3xl border border-slate-200 overflow-hidden">
+  <!-- Arriba centro -->
+  <div
+    class="absolute -top-[20%] left-[26%] w-[42vw] h-[24vw] min-w-[440px] min-h-[250px] bg-[#d1fae5] z-[2]"
+    style="border-radius: 32% 68% 21% 79% / 54% 28% 72% 46%;">
+  </div>
 
-      <div class="hidden md:block md:w-5/12 relative bg-slate-800">
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-700/40 to-slate-900/80 mix-blend-multiply z-10"></div>
-        <img
-          alt="Perritos felices"
-          class="absolute inset-0 w-full h-full object-cover z-0"
-          src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop"
-        />
-        <div class="absolute bottom-0 left-0 p-8 w-full z-20">
-          <h2 class="text-2xl font-bold text-white mb-2">Únete a la Red de Rescate</h2>
-          <p class="text-sm text-white/90">Tus acciones de hoy pueden salvar una vida mañana.</p>
-        </div>
+  <!-- Arriba derecha -->
+  <div
+    class="absolute -top-[10%] right-[8%] w-[30vw] h-[42vw] min-w-[320px] min-h-[420px] bg-[#cffafe] z-[3]"
+    style="border-radius: 48% 52% 28% 72% / 64% 43% 57% 36%;">
+  </div>
+
+  <!-- Derecha media -->
+  <div
+    class="absolute top-[-2%] right-[-10%] w-[30vw] h-[28vw] min-w-[430px] min-h-[260px] bg-[#cfe3ff] z-[2]"
+    style="border-radius: 60% 40% 25% 75% / 45% 60% 40% 55%;">
+  </div>
+
+  <!-- Abajo izquierda -->
+  <div
+    class="absolute bottom-[-10%] left-[-8%] w-[38vw] h-[24vw] min-w-[380px] min-h-[240px] bg-[#d1fae5] z-[2]"
+    style="border-radius: 65% 35% 74% 26% / 38% 66% 34% 62%;">
+  </div>
+
+  <!-- Abajo centro -->
+  <div
+    class="absolute bottom-[-16%] left-[25%] w-[30vw] h-[20vw] min-w-[320px] min-h-[220px] bg-[#dcfce7] z-[3]"
+    style="border-radius: 42% 58% 63% 37% / 48% 36% 64% 52%;">
+  </div>
+
+  <!-- Abajo derecha -->
+  <div
+    class="absolute bottom-[-8%] right-[-8%] w-[40vw] h-[30vw] min-w-[420px] min-h-[260px] bg-[#dbeafe] z-[4]"
+    style="border-radius: 20% 80% 30% 70% / 60% 30% 70% 40%;">
+  </div>
+
+  <!-- Blob pequeño medio izquierda -->
+  <div
+    class="absolute top-[55%] left-[5%] w-[16vw] h-[12vw] min-w-[160px] min-h-[120px] bg-[#e0f2fe] z-[4]"
+    style="border-radius: 55% 45% 70% 30% / 40% 60% 40% 60%;">
+  </div>
+
+  <!-- Blob pequeño centro -->
+  <div
+    class="absolute top-[18%] left-[58%] w-[14vw] h-[10vw] min-w-[150px] min-h-[100px] bg-[#d9f99d] z-[1]"
+    style="border-radius: 58% 42% 34% 66% / 47% 55% 45% 53%;">
+  </div>
+
+  <!-- Blob pequeño abajo centro derecha -->
+  <div
+    class="absolute bottom-[10%] right-[22%] w-[14vw] h-[9vw] min-w-[140px] min-h-[90px] bg-[#e0f2fe] z-[3]"
+    style="border-radius: 34% 66% 58% 42% / 51% 38% 62% 49%;">
+  </div>
+
+</div>
+<!-- CAPA DE HUELLITAS ENCIMA DE LAS FIGURAS -->
+<div class="absolute inset-0 z-[10] pointer-events-none">
+
+  <span class="absolute top-[8%] left-[7%] material-symbols-outlined text-[58px] text-blue-400/20 -rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[18%] left-[16%] material-symbols-outlined text-[40px] text-blue-400/20 rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[7%] left-[48%] material-symbols-outlined text-[56px] text-blue-400/20 -rotate-6"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[14%] right-[12%] material-symbols-outlined text-[60px] text-blue-400/20 rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[34%] left-[4%] material-symbols-outlined text-[46px] text-blue-400/20 rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[42%] left-[62%] material-symbols-outlined text-[42px] text-blue-400/20 -rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[45%] right-[5%] material-symbols-outlined text-[50px] text-blue-400/20 rotate-6"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[60%] left-[8%] material-symbols-outlined text-[62px] text-blue-400/20 -rotate-45"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[68%] left-[38%] material-symbols-outlined text-[40px] text-blue-400/20 rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute top-[64%] right-[10%] material-symbols-outlined text-[54px] text-blue-400/20 rotate-45"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute bottom-[14%] left-[12%] material-symbols-outlined text-[48px] text-blue-400/20 rotate-45"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute bottom-[8%] left-[30%] material-symbols-outlined text-[58px] text-blue-400/20 -rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute bottom-[6%] left-[55%] material-symbols-outlined text-[42px] text-blue-400/20 rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute bottom-[10%] right-[26%] material-symbols-outlined text-[50px] text-blue-400/20 -rotate-45"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+  <span class="absolute bottom-[14%] right-[8%] material-symbols-outlined text-[72px] text-blue-400/20 -rotate-12"
+    style="font-variation-settings: 'FILL' 1;">pets</span>
+
+</div>
+    <!-- Header Original -->
+    <header class="w-full h-16 flex items-center justify-between px-8 z-50 absolute top-0 left-0">
+      <div class="text-2xl font-bold text-blue-700 flex items-center gap-2 cursor-pointer" routerLink="/home">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+        PawTrack
       </div>
 
-      <div class="w-full md:w-7/12 p-7 md:p-10 flex flex-col justify-center bg-white">
-        <div class="mb-6">
-          <h1 class="text-3xl font-bold text-slate-900 mb-2">Crear Cuenta</h1>
-          <p class="text-sm text-slate-600">Regístrate para unirte a la red de PawTrack.</p>
+      <a routerLink="/home" class="text-blue-700 hover:text-blue-900 transition-colors font-bold flex items-center gap-1 cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        Volver al inicio
+      </a>
+    </header>
+
+    <div class="relative z-10 w-full min-h-screen px-6 pt-24 pb-10 flex justify-center items-center">
+
+      <div class="w-full max-w-[1000px] bg-white flex flex-col md:flex-row shadow-2xl rounded border border-slate-300 overflow-hidden">
+
+        <!-- Lado Izquierdo: Imagen Original -->
+        <div class="hidden md:block md:w-5/12 relative bg-slate-800">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-700/40 to-slate-900/80 mix-blend-multiply z-10"></div>
+          <img
+            alt="Perritos felices"
+            class="absolute inset-0 w-full h-full object-cover z-0"
+            src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop"
+          />
+          <div class="absolute bottom-0 left-0 p-8 w-full z-20">
+            <h2 class="text-2xl font-bold text-white mb-2">Únete a la Red de Rescate</h2>
+            <p class="text-sm text-white/90">Tus acciones de hoy pueden salvar una vida mañana.</p>
+          </div>
         </div>
 
-        <!-- Mensaje de error -->
-        <div *ngIf="error" class="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 font-medium">
-          {{ error }}
-        </div>
+        <!-- Lado Derecho: Formulario -->
+        <div class="w-full md:w-7/12 p-7 md:p-10 flex flex-col justify-center bg-white relative z-10">
+          <div class="mb-6">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Crear Cuenta</h1>
+            <p class="text-sm text-slate-600">Regístrate para unirte a la red de PawTrack.</p>
+          </div>
 
-        <form class="space-y-5" (ngSubmit)="onSubmit()" #registerForm="ngForm">
+          <!-- Mensaje de error -->
+          <div *ngIf="error" class="mb-4 px-4 py-3 bg-red-500 border border-red-200 rounded text-sm text-white font-medium">
+            {{ error }}
+          </div>
 
-          <!-- Selector de rol -->
-          <div class="space-y-3">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              ¿Cómo te gustaría ayudar?
-            </label>
+          <form class="space-y-5" (ngSubmit)="onSubmit()" #registerForm="ngForm">
 
-            <div class="grid grid-cols-1 gap-3">
+            <!-- Campos de datos (Sin Roles, diseño pulido) -->
+            <div class="space-y-4 pt-2">
+              
               <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-slate-400 text-[20px]">person</span>
+                </div>
                 <input
-                  class="peer sr-only"
-                  id="role-reportant"
-                  name="selectedRole"
-                  type="radio"
-                  value="REPORTERO"
-                  [(ngModel)]="selectedRole"
+                  class="block w-full pl-10 pr-4 h-11 border border-slate-300 rounded bg-slate-50 text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400 transition-colors"
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  placeholder="Nombre Completo"
+                  [(ngModel)]="fullName"
+                  required
                 />
-                <label class="flex items-center p-3 border border-slate-300 rounded-lg cursor-pointer transition-all hover:bg-slate-50 peer-checked:border-blue-600 peer-checked:bg-blue-50/50" for="role-reportant">
-                  <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-red-500 mr-4 shadow-sm border border-slate-100">
-                    <span class="material-symbols-outlined">campaign</span>
-                  </div>
-                  <div class="flex-grow">
-                    <div class="font-bold text-slate-900 text-sm">Reportante</div>
-                    <div class="text-slate-500 text-xs">Quiero reportar animales necesitados</div>
-                  </div>
-                  <span class="material-symbols-outlined text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity">check_circle</span>
+              </div>
+
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-slate-400 text-[20px]">mail</span>
+                </div>
+                <input
+                  class="block w-full pl-10 pr-4 h-11 border border-slate-300 rounded bg-slate-50 text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400 transition-colors"
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Correo Electrónico"
+                  [(ngModel)]="email"
+                  required
+                />
+              </div>
+
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-slate-400 text-[20px]">lock</span>
+                </div>
+                <input
+                  class="block w-full pl-10 pr-4 h-11 border border-slate-300 rounded bg-slate-50 text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400 transition-colors"
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Contraseña"
+                  [(ngModel)]="password"
+                  required
+                />
+              </div>
+
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-slate-400 text-[20px]" [class.text-red-400]="passwordConfirm && password !== passwordConfirm">lock_reset</span>
+                </div>
+                <input
+                  class="block w-full pl-10 pr-4 h-11 border border-slate-300 rounded bg-slate-50 text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400 transition-colors"
+                  [class.border-red-400]="passwordConfirm && password !== passwordConfirm"
+                  id="passwordConfirm"
+                  name="passwordConfirm"
+                  type="password"
+                  placeholder="Confirmar Contraseña"
+                  [(ngModel)]="passwordConfirm"
+                  required
+                />
+                <p *ngIf="passwordConfirm && password !== passwordConfirm" class="mt-1 text-xs text-red-600 pl-1">
+                  Las contraseñas no coinciden.
+                </p>
+              </div>
+            </div>
+
+            <!-- Términos -->
+            <div class="flex items-start pt-1">
+              <div class="flex items-center h-5">
+                <input
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-600 border-slate-300 rounded bg-white cursor-pointer"
+                  id="terms"
+                  name="terms"
+                  type="checkbox"
+                  [(ngModel)]="termsAccepted"
+                />
+              </div>
+              <div class="ml-2 text-xs text-slate-600">
+                <label for="terms" class="cursor-pointer select-none">
+                  Acepto los
+                  <a class="text-blue-700 hover:underline font-bold" href="#">Términos de Servicio</a>
+                  y la
+                  <a class="text-blue-700 hover:underline font-bold" href="#">Política de Privacidad</a>.
                 </label>
               </div>
-
-              <div class="relative">
-                <input
-                  class="peer sr-only"
-                  id="role-volunteer"
-                  name="selectedRole"
-                  type="radio"
-                  value="RESCATISTA"
-                  [(ngModel)]="selectedRole"
-                />
-                <label class="flex items-center p-3 border border-slate-300 rounded-lg cursor-pointer transition-all hover:bg-slate-50 peer-checked:border-blue-600 peer-checked:bg-blue-50/50" for="role-volunteer">
-                  <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-blue-600 mr-4 shadow-sm border border-slate-100">
-                    <span class="material-symbols-outlined">volunteer_activism</span>
-                  </div>
-                  <div class="flex-grow">
-                    <div class="font-bold text-slate-900 text-sm">Voluntario / Rescatista</div>
-                    <div class="text-slate-500 text-xs">Quiero ayudar físicamente en los rescates</div>
-                  </div>
-                  <span class="material-symbols-outlined text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity">check_circle</span>
-                </label>
-              </div>
             </div>
+
+            <!-- Botón -->
+            <div class="pt-1">
+              <button
+                class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-md text-white bg-blue-700 hover:bg-blue-800 font-bold text-sm h-12 transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed gap-2"
+                type="submit"
+                [disabled]="cargando || !termsAccepted"
+              >
+                <span *ngIf="cargando" class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+                {{ cargando ? 'Creando cuenta...' : 'Crear Cuenta' }}
+              </button>
+            </div>
+          </form>
+
+          <div class="mt-6 text-center">
+            <p class="text-sm text-slate-600">
+              ¿Ya tienes una cuenta?
+              <a routerLink="/login" class="font-bold text-blue-700 hover:text-blue-900 hover:underline transition-colors cursor-pointer">
+                Inicia Sesión
+              </a>
+            </p>
           </div>
-
-          <!-- Campos de datos -->
-          <div class="space-y-4 pt-2">
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="material-symbols-outlined text-slate-500 text-[20px]">person</span>
-              </div>
-              <input
-                class="block w-full pl-10 pr-4 h-11 border border-slate-400 rounded-lg bg-white text-slate-800 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400"
-                id="fullName"
-                name="fullName"
-                type="text"
-                placeholder="Nombre Completo"
-                [(ngModel)]="fullName"
-                required
-              />
-            </div>
-
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="material-symbols-outlined text-slate-500 text-[20px]">mail</span>
-              </div>
-              <input
-                class="block w-full pl-10 pr-4 h-11 border border-slate-400 rounded-lg bg-white text-slate-800 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400"
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Correo Electrónico"
-                [(ngModel)]="email"
-                required
-              />
-            </div>
-
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="material-symbols-outlined text-slate-500 text-[20px]">lock</span>
-              </div>
-              <input
-                class="block w-full pl-10 pr-4 h-11 border border-slate-400 rounded-lg bg-white text-slate-800 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400"
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Contraseña"
-                [(ngModel)]="password"
-                required
-              />
-            </div>
-
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="material-symbols-outlined text-slate-500 text-[20px]">lock_reset</span>
-              </div>
-              <input
-                class="block w-full pl-10 pr-4 h-11 border border-slate-400 rounded-lg bg-white text-slate-800 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400"
-                [class.border-red-400]="passwordConfirm && password !== passwordConfirm"
-                id="passwordConfirm"
-                name="passwordConfirm"
-                type="password"
-                placeholder="Confirmar Contraseña"
-                [(ngModel)]="passwordConfirm"
-                required
-              />
-              <p *ngIf="passwordConfirm && password !== passwordConfirm" class="mt-1 text-xs text-red-600 pl-1">
-                Las contraseñas no coinciden.
-              </p>
-            </div>
-          </div>
-
-          <!-- Términos -->
-          <div class="flex items-start pt-1">
-            <div class="flex items-center h-5">
-              <input
-                class="h-4 w-4 text-blue-600 focus:ring-blue-600 border-slate-400 rounded bg-white cursor-pointer"
-                id="terms"
-                name="terms"
-                type="checkbox"
-                [(ngModel)]="termsAccepted"
-              />
-            </div>
-            <div class="ml-2 text-xs text-slate-600">
-              <label for="terms" class="cursor-pointer select-none">
-                Acepto los
-                <a class="text-blue-700 hover:underline font-bold" href="#">Términos de Servicio</a>
-                y la
-                <a class="text-blue-700 hover:underline font-bold" href="#">Política de Privacidad</a>.
-              </label>
-            </div>
-          </div>
-
-          <!-- Botón -->
-          <div class="pt-1">
-            <button
-              class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-white bg-blue-700 hover:bg-blue-800 font-bold text-sm h-12 transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed gap-2"
-              type="submit"
-              [disabled]="cargando"
-            >
-              <span *ngIf="cargando" class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
-              {{ cargando ? 'Creando cuenta...' : 'Crear Cuenta' }}
-            </button>
-          </div>
-        </form>
-
-        <div class="mt-6 text-center">
-          <p class="text-sm text-slate-600">
-            ¿Ya tienes una cuenta?
-            <a routerLink="/login" class="font-bold text-blue-700 hover:text-blue-900 hover:underline transition-colors cursor-pointer">
-              Inicia Sesión
-            </a>
-          </p>
         </div>
+
       </div>
-
     </div>
   </div>
-</div>
-</div>
+</ion-content>
