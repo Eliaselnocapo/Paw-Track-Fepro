@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -16,24 +17,25 @@ export const routes: Routes = [
   },
   {
     path: 'view-report/:folio',
-    loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportComponent)
+    loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportComponent),
+    canActivate: [authGuard]
   },
   {
     path: 'profile',
-    loadComponent: () => import('./features/profile/profile.page').then( m => m.ProfilePage)
+    loadComponent: () => import('./features/profile/profile.page').then( m => m.ProfilePage),
+    canActivate: [authGuard]
   },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.page').then( m => m.LoginPage)
   },
-
   {
-  path: 'reports/:folio/update',
-  loadComponent: () =>
-    import('./features/reports/update-report/update-report.page')
-      .then(m => m.UpdateReportPage)
+    path: 'reports/:folio/update',
+    loadComponent: () =>
+      import('./features/reports/update-report/update-report.page')
+        .then(m => m.UpdateReportPage),
+    canActivate: [authGuard]
   },
-
   {
     path: 'register',
     loadComponent: () => import('./features/auth/register/register.page').then( m => m.RegisterPage)
@@ -44,20 +46,7 @@ export const routes: Routes = [
       import('./features/dashboards/reporter/reporter.page').then(
         (m) => m.ReporterPage
       ),
-  },
-  {
-<<<<<<< Updated upstream
-    path: 'reports/list-reports',
-    loadComponent: () =>
-      import('./features/reports/list-reports/list-reports.page').then(
-        (m) => m.ListReportsPage
-=======
-    path: 'dashboard/volunteer',
-    loadComponent: () =>
-      import('./features/dashboards/volunteer/volunteer.page').then(
-        (m) => m.VolunteerPage
->>>>>>> Stashed changes
-      ),
+    canActivate: [authGuard]
   },
   {
     path: 'dashboard/volunteer',
@@ -65,5 +54,6 @@ export const routes: Routes = [
       import('./features/dashboards/volunteer/volunteer.page').then(
         (m) => m.VolunteerPage
       ),
+    canActivate: [authGuard]
   },
 ];

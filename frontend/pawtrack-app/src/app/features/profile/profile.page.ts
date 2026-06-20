@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -42,6 +43,7 @@ interface UsuarioPerfil {
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     IonContent,
     FooterWebComponent,
     NavbarWebComponent
