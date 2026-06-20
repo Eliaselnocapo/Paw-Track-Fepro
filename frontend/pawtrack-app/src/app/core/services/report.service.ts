@@ -36,18 +36,26 @@ export interface IncidenciaResponse {
   urgency_score:    number;
   trust_score:      number;
   created_at:       string;
+  updated_at?:      string | null;
   folio:            string | null;
   usuario_reporta:  number | null;
 }
 
 export interface ActualizarReportePayload {
-  nombre_caso?:      string;
-  estado?:           string;
-  caracteristicas?:  string;
-  urgency_score?:    number;
-  edad_estimada?:    string;
-  peso_estimado?:    string;
-  imagen?:           File;
+  nombre_caso?: string;
+  tipo_animal?: string;
+  tamano_animal?: string;
+  condicion_animal?: string;
+  notas_animal?: string;
+  latitud?: number;
+  longitud?: number;
+
+  estado?: string;
+  caracteristicas?: string;
+  urgency_score?: number;
+  edad_estimada?: string;
+  peso_estimado?: string;
+  imagen?: File;
 }
 
 @Injectable({
@@ -115,17 +123,61 @@ export class ReportService {
    * Actualiza un reporte existente (PATCH — solo los campos enviados).
    * Solo el dueño o un admin pueden editar.
    */
-  actualizarReporte(id: number, payload: ActualizarReportePayload): Observable<IncidenciaResponse> {
-    const form = new FormData();
+actualizarReporte(id: number, payload: ActualizarReportePayload): Observable<IncidenciaResponse> {
+  const form = new FormData();
 
-    if (payload.nombre_caso      != null) form.append('nombre_caso',      payload.nombre_caso);
-    if (payload.estado           != null) form.append('estado',           payload.estado);
-    if (payload.caracteristicas  != null) form.append('caracteristicas',  payload.caracteristicas);
-    if (payload.urgency_score    != null) form.append('urgency_score',    String(payload.urgency_score));
-    if (payload.edad_estimada    != null) form.append('edad_estimada',    payload.edad_estimada);
-    if (payload.peso_estimado    != null) form.append('peso_estimado',    payload.peso_estimado);
-    if (payload.imagen)                   form.append('imagen',           payload.imagen, payload.imagen.name);
-
-    return this.http.patch<IncidenciaResponse>(`${this.apiUrl}${id}/`, form);
+  if (payload.nombre_caso != null) {
+    form.append('nombre_caso', payload.nombre_caso);
   }
+
+  if (payload.tipo_animal != null) {
+    form.append('tipo_animal', payload.tipo_animal);
+  }
+
+  if (payload.tamano_animal != null) {
+    form.append('tamano_animal', payload.tamano_animal);
+  }
+
+  if (payload.condicion_animal != null) {
+    form.append('condicion_animal', payload.condicion_animal);
+  }
+
+  if (payload.notas_animal != null) {
+    form.append('notas_animal', payload.notas_animal);
+  }
+
+  if (payload.latitud != null) {
+    form.append('latitud', String(payload.latitud));
+  }
+
+  if (payload.longitud != null) {
+    form.append('longitud', String(payload.longitud));
+  }
+
+  if (payload.estado != null) {
+    form.append('estado', payload.estado);
+  }
+
+  if (payload.caracteristicas != null) {
+    form.append('caracteristicas', payload.caracteristicas);
+  }
+
+  if (payload.urgency_score != null) {
+    form.append('urgency_score', String(payload.urgency_score));
+  }
+
+  if (payload.edad_estimada != null) {
+    form.append('edad_estimada', payload.edad_estimada);
+  }
+
+  if (payload.peso_estimado != null) {
+    form.append('peso_estimado', payload.peso_estimado);
+  }
+
+  if (payload.imagen) {
+    form.append('imagen', payload.imagen, payload.imagen.name);
+  }
+
+  return this.http.patch<IncidenciaResponse>(`${this.apiUrl}${id}/`, form);
+}
 }

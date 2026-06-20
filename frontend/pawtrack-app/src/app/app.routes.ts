@@ -4,7 +4,8 @@ import { authGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   {
     path: 'home',
-    loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+    loadComponent: () =>
+      import('./features/home/home.page').then((m) => m.HomePage),
   },
   {
     path: '',
@@ -13,30 +14,52 @@ export const routes: Routes = [
   },
   {
     path: 'reports/create-report',
-    loadComponent: () => import('./features/reports/create-report/create-report.page').then( m => m.CreateReportPage)
+    loadComponent: () =>
+      import('./features/reports/create-report/create-report.page').then(
+        (m) => m.CreateReportPage
+      ),
   },
   {
     path: 'view-report/:folio',
-    loadComponent: () => import('./features/reports/view-report/view-report.page').then( m => m.ViewReportComponent),
+    loadComponent: () =>
+      import('./features/reports/view-report/view-report.page').then(
+        (m) => m.ViewReportComponent
+      ),
   },
-  {
-    path: 'profile',
-    loadComponent: () => import('./features/profile/profile.page').then( m => m.ProfilePage),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login/login.page').then( m => m.LoginPage)
-  },
+
+  // VERDADERO UPDATE: editar datos base del reporte
   {
     path: 'reports/:folio/update',
     loadComponent: () =>
-      import('./features/reports/update-report/update-report.page')
-        .then(m => m.UpdateReportPage),
+      import('./features/reports/update-report/update-report.page').then(
+        (m) => m.UpdateReportPage
+      ),
+  },
+
+  // SEGUIMIENTO: agregar más información al historial del caso
+  {
+    path: 'reports/:folio/follow-up',
+    loadComponent: () =>
+      import('./features/reports/follow-up-report/follow-up-report.page').then(
+        (m) => m.FollowUpReportPage
+      ),
+  },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./features/profile/profile.page').then((m) => m.ProfilePage),
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
-    loadComponent: () => import('./features/auth/register/register.page').then( m => m.RegisterPage)
+    loadComponent: () =>
+      import('./features/auth/register/register.page').then(
+        (m) => m.RegisterPage
+      ),
   },
   {
     path: 'dashboard/reporter',
