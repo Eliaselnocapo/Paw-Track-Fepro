@@ -6,144 +6,39 @@ ion-content {
   --background: #f6f8fb;
 }
 
-/* =========================
-   HERO BACKGROUND + FIGURAS
-========================= */
+/* =========================================================
+   BASE GENERAL
+========================================================= */
 
-.home-hero {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(11, 24, 43, 0.94) 0%,
-      rgba(11, 24, 43, 0.82) 44%,
-      rgba(11, 24, 43, 0.32) 100%
-    ),
-    url("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1800&auto=format&fit=crop")
-      center right / cover no-repeat;
+section {
+  position: relative;
 }
 
-.hero-bg-shape {
-  position: absolute;
-  pointer-events: none;
+app-navbar-web {
+  position: relative;
+  z-index: 50;
 }
 
-.shape-outline {
-  width: 210px;
-  height: 210px;
-  right: 8%;
-  top: 17%;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  transform: rotate(28deg);
+/* Evita scroll horizontal por figuras decorativas */
+:host,
+ion-content {
+  overflow-x: hidden;
 }
 
-.shape-soft {
-  width: 300px;
-  height: 180px;
-  right: 14%;
-  bottom: 11%;
-  border-radius: 44px;
-  background: rgba(20, 184, 166, 0.18);
-  transform: rotate(16deg);
-}
-
-.shape-line {
-  width: 420px;
-  height: 1px;
-  left: 7vw;
-  bottom: 80px;
-  background: linear-gradient(90deg, rgba(94, 234, 212, 0.4), transparent);
-}
-
-/* =========================
-   DECORACIÓN ACCIONES
-========================= */
-
-.actions-bg-shape {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.shape-blue {
-  width: 560px;
-  height: 560px;
-  right: -180px;
-  top: -160px;
-  border-radius: 44% 56% 55% 45%;
-  background: rgba(37, 99, 235, 0.08);
-}
-
-.shape-teal {
-  width: 360px;
-  height: 280px;
-  left: -120px;
-  bottom: -80px;
-  border-radius: 58% 42% 48% 52%;
-  background: rgba(20, 184, 166, 0.1);
-}
-
-.actions-bg-line {
-  position: absolute;
-  right: 11%;
-  bottom: 60px;
-  width: 190px;
-  height: 190px;
-  border: 2px solid rgba(37, 99, 235, 0.11);
-  transform: rotate(18deg);
-  z-index: 1;
-}
-
-/* =========================
-   TIMELINE
-========================= */
-
-.flow-section-v2::before {
-  content: "";
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  right: -160px;
-  bottom: -190px;
-  border-radius: 999px;
-  background: rgba(37, 99, 235, 0.055);
-}
-
-
-/* =========================
-   MAPA DECORATIVO
-========================= */
-
-.map-section::before {
-  content: "";
-  position: absolute;
-  width: 620px;
-  height: 430px;
-  left: -220px;
-  top: -80px;
-  border-radius: 48% 52% 42% 58%;
-  background: rgba(37, 99, 235, 0.08);
-}
-
-.map-section::after {
-  content: "";
-  position: absolute;
-  width: 260px;
-  height: 260px;
-  right: 7%;
-  bottom: 40px;
-  border: 2px solid rgba(15, 23, 42, 0.075);
-  transform: rotate(24deg);
-}
+/* =========================================================
+   MAPA DECORATIVO VIEJO
+   Déjalo solo si todavía usas .map-grid, .route-line o .map-marker
+========================================================= */
 
 .map-grid {
   position: absolute;
   inset: 22px;
   border-radius: 18px;
-  background:
+  background-color: #dbeafe;
+  background-image:
     linear-gradient(90deg, rgba(255, 255, 255, 0.72) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.72) 1px, transparent 1px),
-    linear-gradient(135deg, #bfdbfe, #dbeafe 48%, #ccfbf1);
-  background-size: 48px 48px, 48px 48px, cover;
+    linear-gradient(rgba(255, 255, 255, 0.72) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 .route-line {
@@ -195,38 +90,11 @@ ion-content {
   box-shadow: 0 14px 28px rgba(239, 59, 59, 0.22);
 }
 
-/* =========================
-   CTA DECORACIÓN
-========================= */
-
-.final-shape {
-  position: absolute;
-  right: -120px;
-  top: -120px;
-  width: 360px;
-  height: 360px;
-  border-radius: 52% 48% 43% 57%;
-  background: rgba(20, 184, 166, 0.12);
-}
-
-/* =========================
-   RESPONSIVE ESPECIAL
-========================= */
+/* =========================================================
+   RESPONSIVE BÁSICO
+========================================================= */
 
 @media (max-width: 720px) {
-  .home-hero {
-    min-height: auto;
-    padding: 72px 22px 64px;
-    background:
-      linear-gradient(
-        90deg,
-        rgba(11, 24, 43, 0.96) 0%,
-        rgba(11, 24, 43, 0.88) 100%
-      ),
-      url("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1200&auto=format&fit=crop")
-        center / cover no-repeat;
-  }
-
   .map-grid {
     inset: 16px;
   }

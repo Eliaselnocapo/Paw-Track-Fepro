@@ -1,0 +1,390 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+<!-- FORMAS DECORATIVAS RESPONSIVAS -->
+<div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+
+  <!-- Figura grande izquierda -->
+  <div
+    class="absolute
+    left-[-130px] top-[160px]
+    w-[260px] h-[260px]
+    sm:left-[-150px] sm:top-[150px] sm:w-[340px] sm:h-[340px]
+    md:left-[-18vw] md:top-[120px] md:w-[clamp(360px,38vw,560px)] md:h-[clamp(360px,38vw,560px)]
+    bg-blue-100 rounded-full opacity-70 md:opacity-100">
+  </div>
+
+  <!-- Figura derecha -->
+  <div
+    class="absolute
+    right-[-130px] top-[420px]
+    w-[250px] h-[250px]
+    sm:right-[-150px] sm:top-[420px] sm:w-[320px] sm:h-[320px]
+    md:right-[-14vw] md:top-[360px] md:w-[clamp(300px,32vw,460px)] md:h-[clamp(300px,32vw,460px)]
+    bg-emerald-100 rounded-full opacity-70 md:opacity-100">
+  </div>
+
+  <!-- Figura centro -->
+  <div
+    class="absolute
+    right-[24px] top-[300px]
+    w-[120px] h-[120px]
+    sm:right-[80px] sm:top-[280px] sm:w-[150px] sm:h-[150px]
+    lg:left-[52%] lg:right-auto lg:top-[190px] lg:w-[clamp(140px,14vw,210px)] lg:h-[clamp(140px,14vw,210px)]
+    bg-sky-100 rounded-full opacity-75">
+  </div>
+
+  <!-- Figura extra inferior -->
+  <div
+    class="absolute
+    left-[-80px] top-[760px]
+    w-[180px] h-[180px]
+    sm:left-[40px] sm:top-[760px] sm:w-[210px] sm:h-[210px]
+    lg:left-auto lg:right-[18%] lg:top-[720px] lg:w-[clamp(150px,16vw,230px)] lg:h-[clamp(150px,16vw,230px)]
+    bg-violet-100 rounded-full opacity-65 md:opacity-90">
+  </div>
+
+</div>
+    <!-- CARGANDO -->
+    @if (cargando) {
+      <main class="flex-1 flex items-center justify-center relative z-10">
+        <p class="text-slate-500 animate-pulse">Cargando reporte...</p>
+      </main>
+    }
+
+    <!-- ERROR -->
+    @if (!cargando && error && !mensajeExito) {
+      <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+        <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
+        <p class="text-slate-600 text-center">{{ error }}</p>
+      </main>
+    }
+
+    <!-- FORMULARIO -->
+    @if (!cargando && !error) {
+      <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-10 relative z-10">
+
+        <!-- HERO -->
+        <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-10 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+          <div class="max-w-2xl">
+            <p class="text-blue-700 font-bold text-sm mb-3">
+              Seguimiento del reportante
+            </p>
+
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3 leading-tight">
+              Agregar seguimiento al reporte
+            </h1>
+
+            <p class="text-slate-600 leading-relaxed">
+              Actualiza la situación del animal si cambió de lugar, empeoró, ya fue auxiliado
+              o si tienes nueva información útil para el equipo de rescate.
+            </p>
+
+            <div class="flex flex-wrap gap-2 mt-5">
+              <span class="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-bold">
+                {{ reporte.folio }}
+              </span>
+
+              <span class="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs font-bold">
+                Reporte activo
+              </span>
+            </div>
+          </div>
+
+          <div class="bg-red-50 border border-red-100 p-5 w-full lg:max-w-sm">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-600 mt-0.5">warning</span>
+
+              <div>
+                <h2 class="font-bold text-slate-900 mb-1">
+                  Observa sin acercarte
+                </h2>
+
+                <p class="text-sm text-slate-600 leading-relaxed">
+                  Si el animal está agresivo, atrapado o en una zona peligrosa, registra solo lo que puedas ver desde una distancia segura.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- MENSAJE ÉXITO -->
+        @if (mensajeExito) {
+          <section class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 text-sm font-semibold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+            {{ mensajeExito }}
+          </section>
+        }
+
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+          <!-- COLUMNA PRINCIPAL -->
+          <div class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- SITUACIÓN ACTUAL -->
+            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
+              <div class="flex items-start justify-between gap-4 mb-6">
+                <div>
+                  <h2 class="text-xl font-bold text-slate-900">Situación actual</h2>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Selecciona qué cambió desde que hiciste el reporte.
+                  </p>
+                </div>
+
+                <div class="w-12 h-12 bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100 shrink-0">
+                  <span class="material-symbols-outlined">update</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                <button
+                  type="button"
+                  (click)="reporte.situacionActual = 'sigue_en_lugar'"
+                  class="text-left border p-4 transition-all hover:shadow-sm"
+                  [ngClass]="reporte.situacionActual === 'sigue_en_lugar'
+                    ? 'border-blue-600 bg-blue-50'
+                    : 'border-slate-200 bg-white hover:border-slate-300'">
+
+                  <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-blue-700">location_on</span>
+                    <div>
+                      <p class="font-bold text-slate-900">Sigue en el mismo lugar</p>
+                      <p class="text-xs text-slate-500 mt-1">El animal continúa en la ubicación reportada.</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="reporte.situacionActual = 'se_movio'"
+                  class="text-left border p-4 transition-all hover:shadow-sm"
+                  [ngClass]="reporte.situacionActual === 'se_movio'
+                    ? 'border-blue-600 bg-blue-50'
+                    : 'border-slate-200 bg-white hover:border-slate-300'">
+
+                  <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-blue-700">moving</span>
+                    <div>
+                      <p class="font-bold text-slate-900">Se movió de lugar</p>
+                      <p class="text-xs text-slate-500 mt-1">La ubicación cambió o el animal avanzó a otra zona.</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="reporte.situacionActual = 'ya_no_esta'"
+                  class="text-left border p-4 transition-all hover:shadow-sm"
+                  [ngClass]="reporte.situacionActual === 'ya_no_esta'
+                    ? 'border-amber-500 bg-amber-50'
+                    : 'border-slate-200 bg-white hover:border-slate-300'">
+
+                  <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-amber-600">visibility_off</span>
+                    <div>
+                      <p class="font-bold text-slate-900">Ya no está en la zona</p>
+                      <p class="text-xs text-slate-500 mt-1">No lo encuentras en el lugar donde fue reportado.</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="reporte.situacionActual = 'empeoro'"
+                  class="text-left border p-4 transition-all hover:shadow-sm"
+                  [ngClass]="reporte.situacionActual === 'empeoro'
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-slate-200 bg-white hover:border-slate-300'">
+
+                  <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-red-600">warning</span>
+                    <div>
+                      <p class="font-bold text-slate-900">Su estado empeoró</p>
+                      <p class="text-xs text-slate-500 mt-1">Se ve más herido, débil o en peligro.</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="reporte.situacionActual = 'alguien_ayudo'"
+                  class="text-left border p-4 transition-all hover:shadow-sm md:col-span-2"
+                  [ngClass]="reporte.situacionActual === 'alguien_ayudo'
+                    ? 'border-emerald-600 bg-emerald-50'
+                    : 'border-slate-200 bg-white hover:border-slate-300'">
+
+                  <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-emerald-700">volunteer_activism</span>
+                    <div>
+                      <p class="font-bold text-slate-900">Alguien ya lo ayudó</p>
+                      <p class="text-xs text-slate-500 mt-1">Un vecino, rescatista o tú pudieron auxiliarlo.</p>
+                    </div>
+                  </div>
+                </button>
+
+              </div>
+            </section>
+
+            <!-- CONDICIÓN OBSERVADA -->
+            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Condición observada ahora</h2>
+              <p class="text-sm text-slate-500 mb-6">
+                Marca solamente lo que observes actualmente.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                  <span class="flex items-center gap-2 text-sm font-semibold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                    Herido
+                  </span>
+                  <input type="checkbox" [(ngModel)]="reporte.condiciones.herido">
+                </label>
+
+                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                  <span class="flex items-center gap-2 text-sm font-semibold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                    Deshidratado
+                  </span>
+                  <input type="checkbox" [(ngModel)]="reporte.condiciones.deshidratado">
+                </label>
+
+                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                  <span class="flex items-center gap-2 text-sm font-semibold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                    Asustado/agresivo
+                  </span>
+                  <input type="checkbox" [(ngModel)]="reporte.condiciones.asustado">
+                </label>
+              </div>
+            </section>
+
+            <!-- NOTA -->
+            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Nota de seguimiento</h2>
+              <p class="text-sm text-slate-500 mb-4">
+                Describe qué viste, si el animal se movió, si alguien lo ayudó o si hay nuevos riesgos.
+              </p>
+
+              <textarea
+                [(ngModel)]="reporte.observaciones"
+                rows="7"
+                class="w-full border border-slate-300 bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+                placeholder="Ej. El perro sigue en la misma esquina, no se deja acercar y parece tener una herida en la pata trasera.">
+              </textarea>
+            </section>
+
+            <!-- EVIDENCIA -->
+            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Nueva evidencia</h2>
+              <p class="text-sm text-slate-500 mb-5">
+                Puedes agregar fotos nuevas del estado actual. Esto no reemplaza las fotos originales.
+              </p>
+
+              <button
+                type="button"
+                class="w-full h-36 border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 text-sm flex flex-col items-center justify-center gap-2 hover:border-blue-600 hover:bg-blue-50 transition-colors">
+                <span class="material-symbols-outlined text-[32px] text-blue-700">cloud_upload</span>
+                <span class="font-semibold">Toca para subir nueva evidencia</span>
+                <span class="text-xs">JPG, PNG o video corto</span>
+              </button>
+            </section>
+
+          </div>
+
+          <!-- PANEL LATERAL -->
+          <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
+
+            <!-- RESUMEN -->
+            <section class="bg-white border border-slate-300 shadow-sm p-6">
+              <h2 class="text-xl font-bold text-slate-900 mb-5">Caso original</h2>
+
+              <div class="space-y-4">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase">Folio</p>
+                  <p class="font-bold text-blue-700">{{ reporte.folio }}</p>
+                </div>
+
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase">Animal</p>
+                  <p class="font-semibold text-slate-900 capitalize">
+                    {{ reporte.tipoAnimal || 'Perro' }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase">Última ubicación registrada</p>
+                  <p class="text-sm text-slate-600">
+                    {{ reporte.ubicacion || 'Ubicación registrada en el reporte original' }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase">Estado del caso</p>
+                  <span class="inline-flex bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 text-xs font-bold">
+                    {{ reporte.estado || 'Pendiente' }}
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <!-- AYUDA -->
+            <section class="bg-blue-700 text-white shadow-sm p-6">
+              <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined mt-0.5">edit_note</span>
+
+                <div>
+                  <h3 class="font-bold mb-2">
+                    ¿Qué se guardará?
+                  </h3>
+
+                  <p class="text-sm text-blue-50 leading-relaxed">
+                    Se añadirá una nota de seguimiento al historial del caso con la situación actual, la condición observada y la urgencia calculada.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- BOTÓN -->
+            <section class="bg-white border border-slate-300 shadow-sm p-6">
+              @if (error && !cargando) {
+                <p class="text-red-600 text-sm mb-4">{{ error }}</p>
+              }
+
+              <button
+                (click)="enviar()"
+                [disabled]="guardando || !reporte.situacionActual"
+                class="w-full h-12 bg-blue-700 text-white font-bold shadow-sm hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+
+                @if (guardando) {
+                  <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                }
+
+                {{ guardando ? 'Guardando...' : 'Guardar seguimiento' }}
+              </button>
+
+              <button
+                routerLink="/dashboards/reporter"
+                type="button"
+                class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">
+                Volver al dashboard
+              </button>
+            </section>
+
+          </aside>
+
+        </section>
+      </main>
+    }
+
+    <footer class="relative z-20 bg-white mt-auto">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
+</ion-content>

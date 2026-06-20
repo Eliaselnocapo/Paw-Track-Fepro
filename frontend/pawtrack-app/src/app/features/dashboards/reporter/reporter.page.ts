@@ -18,6 +18,7 @@ interface ReporterReport {
   status: string;
   address: string;
   reportedAt: string;
+  updatedAt: string;
   animalType: string;
   imageUrl: string;
   urgencyScore: number;
@@ -149,7 +150,8 @@ private cargarMisReportesDeCuenta(): void {
       title: this.obtenerTituloReporte(incidencia),
       status: incidencia.estado || 'PENDIENTE',
       address: this.obtenerDireccionReporte(incidencia),
-      reportedAt: this.obtenerTiempoReporte(incidencia.created_at),
+      reportedAt: this.obtenerTiempoRelativo(incidencia.created_at, 'Reportado'),
+      updatedAt: this.obtenerTiempoRelativo(incidencia.updated_at ?? incidencia.created_at, 'Actualizado'),
       animalType: incidencia.tipo_animal || 'otro',
       imageUrl: this.imagenUrl(incidencia.imagen),
       urgencyScore: incidencia.urgency_score || 0,
@@ -182,8 +184,8 @@ private cargarMisReportesDeCuenta(): void {
     return 'Ubicación no disponible';
   }
 
-  private obtenerTiempoReporte(fecha: string | null): string {
-    if (!fecha) return 'Fecha no disponible';
+  private obtenerTiempoRelativo(fecha: string | null | undefined, prefijo: string): string {
+    if (!fecha) return `${prefijo} no disponible`;
 
     const fechaReporte = new Date(fecha);
     const ahora = new Date();
@@ -193,11 +195,11 @@ private cargarMisReportesDeCuenta(): void {
     const horas = Math.floor(minutos / 60);
     const dias = Math.floor(horas / 24);
 
-    if (minutos < 1) return 'Reportado ahora';
-    if (minutos < 60) return `Reportado hace ${minutos} minuto${minutos === 1 ? '' : 's'}`;
-    if (horas < 24) return `Reportado hace ${horas} hora${horas === 1 ? '' : 's'}`;
+    if (minutos < 1) return `${prefijo} ahora`;
+    if (minutos < 60) return `${prefijo} hace ${minutos} minuto${minutos === 1 ? '' : 's'}`;
+    if (horas < 24) return `${prefijo} hace ${horas} hora${horas === 1 ? '' : 's'}`;
 
-    return `Reportado hace ${dias} día${dias === 1 ? '' : 's'}`;
+    return `${prefijo} hace ${dias} día${dias === 1 ? '' : 's'}`;
   }
 
   getStatusLabel(status: string): string {
