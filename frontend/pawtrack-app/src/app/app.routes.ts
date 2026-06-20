@@ -46,10 +46,17 @@ export const routes: Routes = [
       ),
   },
   {
+<<<<<<< Updated upstream
     path: 'reports/list-reports',
     loadComponent: () =>
       import('./features/reports/list-reports/list-reports.page').then(
         (m) => m.ListReportsPage
+=======
+    path: 'dashboard/volunteer',
+    loadComponent: () =>
+      import('./features/dashboards/volunteer/volunteer.page').then(
+        (m) => m.VolunteerPage
+>>>>>>> Stashed changes
       ),
   },
 ];

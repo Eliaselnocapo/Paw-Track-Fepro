@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'rest_framework_simplejwt',
+    'django_celery_beat',
+    'core',
 ]
 
 MIDDLEWARE = [
