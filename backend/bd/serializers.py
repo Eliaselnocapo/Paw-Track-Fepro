@@ -83,9 +83,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         # Garantizar unicidad añadiendo sufijo si ya existe
         username = base
         suffix = 1
-        while Usuario.objects.filter(username=username).exists():
-            username = f"{base}_{suffix}"
-            suffix += 1
+        
         data['username']   = username
         data['first_name'] = self.validated_data.get('first_name', '')
         data['last_name']  = self.validated_data.get('last_name', '')

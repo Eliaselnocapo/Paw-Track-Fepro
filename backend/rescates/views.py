@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from bd.models import Incidencia
+from bd.models import Incidencia, PerfilRescatista
 from .models import Rescate
 
 class AceptarRescateView(APIView):
@@ -40,7 +40,8 @@ class AceptarRescateView(APIView):
         
         # Actualizamos la incidencia
         incidencia.estado = 'ATENDIENDOSE'
-        incidencia.rescatista_asignado = user
+        perfil_rescatista = PerfilRescatista.objects.get(usuario=user)
+        incidencia.rescatista_asignado = perfil_rescatista
         incidencia.save()
 
         return Response({

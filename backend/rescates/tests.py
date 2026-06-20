@@ -1,37 +1,42 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from bd.models import Usuario, Incidencia, Animal
+from bd.models import Usuario, Incidencia, Animal, PerfilRescatista
 
 class RescatesEndpointsTests(APITestCase):
     def setUp(self):
-        # 1. Crear usuario Rescatista
+        # Crear usuario Rescatista
         self.user_rescatista = Usuario.objects.create_user(
             email='rescatista@test.com',
             password='password123',
             roles=['RESCATISTA']
         )
+
+        self.perfil_rescatista = PerfilRescatista.objects.create(
+             usuario=self.user_rescatista
+                    
+         )
         
-        # 2. Crear usuario normal (Reportero)
+        #  Crear usuario normal (Reportero)
         self.user_normal = Usuario.objects.create_user(
             email='normal@test.com',
             password='password123',
             roles=['REPORTERO']
         )
         
-        # 3. Crear Animal Base para la incidencia
+        # Crear Animal Base para la incidencia
         self.animal = Animal.objects.create(
             nombre="Max",
             tipo="PERRO",
             salud="HERIDO"
         )
         
-        # 4. Crear Incidencia PENDIENTE
         self.incidencia = Incidencia.objects.create(
-            tipo_incidencia="RESCATE_URGENTE",
-            estado="PENDIENTE",
-            usuario_reporta=self.user_normal,
-            animal=self.animal
+             tipo_incidencia="RESCATE_URGENTE",
+             estado="PENDIENTE",
+             usuario_reporta=self.user_normal,
+             animal=self.animal,
+             ubicacion="POINT(-98.2062 19.0414)" 
         )
 
     def test_rescatista_puede_aceptar_incidencia(self):
@@ -47,7 +52,7 @@ class RescatesEndpointsTests(APITestCase):
         # La incidencia debe actualizarse
         self.incidencia.refresh_from_db()
         self.assertEqual(self.incidencia.estado, 'ATENDIENDOSE')
-        self.assertEqual(self.incidencia.rescatista_asignado, self.user_rescatista)
+        self.assertEqual(self.incidencia.rescatista_asignado, self.perfil_rescatista)
 
     def test_usuario_normal_no_puede_aceptar(self):
         """Un usuario sin el rol RESCATISTA debe recibir un 403 Forbidden."""

@@ -90,7 +90,6 @@ class LoginTests(APITestCase):
 
     def setUp(self):
         self.user = Usuario.objects.create_user(
-            username='loginuser',
             email='login@test.com',
             password='Perro999Verde',
             roles=['REPORTERO'],
