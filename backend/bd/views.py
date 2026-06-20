@@ -56,7 +56,7 @@ class LoginView(APIView):
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
-    queryset = Usuario.objects.all()
+    queryset = Usuario.objects.all().order_by('id')
     serializer_class = UsuarioSerializer
 
     def get_permissions(self):

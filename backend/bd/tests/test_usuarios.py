@@ -10,7 +10,6 @@ def crear_usuario(email='test@pawtrack.com', roles=None, password='Perro999Verde
     roles = roles or ['REPORTERO']
     username = email.split('@')[0]
     return Usuario.objects.create_user(
-        username=username,
         password=password,
         email=email,
         roles=roles,
@@ -36,7 +35,7 @@ class UsuarioCRUDTests(APITestCase):
         response = self.client.post(self.url_list, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        user = Usuario.objects.get(username='nuevo_reportero')
+        user = Usuario.objects.get(email='reportero@pawtrack.com')
         self.assertTrue(user.check_password('Perro999Verde'))
         self.assertFalse(hasattr(user, 'perfil_rescatista'))
         self.assertFalse(hasattr(user, 'perfil_patrocinador'))
@@ -52,7 +51,7 @@ class UsuarioCRUDTests(APITestCase):
         response = self.client.post(self.url_list, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        user = Usuario.objects.get(username='nuevo_rescatista')
+        user = Usuario.objects.get(email='rescatista@pawtrack.com')
         self.assertTrue(hasattr(user, 'perfil_rescatista'))
         self.assertEqual(PerfilRescatista.objects.count(), 1)
 
@@ -86,7 +85,7 @@ class UsuarioCRUDTests(APITestCase):
         self.client.force_authenticate(user=self.usuario_auth)
         response = self.client.get(self.url_list)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        primer_usuario = response.data[0]
+        primer_usuario = response.data['results'][0]
         self.assertIn('roles', primer_usuario)
         self.assertIsInstance(primer_usuario['roles'], list)
 
