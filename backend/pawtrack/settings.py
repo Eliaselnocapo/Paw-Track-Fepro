@@ -3,6 +3,7 @@ Django settings for pawtrack project.
 """
 import os
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,7 +39,10 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'rest_framework_simplejwt',
+<<<<<<< HEAD
     'django_celery_beat',
+=======
+>>>>>>> e631fe78a27b610f674807735b47a909ea966571
     'core',
 ]
 
@@ -145,9 +149,14 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
+    'PAGE_SIZE': 20,
+    'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
+    
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+    
 }
 
 REST_AUTH = {
@@ -189,3 +198,14 @@ CORS_ALLOW_HEADERS = [
     "origin",
     "x-requested-with",
 ]
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULE = {
+    'recalc-urgency-score': {
+        'task': 'notificaciones.tasks.recalc_urgency_score',
+        'schedule': crontab(minute='*/30'),
+    },
+}

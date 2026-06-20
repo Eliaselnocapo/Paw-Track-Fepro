@@ -12,33 +12,28 @@
       </div>
 
       <nav class="hidden md:flex gap-6 h-16 items-center">
-        <a
-          routerLink="/home"
-          routerLinkActive="border-b-2 border-white"
-          class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+        <a routerLink="/home" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
           Inicio
         </a>
 
-        <a
-          routerLink="/reports/list-reports"
-          routerLinkActive="border-b-2 border-white"
-          class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-          Casos
+        <a routerLink="/mapa" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+          Mapa General
+        </a>
+
+        <a routerLink="/dashboard/reporter" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+          Reportes
         </a>
 
         @if (isLoggedIn) {
-          <a
-            routerLink="/impact"
-            routerLinkActive="border-b-2 border-white"
-            class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+          <a routerLink="/dashboard/volunteer" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+            Apoyo
+          </a>
+          <a routerLink="/impacto" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
             Impacto
           </a>
-
-          <a
-            routerLink="/profile"
-            routerLinkActive="border-b-2 border-white"
-            class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-            Perfil
+        } @else {
+          <a routerLink="/dashboard/volunteer" routerLinkActive="border-b-2 border-white" class="text-white hover:text-white/80 transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
+            Asistir
           </a>
         }
       </nav>
@@ -47,44 +42,28 @@
     <div class="flex items-center gap-2 md:gap-6">
 
       @if (!isLoggedIn) {
-        <a
-          routerLink="/login"
-          class="hidden md:block text-white hover:text-white/80 transition-colors text-sm font-semibold cursor-pointer">
+        <a routerLink="/login" class="hidden md:block text-white hover:text-white/80 transition-colors text-sm font-bold cursor-pointer">
           Iniciar Sesión
         </a>
+      } @else {
+        <button routerLink="/profile" class="hidden md:flex w-9 h-9 rounded-full overflow-hidden border-2 border-white hover:opacity-80 transition-opacity focus:outline-none bg-slate-200 items-center justify-center">
+          <span class="text-slate-800 font-bold text-xs">US</span>
+        </button>
       }
 
-      <!-- Botón móvil -->
-      <button
-        class="flex md:hidden bg-white text-blue-700 px-2.5 py-1.5 rounded-lg font-bold hover:bg-slate-100 transition-colors items-center gap-1.5 shadow-sm active:scale-95"
-        routerLink="/reports/create-report"
-        aria-label="Reportar emergencia">
-        <span
-          class="material-symbols-outlined text-[18px]"
-          style="font-variation-settings: 'FILL' 1;">
-          warning
-        </span>
-
+      <button class="flex md:hidden bg-white text-blue-700 px-2.5 py-1.5 rounded-lg font-bold hover:bg-slate-100 transition-colors items-center gap-1.5 shadow-sm active:scale-95" routerLink="/reports/create-report">
+        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">warning</span>
         <span class="flex flex-col text-[10px] leading-[11px] text-left">
           <span>Reportar</span>
           <span>Emergencia</span>
         </span>
       </button>
 
-      <!-- Botón escritorio -->
-      <button
-        class="hidden md:flex bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors items-center gap-2 shadow-sm active:scale-95"
-        routerLink="/reports/create-report">
-        <span
-          class="material-symbols-outlined text-[18px]"
-          style="font-variation-settings: 'FILL' 1;">
-          warning
-        </span>
-
+      <button class="hidden md:flex bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors items-center gap-2 shadow-sm active:scale-95" routerLink="/reports/create-report">
+        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">warning</span>
         Reportar Emergencia
       </button>
 
     </div>
-
   </div>
 </header>
