@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     'rest_framework_simplejwt',
     'core',
+    'rescates',
 ]
 
 MIDDLEWARE = [
