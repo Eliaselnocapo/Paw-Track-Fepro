@@ -34,6 +34,8 @@ interface EditReportViewModel {
   lat: number | null;
   lng: number | null;
   ubicacionTexto: string;
+  nombreContacto: string;
+  telefonoContacto: string;
 }
 
 interface CambioAplicado {
@@ -91,6 +93,8 @@ export class UpdateReportPage implements OnInit, AfterViewInit {
     lat: null,
     lng: null,
     ubicacionTexto: '',
+    nombreContacto: '',
+    telefonoContacto: '',
   };
 
   constructor(
@@ -143,6 +147,8 @@ export class UpdateReportPage implements OnInit, AfterViewInit {
     this.reporte.lat = this.obtenerLatitud(data);
     this.reporte.lng = this.obtenerLongitud(data);
     this.reporte.ubicacionTexto = this.obtenerTextoUbicacion();
+    this.reporte.nombreContacto = (data as any).nombre_contacto ?? '';
+    this.reporte.telefonoContacto = (data as any).telefono_contacto ?? '';
 
     this.reporte.condicionesVisibles = this.obtenerCondicionesDesdeDatos(data);
 
@@ -393,6 +399,14 @@ initInteractiveMap(): void {
       return;
     }
 
+    if (condicion === 'callejero' && this.tieneCondicion('extraviado')) {
+      return;
+    }
+
+    if (condicion === 'extraviado' && this.tieneCondicion('callejero')) {
+      return;
+    }
+
     this.reporte.condicionesVisibles = [
       ...this.reporte.condicionesVisibles,
       condicion,
@@ -401,6 +415,86 @@ initInteractiveMap(): void {
 
   tieneCondicion(condicion: CondicionAnimal): boolean {
     return this.reporte.condicionesVisibles.includes(condicion);
+  }
+  condicionBloqueada(condicion: CondicionAnimal): boolean {
+  if (this.tieneCondicion(condicion)) {
+    return false;
+  }
+
+  if (condicion === 'callejero') {
+    return this.tieneCondicion('extraviado');
+  }
+
+  if (condicion === 'extraviado') {
+    return this.tieneCondicion('callejero');
+  }
+
+  return false;
+}
+
+nombreCasoValido(): boolean {
+  const nombre = this.reporte.nombreCaso.trim();
+
+  if (nombre.length < 8 || nombre.length > 60) {
+    return false;
+  }
+
+  const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñÜü]/.test(nombre);
+  const soloCaracteresValidos = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9\s.,-]+$/.test(nombre);
+  const tienePalabrasSuficientes = nombre.split(/\s+/).length >= 2;
+  const noEsLetraRepetida = !/^([A-Za-zÁÉÍÓÚáéíóúÑñÜü])\1+$/i.test(nombre);
+
+  return tieneLetras && soloCaracteresValidos && tienePalabrasSuficientes && noEsLetraRepetida;
+}
+
+descripcionValida(): boolean {
+  const descripcion = this.reporte.notasAnimal.trim();
+
+  if (descripcion.length === 0) {
+    return true;
+  }
+
+  if (descripcion.length < 10 || descripcion.length > 250) {
+    return false;
+  }
+
+  const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñÜü]/.test(descripcion);
+  const noEsLetraRepetida = !/^([A-Za-zÁÉÍÓÚáéíóúÑñÜü])\1+$/i.test(descripcion);
+
+  return tieneLetras && noEsLetraRepetida;
+}
+
+  nombreContactoValido(): boolean {
+    const nombre = this.reporte.nombreContacto.trim();
+
+    if (nombre.length < 5 || nombre.length > 80) {
+      return false;
+    }
+
+    const regexNombre = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
+    const tienePalabrasSuficientes = nombre.split(/\s+/).length >= 2;
+    const noEsLetraRepetida = !/^([A-Za-zÁÉÍÓÚáéíóúÑñÜü])\1+$/i.test(nombre);
+
+    return regexNombre.test(nombre) && tienePalabrasSuficientes && noEsLetraRepetida;
+  }
+
+  telefonoContactoValido(): boolean {
+    const telefono = this.reporte.telefonoContacto.trim();
+    return /^\d{10}$/.test(telefono);
+  }
+
+  formularioValido(): boolean {
+    return (
+      this.nombreCasoValido() &&
+      !!this.reporte.tipoAnimal &&
+      !!this.reporte.tamanoAnimal &&
+      this.reporte.condicionesVisibles.length > 0 &&
+      this.descripcionValida() &&
+      this.nombreContactoValido() &&
+      this.telefonoContactoValido() &&
+      this.reporte.lat != null &&
+      this.reporte.lng != null
+    );
   }
 
   get condicionesTexto(): string {
@@ -463,6 +557,19 @@ initInteractiveMap(): void {
       'Ubicación',
       this.reporteOriginal.ubicacionTexto,
       this.reporte.ubicacionTexto
+    );
+    this.agregarCambio(
+      cambios,
+      'Nombre de contacto',
+      this.reporteOriginal.nombreContacto,
+      this.reporte.nombreContacto
+    );
+
+    this.agregarCambio(
+      cambios,
+      'Teléfono de contacto',
+      this.reporteOriginal.telefonoContacto,
+      this.reporte.telefonoContacto
     );
 
     if (this.imagenNueva) {
@@ -540,8 +647,8 @@ initInteractiveMap(): void {
       return;
     }
 
-    if (!this.reporte.nombreCaso.trim()) {
-      this.error = 'Agrega un nombre para el caso.';
+    if (!this.nombreCasoValido()) {
+      this.error = 'Escribe un nombre de caso válido.';
       return;
     }
 
@@ -557,6 +664,20 @@ initInteractiveMap(): void {
 
     if (this.reporte.condicionesVisibles.length === 0) {
       this.error = 'Selecciona al menos una condición visible.';
+      return;
+    }
+    if (!this.descripcionValida()) {
+      this.error = 'La descripción debe tener al menos 10 caracteres útiles.';
+      return;
+    }
+
+    if (!this.nombreContactoValido()) {
+      this.error = 'Escribe un nombre de contacto válido.';
+      return;
+    }
+
+    if (!this.telefonoContactoValido()) {
+      this.error = 'El teléfono debe tener exactamente 10 dígitos.';
       return;
     }
 
@@ -576,10 +697,18 @@ initInteractiveMap(): void {
       caracteristicas: this.reporte.caracteristicas.trim(),
       edad_estimada: String(this.reporte.edadEstimada ?? ''),
       peso_estimado: String(this.reporte.pesoEstimado ?? ''),
+
       latitud: this.reporte.lat,
       longitud: this.reporte.lng,
+      lat_out: this.reporte.lat,
+      lng_out: this.reporte.lng,
+
+      nombre_contacto: this.reporte.nombreContacto.trim(),
+      telefono_contacto: this.reporte.telefonoContacto.trim(),
+
       urgency_score: this.calcularUrgencia(),
     };
+    console.log('PAYLOAD UPDATE REPORTE:', payload);
 
     if (this.imagenNueva) {
       payload.imagen = this.imagenNueva;

@@ -46,8 +46,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 class CustomRegisterSerializer(RegisterSerializer):
     """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name."""
-    username = None
-
+    username   = None
     first_name = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
     last_name  = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
     roles = serializers.ListField(
@@ -123,9 +122,9 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     tipo_animal      = serializers.CharField(source='animal.tipo',           read_only=True, default='')
     tamano_animal    = serializers.CharField(source='animal.tamano',         read_only=True, default='')
     condicion_animal = serializers.CharField(source='animal.salud',          read_only=True, default='')
+    notas_animal     = serializers.CharField(source='animal.otros',          read_only=True, default='')
     edad_estimada    = serializers.CharField(source='animal.edad_estimada',  read_only=True, default='')
     peso_estimado    = serializers.CharField(source='animal.peso_estimado',  read_only=True, default='')
-
     class Meta:
         model = Incidencia
         fields = (
@@ -135,7 +134,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'imagen',
             'latitud', 'longitud',
             'lat_out', 'lng_out',
-            'tipo_animal', 'tamano_animal', 'condicion_animal', 'edad_estimada', 'peso_estimado',
+            'tipo_animal', 'tamano_animal', 'condicion_animal', 'notas_animal', 'edad_estimada', 'peso_estimado',
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
             'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
             'urgency_score', 'trust_score', 'created_at', 'folio',

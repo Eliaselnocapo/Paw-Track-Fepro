@@ -64,7 +64,7 @@
 
             <div class="flex gap-4 items-start">
 
-              <div class="w-20 h-20 rounded overflow-hidden bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center">
+              <div class="w-28 h-28 md:w-32 md:h-32 rounded overflow-hidden bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center">
                 @if (report.imageUrl) {
                   <img
                     [src]="report.imageUrl"
@@ -72,7 +72,7 @@
                     class="w-full h-full object-cover"
                   />
                 } @else {
-                  <span class="material-symbols-outlined text-4xl text-blue-600">
+                  <span class="material-symbols-outlined text-5xl text-blue-600">
                     {{ getAnimalIcon(report.animalType) }}
                   </span>
                 }
@@ -109,31 +109,39 @@
                   </span>
                 </div>
 
-                @if (report.notasAnimal) {
-                  <p class="text-sm text-slate-500 mt-2 line-clamp-2">
-                    {{ report.notasAnimal }}
+                <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <p class="text-sm text-slate-500 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[17px]">person</span>
+                    {{ report.contactName }}
                   </p>
-                }
+
+                  <p class="text-sm text-slate-500 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[17px]">call</span>
+                    {{ report.contactPhone }}
+                  </p>
+                </div>
 
                 <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
                   <span class="material-symbols-outlined text-[17px]">location_on</span>
                   {{ report.address }}
                 </p>
-              <div class="mt-1 flex flex-col gap-1">
-                <p class="text-sm text-slate-500 flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[17px]">
-                    schedule
-                  </span>
-                  {{ report.reportedAt }}
-                </p>
-
-                <p class="text-sm text-blue-600 flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[17px]">
-                    update
-                  </span>
-                  {{ report.updatedAt }}
-                </p>
-              </div>
+                <div class="mt-1 flex flex-col gap-1">
+                  @if (report.updatedAt) {
+                    <p class="text-sm text-blue-600 flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[17px]">
+                        update
+                      </span>
+                      {{ report.updatedAt }}
+                    </p>
+                  } @else {
+                    <p class="text-sm text-slate-500 flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[17px]">
+                        schedule
+                      </span>
+                      {{ report.reportedAt }}
+                    </p>
+                  }
+                </div>
               </div>
             </div>
 

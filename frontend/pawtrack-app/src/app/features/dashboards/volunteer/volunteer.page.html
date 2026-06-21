@@ -122,9 +122,41 @@
             {{ caso.ubicacion }}
           </p>
 
-          <p class="text-sm text-slate-600 line-clamp-2 mb-5 flex-grow leading-relaxed">
+        <div class="mb-5 flex flex-col gap-3 flex-grow">
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded font-semibold">
+              {{ caso.especie }}
+            </span>
+
+            <span class="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded font-semibold">
+              {{ caso.tamano | titlecase }}
+            </span>
+
+            <span class="text-xs px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded font-semibold">
+              {{ caso.condicion }}
+            </span>
+
+            <span class="text-xs px-2.5 py-1 bg-red-50 text-red-700 border border-red-100 rounded font-semibold">
+              Urgencia {{ caso.score }}/100
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <p class="text-sm text-slate-600 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[17px] text-slate-500">person</span>
+              {{ caso.contactoNombre }}
+            </p>
+
+            <p class="text-sm text-slate-600 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[17px] text-slate-500">call</span>
+              {{ caso.contactoTelefono }}
+            </p>
+          </div>
+
+          <p class="text-sm text-slate-500 line-clamp-1">
             {{ caso.descripcion }}
           </p>
+        </div>
 
           <div class="flex flex-col sm:flex-row gap-3 mt-auto">
           <button
@@ -160,74 +192,126 @@
 
         <aside class="lg:col-span-4 flex flex-col gap-6">
 
-          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden flex flex-col">
-            <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-              <h2 class="font-black text-slate-800 flex items-center gap-2 text-lg">
-                <span class="material-symbols-outlined text-red-500 animate-pulse">radar</span> Alertas cercanas
-              </h2>
-              <span class="bg-red-100 text-red-700 border border-red-200 text-xs font-black px-2.5 py-1 rounded shadow-sm">2 Activas</span>
-            </div>
-            
-            <div class="flex flex-col p-2 gap-2">
-              <div class="p-4 rounded hover:bg-slate-50 hover:shadow-sm transition-all cursor-pointer group border border-transparent hover:border-slate-100">
-                <div class="flex justify-between items-start mb-2">
-                  <h4 class="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">Reporte de maltrato</h4>
-                  <span class="text-[10px] font-black uppercase text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded shadow-sm">Prioridad Alta</span>
+        <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+            <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
+              <span class="material-symbols-outlined text-red-500 animate-pulse">radar</span>
+              Alertas cercanas
+            </h2>
+
+            <span class="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-2.5 py-1 rounded shadow-sm">
+              {{ alertasCercanas.length }} Activa{{ alertasCercanas.length === 1 ? '' : 's' }}
+            </span>
+          </div>
+
+          <div class="flex flex-col p-2 gap-2">
+            <ng-container *ngIf="alertasCercanas.length > 0; else sinAlertasCercanas">
+              <div
+                *ngFor="let alerta of alertasCercanas"
+                class="p-4 rounded hover:bg-slate-50 hover:shadow-sm transition-all cursor-pointer group border border-transparent hover:border-slate-100"
+              >
+                <div class="flex justify-between items-start gap-3 mb-2">
+                  <h4 class="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">
+                    {{ alerta.titulo }}
+                  </h4>
+
+                  <span
+                    class="text-[10px] font-bold uppercase px-2 py-0.5 rounded shadow-sm border"
+                    [ngClass]="{
+                      'text-red-600 bg-red-50 border-red-100': alerta.prioridad === 'Urgente',
+                      'text-orange-600 bg-orange-50 border-orange-100': alerta.prioridad === 'Alta',
+                      'text-yellow-700 bg-yellow-50 border-yellow-100': alerta.prioridad === 'Moderada'
+                    }"
+                  >
+                    {{ alerta.prioridad === 'Urgente' ? 'Urgente' : 'Prioridad ' + alerta.prioridad }}
+                  </span>
                 </div>
-                <p class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">map</span> Av. Chapultepec, Juárez</p>
+
+                <p class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[14px]">map</span>
+                  {{ alerta.ubicacion }}
+                </p>
+
                 <div class="flex items-center gap-3 text-xs font-bold text-slate-400">
-                  <span class="bg-white px-2 py-1 rounded shadow-sm border border-slate-100 flex items-center gap-1 text-slate-600"><span class="material-symbols-outlined text-[14px] text-blue-500">near_me</span> 1.2km</span>
-                  <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 10m</span>
+                  <span class="bg-white px-2 py-1 rounded shadow-sm border border-slate-100 flex items-center gap-1 text-slate-600">
+                    <span class="material-symbols-outlined text-[14px] text-blue-500">pets</span>
+                    {{ alerta.especie }}
+                  </span>
+
+                  <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">schedule</span>
+                    {{ alerta.tiempo }}
+                  </span>
                 </div>
               </div>
+            </ng-container>
 
-              <div class="p-4 rounded hover:bg-slate-50 hover:shadow-sm transition-all cursor-pointer group border border-transparent hover:border-slate-100">
-                <div class="flex justify-between items-start mb-2">
-                  <h4 class="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">Avistamiento fauna feral</h4>
-                  <span class="text-[10px] font-black uppercase text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded shadow-sm">Atención</span>
-                </div>
-                <p class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">map</span> Bosque de Chapultepec</p>
-                <div class="flex items-center gap-3 text-xs font-bold text-slate-400">
-                  <span class="bg-white px-2 py-1 rounded shadow-sm border border-slate-100 flex items-center gap-1 text-slate-600"><span class="material-symbols-outlined text-[14px] text-blue-500">near_me</span> 3.5km</span>
-                  <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 25m</span>
-                </div>
+            <ng-template #sinAlertasCercanas>
+              <div class="px-4 py-6 text-center">
+                <p class="text-sm font-bold text-slate-700">No hay alertas activas</p>
+                <p class="text-xs text-slate-500 mt-1">
+                  Los casos urgentes aparecerán aquí automáticamente.
+                </p>
+              </div>
+            </ng-template>
+          </div>
+        </section>
+
+        <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden">
+          <div class="p-5 border-b border-slate-200 bg-slate-50">
+            <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
+              <span class="material-symbols-outlined text-emerald-500">health_and_safety</span>
+              Protocolo de acción
+            </h2>
+          </div>
+
+          <div class="p-5 flex flex-col gap-4">
+            <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
+              <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">check</span>
+              </div>
+
+              <div>
+                <p class="font-bold text-sm text-slate-800">
+                  1. Evaluación visual inicial
+                </p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">
+                  Mantén una distancia segura de 5 metros antes de interactuar.
+                </p>
               </div>
             </div>
-          </section>
 
-          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden">
-            <div class="p-5 border-b border-slate-200 bg-slate-50">
-              <h2 class="font-black text-slate-800 flex items-center gap-2 text-lg">
-                <span class="material-symbols-outlined text-emerald-500">health_and_safety</span> Protocolo de acción
-              </h2>
-            </div>
-            
-            <div class="p-5 flex flex-col gap-5">
-              <label class="flex items-start gap-4 cursor-pointer group p-2 -m-2 rounded hover:bg-slate-50 transition-colors">
-                <input type="checkbox" class="mt-1 w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer shadow-sm">
-                <div>
-                  <p class="font-bold text-sm text-slate-800 group-hover:text-emerald-700 transition-colors">1. Evaluación visual inicial</p>
-                  <p class="text-xs text-slate-500 font-medium mt-0.5">Mantén una distancia segura de 5 metros antes de interactuar.</p>
-                </div>
-              </label>
-              
-              <label class="flex items-start gap-4 cursor-pointer group p-2 -m-2 rounded hover:bg-slate-50 transition-colors">
-                <input type="checkbox" class="mt-1 w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer shadow-sm">
-                <div>
-                  <p class="font-bold text-sm text-slate-800 group-hover:text-emerald-700 transition-colors">2. Preparación de equipo</p>
-                  <p class="text-xs text-slate-500 font-medium mt-0.5">Verifica transportadora, correa de seguridad y guantes de protección.</p>
-                </div>
-              </label>
+            <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
+              <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">check</span>
+              </div>
 
-              <label class="flex items-start gap-4 cursor-pointer group p-2 -m-2 rounded hover:bg-slate-50 transition-colors">
-                <input type="checkbox" class="mt-1 w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer shadow-sm">
-                <div>
-                  <p class="font-bold text-sm text-slate-800 group-hover:text-emerald-700 transition-colors">3. Contacto con centro</p>
-                  <p class="text-xs text-slate-500 font-medium mt-0.5">Notifica llegada al lugar y estado general del animal en la app.</p>
-                </div>
-              </label>
+              <div>
+                <p class="font-bold text-sm text-slate-800">
+                  2. Preparación de equipo
+                </p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">
+                  Verifica transportadora, correa de seguridad y guantes de protección.
+                </p>
+              </div>
             </div>
-          </section>
+
+            <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
+              <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">check</span>
+              </div>
+
+              <div>
+                <p class="font-bold text-sm text-slate-800">
+                  3. Contacto con centro
+                </p>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">
+                  Notifica llegada al lugar y estado general del animal en la app.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
           <div class="rounded bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-900/20 p-6 relative overflow-hidden">
             <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl opacity-20 transform -rotate-12 pointer-events-none">support_agent</span>

@@ -18,6 +18,11 @@ interface CasoVoluntario {
   descripcion: string;
   ubicacion: string;
   tiempo: string;
+  tamano: string;
+  condicion: string;
+  contactoNombre: string;
+  contactoTelefono: string;
+  score: number;
   prioridad: 'Urgente' | 'Alta' | 'Moderada';
   especie: 'Perro' | 'Gato' | 'Otro';
   fotoUrl: string;
@@ -31,6 +36,7 @@ interface CasoVoluntario {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     NavbarWebComponent,
     FooterWebComponent,
     IonContent
@@ -52,27 +58,38 @@ export class VolunteerPage implements OnInit {
     this.cargarCasos();
   }
 
-  cargarCasos(): void {
-    this.cargando = true;
-    this.errorCarga = null;
+cargarCasos(): void {
+  this.cargando = true;
+  this.errorCarga = null;
 
-    this.reportService.listarReportes().subscribe({
-      next: (resp) => {
-        console.log('CASOS PARA VOLUNTARIO:', resp);
+  this.reportService.listarReportes().subscribe({
+    next: (resp: any) => {
+      console.log('CASOS PARA VOLUNTARIO:', resp);
 
-        this.casos = resp
-          .filter((incidencia) => this.esCasoVisibleParaVoluntario(incidencia))
-          .map((incidencia) => this.mapearCaso(incidencia));
+      const incidencias: IncidenciaResponse[] = Array.isArray(resp)
+        ? resp
+        : Array.isArray(resp.results)
+          ? resp.results
+          : Array.isArray(resp.data)
+            ? resp.data
+            : Array.isArray(resp.incidencias)
+              ? resp.incidencias
+              : [];
 
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error('ERROR CARGANDO CASOS:', err);
-        this.errorCarga = 'No se pudieron cargar los casos disponibles.';
-        this.cargando = false;
-      }
-    });
-  }
+      this.casos = incidencias
+        .filter((incidencia) => this.esCasoVisibleParaVoluntario(incidencia))
+        .map((incidencia) => this.mapearCaso(incidencia));
+
+      this.cargando = false;
+    },
+    error: (err) => {
+      console.error('ERROR CARGANDO CASOS:', err);
+      this.errorCarga = 'No se pudieron cargar los casos disponibles.';
+      this.casos = [];
+      this.cargando = false;
+    }
+  });
+}
 
   private esCasoVisibleParaVoluntario(incidencia: IncidenciaResponse): boolean {
     const estado = incidencia.estado || 'PENDIENTE';
@@ -88,6 +105,11 @@ export class VolunteerPage implements OnInit {
       descripcion: this.obtenerDescripcionCaso(incidencia),
       ubicacion: this.obtenerUbicacionCaso(incidencia),
       tiempo: this.obtenerTiempoReporte(incidencia.created_at),
+      tamano: incidencia.tamano_animal || 'No especificado',
+      condicion: incidencia.condicion_animal || 'No especificada',
+      contactoNombre: incidencia.nombre_contacto || 'Contacto no registrado',
+      contactoTelefono: incidencia.telefono_contacto || 'Teléfono no registrado',
+      score: incidencia.urgency_score || 0,
       prioridad: this.obtenerPrioridad(incidencia.urgency_score || 0),
       especie: this.obtenerEspecie(incidencia.tipo_animal),
       fotoUrl: this.imagenUrl(incidencia.imagen),
@@ -108,27 +130,17 @@ export class VolunteerPage implements OnInit {
   }
 
   private obtenerDescripcionCaso(incidencia: IncidenciaResponse): string {
-    const partes: string[] = [];
+    const notas = incidencia.notas_animal?.trim();
 
-    if (incidencia.tipo_animal) {
-      partes.push(`Especie: ${incidencia.tipo_animal}`);
+    if (!notas) {
+      return 'Sin notas adicionales.';
     }
 
-    if (incidencia.tamano_animal) {
-      partes.push(`Tamaño: ${incidencia.tamano_animal}`);
-    }
+    const limite = 110;
 
-    if (incidencia.condicion_animal) {
-      partes.push(`Condición: ${incidencia.condicion_animal}`);
-    }
-
-    if (incidencia.notas_animal) {
-      partes.push(`Notas: ${incidencia.notas_animal}`);
-    }
-
-    return partes.length > 0
-      ? partes.join(' · ')
-      : 'Caso registrado en espera de información adicional.';
+    return notas.length > limite
+      ? `${notas.slice(0, limite).trim()}...`
+      : notas;
   }
 
   private obtenerUbicacionCaso(incidencia: IncidenciaResponse): string {
@@ -205,11 +217,21 @@ export class VolunteerPage implements OnInit {
         c.ubicacion.toLowerCase().includes(term) ||
         c.descripcion.toLowerCase().includes(term) ||
         c.especie.toLowerCase().includes(term) ||
+        c.tamano.toLowerCase().includes(term) ||
+        c.condicion.toLowerCase().includes(term) ||
+        c.contactoNombre.toLowerCase().includes(term) ||
+        c.contactoTelefono.toLowerCase().includes(term) ||
         c.folio.toLowerCase().includes(term)
       );
     }
 
     return filtrados;
+  }
+
+  get alertasCercanas(): CasoVoluntario[] {
+  return this.casos
+    .filter(caso => caso.prioridad === 'Urgente' || caso.prioridad === 'Alta')
+    .slice(0, 2);
   }
 
   setFiltro(filtro: string): void {

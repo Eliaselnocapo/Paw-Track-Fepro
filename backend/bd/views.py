@@ -160,28 +160,79 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
+
         if not request.user.is_staff and instance.usuario_reporta_id != request.user.id:
             return Response(
                 {'detail': 'No tienes permiso para editar este reporte.'},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        # Campos que van al Animal asociado (no a la Incidencia)
+
+        # Campos que realmente pertenecen al Animal asociado
+        tipo_animal = request.data.get('tipo_animal')
+        tamano_animal = request.data.get('tamano_animal')
+        condicion_animal = request.data.get('condicion_animal')
+        notas_animal = request.data.get('notas_animal')
         edad_estimada = request.data.get('edad_estimada')
         peso_estimado = request.data.get('peso_estimado')
 
-        response = super().update(request, *args, **kwargs)
+        campos_animal_recibidos = any([
+            tipo_animal is not None,
+            tamano_animal is not None,
+            condicion_animal is not None,
+            notas_animal is not None,
+            edad_estimada is not None,
+            peso_estimado is not None,
+        ])
 
-        if instance.animal and (edad_estimada is not None or peso_estimado is not None):
-            animal = instance.animal
+        if campos_animal_recibidos:
+            if not instance.animal:
+                animal = Animal.objects.create(
+                    nombre='Sin nombre',
+                    tipo='',
+                    tamano='',
+                    salud='',
+                    otros='',
+                )
+                instance.animal = animal
+                instance.save(update_fields=['animal'])
+            else:
+                animal = instance.animal
+
             campos_animal = []
+
+            if tipo_animal is not None:
+                animal.tipo = tipo_animal
+                campos_animal.append('tipo')
+
+            if tamano_animal is not None:
+                animal.tamano = tamano_animal
+                campos_animal.append('tamano')
+
+            if condicion_animal is not None:
+                animal.salud = condicion_animal
+                campos_animal.append('salud')
+
+            if notas_animal is not None:
+                animal.otros = notas_animal
+                campos_animal.append('otros')
+
             if edad_estimada is not None:
                 animal.edad_estimada = edad_estimada
                 campos_animal.append('edad_estimada')
+
             if peso_estimado is not None:
                 animal.peso_estimado = peso_estimado
                 campos_animal.append('peso_estimado')
-            animal.save(update_fields=campos_animal)
-        return response
+
+            if campos_animal:
+                animal.save(update_fields=campos_animal)
+
+        response = super().update(request, *args, **kwargs)
+
+        instance.refresh_from_db()
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=response.status_code)
 
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
