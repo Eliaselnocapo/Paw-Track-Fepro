@@ -6,6 +6,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
+import { LocalReportCacheService } from '../../../core/services/local-report-cache.service';
 import { environment } from '../../../../environments/environment';
 
 declare const L: any;
@@ -35,6 +36,7 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
     private location: Location,
     private route: ActivatedRoute,
     private reportService: ReportService,
+    private localReportCache: LocalReportCacheService,
   ) {}
 
   ngOnInit(): void {
@@ -176,22 +178,23 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   puedeEditar(): boolean {
-    if (!this.reporte || this.reporte.usuario_reporta == null) {
-      return false;
-    }
+    if (!this.reporte) return false;
 
+    // Usuario autenticado: verificar que sea el dueño
     const token = localStorage.getItem('pawtrack_access');
-
-    if (!token) {
-      return false;
+    if (token && this.reporte.usuario_reporta != null) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.user_id === this.reporte.usuario_reporta;
+      } catch { return false; }
     }
 
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.user_id === this.reporte.usuario_reporta;
-    } catch {
-      return false;
+    // Invitado: verificar que el folio esté en su caché local
+    if (!token && this.reporte.usuario_reporta == null && this.reporte.folio) {
+      return this.localReportCache.obtenerFolios().includes(this.reporte.folio);
     }
+
+    return false;
   }
 
   regresar(): void {

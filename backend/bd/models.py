@@ -1,18 +1,55 @@
 from django.db import models
 
 from django.contrib.gis.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+
+class UsuarioManager(BaseUserManager):
+    """
+    Manager personalizado para que el email sea el identificador único
+    para la autenticación, eliminando por completo el uso de username.
+    """
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El email es obligatorio para crear un usuario.')
+        
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('El superusuario debe tener is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('El superusuario debe tener is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
 
 # 1. Tabla Usuario 
 # Extendemos el usuario de Django para aprovechar el login, contraseñas y tokens de DRF
 class Usuario(AbstractUser):
     ROLES_VALIDOS = ['REPORTERO', 'RESCATISTA', 'PATROCINADOR']
 
+    username = None
+    
     email = models.EmailField(unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = UsuarioManager()
+    
     roles = models.JSONField(default=list, help_text="Lista de roles: REPORTERO, RESCATISTA, PATROCINADOR")
     telefono = models.CharField(max_length=20, blank=True)
     foto_perfil = models.ImageField(upload_to='usuarios/perfiles/', blank=True, null=True)
-
+    reputation_score = models.FloatField(default=100)
+    fraud_flags = models.IntegerField(default=0)
+    
     def tiene_rol(self, rol: str) -> bool:
         return rol in (self.roles or [])
 
@@ -33,19 +70,41 @@ class PerfilRescatista(models.Model):
     esta_certificado = models.BooleanField(default=False) 
 
 class PerfilPatrocinador(models.Model):
+    TIPO_ENTIDAD_CHOICES = [
+        ('EMPRESA',    'Empresa'),
+        ('REFUGIO',    'Refugio Animal'),
+        ('ASOCIACION', 'Asociación Protectora'),
+        ('OTRO',       'Otro'),
+    ]
+    NIVEL_CHOICES = [
+        ('SILVER',   'Silver'),
+        ('GOLD',     'Gold'),
+        ('PLATINUM', 'Platinum'),
+    ]
+
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil_patrocinador')
 
+    # Datos de la entidad (base del prototipo BD)
+    nombre_entidad    = models.CharField(max_length=255)
+    ubicacion         = models.CharField(max_length=255)
+    telefono_contacto = models.CharField(max_length=20, default='')
+    capacidad         = models.CharField(max_length=255, help_text='Descripción de recursos disponibles (alimento, transporte, veterinaria, etc.)')
+    horario           = models.CharField(max_length=100)
+    redes             = models.CharField(max_length=255, blank=True)
+    correo            = models.EmailField(help_text='Correo oficial de la entidad')
 
-    ubicacion = models.CharField(max_length=255)
-    capacidad = models.CharField(max_length=100)
-    horario = models.CharField(max_length=100) 
-    redes = models.CharField(max_length=255, blank=True) 
-    correo = models.EmailField() # string validado para correos 
-    
-    nivel = models.CharField(max_length=50, default='SILVER') # ej. "PATROCINADOR GOLD"
-    total_donado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    casos_soportados = models.IntegerField(default=0)
+    # Campos adicionales para verificación y clasificación
+    tipo_entidad   = models.CharField(max_length=50, choices=TIPO_ENTIDAD_CHOICES, default='OTRO')
+    rfc_o_registro = models.CharField(max_length=100, blank=True, help_text='RFC o número de registro legal de la entidad')
+
+    # Métricas de participación (calculadas por el sistema)
+    nivel                    = models.CharField(max_length=50, choices=NIVEL_CHOICES, default='SILVER')
+    total_donado             = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    casos_soportados         = models.IntegerField(default=0)
     fecha_inicio_coordinacion = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre_entidad} ({self.tipo_entidad})"
 
 # 2. Tabla Animal 
 class Animal(models.Model):
@@ -79,8 +138,16 @@ class Incidencia(models.Model):
     imagen = models.ImageField(upload_to='incidencias/', blank=True, null=True)
     ubicacion = models.PointField(srid=4326)
     caracteristicas = models.TextField(blank=True, default='')
+    nombre_caso = models.CharField(max_length=150, blank=True, default='')
+    nombre_contacto = models.CharField(max_length=150, blank=True, default='')
+    telefono_contacto = models.CharField(max_length=20, blank=True, default='')
     estado = models.CharField(max_length=50, default='PENDIENTE')
-    tipo_incidencia = models.CharField(max_length=50, default='EMERGENCIA')
+    TIPO_INCIDENCIA_CHOICES = [
+        ('EMERGENCIA', 'Emergencia'),
+        ('EXTRAVIADO',  'Extraviado'),
+        ('CALLEJERO',   'Callejero'),
+    ]
+    tipo_incidencia = models.CharField(max_length=50, choices=TIPO_INCIDENCIA_CHOICES, default='EMERGENCIA')
     recompensa = models.FloatField(null=True, blank=True)
 
     # Campos calculados por el sistema
@@ -90,11 +157,18 @@ class Incidencia(models.Model):
 
     folio = models.CharField(max_length=20, unique=True, null=True, blank=True)
 
+    FOLIO_TIPO_MAP = {
+        'EMERGENCIA': 'EMG',
+        'EXTRAVIADO':  'EXT',
+        'CALLEJERO':   'CAL',
+    }
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if not self.folio:
-            year = self.created_at.year
-            self.folio = f"PT-{year}-{self.pk:04d}"
+            tipo_usuario = 'ANO' if self.usuario_reporta_id is None else 'REG'
+            tipo_reporte = self.FOLIO_TIPO_MAP.get(self.tipo_incidencia, 'OTR')
+            self.folio = f"{tipo_usuario}-{tipo_reporte}-{self.pk:05d}"
             super().save(update_fields=['folio'])
 
     def __str__(self):

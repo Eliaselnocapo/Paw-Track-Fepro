@@ -12,11 +12,15 @@ export interface ReportePayload {
   latitud: number;
   longitud: number;
   imagen?: File;
+  nombre_contacto?: string;
+  telefono_contacto?: string;
 }
 
 export interface IncidenciaResponse {
   id:               number;
   nombre_caso:      string | null;
+  nombre_contacto:  string | null;
+  telefono_contacto: string | null;
   lat_out:          number;
   lng_out:          number;
   tipo_incidencia:  string;
@@ -80,6 +84,8 @@ export class ReportService {
     if (payload.imagen) {
       form.append('imagen', payload.imagen, payload.imagen.name);
     }
+    if (payload.nombre_contacto)   form.append('nombre_contacto',   payload.nombre_contacto);
+    if (payload.telefono_contacto) form.append('telefono_contacto', payload.telefono_contacto);
 
     return this.http.post<IncidenciaResponse>(this.apiUrl, form);
   }
