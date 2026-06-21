@@ -17,8 +17,10 @@ interface ReporterReport {
   title: string;
   status: string;
   address: string;
+  contactName: string;
+  contactPhone: string;
   reportedAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   animalType: string;
   imageUrl: string;
   urgencyScore: number;
@@ -150,8 +152,10 @@ private cargarMisReportesDeCuenta(): void {
       title: this.obtenerTituloReporte(incidencia),
       status: incidencia.estado || 'PENDIENTE',
       address: this.obtenerDireccionReporte(incidencia),
+      contactName: incidencia.nombre_contacto || 'Contacto no registrado',
+      contactPhone: incidencia.telefono_contacto || 'Teléfono no registrado',
       reportedAt: this.obtenerTiempoRelativo(incidencia.created_at, 'Reportado'),
-      updatedAt: this.obtenerTiempoRelativo(incidencia.updated_at ?? incidencia.created_at, 'Actualizado'),
+      updatedAt: this.obtenerTiempoActualizado(incidencia.created_at, incidencia.updated_at),
       animalType: incidencia.tipo_animal || 'otro',
       imageUrl: this.imagenUrl(incidencia.imagen),
       urgencyScore: incidencia.urgency_score || 0,
@@ -201,6 +205,26 @@ private cargarMisReportesDeCuenta(): void {
 
     return `${prefijo} hace ${dias} día${dias === 1 ? '' : 's'}`;
   }
+
+  private obtenerTiempoActualizado(
+      createdAt: string | null | undefined,
+      updatedAt: string | null | undefined
+    ): string | null {
+      if (!createdAt || !updatedAt) {
+        return null;
+      }
+
+      const creado = new Date(createdAt).getTime();
+      const actualizado = new Date(updatedAt).getTime();
+
+      const diferenciaMs = actualizado - creado;
+
+      if (diferenciaMs < 60000) {
+        return null;
+      }
+
+      return this.obtenerTiempoRelativo(updatedAt, 'Actualizado');
+    }
 
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
