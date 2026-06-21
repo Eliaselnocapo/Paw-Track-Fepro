@@ -1,147 +1,660 @@
 <ion-content [fullscreen]="true">
-<div class="page-container">
+  <div class="w-full min-h-screen overflow-x-hidden bg-[#f3f7fb]">
 
-  <app-navbar-web class="relative z-50"></app-navbar-web>
+    <app-navbar-web class="relative z-50"></app-navbar-web>
 
-  <section class="hero-section">
-    <div class="hero-content">
-      <h1>Cada Segundo Cuenta.<br><span>Por Cada Vida.</span></h1>
-      <p>
-        La red profesional para la respuesta rápida en el rescate animal.
-        Reporta, rescata o apoya — tu acción sincroniza nuestra misión.
-      </p>
-      <div class="hero-buttons-container">
-        @if (!isLoggedIn) {
-            <button routerLink="/register" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 transition-colors">
-              Comenzar <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    <!-- HERO -->
+    <!-- HERO -->
+    <section
+      class="relative min-h-[calc(100vh-72px)] overflow-hidden px-[7vw] py-[86px] md:pb-20
+             bg-[linear-gradient(90deg,rgba(11,24,43,0.94)_0%,rgba(11,24,43,0.82)_44%,rgba(11,24,43,0.32)_100%),url('https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1800&auto=format&fit=crop')]
+             bg-cover bg-center md:bg-[center_right]"
+    >
+
+      <!-- FIGURAS DECORATIVAS HERO -->
+      <div
+        class="pointer-events-none absolute right-[7%] top-[5%] h-[230px] w-[230px]
+               rotate-[28deg] border-2 border-white/10"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute bottom-[10%] right-[63%] h-[180px] w-[310px]
+               rotate-[16deg] rounded-[46px] bg-teal-400/15"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute bottom-[80px] left-[7vw] h-px w-[420px]
+               bg-gradient-to-r from-teal-300/40 to-transparent"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[60%] top-[11%] h-[90px] w-[90px]
+               rounded-full bg-blue-500/15"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute bottom-[4%] right-[34%] h-[130px] w-[130px]
+               rounded-full bg-teal-300/10"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[19%] top-[34%] h-[118px] w-[118px]
+               rounded-full border-[15px] border-white/5"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[10%] top-[48%] h-0 w-0 rotate-[18deg]
+               border-l-[56px] border-r-[56px] border-b-[95px]
+               border-l-transparent border-r-transparent border-b-white/10"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute bottom-[9%] right-[10%] h-[115px] w-[230px]
+               rotate-[15deg] rounded-[30px] bg-cyan-300/10"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute bottom-[30%] right-[29%] h-[100px] w-[100px] opacity-25
+               [background-image:radial-gradient(rgba(255,255,255,0.85)_2px,transparent_2px)]
+               [background-size:16px_16px]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[42%] bottom-[19%] h-[42px] w-[42px]
+               rounded-full bg-white/10"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[38%] top-[13%] h-[58px] w-[58px]
+               rotate-45 border border-teal-200/20"
+      ></div>
+
+      <!-- CONTENIDO HERO -->
+      <div class="relative z-[2] mx-auto grid min-h-[620px] max-w-[1280px] grid-cols-1 items-center">
+
+        <div class="max-w-[760px]">
+          <div
+            class="mb-7 inline-flex w-fit items-center gap-2.5 bg-blue-600/20 px-[15px] py-[9px]
+                   text-sm font-bold text-blue-100"
+          >
+            Plataforma comunitaria de rescate
+          </div>
+
+          <h1
+            class="m-0 max-w-[820px] text-[clamp(44px,6.5vw,88px)] font-black leading-[0.98]
+                   tracking-[-0.065em] text-white"
+          >
+            Reporta y da seguimiento a casos de rescate animal.
+          </h1>
+
+          <p class="mt-[26px] max-w-[660px] text-[19px] leading-[1.75] text-slate-100/85 max-md:text-base">
+            PawTrack permite registrar emergencias, ubicar reportes en el mapa y coordinar apoyo
+            entre personas que quieren ayudar.
+          </p>
+
+          <div class="mt-[34px] flex flex-wrap gap-3.5">
+            <button
+              routerLink="/reports/create-report"
+              class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#ef3b3b]
+                     px-5 text-[15px] font-bold text-white shadow-[0_12px_24px_rgba(239,59,59,0.22)]
+                     transition hover:-translate-y-0.5 hover:bg-[#dc2f2f] max-md:w-full"
+            >
+              <span class="material-symbols-outlined">warning</span>
+              Reportar emergencia
             </button>
-            
-            <button routerLink="/login" class="bg-white text-slate-800 px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-slate-50 transition-colors">
-              Iniciar sesión <span class="material-symbols-outlined text-[20px]">login</span>
+
+            <button
+              routerLink="/mapa"
+              class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200
+                     bg-white px-5 text-[15px] font-bold text-slate-900 transition
+                     hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 max-md:w-full"
+            >
+              Ver mapa general
+              <span class="material-symbols-outlined">map</span>
             </button>
-          } @else {
-            <button routerLink="/reports/create-report" class="bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/30 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-all active:scale-95 text-lg">
-              <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">warning</span>
-              Reportar Emergencia
-            </button>
-          }
+          </div>
+        </div>
+
       </div>
+    </section>
+    <!-- ACCIONES PRINCIPALES -->
+    <section
+      class="relative overflow-hidden bg-[#f1f6fb]
+             px-[7vw] py-24 max-md:px-[22px] max-md:py-[68px]"
+    >
+
+      <!-- FIGURAS DECORATIVAS ACCIONES -->
+      <div
+        class="pointer-events-none absolute right-0 top-0 z-[1]
+               h-[min(32vw,430px)] w-[min(32vw,430px)]
+               bg-blue-600/[0.075]
+               [clip-path:polygon(100%_0,100%_100%,0_0)]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute -left-[70px] -bottom-[90px] z-[1]
+               h-[260px] w-[260px] rounded-full
+               bg-teal-500/[0.07]
+               max-md:h-[140px] max-md:w-[140px] max-md:-left-[60px] max-md:-bottom-[55px]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute -right-[170px] -top-[120px] z-[1]
+               h-[clamp(300px,35vw,520px)] w-[clamp(300px,35vw,520px)]
+               bg-blue-600/[0.07]
+               [clip-path:polygon(18%_0,100%_0,100%_82%,0_22%)]
+               max-md:h-[230px] max-md:w-[230px] max-md:-right-[140px] max-md:-top-[80px]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute -left-[90px] -bottom-[70px] z-[1]
+               h-[clamp(190px,18vw,270px)] w-[clamp(230px,22vw,340px)]
+               rounded-[52%_48%_56%_44%]
+               bg-teal-500/[0.07]
+               max-md:h-[150px] max-md:w-[180px] max-md:-left-[90px] max-md:-bottom-[60px]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[7%] bottom-[58px] z-[1]
+               h-[clamp(150px,15vw,210px)] w-[clamp(150px,15vw,210px)]
+               rotate-[18deg] border-2 border-blue-600/10
+               max-md:right-[-35px] max-md:bottom-[24px] max-md:h-[120px] max-md:w-[120px]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[18%] top-[95px] z-[1]
+               h-[86px] w-[86px] rotate-[18deg] rounded-[26px]
+               bg-purple-500/[0.07]
+               max-md:right-[22px] max-md:top-[45px] max-md:h-[56px] max-md:w-[56px]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute left-[18%] top-[96px] z-[1]
+               h-[18px] w-[150px] rounded-full bg-blue-600/[0.08]
+               max-md:hidden"
+      ></div>
+
+      <div class="relative z-[2] mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-14 lg:grid-cols-[0.9fr_1.1fr]">
+
+        <div>
+          <span class="mb-3.5 inline-block text-[13px] font-bold uppercase tracking-[0.14em] text-blue-600">
+            Acciones principales
+          </span>
+
+          <h2 class="m-0 max-w-[540px] text-[clamp(32px,4vw,52px)] font-bold leading-[1.08] tracking-[-0.04em] text-slate-900 max-md:text-[clamp(30px,10vw,44px)]">
+            Herramientas para actuar cuando un caso necesita atención.
+          </h2>
+
+          <p class="mt-5 max-w-[520px] text-[17px] leading-[1.75] text-[#5b6b80]">
+            Desde la misma vista puedes crear reportes, revisar zonas cercanas y participar en casos
+            que todavía requieren apoyo.
+          </p>
+        </div>
+
+        <div class="relative grid gap-4">
+
+          <a
+            routerLink="/reports/create-report"
+            class="group relative grid min-h-[116px] grid-cols-[58px_1fr_28px] items-center gap-[18px] rounded border border-[#e3e9f2] bg-white p-6 text-inherit no-underline shadow-md transition hover:translate-x-1 hover:border-slate-300 hover:shadow-[0_22px_46px_rgba(15,23,42,0.09)] max-md:grid-cols-[54px_1fr] max-md:p-5"
+          >
+            <img src="assets/icon/warning.png" alt="warning" class="w-14 h-14 mb-3 object-contain transition-all">
+
+            <div>
+              <h3 class="m-0 text-[22px] font-bold tracking-[-0.025em] text-slate-900 max-md:text-xl">
+                Reportar un caso
+              </h3>
+              <p class="mt-1.5 text-[15px] leading-[1.5] text-[#5b6b80]">
+                Registra ubicación, descripción y evidencia del animal en riesgo.
+              </p>
+            </div>
+
+            <span class="text-xl text-blue-600 max-md:hidden">→</span>
+          </a>
+
+          <a
+            routerLink="/mapa"
+            class="group relative ml-[34px] grid min-h-[116px] grid-cols-[58px_1fr_28px] items-center gap-[18px] rounded border border-[#e3e9f2] bg-white p-6 text-inherit no-underline shadow-md transition hover:translate-x-1 hover:border-slate-300 hover:shadow-[0_22px_46px_rgba(15,23,42,0.09)] max-lg:ml-0 max-md:grid-cols-[54px_1fr] max-md:p-5"
+          >
+            <img src="assets/icon/google-maps.png" alt="mapa" class="w-14 h-14 mb-3 object-contain transition-all">
+
+            <div>
+              <h3 class="m-0 text-[22px] font-bold tracking-[-0.025em] text-slate-900 max-md:text-xl">
+                Revisar el mapa
+              </h3>
+              <p class="mt-1.5 text-[15px] leading-[1.5] text-[#5b6b80]">
+                Consulta reportes activos y ubica zonas donde se necesita atención.
+              </p>
+            </div>
+
+            <span class="text-xl text-blue-600 max-md:hidden">→</span>
+          </a>
+
+          <a
+            routerLink="/dashboard/volunteer"
+            class="group relative ml-[68px] grid min-h-[116px] grid-cols-[58px_1fr_28px] items-center gap-[18px] rounded border border-[#e3e9f2] bg-white p-6 text-inherit no-underline shadow-md transition hover:translate-x-1 hover:border-slate-300 hover:shadow-[0_22px_46px_rgba(15,23,42,0.09)] max-lg:ml-0 max-md:grid-cols-[54px_1fr] max-md:p-5"
+          >
+            <img src="assets/icon/first-aid-kit.png" alt="ayuda" class="w-14 h-14 mb-3 object-contain transition-all">
+
+            <div>
+              <h3 class="m-0 text-[22px] font-bold tracking-[-0.025em] text-slate-900 max-md:text-xl">
+                Apoyar un reporte
+              </h3>
+              <p class="mt-1.5 text-[15px] leading-[1.5] text-[#5b6b80]">
+                Participa con traslado, alimento, contacto, rescate o seguimiento.
+              </p>
+            </div>
+
+            <span class="text-xl text-blue-600 max-md:hidden">→</span>
+          </a>
+
+        </div>
+
+      </div>
+    </section>
+
+<!-- FLUJO DE ATENCIÓN -->
+<section
+  class="flow-section-v2 relative overflow-hidden bg-[#fbfdff]
+         px-[7vw] py-24 max-md:px-[22px] max-md:py-[68px]"
+>
+
+  <!-- FIGURAS DECORATIVAS FLUJO -->
+  <div
+    class="pointer-events-none absolute -right-[190px] -bottom-[230px] z-[1]
+           h-[clamp(320px,38vw,540px)] w-[clamp(320px,38vw,540px)]
+           rounded-full bg-blue-600/[0.055]
+           max-md:-right-[180px] max-md:-bottom-[140px] max-md:h-[280px] max-md:w-[280px]"
+  ></div>
+
+  <div
+    class="pointer-events-none absolute -left-[130px] top-[90px] z-[1]
+           h-[clamp(220px,22vw,340px)] w-[clamp(220px,22vw,340px)]
+           rounded-full bg-teal-500/[0.065]
+           max-md:-left-[170px] max-md:top-[80px] max-md:h-[230px] max-md:w-[230px]"
+  ></div>
+
+  <div
+    class="pointer-events-none absolute right-[8%] top-[70px] z-[1]
+           h-[180px] w-[180px] rotate-[18deg] border-2 border-blue-600/[0.08]
+           max-md:right-[-55px] max-md:top-[35px] max-md:h-[110px] max-md:w-[110px]"
+  ></div>
+
+  <div
+    class="pointer-events-none absolute left-[3%] bottom-[72px] z-[1]
+           h-[88px] w-[120px] opacity-60
+           [background-image:radial-gradient(rgba(20,184,166,0.22)_2px,transparent_2px)]
+           [background-size:18px_18px]
+           max-md:hidden"
+  ></div>
+
+  <div
+    class="relative z-[2] mx-auto grid max-w-[1180px] grid-cols-1 items-start gap-16
+           lg:grid-cols-[0.85fr_1.15fr]"
+  >
+
+    <div class="relative lg:sticky lg:top-[100px]">
+
+      <!-- DONUT EN ESTA SECCIÓN -->
+      <div
+        class="pointer-events-none absolute -right-[44px] top-[210px] z-[1]
+               h-[154px] w-[154px] rounded-full
+               bg-[conic-gradient(from_40deg,rgba(20,184,166,0.16)_0deg,rgba(20,184,166,0.16)_110deg,rgba(37,99,235,0.14)_110deg,rgba(37,99,235,0.14)_230deg,rgba(226,232,240,0.8)_230deg,rgba(226,232,240,0.8)_360deg)]
+               after:absolute after:left-1/2 after:top-1/2 after:h-[78px] after:w-[78px]
+               after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-[#fbfdff]
+               max-lg:hidden"
+      ></div>
+
+      <span class="mb-3.5 inline-block text-[13px] font-bold uppercase tracking-[0.14em] text-blue-600">
+        Flujo de atención
+      </span>
+
+      <h2 class="relative z-[2] m-0 text-[clamp(34px,4.2vw,56px)] font-bold leading-[1.06] tracking-[-0.045em] text-slate-900 max-md:text-[clamp(30px,10vw,44px)]">
+        Del reporte al seguimiento
+      </h2>
+
+      <div class="relative z-[2] mt-6 h-[5px] w-[42px] rounded-full bg-teal-300"></div>
+
+      <p class="relative z-[2] mt-[26px] max-w-[520px] text-[17px] leading-[1.75] text-[#5b6b80]">
+        La información del caso queda organizada para que sea más fácil ubicarlo, atenderlo y
+        actualizar su estado.
+      </p>
     </div>
 
-    <!-- Barra de acciones -->
-    <div class="action-bar">
-      <a routerLink="/reports/create-report">
-        <div class="action-tab tab-reporter">
-          <div class="tab-inner">
-            <span class="material-symbols-outlined tab-icon">emergency</span>
-            <div class="tab-labels">
-              <span class="tab-eyebrow">Tengo una emergencia</span>
-              <span class="tab-title">REPORTAR</span>
+    <div class="relative grid gap-0">
+
+      <div class="pointer-events-none absolute right-[4%] top-[18px] -z-[1] h-[190px] w-[190px] rotate-[20deg] border-2 border-blue-600/[0.075]"></div>
+
+      <!-- Línea vertical -->
+      <div class="absolute left-[34px] top-[34px] h-[calc(100%-68px)] w-[2px] bg-blue-100"></div>
+
+      <!-- PASO 1 -->
+      <div class="relative grid grid-cols-[70px_1fr] gap-6 pb-12 max-md:grid-cols-[58px_1fr] max-md:gap-4">
+        <div class="relative z-[2]">
+          <div class="grid h-[68px] w-[68px] place-items-center rounded bg-white shadow-md ring-1 ring-blue-100 max-md:h-[58px] max-md:w-[58px]">
+            <div class="grid h-[52px] w-[52px] place-items-center rounded bg-[#eef4ff] max-md:h-[46px] max-md:w-[46px]">
+              <img src="assets/icon/placeholder.png" alt="Registro del caso" class="h-10 w-10 object-contain max-md:h-8 max-md:w-8">
             </div>
           </div>
-          <span class="material-symbols-outlined arrow">arrow_forward</span>
         </div>
-      </a>
 
-      <div class="action-tab tab-volunteer">
-        <div class="tab-inner">
-          <span class="material-symbols-outlined tab-icon">volunteer_activism</span>
-          <div class="tab-labels">
-            <span class="tab-eyebrow">Quiero ayudar</span>
-            <span class="tab-title">VOLUNTARIO</span>
-          </div>
-        </div>
-        <span class="material-symbols-outlined arrow">arrow_forward</span>
-      </div>
+        <div class="pt-1">
+          <span class="mb-2 inline-flex items-center text-sm font-bold tracking-[0.12em] text-blue-600">
+            01
+          </span>
 
-      <div class="action-tab tab-sponsor">
-        <div class="tab-inner">
-          <span class="material-symbols-outlined tab-icon">favorite</span>
-          <div class="tab-labels">
-            <span class="tab-eyebrow">Quiero apoyar</span>
-            <span class="tab-title">PATROCINADOR</span>
-          </div>
-        </div>
-        <span class="material-symbols-outlined arrow">arrow_forward</span>
-      </div>
-    </div>
-  </section>
+          <h3 class="m-0 text-[25px] font-bold tracking-[-0.03em] text-slate-900 max-md:text-[22px]">
+            Registro del caso
+          </h3>
 
-  <section class="roles-section">
-    <div class="section-header">
-      <div class="section-eyebrow">Nuestros Roles Comunitarios</div>
-      <h2>Elige tu impacto</h2>
-      <p>Únete al ecosistema exactamente donde más se te necesita.</p>
-    </div>
-
-    <div class="roles-list">
-
-      <!-- Carta 1: Reportar -->
-      <div class="role-row role-reporter">
-        <div class="role-image-wrapper">
-          <img
-            src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop"
-            alt="Reportar un rescate"
-          >
-        </div>
-        <div class="role-text">
-          <span class="step-num">01</span>
-          <div class="icon-box red">
-            <span class="material-symbols-outlined">emergency</span>
-          </div>
-          <h3>Reportar</h3>
-          <p>
-            Veo a un animal en peligro y necesito alertar a los socorristas profesionales de inmediato. Tu rápida acción es el primer y más importante paso para salvar una vida. Al proporcionar información precisa, la ubicación exacta y fotos del estado del animal, permites que nuestros equipos de rescate actúen con rapidez y envíen la ayuda adecuada directamente al lugar.
+          <p class="mt-2 max-w-[520px] text-base leading-[1.65] text-[#5b6b80]">
+            Se captura ubicación, descripción, condición del animal y fotos.
           </p>
-          <button class="card-btn btn-reporter" routerLink="/dashboard/reporter">Reportar emergencia</button>
         </div>
       </div>
 
-      <!-- Carta 2: Voluntario -->
-      <div class="role-row role-volunteer">
-        <div class="role-image-wrapper">
-          <img
-            src="https://images.unsplash.com/photo-1606011334315-025e4baab810?q=80&w=800&auto=format&fit=crop"
-            alt="Ser voluntario"
-          >
-        </div>
-        <div class="role-text">
-          <span class="step-num">02</span>
-          <div class="icon-box blue">
-            <span class="material-symbols-outlined">volunteer_activism</span>
+      <!-- PASO 2 -->
+      <div class="relative grid grid-cols-[70px_1fr] gap-6 pb-12 max-md:grid-cols-[58px_1fr] max-md:gap-4">
+        <div class="relative z-[2]">
+          <div class="grid h-[68px] w-[68px] place-items-center rounded bg-white shadow-md ring-1 ring-blue-100 max-md:h-[58px] max-md:w-[58px]">
+            <div class="grid h-[52px] w-[52px] place-items-center rounded bg-[#eef4ff] max-md:h-[46px] max-md:w-[46px]">
+              <img src="assets/icon/map.png" alt="Ubicación en mapa" class="h-10 w-10 object-contain max-md:h-8 max-md:w-8">
+            </div>
           </div>
-          <h3>Voluntario</h3>
-          <p>
-            Soy un socorrista capacitado, veterinario, o transportista con vehículo listo para asistir en casos de rescate activos. Únete a nuestro equipo de campo y genera un impacto directo en el terreno. Ya sea brindando primeros auxilios de emergencia, facilitando traslados seguros hacia las clínicas, o apoyando en los refugios temporales, tu tiempo y habilidades son invaluables para nosotros.
+        </div>
+
+        <div class="pt-1">
+          <span class="mb-2 inline-flex items-center text-sm font-bold tracking-[0.12em] text-blue-600">
+            02
+          </span>
+
+          <h3 class="m-0 text-[25px] font-bold tracking-[-0.03em] text-slate-900 max-md:text-[22px]">
+            Ubicación en mapa
+          </h3>
+
+          <p class="mt-2 max-w-[520px] text-base leading-[1.65] text-[#5b6b80]">
+            El reporte queda visible para consultar la zona y facilitar el apoyo.
           </p>
-          <button class="card-btn btn-volunteer">Unirse a la misión</button>
         </div>
       </div>
 
-      <!-- Carta 3: Patrocinador -->
-      <div class="role-row role-sponsor">
-        <div class="role-image-wrapper">
-          <img
-            src="https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=800&auto=format&fit=crop"
-            alt="Patrocinar un rescate"
-          >
-        </div>
-        <div class="role-text">
-          <span class="step-num">03</span>
-          <div class="icon-box green">
-            <span class="material-symbols-outlined">favorite</span>
+      <!-- PASO 3 -->
+      <div class="relative grid grid-cols-[70px_1fr] gap-6 pb-12 max-md:grid-cols-[58px_1fr] max-md:gap-4">
+        <div class="relative z-[2]">
+          <div class="grid h-[68px] w-[68px] place-items-center rounded bg-white shadow-md ring-1 ring-blue-100 max-md:h-[58px] max-md:w-[58px]">
+            <div class="grid h-[52px] w-[52px] place-items-center rounded bg-[#eef4ff] max-md:h-[46px] max-md:w-[46px]">
+              <img src="assets/icon/customer.png" alt="Apoyo cercano" class="h-10 w-10 object-contain max-md:h-8 max-md:w-8">
+            </div>
           </div>
-          <h3>Patrocinador</h3>
-          <p>
-            Quiero proporcionar recursos financieros o en especie para sostener y expandir las operaciones diarias. Tu apoyo económico es el motor que mantiene en movimiento a nuestros equipos médicos y de transporte. Cada donación se traduce directamente en alimento especializado, medicinas urgentes, cirugías que salvan vidas y el equipo esencial necesario para mantener los refugios asociados.
+        </div>
+
+        <div class="pt-1">
+          <span class="mb-2 inline-flex items-center text-sm font-bold tracking-[0.12em] text-blue-600">
+            03
+          </span>
+
+          <h3 class="m-0 text-[25px] font-bold tracking-[-0.03em] text-slate-900 max-md:text-[22px]">
+            Apoyo cercano
+          </h3>
+
+          <p class="mt-2 max-w-[520px] text-base leading-[1.65] text-[#5b6b80]">
+            Los usuarios pueden revisar casos activos y ofrecer asistencia.
           </p>
-          <button class="card-btn btn-sponsor">Donar recursos</button>
+        </div>
+      </div>
+
+      <!-- PASO 4 -->
+      <div class="relative grid grid-cols-[70px_1fr] gap-6 max-md:grid-cols-[58px_1fr] max-md:gap-4">
+        <div class="relative z-[2]">
+          <div class="grid h-[68px] w-[68px] place-items-center rounded bg-white shadow-md ring-1 ring-blue-100 max-md:h-[58px] max-md:w-[58px]">
+            <div class="grid h-[52px] w-[52px] place-items-center rounded bg-[#eef4ff] max-md:h-[46px] max-md:w-[46px]">
+              <img src="assets/icon/circular-arrow.png" alt="Actualización" class="h-10 w-10 object-contain max-md:h-8 max-md:w-8">
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-1">
+          <span class="mb-2 inline-flex items-center text-sm font-bold tracking-[0.12em] text-blue-600">
+            04
+          </span>
+
+          <h3 class="m-0 text-[25px] font-bold tracking-[-0.03em] text-slate-900 max-md:text-[22px]">
+            Actualización
+          </h3>
+
+          <p class="mt-2 max-w-[520px] text-base leading-[1.65] text-[#5b6b80]">
+            El estado cambia conforme se obtiene ayuda o se resuelve el caso.
+          </p>
         </div>
       </div>
 
     </div>
-  </section>
-  <app-footer-web></app-footer-web>
 
-</div>
+  </div>
+</section>
+
+    <!-- MAPA -->
+    <section
+      class="map-section relative grid items-center gap-[54px] overflow-hidden
+             bg-[#eaf3fb]
+             px-[7vw] py-24 lg:grid-cols-[0.9fr_1.1fr] max-md:px-[22px] max-md:py-[68px]"
+    >
+
+      <!-- FIGURAS DECORATIVAS MAPA -->
+      <div
+        class="pointer-events-none absolute -left-[260px] -top-[110px] z-[1]
+               h-[clamp(320px,36vw,520px)] w-[clamp(420px,48vw,720px)]
+               rounded-[48%_52%_42%_58%]
+               bg-blue-600/[0.06]
+               max-md:-left-[230px] max-md:-top-[90px] max-md:h-[280px] max-md:w-[350px]"
+      ></div>
+
+      <div
+        class="pointer-events-none absolute right-[6%] bottom-[36px] z-[1]
+               h-[clamp(190px,18vw,280px)] w-[clamp(190px,18vw,280px)]
+               rotate-[24deg] border-2 border-slate-900/[0.075]
+               max-md:right-[-90px] max-md:bottom-[60px] max-md:h-[170px] max-md:w-[170px]"
+      ></div>
+
+      <div class="relative z-[2] max-w-[560px]">
+        <span class="mb-3.5 inline-block text-[13px] font-bold uppercase tracking-[0.14em] text-blue-600">
+          Mapa general
+        </span>
+
+        <h2 class="m-0 text-[clamp(32px,4vw,52px)] font-bold leading-[1.08] tracking-[-0.04em] text-slate-900 max-md:text-[clamp(30px,10vw,44px)]">
+          Consulta los reportes desde una vista general.
+        </h2>
+
+        <p class="mt-[18px] text-[17px] leading-[1.75] text-[#5b6b80]">
+          El mapa ayuda a identificar dónde se encuentra cada reporte y qué casos pueden necesitar
+          atención cercana.
+        </p>
+
+        <div class="mt-[30px] flex flex-wrap gap-[13px]">
+          <button
+            routerLink="/mapa"
+            class="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-blue-600 px-5 text-[15px] font-bold text-white shadow-[0_12px_24px_rgba(37,99,235,0.18)] transition hover:-translate-y-0.5 hover:bg-blue-700 max-md:w-full"
+          >
+            Abrir mapa
+          </button>
+
+          <button
+            routerLink="/reports/create-report"
+            class="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-slate-300 bg-transparent px-5 text-[15px] font-bold text-slate-900 transition hover:-translate-y-0.5 hover:bg-white max-md:w-full"
+          >
+            Crear reporte
+          </button>
+        </div>
+      </div>
+
+      <div
+  class="relative isolate z-[2] overflow-hidden rounded border border-slate-300 bg-white p-[18px] shadow-lg
+        h-[430px] max-lg:h-[390px] max-md:h-[330px] max-sm:h-[300px]"
+>
+
+        <div class="pointer-events-none absolute -inset-[22px] -z-[1] rounded-xl bg-white"></div>
+
+        <!-- IMAGEN DEL MAPA GENERAL -->
+        <img
+          src="assets/icon/mapa_prueba.jpg"
+          alt="Mapa general de reportes"
+          class="h-full w-full object-cover"
+        >
+
+        <!-- ICONO / MARCADOR 1 -->
+        <div
+          class="absolute left-[34%] top-[30%] grid h-16 w-16 place-items-center rounded-full
+                bg-blue-600 shadow-[0_12px_28px_rgba(37,99,235,0.45)]
+                ring-[6px] ring-white/95
+                after:absolute after:inset-[-10px] after:-z-[1] after:rounded-full after:bg-blue-600/20
+
+                max-md:left-[31%] max-md:top-[28%]
+                max-md:h-12 max-md:w-12
+                max-md:ring-[4px]
+                max-md:after:inset-[-7px]"
+        >
+          <img
+            src="assets/icon/cat.png"
+            alt="Reporte activo"
+            class="h-9 w-9 object-contain max-md:h-7 max-md:w-7"
+          >
+        </div>
+
+        <!-- ICONO / MARCADOR 2 -->
+        <div
+          class="absolute right-[24%] top-[42%] grid h-16 w-16 place-items-center rounded-full
+                bg-[#ef3b3b] shadow-[0_12px_28px_rgba(239,59,59,0.45)]
+                ring-[6px] ring-white/95
+                after:absolute after:inset-[-10px] after:-z-[1] after:rounded-full after:bg-red-500/20
+
+                max-md:right-[14%] max-md:top-[36%]
+                max-md:h-12 max-md:w-12
+                max-md:ring-[4px]
+                max-md:after:inset-[-7px]"
+        >
+          <img
+            src="assets/icon/alarm.png"
+            alt="Reporte urgente"
+            class="h-9 w-9 object-contain max-md:h-7 max-md:w-7"
+          >
+        </div>
+
+        <!-- ICONO / MARCADOR 3 -->
+        <div
+          class="absolute bottom-[24%] left-[54%] grid h-16 w-16 place-items-center rounded-full
+                bg-teal-500 shadow-[0_12px_28px_rgba(20,184,166,0.45)]
+                ring-[6px] ring-white/95
+                after:absolute after:inset-[-10px] after:-z-[1] after:rounded-full after:bg-teal-500/20
+
+                max-md:left-[52%] max-md:bottom-[34%]
+                max-md:h-12 max-md:w-12
+                max-md:ring-[4px]
+                max-md:after:inset-[-7px]"
+        >
+          <img
+            src="assets/icon/first-aid-kit.png"
+            alt="Reporte con apoyo"
+            class="h-9 w-9 object-contain max-md:h-7 max-md:w-7"
+          >
+        </div>
+
+        <!-- CARD REPORTE SELECCIONADO -->
+        <div
+          class="absolute bottom-[42px] left-[42px] bg-white px-[18px] py-4 shadow-md
+
+                max-md:left-4 max-md:right-4 max-md:bottom-4
+                max-md:px-4 max-md:py-3"
+        >
+          <strong class="block text-[15px] font-bold text-slate-900 max-md:text-[14px]">
+            Reporte seleccionado
+          </strong>
+
+          <p class="mt-1 text-[13px] font-medium text-slate-500 max-md:text-[12px]">
+            Información, ubicación y seguimiento.
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CTA FINAL -->
+<!-- CTA FINAL -->
+<section
+  class="relative overflow-hidden bg-[#f8fbff]
+         px-[7vw] py-[96px] max-md:px-[22px] max-md:py-[68px]"
+>
+
+  <!-- FIGURAS DECORATIVAS CTA -->
+  <div
+    class="pointer-events-none absolute -left-[165px] -bottom-[180px] z-[1]
+           h-[clamp(280px,32vw,460px)] w-[clamp(280px,32vw,460px)]
+           rounded-full bg-blue-600/[0.07]
+           max-md:-left-[180px] max-md:-bottom-[150px] max-md:h-[260px] max-md:w-[260px]"
+  ></div>
+
+  <!-- CÍRCULO PERFECTO -->
+  <div
+    class="pointer-events-none absolute right-[7%] top-[42px] z-[1]
+           h-[165px] w-[165px] rounded-full bg-white/70 ring-1 ring-blue-100
+           max-md:right-[-55px] max-md:top-[38px] max-md:h-[120px] max-md:w-[120px]"
+  ></div>
+
+  <div
+    class="pointer-events-none absolute right-[11%] bottom-[70px] z-[1]
+           h-[118px] w-[140px] opacity-70
+           [background-image:radial-gradient(rgba(37,99,235,0.22)_2px,transparent_2px)]
+           [background-size:18px_18px]
+           max-md:hidden"
+  ></div>
+
+  <div
+    class="relative z-[2] mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-8
+           border border-[#dce6f3] bg-white p-[42px]
+           shadow-[0_18px_45px_rgba(15,23,42,0.11)]
+           lg:grid-cols-[1fr_auto] max-md:p-6"
+  >
+
+    <div>
+      <span class="mb-3.5 inline-block text-[13px] font-bold uppercase tracking-[0.14em] text-blue-600">
+        Participa
+      </span>
+
+      <h2 class="m-0 max-w-[720px] text-[clamp(31px,3.8vw,50px)] font-bold leading-[1.08] tracking-[-0.04em] text-slate-900 max-md:text-[clamp(30px,10vw,44px)]">
+        Mantén visible un caso hasta que reciba atención.
+      </h2>
+
+      <p class="mt-4 max-w-[620px] text-base leading-[1.65] text-[#5b6b80]">
+        Consulta el mapa, crea una cuenta o revisa reportes activos donde puedas apoyar.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-3 max-lg:justify-start">
+      <button
+        routerLink="/mapa"
+        class="inline-flex min-h-12 items-center justify-center gap-2 rounded bg-blue-600 px-5 text-[15px] font-bold text-white shadow-[0_12px_24px_rgba(37,99,235,0.18)] transition hover:-translate-y-0.5 hover:bg-blue-700 max-md:w-full"
+      >
+        Ver mapa general
+      </button>
+
+      @if (!isLoggedIn) {
+        <button
+          routerLink="/register"
+          class="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-slate-300 bg-white px-5 text-[15px] font-bold text-slate-900 transition hover:-translate-y-0.5 hover:bg-slate-50 max-md:w-full"
+        >
+          Crear cuenta
+        </button>
+      } @else {
+        <button
+          routerLink="/profile"
+          class="inline-flex min-h-12 items-center justify-center gap-2 rounded border border-slate-300 bg-white px-5 text-[15px] font-bold text-slate-900 transition hover:-translate-y-0.5 hover:bg-slate-50 max-md:w-full"
+        >
+          Mi cuenta
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+    <app-footer-web></app-footer-web>
+
+  </div>
 </ion-content>

@@ -14,7 +14,8 @@ router.register(r'incidencias', IncidenciaViewSet, basename='incidencia')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
+
+    path('api/incidencias/seguimiento/<str:folio>/', IncidenciaViewSet.as_view({'get': 'seguimiento'}), name='incidencia-seguimiento'),    
     #  Rutas para el CRUD de nuestra API (ej. /api/usuarios/)
     path('api/', include(router.urls)),
     
@@ -29,6 +30,8 @@ urlpatterns = [
     path('api/auth/google/', GoogleLogin.as_view(), name='google_login'),
 
     path('accounts/', include('allauth.urls')),
+
+    path('api/rescates/', include('rescates.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
  

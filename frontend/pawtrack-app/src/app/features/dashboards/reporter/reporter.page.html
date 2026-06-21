@@ -57,83 +57,129 @@
 
           <div class="space-y-4">
 
-            @for (report of reports; track report.id) {
-              <article class="group bg-white/85 backdrop-blur-xl rounded border border-slate-300 shadow-md hover:shadow-lg transition-all overflow-hidden">
+        @for (report of reports; track report.id) {
+        <article class="group bg-white/85 backdrop-blur-xl rounded border border-slate-300 shadow-md hover:shadow-lg transition-all overflow-hidden">
 
-                <div class="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-                  <div class="flex gap-4 items-start">
+            <div class="flex gap-4 items-start">
 
-                    <div class="w-20 h-20 rounded overflow-hidden bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center">
-                      @if (report.imageUrl) {
-                        <img
-                          [src]="report.imageUrl"
-                          [alt]="report.title"
-                          class="w-full h-full object-cover"
-                        />
-                      } @else {
-                        <span class="material-symbols-outlined text-4xl text-blue-600">
-                          {{ getAnimalIcon(report.animalType) }}
-                        </span>
-                      }
-                    </div>
+              <div class="w-20 h-20 rounded overflow-hidden bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center">
+                @if (report.imageUrl) {
+                  <img
+                    [src]="report.imageUrl"
+                    [alt]="report.title"
+                    class="w-full h-full object-cover"
+                  />
+                } @else {
+                  <span class="material-symbols-outlined text-4xl text-blue-600">
+                    {{ getAnimalIcon(report.animalType) }}
+                  </span>
+                }
+              </div>
 
-                    <div>
-                      <div class="flex flex-wrap items-center gap-2 mb-2">
-                        <span
-                          class="text-[11px] uppercase tracking-wide font-bold px-2.5 py-1 rounded border"
-                          [class]="getStatusClass(report.status)">
-                          {{ getStatusLabel(report.status) }}
-                        </span>
+              <div>
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                  <span
+                    class="text-[11px] uppercase tracking-wide font-bold px-2.5 py-1 rounded border"
+                    [class]="getStatusClass(report.status)">
+                    {{ getStatusLabel(report.status) }}
+                  </span>
 
-                        <span class="text-xs text-slate-400 font-semibold">
-                          #{{ report.id }}
-                        </span>
-                      </div>
-
-                      <h3 class="font-bold text-slate-900 text-base md:text-lg">
-                        {{ report.title }}
-                      </h3>
-
-                      <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
-                        <span class="material-symbols-outlined text-[17px]">location_on</span>
-                        {{ report.address }}
-                      </p>
-
-                      <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
-                        <span class="material-symbols-outlined text-[17px]">
-                          {{ report.eta ? 'directions_car' : 'schedule' }}
-                        </span>
-                        {{ report.eta || report.reportedAt }}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="md:self-end">
-                    <button
-                      type="button"
-                      (click)="ejecutarAccion(report)" 
-                      class="w-full md:w-auto px-5 h-10 rounded bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-700/20 transition-all active:scale-[0.98]">
-                      {{ getActionLabel(report.status) }}
-                    </button>
-                  </div>
-
+                  <span class="text-xs text-slate-400 font-semibold">
+                    #{{ report.folio }}
+                  </span>
                 </div>
 
-              </article>
-            } @empty {
-              <div class="bg-white/80 backdrop-blur-xl rounded border border-slate-300 shadow-md p-8 text-center">
-                <div class="w-16 h-16 mx-auto rounded bg-blue-50 flex items-center justify-center mb-4">
-                  <span class="material-symbols-outlined text-blue-700 text-3xl">pets</span>
+                <h3 class="font-bold text-slate-900 text-base md:text-lg">
+                  {{ report.title }}
+                </h3>
+
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <span class="text-xs px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200">
+                    {{ report.animalType | titlecase }}
+                  </span>
+
+                  <span class="text-xs px-2 py-1 bg-blue-50 text-blue-700 border border-blue-100">
+                    {{ report.tamanoAnimal | titlecase }}
+                  </span>
+
+                  <span class="text-xs px-2 py-1 bg-amber-50 text-amber-700 border border-amber-100">
+                    {{ report.condicionAnimal }}
+                  </span>
                 </div>
 
-                <h3 class="text-lg font-bold text-slate-900">Aún no tienes reportes</h3>
+                @if (report.notasAnimal) {
+                  <p class="text-sm text-slate-500 mt-2 line-clamp-2">
+                    {{ report.notasAnimal }}
+                  </p>
+                }
 
-                <p class="text-sm text-slate-500 mt-1">
-                  Cuando reportes un animal, aparecerá aquí para que puedas darle seguimiento.
+                <p class="text-sm text-slate-500 flex items-center gap-1 mt-1">
+                  <span class="material-symbols-outlined text-[17px]">location_on</span>
+                  {{ report.address }}
+                </p>
+              <div class="mt-1 flex flex-col gap-1">
+                <p class="text-sm text-slate-500 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[17px]">
+                    schedule
+                  </span>
+                  {{ report.reportedAt }}
+                </p>
+
+                <p class="text-sm text-blue-600 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[17px]">
+                    update
+                  </span>
+                  {{ report.updatedAt }}
                 </p>
               </div>
-            }
+              </div>
+            </div>
+
+            <div class="md:self-stretch flex flex-col items-stretch md:items-end justify-between gap-3">
+
+              <a
+                [routerLink]="['/view-report', report.folio]"
+                class="text-sm font-bold text-blue-700 hover:text-blue-900 text-right"
+              >
+                Ver detalle
+              </a>
+
+              <div class="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2">
+                <a
+                  [routerLink]="['/reports', report.folio, 'update']"
+                  class="w-full md:w-auto px-4 h-10 rounded border border-slate-300 text-slate-800 bg-white hover:bg-slate-50 text-sm font-bold transition-all active:scale-[0.98] flex items-center justify-center whitespace-nowrap"
+                >
+                  Actualizar caso
+                </a>
+
+                <a
+                  [routerLink]="['/reports', report.folio, 'follow-up']"
+                  class="w-full md:w-auto px-4 h-10 rounded bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-700/20 transition-all active:scale-[0.98] flex items-center justify-center whitespace-nowrap"
+                >
+                  Agregar seguimiento
+                </a>
+              </div>
+
+            </div>
+
+          </div>
+
+        </article>
+        } @empty {
+          <div class="bg-white/80 backdrop-blur-xl rounded border border-slate-300 shadow-md p-8 text-center">
+            <div class="w-16 h-16 mx-auto rounded bg-blue-50 flex items-center justify-center mb-4">
+              <span class="material-symbols-outlined text-blue-700 text-3xl">pets</span>
+            </div>
+
+            <h3 class="text-lg font-bold text-slate-900">Aún no tienes reportes</h3>
+
+            <p class="text-sm text-slate-500 mt-1">
+              Cuando reportes un animal, aparecerá aquí para que puedas darle seguimiento.
+            </p>
+          </div>
+        }
 
           </div>
         </section>

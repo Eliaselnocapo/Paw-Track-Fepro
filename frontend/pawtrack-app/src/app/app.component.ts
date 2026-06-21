@@ -1,20 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import {
   IonContent,
-  IonHeader,
   IonMenu,
-  IonTitle,
-  IonToolbar,
   IonMenuToggle
 } from '@ionic/angular/standalone';
 
-import {RouterLink} from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
-  imports: [IonApp, IonRouterOutlet, IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, RouterLink, IonMenuToggle],
+  standalone: true,
+  imports: [
+    IonApp,
+    IonRouterOutlet,
+    IonMenu,
+    IonContent,
+    IonMenuToggle,
+    RouterLink,
+    RouterLinkActive
+  ],
 })
 export class AppComponent {
-  constructor() {}
+
+  private authService = inject(AuthService);
+
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
 }

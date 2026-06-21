@@ -1,118 +1,175 @@
-<ion-menu
-  menuId="main-menu"
-  side="start"
-  type="overlay"
-  contentId="main-content"
-  style="--width: min(84vw, 330px);">
+<ion-app>
 
-  <ion-content class="bg-white">
+  <ion-menu
+    menuId="main-menu"
+    side="start"
+    type="overlay"
+    contentId="main-content"
+    style="--width: min(84vw, 330px);">
 
-    <aside class="min-h-full bg-gradient-to-b from-white to-[#f7f9ff] text-[#001b3d] px-5 py-6 flex flex-col">
+    <ion-content class="bg-white">
 
-      <!-- Marca -->
-      <div class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-200">
-        <div class="w-12 h-12 rounded-2xl bg-blue-700 text-white flex items-center justify-center shadow-lg">
-          <span class="material-symbols-outlined text-[28px]">
-            pets
-          </span>
-        </div>
+      <aside class="min-h-full bg-gradient-to-b from-white to-[#f7f9ff] text-[#001b3d] px-5 py-6 flex flex-col">
 
-        <div>
-          <h2 class="text-2xl font-black text-blue-700 leading-none">
-            PawTrack
-          </h2>
+        <!-- Marca -->
+        <div class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-200">
+          <div class="w-12 h-12 rounded-full bg-blue-700 flex items-center justify-center shadow-lg overflow-hidden">
+            <img
+              src="assets/icon/pawtrack-logo.png"
+              alt="PawTrack"
+              class="w-10 h-10 object-contain"
+            />
+          </div>
 
-          <p class="text-xs font-semibold text-slate-500 mt-1">
-            Rescate animal inteligente
-          </p>
-        </div>
-      </div>
+          <div>
+            <h2 class="text-2xl font-black text-blue-700 leading-none">
+              PawTrack
+            </h2>
 
-      <!-- Links -->
-      <nav class="flex flex-col gap-3">
-
-        <ion-menu-toggle autoHide="true">
-          <a
-            routerLink="/home"
-            routerLinkActive="bg-blue-50 text-blue-700"
-            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
-            <span class="material-symbols-outlined text-[24px] text-blue-700">
-              home
-            </span>
-            Inicio
-          </a>
-        </ion-menu-toggle>
-
-        <ion-menu-toggle autoHide="true">
-          <a
-            routerLink="/view-report"
-            routerLinkActive="bg-blue-50 text-blue-700"
-            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
-            <span class="material-symbols-outlined text-[24px] text-blue-700">
-              assignment
-            </span>
-            Casos activos
-          </a>
-        </ion-menu-toggle>
-
-        <ion-menu-toggle autoHide="true">
-          <a
-            routerLink="/profile"
-            routerLinkActive="bg-blue-50 text-blue-700"
-            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
-            <span class="material-symbols-outlined text-[24px] text-blue-700">
-              person
-            </span>
-            Mi perfil
-          </a>
-        </ion-menu-toggle>
-
-        <ion-menu-toggle autoHide="true">
-          <a
-            routerLink="/login"
-            routerLinkActive="bg-blue-50 text-blue-700"
-            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
-            <span class="material-symbols-outlined text-[24px] text-blue-700">
-              login
-            </span>
-            Iniciar sesión
-          </a>
-        </ion-menu-toggle>
-
-      </nav>
-
-      <!-- Acción importante -->
-      <ion-menu-toggle autoHide="true">
-        <a
-          routerLink="/reports/create-report"
-          class="mt-6 flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 text-white shadow-lg active:scale-95 transition-transform">
-
-          <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">
-            warning
-          </span>
-
-          <div class="leading-tight">
-            <p class="font-black text-sm">
-              Reportar emergencia
-            </p>
-
-            <p class="text-xs text-white/80 mt-0.5">
-              Animal en peligro
+            <p class="text-xs font-semibold text-slate-500 mt-1">
+              Rescate animal inteligente
             </p>
           </div>
-        </a>
-      </ion-menu-toggle>
+        </div>
 
-      <!-- Footer -->
-      <div class="mt-auto pt-8">
-        <p class="text-center text-xs text-slate-400 font-semibold">
-          © 2026 PawTrack
-        </p>
-      </div>
+        <!-- Links -->
+        <nav class="flex flex-col gap-3">
 
-    </aside>
+          <ion-menu-toggle autoHide="true">
+            <a
+              routerLink="/home"
+              routerLinkActive="bg-blue-50 text-blue-700"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+              <span class="material-symbols-outlined text-[24px] text-blue-700">
+                home
+              </span>
+              Inicio
+            </a>
+          </ion-menu-toggle>
 
-  </ion-content>
-</ion-menu>
+          <ion-menu-toggle autoHide="true">
+            <a
+              routerLink="/mapa"
+              routerLinkActive="bg-blue-50 text-blue-700"
+              class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+              <span class="material-symbols-outlined text-[24px] text-blue-700">
+                map
+              </span>
+              Mapa general
+            </a>
+          </ion-menu-toggle>
 
-<ion-router-outlet id="main-content"></ion-router-outlet>
+          <ion-menu-toggle autoHide="true">
+            <a
+              routerLink="/dashboard/reporter"
+              routerLinkActive="bg-blue-50 text-blue-700"
+              class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+              <span class="material-symbols-outlined text-[24px] text-blue-700">
+                assignment
+              </span>
+              Reportes
+            </a>
+          </ion-menu-toggle>
+
+          @if (isLoggedIn) {
+            <ion-menu-toggle autoHide="true">
+              <a
+                routerLink="/dashboard/volunteer"
+                routerLinkActive="bg-blue-50 text-blue-700"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                <span class="material-symbols-outlined text-[24px] text-blue-700">
+                  volunteer_activism
+                </span>
+                Apoyo
+              </a>
+            </ion-menu-toggle>
+
+            <ion-menu-toggle autoHide="true">
+              <a
+                routerLink="/impacto"
+                routerLinkActive="bg-blue-50 text-blue-700"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                <span class="material-symbols-outlined text-[24px] text-blue-700">
+                  monitoring
+                </span>
+                Impacto
+              </a>
+            </ion-menu-toggle>
+
+            <ion-menu-toggle autoHide="true">
+              <a
+                routerLink="/profile"
+                routerLinkActive="bg-blue-50 text-blue-700"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                <span class="material-symbols-outlined text-[24px] text-blue-700">
+                  person
+                </span>
+                Mi perfil
+              </a>
+            </ion-menu-toggle>
+          } @else {
+            <ion-menu-toggle autoHide="true">
+              <a
+                routerLink="/dashboard/volunteer"
+                routerLinkActive="bg-blue-50 text-blue-700"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                <span class="material-symbols-outlined text-[24px] text-blue-700">
+                  volunteer_activism
+                </span>
+                Asistir
+              </a>
+            </ion-menu-toggle>
+
+            <ion-menu-toggle autoHide="true">
+              <a
+                routerLink="/login"
+                routerLinkActive="bg-blue-50 text-blue-700"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                <span class="material-symbols-outlined text-[24px] text-blue-700">
+                  login
+                </span>
+                Iniciar sesión
+              </a>
+            </ion-menu-toggle>
+          }
+
+        </nav>
+
+        <!-- Acción importante -->
+        <ion-menu-toggle autoHide="true">
+          <a
+            routerLink="/reports/create-report"
+            class="mt-6 flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 text-white shadow-lg active:scale-95 transition-transform">
+
+            <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">
+              warning
+            </span>
+
+            <div class="leading-tight">
+              <p class="font-black text-sm">
+                Reportar emergencia
+              </p>
+
+              <p class="text-xs text-white/80 mt-0.5">
+                Animal en peligro
+              </p>
+            </div>
+          </a>
+        </ion-menu-toggle>
+
+        <!-- Footer -->
+        <div class="mt-auto pt-8">
+          <p class="text-center text-xs text-slate-400 font-semibold">
+            © 2026 PawTrack
+          </p>
+        </div>
+
+      </aside>
+
+    </ion-content>
+  </ion-menu>
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+
+</ion-app>

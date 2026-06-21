@@ -24,14 +24,28 @@ class PerfilPatrocinadorInline(admin.StackedInline):
 class CustomUserAdmin(UserAdmin):
     inlines = (PerfilRescatistaInline, PerfilPatrocinadorInline)
 
-    fieldsets = UserAdmin.fieldsets + (
-        ('Información Extra', {
-            'fields': ('roles', 'telefono', 'foto_perfil')
-        }),
+    #  Sobrescribir ordering para que no busque 'username'
+    ordering = ('email',)
+
+    #  Reescribir list_display sin 'username'
+    list_display = ('email', 'first_name', 'get_roles', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser')
+
+    #  Definir fieldsets desde cero (sin heredar del default que trae username)
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        ('Información Extra', {'fields': ('first_name', 'last_name', 'telefono', 'foto_perfil', 'roles')}),
+        ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Fechas', {'fields': ('last_login', 'date_joined')}),
     )
 
-    list_display = ('username', 'email', 'first_name', 'get_roles', 'is_staff')
-    list_filter = ('is_staff', 'is_superuser')
+    #  Definir la pantalla de creación (add_user) sin username
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'password', 'roles'),
+        }),
+    )
 
     @admin.display(description='Roles')
     def get_roles(self, obj):
