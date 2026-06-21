@@ -32,8 +32,8 @@ export interface IncidenciaResponse {
   providedIn: 'root',
 })
 export class ProfileService {
-  private readonly usuariosUrl = `${environment.apiUrl}/api/usuarios/`;
-  private readonly incidenciasUrl = `${environment.apiUrl}/api/incidencias/`;
+  private readonly usuariosUrl = `${environment.apiUrl}/usuarios/`;
+  private readonly incidenciasUrl = `${environment.apiUrl}/incidencias/`;
 
   constructor(private http: HttpClient) {}
 

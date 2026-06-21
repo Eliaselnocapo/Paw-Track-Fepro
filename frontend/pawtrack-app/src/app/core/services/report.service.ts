@@ -62,7 +62,7 @@ export interface ActualizarReportePayload {
   providedIn: 'root',
 })
 export class ReportService {
-  private readonly apiUrl = `${environment.apiUrl}/api/incidencias/`;
+  private readonly apiUrl = `${environment.apiUrl}/incidencias/`;
 
   constructor(private http: HttpClient) {}
 
