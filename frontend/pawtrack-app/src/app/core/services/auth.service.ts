@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 export interface Usuario {
   id: number;
@@ -19,7 +20,7 @@ export interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:8000/api/auth';
+  private readonly API = `${environment.apiUrl}/auth`;
 
   private userSubject = new BehaviorSubject<Usuario | null>(null);
   private activeRoleSubject = new BehaviorSubject<string>('');
