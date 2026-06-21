@@ -27,7 +27,6 @@ interface ReporteReciente {
 
 interface UsuarioPerfil {
   nombre: string;
-  rol: string;
   email: string;
   ubicacion: string;
   fotoUrl: string;
@@ -58,7 +57,6 @@ export class ProfilePage implements OnInit {
 
   usuario: UsuarioPerfil = {
     nombre: '',
-    rol: '',
     email: '',
     ubicacion: 'Ubicación no registrada',
     fotoUrl: 'https://ui-avatars.com/api/?name=Usuario&background=1d4ed8&color=fff',
@@ -122,7 +120,6 @@ export class ProfilePage implements OnInit {
 
     return {
       nombre: nombreCompleto || usuarioBackend.username,
-      rol: this.formatearRol((usuarioBackend.roles ?? [])[0] ?? ''),
       email: usuarioBackend.email,
       ubicacion: this.obtenerUbicacion(usuarioBackend),
       fotoUrl: this.resolverUrlMedia(usuarioBackend.foto_perfil, usuarioBackend.username),
