@@ -59,4 +59,10 @@ export const routes: Routes = [
         (m) => m.VolunteerPage
       ),
   },
+
+  {
+    path: 'mapa',
+    loadComponent: () => import('./features/mapa-general/mapa-general.component').then( m => m.MapaGeneralComponent)
+  }
+
 ];

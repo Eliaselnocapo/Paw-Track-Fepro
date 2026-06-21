@@ -1,0 +1,459 @@
+ion-content {
+  --background: transparent;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: auto;
+  overflow-y: auto;
+  background: #f8fafc;
+  font-family: 'Montserrat', sans-serif;
+  padding-bottom: 16px;
+}
+
+.page-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+/* Burbuja azul izquierda */
+.page-shell::before {
+  content: "";
+  position: absolute;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  background: rgba(173, 198, 255, 0.35);
+  top: 80px;
+  left: -220px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Burbuja verde derecha */
+.page-shell::after {
+  content: "";
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: rgba(167, 243, 208, 0.38);
+  top: 260px;
+  right: -180px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.page-content,
+app-navbar-web,
+app-footer-web {
+  position: relative;
+  z-index: 1;
+}
+
+.page-content {
+  flex: 1;
+  width: 100%;
+  padding: 32px 24px 48px;
+  background: transparent;
+}
+
+app-navbar-web,
+app-footer-web {
+  flex-shrink: 0;
+}
+
+/* Card tipo create-report */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 24px rgba(0, 88, 190, 0.08);
+}
+
+/* Layout principal */
+.layout-dashboard {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+
+  display: grid;
+  gap: 24px;
+
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: 500px auto;
+
+  grid-template-areas:
+    "mapa-general alertas-recientes"
+    "estadisticas estadisticas";
+}
+
+/* Mapa */
+.mapa-general {
+  grid-area: mapa-general;
+
+  padding: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 24px rgba(0, 88, 190, 0.08);
+}
+
+#mapa-casos {
+  width: 100%;
+  height: 100%;
+  min-height: 470px;
+
+  border-radius: 14px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+/* Alertas recientes */
+.alertas-recientes {
+  grid-area: alertas-recientes;
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+
+  padding: 18px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.alertas-recientes .hero {
+  background: linear-gradient(90deg, #0058be 0%, #2170e4 100%);
+  box-shadow: 0 4px 12px rgba(0, 88, 190, 0.3);
+  color: white;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.alertas-recientes .title {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.alertas-recientes .subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  opacity: 0.92;
+}
+
+.tarjetas-alertas {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tarjetas-alertas .container {
+  display: grid;
+  gap: 12px;
+}
+
+.alerta-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  padding: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.alerta-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 88, 190, 0.12);
+}
+
+.alerta-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.alerta-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Estadísticas */
+.estadisticas {
+  grid-area: estadisticas;
+
+  display: grid;
+  grid-template-columns: 1.4fr repeat(2, 1fr);
+  gap: 18px;
+
+  padding: 18px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.estadisticas > section {
+  min-height: 140px;
+  border-radius: 14px;
+  padding: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.estadisticas .container {
+  width: 100%;
+}
+
+.estadisticas .texto {
+  background: linear-gradient(90deg, #0058be 0%, #2170e4 100%);
+  box-shadow: 0 4px 12px rgba(0, 88, 190, 0.3);
+  color: white;
+  justify-content: flex-start;
+}
+
+.estadisticas .texto .title {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.estadisticas .texto .subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  opacity: 0.92;
+}
+
+.animales-salvados,
+.voluntarios-activos {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.animales-salvados:hover,
+.voluntarios-activos:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 88, 190, 0.12);
+}
+
+.stat-number {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0058be;
+  line-height: 1;
+}
+
+.statistic {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+/* Leaflet */
+:host ::ng-deep .leaflet-container {
+  font-family: 'Montserrat', sans-serif;
+}
+
+:host ::ng-deep .pin-paw {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #2170e4;
+  color: white;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 18px;
+  border: 3px solid white;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* Scroll alertas */
+.tarjetas-alertas::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tarjetas-alertas::-webkit-scrollbar-thumb {
+  background: rgba(0, 88, 190, 0.25);
+  border-radius: 999px;
+}
+
+.tarjetas-alertas::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Responsive tablet */
+@media (max-width: 1024px) {
+  .page-content {
+    padding: 28px 20px 44px;
+  }
+
+  .layout-dashboard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "mapa-general"
+      "alertas-recientes"
+      "estadisticas";
+  }
+
+  .mapa-general,
+  #mapa-casos {
+    min-height: 420px;
+  }
+
+  .alertas-recientes {
+    min-height: 320px;
+  }
+
+  .estadisticas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .estadisticas .texto {
+    grid-column: 1 / -1;
+  }
+
+  .page-shell::before {
+    width: 480px;
+    height: 480px;
+    top: 120px;
+    left: -220px;
+  }
+
+  .page-shell::after {
+    width: 440px;
+    height: 440px;
+    top: 520px;
+    right: -220px;
+  }
+}
+
+/* Responsive móvil */
+@media (max-width: 640px) {
+  .page-content {
+    padding: 20px 14px 36px;
+  }
+
+  .layout-dashboard {
+    gap: 18px;
+  }
+
+  .mapa-general,
+  #mapa-casos {
+    min-height: 360px;
+  }
+
+  .estadisticas {
+    grid-template-columns: 1fr;
+  }
+
+  .estadisticas > section {
+    min-height: 120px;
+  }
+
+  .estadisticas .texto .title {
+    font-size: 1.5rem;
+  }
+
+  .stat-number {
+    font-size: 1.7rem;
+  }
+
+  .page-shell::before {
+    width: 340px;
+    height: 340px;
+    top: 100px;
+    left: -180px;
+  }
+
+  .page-shell::after {
+    width: 320px;
+    height: 320px;
+    top: 560px;
+    right: -180px;
+  }
+}
+
+/* Tarjetas de alertas con imagen */
+.alerta-card-con-imagen {
+  padding: 0;
+  overflow: hidden;
+}
+
+.alerta-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.alerta-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Placeholder cuando el backend manda imagen: null */
+.alerta-img-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  place-items: center;
+
+  background: linear-gradient(135deg, #dbeafe 0%, #ecfeff 100%);
+  color: #0058be;
+
+  font-size: 2.4rem;
+}
+
+.alerta-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+
+  padding: 5px 9px;
+  border-radius: 999px;
+
+  background: rgba(0, 88, 190, 0.92);
+  color: #ffffff;
+
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.alerta-info {
+  padding: 14px;
+}
+
+.alerta-folio {
+  margin-top: 8px !important;
+  font-size: 0.76rem !important;
+  color: #94a3b8 !important;
+}

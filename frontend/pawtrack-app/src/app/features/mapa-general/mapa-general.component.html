@@ -1,0 +1,119 @@
+<ion-content>
+  <div class="page-shell">
+    <app-navbar-web></app-navbar-web>
+
+    <main class="page-content layout-dashboard">
+
+      <section class="mapa-general glass-card">
+        <div id="mapa-casos"></div>
+      </section>
+
+      <section class="alertas-recientes glass-card">
+
+        <section class="hero">
+          <div class="container">
+            <h1 class="title">Alertas recientes</h1>
+            <p class="subtitle">
+              Aquí puedes ver las alertas más recientes de casos reportados en la zona.
+            </p>
+          </div>
+        </section>
+
+        <section class="tarjetas-alertas">
+          <div class="container">
+
+            @if (cargandoCasos) {
+              <article class="alerta-card">
+                <h3>Cargando casos...</h3>
+                <p>Consultando reportes activos.</p>
+              </article>
+            }
+
+            @if (errorCasos) {
+              <article class="alerta-card">
+                <h3>Error al cargar</h3>
+                <p>{{ errorCasos }}</p>
+              </article>
+            }
+
+            @if (!cargandoCasos && !errorCasos && casosActivos.length === 0) {
+              <article class="alerta-card">
+                <h3>Sin alertas activas</h3>
+                <p>No hay casos reportados por ahora.</p>
+              </article>
+            }
+
+            @for (caso of casosActivos; track caso.id) {
+              <article class="alerta-card alerta-card-con-imagen" (click)="centrarCaso(caso)">
+
+                <div class="alerta-img-wrapper">
+                  @if (caso.imagen) {
+                    <img
+                      class="alerta-img"
+                      [src]="obtenerUrlImagen(caso.imagen)"
+                      [alt]="obtenerTituloCaso(caso)"
+                    />
+                  } @else {
+                    <div class="alerta-img-placeholder">
+                      🐾
+                    </div>
+                  }
+
+                  <span class="alerta-badge">
+                    {{ caso.tipo_incidencia }}
+                  </span>
+                </div>
+
+                <div class="alerta-info">
+                  <h3>{{ obtenerTituloCaso(caso) | sentenceCase}}</h3>
+
+                  <p>
+                    {{ caso.tipo_animal || 'Animal' }} ·
+                    {{ caso.condicion_animal || caso.tipo_incidencia }}
+                  </p>
+
+                  <p class="alerta-folio">
+                    Folio: {{ caso.folio }}
+                  </p>
+                </div>
+
+              </article>
+            }
+
+          </div>
+        </section>
+
+      </section>
+
+      <section class="estadisticas glass-card">
+
+        <section class="texto">
+          <div class="container">
+            <h1 class="title">Impacto en vivo.</h1>
+            <p class="subtitle">
+              Datos en tiempo real sobre nuestra red de rescate.
+            </p>
+          </div>
+        </section>
+
+        <section class="animales-salvados">
+          <div class="container">
+            <h2 class="stat-number">{{ casosActivos.length }}</h2>
+            <p class="statistic">Casos activos</p>
+          </div>
+        </section>
+
+        <section class="voluntarios-activos">
+          <div class="container">
+            <h2 class="stat-number">567</h2>
+            <p class="statistic">Voluntarios activos</p>
+          </div>
+        </section>
+
+      </section>
+
+    </main>
+
+    <app-footer-web></app-footer-web>
+  </div>
+</ion-content>
