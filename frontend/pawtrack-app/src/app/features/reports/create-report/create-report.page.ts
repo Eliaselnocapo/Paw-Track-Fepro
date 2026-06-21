@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { RouterLink } from '@angular/router';
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService } from '../../../core/services/report.service';
@@ -17,6 +17,7 @@ declare let L: any;
     CommonModule,
     DecimalPipe,
     FormsModule,
+    RouterLink,
     NavbarWebComponent,
     FooterWebComponent
   ],
@@ -231,17 +232,102 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   
   toggleCondicion(condicion: string) {
     const index = this.condicionesVisibles.indexOf(condicion);
-    if (index > -1) this.condicionesVisibles.splice(index, 1);
-    else this.condicionesVisibles.push(condicion);
 
-    this.condicionesTexto = this.condicionesVisibles.length > 0 
-      ? this.condicionesVisibles.join(', ') 
+    if (index > -1) {
+      this.condicionesVisibles.splice(index, 1);
+    } else {
+      if (
+        condicion === 'callejero' &&
+        this.condicionesVisibles.includes('extraviado')
+      ) {
+        return;
+      }
+
+      if (
+        condicion === 'extraviado' &&
+        this.condicionesVisibles.includes('callejero')
+      ) {
+        return;
+      }
+
+      this.condicionesVisibles.push(condicion);
+    }
+
+    this.condicionesTexto = this.condicionesVisibles.length > 0
+      ? this.condicionesVisibles.join(', ')
       : 'Ninguna';
   }
-
   tieneCondicion(condicion: string): boolean {
     return this.condicionesVisibles.includes(condicion);
   }
+  condicionBloqueada(condicion: string): boolean {
+    if (this.tieneCondicion(condicion)) {
+      return false;
+    }
+
+    if (condicion === 'callejero') {
+      return this.tieneCondicion('extraviado');
+    }
+
+    if (condicion === 'extraviado') {
+      return this.tieneCondicion('callejero');
+    }
+
+    return false;
+  }
+  nombreCasoValido(): boolean {
+    const nombre = this.nombreCaso.trim();
+
+    if (nombre.length < 8 || nombre.length > 60) {
+      return false;
+    }
+
+    const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñÜü]/.test(nombre);
+    const soloCaracteresValidos = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9\s.,-]+$/.test(nombre);
+    const tienePalabrasSuficientes = nombre.split(/\s+/).length >= 2;
+    const noEsLetraRepetida = !/^([A-Za-zÁÉÍÓÚáéíóúÑñÜü])\1+$/i.test(nombre);
+
+    return tieneLetras && soloCaracteresValidos && tienePalabrasSuficientes && noEsLetraRepetida;
+  }
+
+  descripcionValida(): boolean {
+    const descripcion = this.notasAdicionales.trim();
+
+    if (descripcion.length === 0) {
+      return true;
+    }
+
+    if (descripcion.length < 10 || descripcion.length > 250) {
+      return false;
+    }
+
+    const tieneLetras = /[A-Za-zÁÉÍÓÚáéíóúÑñÜü]/.test(descripcion);
+    const noEsLetraRepetida = !/^([A-Za-zÁÉÍÓÚáéíóúÑñÜü])\1+$/i.test(descripcion);
+
+    return tieneLetras && noEsLetraRepetida;
+  }
+
+  nombreContactoValido(): boolean {
+    const nombre = this.nombreUsuario.trim();
+
+    if (nombre.length < 5 || nombre.length > 80) {
+      return false;
+    }
+
+    const regexNombre = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
+    const tienePalabrasSuficientes = nombre.split(/\s+/).length >= 2;
+    const noEsLetraRepetida = !/^([A-Za-zÁÉÍÓÚáéíóúÑñÜü])\1+$/i.test(nombre);
+
+    return regexNombre.test(nombre) && tienePalabrasSuficientes && noEsLetraRepetida;
+  }
+
+  telefonoContactoValido(): boolean {
+    const telefono = this.telefonoUsuario.trim();
+    const regexTelefono = /^\d{10}$/;
+
+    return regexTelefono.test(telefono);
+  }
+
 
   onFileSelected(event: any) {
     const files = event.target.files;

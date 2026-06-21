@@ -19,7 +19,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
+        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_roles(self, value):
@@ -45,9 +45,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return usuario
 
 class CustomRegisterSerializer(RegisterSerializer):
-    """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name.
-    username se auto-genera del email para no exponerlo en el formulario."""
-    username   = serializers.CharField(required=False, allow_blank=True, default='')
+    """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name."""
+    username   = None
     first_name = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
     last_name  = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
     roles = serializers.ListField(
@@ -55,9 +54,6 @@ class CustomRegisterSerializer(RegisterSerializer):
         required=False,
         default=list,
     )
-
-    def validate_username(self, value):
-        return value  # la validación de unicidad se hace en get_cleaned_data
 
     def validate_email(self, value):
         if Usuario.objects.filter(email=value).exists():
@@ -77,16 +73,6 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
-        email = data.get('email', '')
-        # Generar username único a partir del email (sin dominio, sin puntos)
-        base = email.split('@')[0].replace('.', '_').replace('+', '_')[:145]
-        # Garantizar unicidad añadiendo sufijo si ya existe
-        username = base
-        suffix = 1
-        while Usuario.objects.filter(username=username).exists():
-            username = f"{base}_{suffix}"
-            suffix += 1
-        data['username']   = username
         data['first_name'] = self.validated_data.get('first_name', '')
         data['last_name']  = self.validated_data.get('last_name', '')
         data['roles']      = self.validated_data.get('roles', ['REPORTERO'])
@@ -136,9 +122,9 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     tipo_animal      = serializers.CharField(source='animal.tipo',           read_only=True, default='')
     tamano_animal    = serializers.CharField(source='animal.tamano',         read_only=True, default='')
     condicion_animal = serializers.CharField(source='animal.salud',          read_only=True, default='')
+    notas_animal     = serializers.CharField(source='animal.otros',          read_only=True, default='')
     edad_estimada    = serializers.CharField(source='animal.edad_estimada',  read_only=True, default='')
     peso_estimado    = serializers.CharField(source='animal.peso_estimado',  read_only=True, default='')
-
     class Meta:
         model = Incidencia
         fields = (
@@ -148,7 +134,8 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'imagen',
             'latitud', 'longitud',
             'lat_out', 'lng_out',
-            'tipo_animal', 'tamano_animal', 'condicion_animal', 'edad_estimada', 'peso_estimado',
+            'tipo_animal', 'tamano_animal', 'condicion_animal', 'notas_animal', 'edad_estimada', 'peso_estimado',
+            'nombre_caso', 'nombre_contacto', 'telefono_contacto',
             'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
             'urgency_score', 'trust_score', 'created_at', 'folio',
         )
@@ -161,6 +148,9 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'imagen':              {'required': False},
             'estado':              {'required': False, 'default': 'PENDIENTE'},
             'tipo_incidencia':     {'required': False, 'default': 'EMERGENCIA'},
+            'nombre_caso':         {'required': False, 'allow_blank': True, 'default': ''},
+            'nombre_contacto':     {'required': False, 'allow_blank': True, 'default': ''},
+            'telefono_contacto':   {'required': False, 'allow_blank': True, 'default': ''},
             'caracteristicas':     {'required': False, 'allow_blank': True, 'default': ''},
             'urgency_score':       {'required': False},
             'trust_score':         {'read_only': True},

@@ -52,6 +52,10 @@ export interface ActualizarReportePayload {
   edad_estimada?: string;
   peso_estimado?: string;
   imagen?: File;
+  nombre_contacto?: string;
+  telefono_contacto?: string;
+  lat_out?: number;
+  lng_out?: number;
 }
 
 @Injectable({
@@ -170,6 +174,21 @@ actualizarReporte(id: number, payload: ActualizarReportePayload): Observable<Inc
 
   if (payload.imagen) {
     form.append('imagen', payload.imagen, payload.imagen.name);
+  }
+  if (payload.nombre_contacto != null) {
+  form.append('nombre_contacto', payload.nombre_contacto);
+  }
+
+  if (payload.telefono_contacto != null) {
+    form.append('telefono_contacto', payload.telefono_contacto);
+  }
+
+  if (payload.lat_out != null) {
+    form.append('lat_out', String(payload.lat_out));
+  }
+
+  if (payload.lng_out != null) {
+    form.append('lng_out', String(payload.lng_out));
   }
 
   return this.http.patch<IncidenciaResponse>(`${this.apiUrl}${id}/`, form);

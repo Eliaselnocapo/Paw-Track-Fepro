@@ -116,9 +116,19 @@
                 type="text"
                 [(ngModel)]="reporte.nombreCaso"
                 maxlength="60"
-                class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition-all focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+                class="w-full h-12 border bg-slate-50 px-4 text-sm text-slate-900 outline-none transition-all focus:bg-white focus:ring-2"
+                [ngClass]="{
+                  'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.nombreCaso && !nombreCasoValido(),
+                  'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.nombreCaso || nombreCasoValido()
+                }"
                 placeholder="Ej. Perrito herido cerca de CU"
               >
+
+              @if (reporte.nombreCaso && !nombreCasoValido()) {
+                <p class="mt-2 text-xs font-semibold text-red-600">
+                  Escribe un nombre más claro. Ejemplo: “Perrito herido cerca de CU”.
+                </p>
+              }
 
               <p class="mt-2 text-xs text-slate-500">
                 Este nombre aparece en tu dashboard y ayuda a ubicar el caso.
@@ -339,6 +349,7 @@
             <button
             type="button"
             (click)="toggleCondicion('herido')"
+            [disabled]="condicionBloqueada('herido')"
             class="relative flex flex-col p-4 border-2 transition-all text-left hover:shadow-sm"
             [ngClass]="tieneCondicion('herido')
                 ? 'border-red-500 bg-red-50 opacity-100'
@@ -364,6 +375,7 @@
             <button
             type="button"
             (click)="toggleCondicion('callejero')"
+            [disabled]="condicionBloqueada('callejero')"
             class="relative flex flex-col p-4 border-2 transition-all text-left hover:shadow-sm"
             [ngClass]="tieneCondicion('callejero')
                 ? 'border-amber-500 bg-amber-50 opacity-100'
@@ -389,6 +401,7 @@
             <button
             type="button"
             (click)="toggleCondicion('extraviado')"
+            [disabled]="condicionBloqueada('extraviado')"
             class="relative flex flex-col p-4 border-2 transition-all text-left hover:shadow-sm"
             [ngClass]="tieneCondicion('extraviado')
                 ? 'border-blue-600 bg-blue-50 opacity-100'
@@ -420,12 +433,79 @@
                 Edita la descripción original del caso.
               </p>
 
-              <textarea
-                [(ngModel)]="reporte.notasAnimal"
-                rows="5"
-                class="w-full border border-slate-300 bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
-                placeholder="Ej. Es color café, tiene collar azul, parece asustado..."
-              ></textarea>
+            <textarea
+              [(ngModel)]="reporte.notasAnimal"
+              rows="5"
+              class="w-full border bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:ring-2"
+              [ngClass]="{
+                'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.notasAnimal && !descripcionValida(),
+                'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.notasAnimal || descripcionValida()
+              }"
+              placeholder="Ej. Es color café, tiene collar azul, parece asustado..."
+            ></textarea>
+
+            @if (reporte.notasAnimal && !descripcionValida()) {
+              <p class="mt-2 text-xs font-semibold text-red-600">
+                La descripción debe tener al menos 10 caracteres útiles.
+              </p>
+            }
+            </section>
+
+            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Datos de contacto</h2>
+              <p class="text-sm text-slate-500 mb-5">
+                Actualiza la información para que los rescatistas puedan contactarte.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">
+                    Nombre completo
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="reporte.nombreContacto"
+                    class="w-full h-12 border bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:ring-2"
+                    [ngClass]="{
+                      'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.nombreContacto && !nombreContactoValido(),
+                      'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.nombreContacto || nombreContactoValido()
+                    }"
+                    placeholder="Ej. Juan Pérez"
+                  >
+
+                  @if (reporte.nombreContacto && !nombreContactoValido()) {
+                    <p class="mt-2 text-xs font-semibold text-red-600">
+                      El nombre debe contener nombre y apellido, solo letras y espacios.
+                    </p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">
+                    Teléfono móvil
+                  </label>
+
+                  <input
+                    type="tel"
+                    [(ngModel)]="reporte.telefonoContacto"
+                    maxlength="10"
+                    inputmode="numeric"
+                    class="w-full h-12 border bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:ring-2"
+                    [ngClass]="{
+                      'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.telefonoContacto && !telefonoContactoValido(),
+                      'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.telefonoContacto || telefonoContactoValido()
+                    }"
+                    placeholder="Ej. 2221234567"
+                  >
+
+                  @if (reporte.telefonoContacto && !telefonoContactoValido()) {
+                    <p class="mt-2 text-xs font-semibold text-red-600">
+                      El teléfono debe tener exactamente 10 dígitos, sin espacios ni guiones.
+                    </p>
+                  }
+                </div>
+              </div>
             </section>
 
             <!-- Actualizar mapa -->
@@ -566,7 +646,7 @@
               <button
                 type="button"
                 (click)="guardarCambios()"
-                [disabled]="guardando || !hayCambios"
+                [disabled]="guardando || !hayCambios || !formularioValido()"
                 class="w-full h-12 bg-blue-700 text-white font-bold shadow-sm hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 @if (guardando) {
