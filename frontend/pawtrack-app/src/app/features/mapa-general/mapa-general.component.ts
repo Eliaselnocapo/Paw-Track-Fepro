@@ -8,6 +8,8 @@ import { FooterWebComponent } from '../../shared/ui-layouts/footer-views/footer-
 
 import { SentenceCasePipe } from '../../shared/pipes/sentence-case-pipe';
 
+import { environment } from 'src/environments/environment';
+
 declare let L: any;
 
 interface RespuestaIncidencias {
@@ -67,8 +69,8 @@ export class MapaGeneralComponent implements OnInit, AfterViewInit, OnDestroy {
   private mapaCasos: any;
   private capaMarcadores: any;
 
-  private readonly apiIncidenciasUrl = 'http://localhost:8000/api/incidencias/';
 
+  private readonly apiIncidenciasUrl = `${environment.apiUrl}/incidencias/`;
   casosActivos: IncidenciaMapa[] = [];
   cargandoCasos = false;
   errorCasos = '';
@@ -258,7 +260,7 @@ export class MapaGeneralComponent implements OnInit, AfterViewInit, OnDestroy {
     return imagen;
   }
 
-  return `http://localhost:8000${imagen}`;
+  return `${environment.apiUrl}${imagen}`;
 }
 
   private escapeHtml(valor: string): string {

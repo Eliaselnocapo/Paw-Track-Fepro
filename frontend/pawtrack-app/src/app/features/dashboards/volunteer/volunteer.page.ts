@@ -9,6 +9,8 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 
 import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
 
+import { environment } from 'src/environments/environment';
+
 interface CasoVoluntario {
   id: number;
   folio: string;
@@ -185,7 +187,7 @@ export class VolunteerPage implements OnInit {
       return imagen;
     }
 
-    return `http://localhost:8000${imagen}`;
+    return `${environment.apiUrl}${imagen}`;
   }
 
   get casosFiltrados(): CasoVoluntario[] {

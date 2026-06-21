@@ -11,6 +11,9 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../core/services/local-report-cache.service';
 
+import { environment } from 'src/environments/environment';
+
+
 interface ReporterReport {
   id: number;
   folio: string;
@@ -265,7 +268,7 @@ private cargarMisReportesDeCuenta(): void {
       return imagen;
     }
 
-    return `http://localhost:8000${imagen}`;
+    return `${environment.apiUrl}${imagen}`;
   }
 
   urgencyLabel(score: number): string {
