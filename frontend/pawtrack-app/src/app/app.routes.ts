@@ -74,6 +74,13 @@ export const routes: Routes = [
       import('./features/dashboards/volunteer/volunteer.page').then(
         (m) => m.VolunteerPage
       ),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+  },
+  {
+    path: 'mapa',
+    loadComponent: () =>
+      import('./features/mapa-general/mapa-general.component').then(
+        (m) => m.MapaGeneralComponent
+      ),
   },
 ];
