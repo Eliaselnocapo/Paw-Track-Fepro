@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+
+import { AuthService } from '../../../core/services/auth.service';
 
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
@@ -37,9 +39,10 @@ interface CasoVoluntario {
     CommonModule,
     FormsModule,
     RouterLink,
+    IonContent,
+    TitleCasePipe,
     NavbarWebComponent,
-    FooterWebComponent,
-    IonContent
+    FooterWebComponent
   ],
   templateUrl: './volunteer.page.html',
   styleUrls: ['./volunteer.page.scss']
@@ -52,7 +55,11 @@ export class VolunteerPage implements OnInit {
   cargando = true;
   errorCarga: string | null = null;
 
-  constructor(private reportService: ReportService) {}
+  constructor(
+  private reportService: ReportService,
+  private auth: AuthService,
+  private router: Router
+) {}
 
   ngOnInit(): void {
     this.cargarCasos();
@@ -239,15 +246,16 @@ cargarCasos(): void {
   }
 
   aceptarMision(caso: CasoVoluntario): void {
-    this.reportService.actualizarReporte(caso.id, {
-      estado: 'EN_PROCESO'
-    }).subscribe({
-      next: () => {
-        this.cargarCasos();
-      },
-      error: (err) => {
-        console.error('No se pudo aceptar la misión:', err);
-      }
-    });
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: this.router.url
+        }
+      });
+      return;
+    }
+
+    // Si ya tiene sesión iniciada, no hace nada por ahora
+    return;
   }
 }
