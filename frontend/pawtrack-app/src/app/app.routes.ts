@@ -74,7 +74,6 @@ export const routes: Routes = [
       import('./features/dashboards/volunteer/volunteer.page').then(
         (m) => m.VolunteerPage
       ),
-    canActivate: [authGuard],
   },
   {
     path: 'mapa',

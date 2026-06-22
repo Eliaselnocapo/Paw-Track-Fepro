@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
@@ -18,7 +18,11 @@ export class LoginPage {
   cargando = false;
   error = '';
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   onSubmit(): void {
     if (!this.email || !this.password) {
@@ -32,14 +36,24 @@ export class LoginPage {
     this.auth.login(this.email, this.password).subscribe({
       next: (res) => {
         this.cargando = false;
+
         const roles = res.user.roles ?? [];
 
+        const returnUrl =
+          this.route.snapshot.queryParamMap.get('returnUrl') || '/home';
+
         if (roles.length > 1) {
-          this.router.navigate(['/role-selector']);
-        } else {
-          this.auth.setActiveRole(roles[0] ?? 'REPORTERO');
-          this.router.navigate(['/home']);
+          this.router.navigate(['/role-selector'], {
+            queryParams: {
+              returnUrl: returnUrl,
+            },
+          });
+          return;
         }
+
+        this.auth.setActiveRole(roles[0] ?? 'REPORTERO');
+
+        this.router.navigateByUrl(returnUrl);
       },
       error: (err) => {
         this.cargando = false;

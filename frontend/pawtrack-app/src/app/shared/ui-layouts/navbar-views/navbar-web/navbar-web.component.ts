@@ -15,7 +15,7 @@ export class NavbarWebComponent {
   
   private authService = inject(AuthService);
 
-  // 💡 El getter ahora le pregunta directamente a tu excelente servicio
+  // El getter ahora le pregunta directamente a tu excelente servicio
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn(); 
   }
