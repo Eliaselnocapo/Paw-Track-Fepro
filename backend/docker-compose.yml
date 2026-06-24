@@ -8,22 +8,18 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
+    # PUERTOS ELIMINADOS POR SEGURIDAD
       
   redis: 
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    # PUERTOS ELIMINADOS POR SEGURIDAD
   
   # Servicio de la Aplicación Django
-  web:
+  backend:
     build: .
     command: daphne -b 0.0.0.0 -p 8000 pawtrack.asgi:application
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
     environment:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
@@ -38,6 +34,7 @@ services:
     depends_on:
       - db
       - redis
+    # PUERTOS ELIMINADOS POR SEGURIDAD
 
   celery-worker:
     build: .
@@ -74,6 +71,18 @@ services:
     depends_on:
       - db
       - redis
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80" # EL ÚNICO PUERTO EXPUESTO AL MUNDO
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/pawtrack-app/www:/usr/share/nginx/html:ro
+      - ./staticfiles:/opt/pawtrack/staticfiles:ro
+      - ./media:/opt/pawtrack/media:ro
+    depends_on:
+      - backend    
 
 volumes:
   postgres_data:

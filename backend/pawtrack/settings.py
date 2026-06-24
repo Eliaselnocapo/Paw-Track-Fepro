@@ -9,12 +9,14 @@ from celery.schedules import crontab
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4_wjky+xcs*sn#jxg^n2r2^m5shnxq@%2^11puiy#2al36)4nw'
+# Lee la llave del .env, si no hay (en local), usa una por defecto
+SECRET_KEY = os.environ.get('SECRET_KEY', 'clave-insegura-de-desarrollo')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Solo será True si en el .env dice explícitamente "True"
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+# Lee las IPs permitidas separadas por comas desde el .env
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -103,6 +105,7 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # <-- ¡AGREGA ESTA LÍNEA!
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ASGI / Channels
@@ -177,6 +180,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8100",   # Ionic serve
     "http://localhost:4200",   # Angular CLI serve
     "http://0.0.0.0:8100",
+    "http://13.59.118.210",    # <-- NUEVA IP DE PRODUCCIÓN
 ]
 
 CORS_ALLOW_METHODS = [
