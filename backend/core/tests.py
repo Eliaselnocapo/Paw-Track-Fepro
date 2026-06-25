@@ -3,6 +3,7 @@ from django.test import TestCase
 from unittest.mock import patch
 from rest_framework.test import APIRequestFactory
 from django.contrib.gis.geos import Point
+from rest_framework import status
 
 from core.zona import compute_zona_key
 from core.permissions import IsRescatista, IsAuthorOrRescatistaAsignado
@@ -99,3 +100,24 @@ class PermissionsTests(TestCase):
             perm.has_object_permission(req_resc, None, self.incidencia),
             "El rescatista asignado DEBE poder editar el caso"
         )
+
+class ExceptionHandlerTests(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+
+    def test_global_exception_handler_json_format(self):
+        """Valida que los errores devuelvan JSON con la estructura {code, detail, field_errors}."""
+        # Forzamos un error de acceso a un endpoint (sin autenticación)
+        request = self.factory.patch('/api/incidencias/1/')
+
+        # Aquí llamaríamos a la vista directamente o usaríamos un cliente de test
+        # Para simplificar, verificamos que la respuesta del handler sea consistente
+        from core.exceptions import pawtrack_exception_handler
+        from rest_framework.exceptions import PermissionDenied
+        
+        response = pawtrack_exception_handler(PermissionDenied("Acceso denegado"), None)
+        
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('code', response.data)
+        self.assertIn('detail', response.data)
+        self.assertIn('field_errors', response.data)
