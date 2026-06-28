@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import PermissionDenied, AuthenticationFailed, ValidationError, NotFound
 from django.contrib.auth import authenticate
 import os
 
@@ -37,22 +38,13 @@ class LoginView(APIView):
         password = request.data.get('password', '')
 
         if not email or not password:
-            return Response(
-                {'detail': 'Se requieren email y contraseña.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise ValidationError("Se requieren email y contraseña.")
 
         user = authenticate(request, email=email, password=password)
         if user is None:
-            return Response(
-                {'non_field_errors': ['Credenciales incorrectas.']},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise AuthenticationFailed("Credenciales incorrectas.")
         if not user.is_active:
-            return Response(
-                {'non_field_errors': ['Esta cuenta está desactivada.']},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+                raise AuthenticationFailed("Esta cuenta está desactivada.")
 
         return Response(_jwt_response(user), status=status.HTTP_200_OK)
 
@@ -73,17 +65,17 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         usuario = self.get_object()
             
         if usuario.id != request.user.id:
-            return Response({'code': 'not_owner', 'detail': 'No puedes modificar roles de otro usuario.', 'field_errors': {}}, status=403)
-                
+             raise PermissionDenied("No puedes modificar roles de otro usuario.")
+                           
         nuevos = request.data.get('roles', [])
             
         if 'PATROCINADOR' in nuevos and not request.user.is_staff:
-            return Response({'code': 'role_requires_approval', 'detail': 'El rol PATROCINADOR requiere verificación.', 'field_errors': {}}, status=403)
-                
+                    raise PermissionDenied("El rol PATROCINADOR requiere verificación.")
+                            
         roles_actuales = usuario.roles or []
         for rol in nuevos:
             if rol not in ['REPORTERO', 'RESCATISTA', 'PATROCINADOR']:
-                return Response({'code': 'validation_error', 'detail': f'Rol inválido: {rol}', 'field_errors': {}}, status=400)
+                raise ValidationError(f"Rol inválido: {rol}")
             if rol not in roles_actuales:
                 roles_actuales.append(rol)
                     
@@ -146,14 +138,9 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
                 'otros':       data.get('notas_animal', ''),
             }
             animal_serializer = AnimalSerializer(data=animal_data)
-            if animal_serializer.is_valid():
-                animal = animal_serializer.save()
-                data['animal'] = animal.id
-            else:
-                return Response(
-                    {'animal_error': animal_serializer.errors},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            animal_serializer.is_valid(raise_exception=True)
+            animal = animal_serializer.save()
+            data['animal'] = animal.id
 
         if imagen:
             data['imagen'] = imagen
@@ -249,7 +236,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         try:
             instance = Incidencia.objects.get(folio=folio)
         except Incidencia.DoesNotExist:
-            return Response({'detail': 'Reporte no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+            raise NotFound("Reporte no encontrado.")
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -258,7 +245,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         try:
             inc = Incidencia.objects.select_related('animal', 'rescatista_asignado').get(folio=folio)
         except Incidencia.DoesNotExist:
-            return Response({'code': 'not_found', 'detail': 'Reporte no encontrado.', 'field_errors': {}}, status=404)
+            raise NotFound("Reporte no encontrado.")
                 
         return Response({
                 'folio': inc.folio,

@@ -3,6 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 
 from bd.views import AnimalViewSet, IncidenciaViewSet, UsuarioViewSet, GoogleLogin, LoginView
 
@@ -39,3 +40,13 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+def pawtrack_404_handler(request, exception=None):
+    """Handler global para devolver JSON en lugar de HTML cuando una ruta no existe."""
+    return JsonResponse({
+        "code": "not_found",
+        "detail": "El recurso o endpoint solicitado no existe.",
+        "field_errors": {}
+    }, status=404)
+
+handler404 = 'pawtrack.urls.pawtrack_404_handler'
