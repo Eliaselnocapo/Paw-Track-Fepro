@@ -1,14 +1,17 @@
 import os
 
-from django.core.asgi import get_asgi_application
-from channels.routing import ProtocolTypeRouter, URLRouter
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pawtrack.settings")
 
-# Importar después de configurar DJANGO_SETTINGS_MODULE
-from notificaciones.routing import websocket_urlpatterns  # noqa: E402
+# get_asgi_application() inicializa el app registry de Django.
+# Las importaciones de routing deben ir DESPUÉS de esta llamada.
+from django.core.asgi import get_asgi_application
+django_asgi_app = get_asgi_application()
+
+from channels.routing import ProtocolTypeRouter, URLRouter
+from notificaciones.routing import websocket_urlpatterns as notif_patterns
+from rescates.routing import websocket_urlpatterns as rescate_patterns
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": URLRouter(websocket_urlpatterns),
+    "http": django_asgi_app,
+    "websocket": URLRouter(notif_patterns + rescate_patterns),
 })

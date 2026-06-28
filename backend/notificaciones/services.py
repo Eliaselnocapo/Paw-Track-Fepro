@@ -43,6 +43,10 @@ def broadcast_status_changed(incidencia):
     })
 
 
+def broadcast_rescate_update(rescate_id: int, event: dict):
+    async_to_sync(_layer.group_send)(f"rescate_{rescate_id}", event)
+
+
 def broadcast_urgency_update(incidencia_id: int, zona_key: str, nuevo_score: float):
     notify_zona(zona_key, {
         "type": "urgency_update",
