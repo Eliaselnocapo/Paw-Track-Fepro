@@ -1,19 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 
-import { AuthService } from '../../../core/services/auth.service';
+import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
-import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
-import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
-
-import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
-
+import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from 'src/environments/environment';
 
-interface CasoVoluntario {
+interface DetalleCasoVoluntario {
   id: number;
   folio: string;
   titulo: string;
@@ -29,54 +26,55 @@ interface CasoVoluntario {
   especie: 'Perro' | 'Gato' | 'Otro';
   fotoUrl: string;
   estado: string;
+  latitud: number | null;
+  longitud: number | null;
   raw: IncidenciaResponse;
 }
 
 @Component({
-  selector: 'app-volunteer',
+  selector: 'app-details-case',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     RouterLink,
     IonContent,
     TitleCasePipe,
     NavbarWebComponent,
     FooterWebComponent
   ],
-  templateUrl: './volunteer.page.html',
-  styleUrls: ['./volunteer.page.scss']
+  templateUrl: './details-case.page.html',
+  styleUrls: ['./details-case.page.scss']
 })
-export class VolunteerPage implements OnInit {
-  searchTerm: string = '';
-  filtroActivo: string = 'Todos';
-  vistaCasos: 'disponibles' | 'urgentes' | 'aceptados' = 'disponibles';
-
-  casosPorPagina = 5;
-  paginaActualCasos = 1;
-
-  casos: CasoVoluntario[] = [];
+export class DetailsCasePage implements OnInit {
+  caso: DetalleCasoVoluntario | null = null;
   cargando = true;
   errorCarga: string | null = null;
 
   constructor(
-  private reportService: ReportService,
-  private auth: AuthService,
-  private router: Router
-) {}
+    private route: ActivatedRoute,
+    private router: Router,
+    private reportService: ReportService,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.cargarCasos();
+    this.cargarCaso();
   }
 
-cargarCasos(): void {
+cargarCaso(): void {
+  const folio = this.route.snapshot.paramMap.get('folio');
+
+  if (!folio) {
+    this.errorCarga = 'No se encontró el folio del caso.';
+    this.cargando = false;
+    return;
+  }
+
   this.cargando = true;
   this.errorCarga = null;
 
   this.reportService.listarReportes().subscribe({
     next: (resp: any) => {
-      console.log('CASOS PARA VOLUNTARIO:', resp);
-
       const incidencias: IncidenciaResponse[] = Array.isArray(resp)
         ? resp
         : Array.isArray(resp.results)
@@ -87,28 +85,49 @@ cargarCasos(): void {
               ? resp.incidencias
               : [];
 
-      this.casos = incidencias
-        .filter((incidencia) => this.esCasoVisibleParaVoluntario(incidencia))
-        .map((incidencia) => this.mapearCaso(incidencia));
+      const incidencia = incidencias.find(item =>
+        item.folio === folio || `RPT-${item.id}` === folio
+      );
 
+      if (!incidencia) {
+        this.errorCarga = 'No se encontró el caso solicitado.';
+        this.caso = null;
+        this.cargando = false;
+        return;
+      }
+
+      this.caso = this.mapearCaso(incidencia);
       this.cargando = false;
     },
     error: (err) => {
-      console.error('ERROR CARGANDO CASOS:', err);
-      this.errorCarga = 'No se pudieron cargar los casos disponibles.';
-      this.casos = [];
+      console.error('ERROR CARGANDO DETALLE DEL CASO:', err);
+      this.errorCarga = 'No se pudo cargar la información del caso.';
+      this.caso = null;
       this.cargando = false;
     }
   });
 }
 
-  private esCasoVisibleParaVoluntario(incidencia: IncidenciaResponse): boolean {
-    const estado = incidencia.estado || 'PENDIENTE';
+  aceptarMision(): void {
+    if (!this.caso) return;
 
-    return estado !== 'CERRADO' && estado !== 'COMPLETADO';
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: this.router.url
+        }
+      });
+      return;
+    }
+
+    this.router.navigate(['/accept-case', this.caso.folio]);
   }
 
-  private mapearCaso(incidencia: IncidenciaResponse): CasoVoluntario {
+  volver(): void {
+    this.router.navigate(['/dashboard/volunteer']);
+  }
+
+  private mapearCaso(incidencia: IncidenciaResponse): DetalleCasoVoluntario {
     return {
       id: incidencia.id,
       folio: incidencia.folio || `RPT-${incidencia.id}`,
@@ -125,6 +144,8 @@ cargarCasos(): void {
       especie: this.obtenerEspecie(incidencia.tipo_animal),
       fotoUrl: this.imagenUrl(incidencia.imagen),
       estado: incidencia.estado || 'PENDIENTE',
+      latitud: incidencia.lat_out ?? null,
+      longitud: incidencia.lng_out ?? null,
       raw: incidencia
     };
   }
@@ -144,14 +165,10 @@ cargarCasos(): void {
     const notas = incidencia.notas_animal?.trim();
 
     if (!notas) {
-      return 'Sin notas adicionales.';
+      return 'Sin notas adicionales registradas por el reportante.';
     }
 
-    const limite = 110;
-
-    return notas.length > limite
-      ? `${notas.slice(0, limite).trim()}...`
-      : notas;
+    return notas;
   }
 
   private obtenerUbicacionCaso(incidencia: IncidenciaResponse): string {
@@ -213,94 +230,22 @@ cargarCasos(): void {
     return `${environment.apiUrl}${imagen}`;
   }
 
-  get casosFiltrados(): CasoVoluntario[] {
-    let filtrados = this.casos;
+  get prioridadClase(): string {
+    if (!this.caso) return 'bg-slate-100 text-slate-700 border-slate-200';
 
-    if (this.filtroActivo !== 'Todos') {
-      filtrados = filtrados.filter(c => c.prioridad === this.filtroActivo);
+    if (this.caso.prioridad === 'Urgente') {
+      return 'bg-red-100 text-red-700 border-red-200';
     }
 
-    if (this.searchTerm.trim() !== '') {
-      const term = this.searchTerm.toLowerCase();
-
-      filtrados = filtrados.filter(c =>
-        c.titulo.toLowerCase().includes(term) ||
-        c.ubicacion.toLowerCase().includes(term) ||
-        c.descripcion.toLowerCase().includes(term) ||
-        c.especie.toLowerCase().includes(term) ||
-        c.tamano.toLowerCase().includes(term) ||
-        c.condicion.toLowerCase().includes(term) ||
-        c.contactoNombre.toLowerCase().includes(term) ||
-        c.contactoTelefono.toLowerCase().includes(term) ||
-        c.folio.toLowerCase().includes(term)
-      );
+    if (this.caso.prioridad === 'Alta') {
+      return 'bg-orange-100 text-orange-700 border-orange-200';
     }
 
-    return filtrados;
-  }
-  get casosPorVista(): CasoVoluntario[] {
-    return this.casosFiltrados;
+    return 'bg-blue-100 text-blue-700 border-blue-200';
   }
 
-  get totalPaginasCasos(): number {
-    return Math.ceil(this.casosPorVista.length / this.casosPorPagina);
+  get estadoLegible(): string {
+    if (!this.caso?.estado) return 'Pendiente';
+    return this.caso.estado.replace(/_/g, ' ').toLowerCase();
   }
-
-  get casosPaginados(): CasoVoluntario[] {
-    const inicio = (this.paginaActualCasos - 1) * this.casosPorPagina;
-    const fin = inicio + this.casosPorPagina;
-
-    return this.casosPorVista.slice(inicio, fin);
-  }
-
-  get inicioPaginaCasos(): number {
-    if (this.casosPorVista.length === 0) return 0;
-
-    return (this.paginaActualCasos - 1) * this.casosPorPagina + 1;
-  }
-
-  get finPaginaCasos(): number {
-    const fin = this.paginaActualCasos * this.casosPorPagina;
-
-    return Math.min(fin, this.casosPorVista.length);
-  }
-
-  get paginasCasos(): number[] {
-    return Array.from(
-      { length: this.totalPaginasCasos },
-      (_, index) => index + 1
-    );
-  }
-
-  cambiarPaginaCasos(pagina: number): void {
-    if (pagina < 1 || pagina > this.totalPaginasCasos) return;
-
-    this.paginaActualCasos = pagina;
-  }
-
-  get alertasCercanas(): CasoVoluntario[] {
-  return this.casos
-    .filter(caso => caso.prioridad === 'Urgente' || caso.prioridad === 'Alta')
-    .slice(0, 2);
-  }
-
-  setFiltro(filtro: string): void {
-    this.filtroActivo = filtro;
-  }
-
-  aceptarMision(caso: CasoVoluntario): void {
-    if (!this.auth.isLoggedIn()) {
-      this.router.navigate(['/login'], {
-        queryParams: {
-          returnUrl: this.router.url
-        }
-      });
-      return;
-    }
-    this.router.navigate(['/accept-case', caso.folio]);
-  }
-  verDetalles(caso: CasoVoluntario): void {
-  this.router.navigate(['/details-case', caso.folio]);
-  }
-
 }

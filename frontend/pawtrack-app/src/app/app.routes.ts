@@ -15,14 +15,14 @@ export const routes: Routes = [
   {
     path: 'reports/create-report',
     loadComponent: () =>
-      import('./features/reports/create-report/create-report.page').then(
+      import('./features/reports/reporter-actions/create-report/create-report.page').then(
         (m) => m.CreateReportPage
       ),
   },
   {
     path: 'view-report/:folio',
     loadComponent: () =>
-      import('./features/reports/view-report/view-report.page').then(
+      import('./features/reports/reporter-actions/view-report/view-report.page').then(
         (m) => m.ViewReportComponent
       ),
   },
@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     path: 'reports/:folio/update',
     loadComponent: () =>
-      import('./features/reports/update-report/update-report.page').then(
+      import('./features/reports/reporter-actions/update-report/update-report.page').then(
         (m) => m.UpdateReportPage
       ),
   },
@@ -40,14 +40,14 @@ export const routes: Routes = [
   {
     path: 'reports/:folio/follow-up',
     loadComponent: () =>
-      import('./features/reports/follow-up-report/follow-up-report.page').then(
+      import('./features/reports/reporter-actions/follow-up-report/follow-up-report.page').then(
         (m) => m.FollowUpReportPage
       ),
   },
   {
     path: 'profile',
     loadComponent: () =>
-      import('./features/profile/profile.page').then((m) => m.ProfilePage),
+      import('./features/profile/profile-page/profile.page').then((m) => m.ProfilePage),
   },
   {
     path: 'login',
@@ -81,5 +81,37 @@ export const routes: Routes = [
       import('./features/mapa-general/mapa-general.component').then(
         (m) => m.MapaGeneralComponent
       ),
+  },
+  {
+    path: 'accepted-cases',
+    loadComponent: () => import('./features/reports/volunteer-actions/accepted-cases/accepted-cases.page').then( m => m.AcceptedCasesPage)
+  },
+  {
+    path: 'accept-case/:folio',
+    loadComponent: () => import('./features/reports/volunteer-actions/accept-case/accept-case.page').then( m => m.AcceptCasePage)
+  },
+  {
+    path: 'cronology-case/:folio',
+    loadComponent: () => import('./features/reports/volunteer-actions/cronology-case/cronology-case.page').then( m => m.CronologyCasePage)
+  },
+  {
+    path: 'details-case/:folio',
+    loadComponent: () => import('./features/reports/volunteer-actions/details-case/details-case.page').then( m => m.DetailsCasePage)
+  },
+  {
+    path: 'details-case-accepted/:folio',
+    loadComponent: () => import('./features/reports/volunteer-actions/details-case-accepted/details-case-accepted.page').then( m => m.DetailsCaseAcceptedPage)
+  },
+  {
+    path: 'progress-case/:folio',
+    loadComponent: () => import('./features/reports/volunteer-actions/progress-case/progress-case.page').then( m => m.ProgressCasePage)
+  },
+  {
+    path: 'update-case/:folio/update',
+    loadComponent: () => import('./features/reports/volunteer-actions/update-case/update-case.page').then( m => m.UpdateCasePage)
+  },
+  {
+    path: 'dashboard/reports/history',
+    loadComponent: () => import('./features/reports/reporter-actions/reports-history/reports-history.page').then( m => m.ReportsHistory)
   },
 ];

@@ -3,11 +3,11 @@ import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 
-import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
-import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
-import { LocalReportCacheService } from '../../../core/services/local-report-cache.service';
-import { environment } from '../../../../environments/environment';
+import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
+import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
+import { environment } from '../../../../../environments/environment';
 
 declare const L: any;
 

@@ -22,12 +22,8 @@
         <div class="w-16 h-16 bg-red-50 text-red-600 border border-red-100 flex items-center justify-center">
           <span class="material-symbols-outlined text-[40px]">cloud_off</span>
         </div>
-
         <p class="text-slate-600 text-center">{{ error }}</p>
-
-        <button
-          (click)="regresar()"
-          class="text-blue-700 font-bold hover:underline">
+        <button (click)="regresar()" class="text-blue-700 font-bold hover:underline">
           Volver
         </button>
       </main>
@@ -42,17 +38,12 @@
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
             <div class="flex items-start gap-4">
-              <button
-                (click)="regresar()"
-                class="w-11 h-11 border border-slate-200 bg-white text-slate-500 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-100 transition-colors flex items-center justify-center shrink-0">
+              <button (click)="regresar()" class="w-11 h-11 border border-slate-200 bg-white text-slate-500 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-100 transition-colors flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined">arrow_back</span>
               </button>
 
               <div>
-                <p class="text-blue-700 font-bold text-sm mb-2">
-                  Detalle del reporte
-                </p>
-
+                <p class="text-blue-700 font-bold text-sm mb-2">Detalle del reporte</p>
                 <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
                   {{ reporte.nombre_caso || ('Caso ' + (reporte.folio ?? '#' + reporte.id)) }}
                 </h1>
@@ -61,13 +52,10 @@
                   <span class="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-bold">
                     {{ reporte.folio ?? '#' + reporte.id }}
                   </span>
-
-                  <span
-                    [class]="urgencyClass(reporte.urgency_score) + ' px-3 py-1 text-xs uppercase tracking-wider font-bold border flex items-center gap-1'">
+                  <span [class]="urgencyClass(reporte.urgency_score) + ' px-3 py-1 text-xs uppercase tracking-wider font-bold border flex items-center gap-1'">
                     <span class="material-symbols-outlined text-[14px]">warning</span>
                     {{ urgencyLabel(reporte.urgency_score) }}
                   </span>
-
                   <span class="bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 text-xs font-bold">
                     {{ reporte.estado || 'PENDIENTE' }}
                   </span>
@@ -77,17 +65,12 @@
 
             <div class="flex flex-col sm:flex-row gap-3">
               @if (puedeEditar()) {
-                <button
-                  [routerLink]="['/reports', reporte.folio ?? reporte.id, 'update']"
-                  class="h-12 px-6 bg-blue-700 text-white font-bold shadow-sm hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
+                <button [routerLink]="['/reports', reporte.folio ?? reporte.id, 'update']" class="h-12 px-6 bg-blue-700 text-white font-bold shadow-sm hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
                   <span class="material-symbols-outlined">add_comment</span>
                   Agregar seguimiento
                 </button>
               }
-
-              <button
-                type="button"
-                class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
+              <button type="button" class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
                 <span class="material-symbols-outlined">support_agent</span>
                 Contactar voluntario
               </button>
@@ -105,13 +88,8 @@
             <section class="bg-white border border-slate-300 shadow-sm overflow-hidden relative">
               @if (imagenUrl(reporte.imagen)) {
                 <div class="relative w-full bg-slate-200 overflow-hidden">
-                  <img
-                    [src]="imagenUrl(reporte.imagen)"
-                    alt="Evidencia del reporte"
-                    class="w-full h-auto object-cover max-h-[470px] transition-transform duration-700 hover:scale-[1.02]" />
-
+                  <img [src]="imagenUrl(reporte.imagen)" alt="Evidencia del reporte" class="w-full h-auto object-cover max-h-[470px] transition-transform duration-700 hover:scale-[1.02]" />
                   <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
-
                   <div class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm border border-white/60 px-3 py-2 flex items-center gap-2 text-slate-800 text-xs font-bold shadow-md">
                     <span class="material-symbols-outlined text-[16px] text-blue-700">schedule</span>
                     Reportado {{ tiempoTranscurrido(reporte.created_at) }}
@@ -125,142 +103,88 @@
               }
             </section>
 
-            <!-- DATOS PRINCIPALES -->
+            <!-- DATOS PRINCIPALES Y SEGUIMIENTO (AQUÍ SE MUESTRA LO DEL FOLLOW-UP) -->
             <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
               <article class="bg-white border border-slate-300 shadow-sm p-5">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                  Animal
-                </p>
-
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Animal</p>
                 <div class="flex items-center gap-3">
                   <div class="w-12 h-12 bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
                     <span class="material-symbols-outlined text-[30px]">pets</span>
                   </div>
-
                   <div>
-                    <p class="text-lg font-bold text-slate-900 capitalize">
-                      {{ reporte.tipo_animal || 'Sin especificar' }}
-                    </p>
-                    <p class="text-sm text-slate-500 capitalize">
-                      Tamaño {{ reporte.tamano_animal || '—' }}
-                    </p>
+                    <p class="text-lg font-bold text-slate-900 capitalize">{{ reporte.tipo_animal || 'Sin especificar' }}</p>
+                    <p class="text-sm text-slate-500 capitalize">Tamaño {{ reporte.tamano_animal || '—' }}</p>
                   </div>
                 </div>
               </article>
 
               <article class="bg-white border border-slate-300 shadow-sm p-5 md:col-span-2">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                  Condición principal
-                </p>
-
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Detalles y Seguimiento</p>
                 <div class="flex items-start gap-3">
                   <div class="w-12 h-12 bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shrink-0">
                     <span class="material-symbols-outlined text-[30px]">healing</span>
                   </div>
-
-                  <div>
+                  <div class="w-full">
                     <p class="text-lg font-bold text-red-600 uppercase">
-                      {{ reporte.condicion_animal || 'No especificada' }}
+                      {{ reporte.condicion_animal || 'Condición original no especificada' }}
                     </p>
-
-                    <p class="text-sm text-slate-600 leading-relaxed mt-1 whitespace-pre-line">
-                      {{ reporte.caracteristicas || reporte.notas_animal || 'Sin observaciones adicionales.' }}
-                    </p>
+                    <!-- EL WHITESPACE-PRE-LINE HACE LA MAGIA PARA QUE SE VEAN LOS SALTOS DE LÍNEA DEL FOLLOW UP -->
+                    <div class="text-sm text-slate-600 leading-relaxed mt-2 whitespace-pre-line bg-slate-50 p-3 border border-slate-100 rounded-sm">
+                      {{ reporte.caracteristicas || reporte.notas_animal || 'Sin observaciones de seguimiento adicionales.' }}
+                    </div>
                   </div>
                 </div>
               </article>
-
             </section>
 
-            <!-- INFORMACIÓN ADICIONAL -->
+            <!-- INFORMACIÓN ADICIONAL (LIMPIA DE BASURA) -->
             <section class="bg-white border border-slate-300 shadow-sm p-6">
               <div class="flex items-center justify-between gap-4 mb-5">
                 <div>
-                  <h2 class="text-xl font-bold text-slate-900">
-                    Información adicional
-                  </h2>
-                  <p class="text-sm text-slate-500 mt-1">
-                    Datos completos capturados al crear el reporte.
-                  </p>
+                  <h2 class="text-xl font-bold text-slate-900">Información del incidente</h2>
+                  <p class="text-sm text-slate-500 mt-1">Datos base capturados al crear el reporte.</p>
                 </div>
-
                 <div class="w-11 h-11 bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
                   <span class="material-symbols-outlined">assignment</span>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                 <div class="bg-slate-50 border border-slate-200 p-4">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Nombre del caso
-                  </p>
-                  <p class="text-sm font-bold text-slate-900">
-                    {{ reporte.nombre_caso || 'Sin nombre registrado' }}
-                  </p>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Nombre del caso</p>
+                  <p class="text-sm font-bold text-slate-900">{{ reporte.nombre_caso || 'Sin nombre registrado' }}</p>
                 </div>
 
                 <div class="bg-slate-50 border border-slate-200 p-4">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Tipo de incidencia
-                  </p>
-                  <p class="text-sm font-bold text-slate-900 capitalize">
-                    {{ reporte.tipo_incidencia || 'No especificado' }}
-                  </p>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de incidencia</p>
+                  <p class="text-sm font-bold text-slate-900 capitalize">{{ reporte.tipo_incidencia || 'No especificado' }}</p>
                 </div>
 
                 <div class="bg-slate-50 border border-slate-200 p-4">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Edad estimada
-                  </p>
-                  <p class="text-sm font-bold text-slate-900">
-                    {{ reporte.edad_estimada || 'No registrada' }}
-                  </p>
-                </div>
-
-                <div class="bg-slate-50 border border-slate-200 p-4">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Peso estimado
-                  </p>
-                  <p class="text-sm font-bold text-slate-900">
-                    {{ reporte.peso_estimado || 'No registrado' }}
-                  </p>
-                </div>
-
-                <div class="bg-slate-50 border border-slate-200 p-4">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Nivel de urgencia
-                  </p>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Nivel de urgencia actual</p>
                   <p class="text-sm font-bold" [class]="urgencyTextClass(reporte.urgency_score)">
-                    {{ urgencyLabel(reporte.urgency_score) }} · {{ reporte.urgency_score }}%
+                    {{ urgencyLabel(reporte.urgency_score) }} · {{ reporte.urgency_score || 0 }}%
                   </p>
                 </div>
 
                 <div class="bg-slate-50 border border-slate-200 p-4">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Confianza del reporte
-                  </p>
-                  <p class="text-sm font-bold text-slate-900">
-                    {{ reporte.trust_score || 0 }}%
-                  </p>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Confianza del reporte</p>
+                  <p class="text-sm font-bold text-slate-900">{{ reporte.trust_score || 0 }}%</p>
                 </div>
 
+                <!-- Las notas originales solas, tomando todo el ancho -->
                 <div class="md:col-span-2 bg-slate-50 border border-slate-200 p-4">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Notas originales del reporte
-                  </p>
-                  <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                    {{ reporte.notas_animal || 'Sin notas originales.' }}
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas originales del reporte</p>
+                  <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line border-l-4 border-slate-300 pl-3">
+                    {{ reporte.notas_animal || 'El usuario no dejó notas descriptivas al crear el reporte inicial.' }}
                   </p>
                 </div>
-
               </div>
             </section>
 
           </div>
 
-          <!-- COLUMNA DERECHA -->
+          <!-- COLUMNA DERECHA (ASIDE SE QUEDA IGUAL) -->
           <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
 
             <!-- MAPA -->
@@ -271,48 +195,27 @@
                   Ubicación
                 </h3>
               </div>
-
               <div class="h-[230px] w-full relative bg-slate-200">
                 <div id="mapa-reporte-web" class="w-full h-full z-10"></div>
               </div>
-
               <div class="p-5">
-                <p class="text-sm font-bold text-slate-900">
-                  Lat {{ reporte.lat_out | number:'1.4-4' }},
-                  Lng {{ reporte.lng_out | number:'1.4-4' }}
-                </p>
-                <p class="text-xs text-slate-500 mt-1">
-                  Coordenadas GPS registradas en el reporte.
-                </p>
+                <p class="text-sm font-bold text-slate-900">Lat {{ reporte.lat_out | number:'1.4-4' }}, Lng {{ reporte.lng_out | number:'1.4-4' }}</p>
+                <p class="text-xs text-slate-500 mt-1">Coordenadas GPS registradas en el reporte.</p>
               </div>
             </section>
 
             <!-- RESUMEN RÁPIDO -->
             <section class="bg-white border border-slate-300 shadow-sm p-5">
-              <h3 class="text-lg font-bold text-slate-900 mb-4">
-                Resumen rápido
-              </h3>
-
+              <h3 class="text-lg font-bold text-slate-900 mb-4">Resumen rápido</h3>
               <div class="grid grid-cols-2 gap-3">
-
                 <div class="bg-blue-50 border border-blue-100 p-4">
-                  <p class="text-2xl font-bold text-blue-700">
-                    {{ reporte.urgency_score || 0 }}
-                  </p>
-                  <p class="text-xs font-bold text-slate-500">
-                    Urgencia
-                  </p>
+                  <p class="text-2xl font-bold text-blue-700">{{ reporte.urgency_score || 0 }}</p>
+                  <p class="text-xs font-bold text-slate-500">Urgencia</p>
                 </div>
-
                 <div class="bg-emerald-50 border border-emerald-100 p-4">
-                  <p class="text-2xl font-bold text-emerald-700">
-                    {{ reporte.trust_score || 0 }}
-                  </p>
-                  <p class="text-xs font-bold text-slate-500">
-                    Confianza
-                  </p>
+                  <p class="text-2xl font-bold text-emerald-700">{{ reporte.trust_score || 0 }}</p>
+                  <p class="text-xs font-bold text-slate-500">Confianza</p>
                 </div>
-
               </div>
             </section>
 
@@ -322,29 +225,20 @@
                 <span class="material-symbols-outlined text-blue-700">history</span>
                 Historial del caso
               </h3>
-
               <div class="flex flex-col relative before:absolute before:inset-0 before:ml-[11px] before:h-full before:w-0.5 before:bg-slate-200 pl-8">
-
+                
                 <!-- Estado actual -->
                 <div class="relative flex flex-col mb-6 last:mb-0">
                   <div class="absolute -left-8 top-1 w-6 h-6 border-[3px] border-white bg-blue-700 shadow-md z-10">
                     <div class="absolute inset-0 animate-ping bg-blue-700/30"></div>
                   </div>
-
-                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
-                    Ahora
-                  </p>
-
-                  <p class="text-sm font-bold text-slate-900">
-                    Estado: {{ reporte.estado || 'PENDIENTE' }}
-                  </p>
-
-                  <p class="text-xs text-slate-500 mt-1">
-                    Tipo: {{ reporte.tipo_incidencia || 'Sin tipo registrado' }}
-                  </p>
+                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Ahora</p>
+                  <p class="text-sm font-bold text-slate-900">Estado: {{ reporte.estado || 'PENDIENTE' }}</p>
+                  <p class="text-xs text-slate-500 mt-1">Tipo: {{ reporte.tipo_incidencia || 'Sin tipo registrado' }}</p>
 
                   @if (reporte.caracteristicas) {
                     <div class="mt-3 bg-slate-50 border border-slate-200 p-3">
+                      <!-- Aquí también se aprovecha el string armado del follow-up -->
                       <p class="text-xs text-slate-600 whitespace-pre-line leading-relaxed">
                         {{ reporte.caracteristicas }}
                       </p>
@@ -355,40 +249,14 @@
                 <!-- Creación -->
                 <div class="relative flex flex-col mb-6 last:mb-0">
                   <div class="absolute -left-8 top-1 w-6 h-6 border-[3px] border-white bg-slate-300 z-10"></div>
-
-                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
-                    Inicio
-                  </p>
-
-                  <p class="text-sm font-bold text-slate-700">
-                    Reporte creado
-                  </p>
-
-                  <p class="text-xs text-slate-500 mt-1">
-                    {{ reporte.created_at | date:'dd/MM/yyyy HH:mm' }}
-                  </p>
-                </div>
-
-              </div>
-            </section>
-
-            <!-- AVISO -->
-            <section class="bg-blue-700 text-white shadow-sm p-5">
-              <div class="flex items-start gap-3">
-                <span class="material-symbols-outlined mt-0.5">info</span>
-
-                <div>
-                  <h3 class="font-bold mb-2">Seguimiento del caso</h3>
-                  <p class="text-sm text-blue-50 leading-relaxed">
-                    Usa “Agregar seguimiento” solo si tienes nueva información del animal,
-                    cambió su ubicación o su estado empeoró.
-                  </p>
+                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Inicio</p>
+                  <p class="text-sm font-bold text-slate-700">Reporte creado</p>
+                  <p class="text-xs text-slate-500 mt-1">{{ reporte.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
                 </div>
               </div>
             </section>
 
           </aside>
-
         </section>
       </main>
     }

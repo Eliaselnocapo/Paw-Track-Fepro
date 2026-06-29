@@ -1,0 +1,597 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+    <!-- FONDO SUAVE, SIN SATURAR -->
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute left-[-170px] top-[140px] w-[430px] h-[430px] bg-blue-100 rounded-full opacity-80"></div>
+      <div class="absolute right-[-220px] top-[430px] w-[520px] h-[520px] bg-emerald-100 rounded-full opacity-65"></div>
+      <div class="absolute left-[48%] top-[210px] w-16 h-16 bg-cyan-200/70 rounded-full"></div>
+    </div>
+
+    @if (cargando) {
+      <main class="flex-grow w-full max-w-[1120px] mx-auto px-4 md:px-8 py-8 relative z-10">
+        <section class="bg-white border border-slate-200 shadow-md p-8 text-center text-slate-500 font-semibold">
+          Cargando perfil...
+        </section>
+      </main>
+    } @else if (error) {
+      <main class="flex-grow w-full max-w-[1120px] mx-auto px-4 md:px-8 py-8 relative z-10">
+        <section class="bg-white border border-red-200 shadow-md p-8 text-center text-red-600 font-semibold">
+          {{ error }}
+        </section>
+      </main>
+    } @else {
+
+      <main class="flex-grow w-full max-w-[1120px] mx-auto px-4 md:px-8 py-8 md:py-10 relative z-10 flex flex-col gap-6">
+
+        <!-- PERFIL PERSONAL -->
+        <section class="bg-white border border-slate-200 shadow-md overflow-hidden">
+
+          <!-- BANNER SUPERIOR -->
+          <div class="relative h-36 md:h-40 bg-blue-50 border-b border-blue-100 overflow-hidden">
+            <!-- aquí puedes poner imagen/banner después -->
+            <!-- ejemplo con imagen:
+            <img src="assets/images/profile-banner.jpg" class="absolute inset-0 w-full h-full object-cover opacity-80">
+            -->
+
+            <div class="absolute inset-0 bg-blue-50"></div>
+
+            <!-- figuras del banner, suaves -->
+            <div class="absolute right-10 top-6 w-20 h-20 rounded-full bg-cyan-200/80"></div>
+            <div class="absolute right-28 bottom-[-34px] w-28 h-28 rounded-full bg-emerald-100"></div>
+            <div class="absolute left-60 bottom-[-40px] w-32 h-32 rounded-full bg-blue-100"></div>
+          </div>
+
+          <!-- CONTENIDO PERFIL SUBIDO ENTRE BANNER Y CARD -->
+          <div class="relative px-6 md:px-8 pb-7 -mt-16">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+
+              <!-- IDENTIDAD -->
+              <div class="flex flex-col md:flex-row md:items-end gap-5 text-center md:text-left">
+                <div class="relative mx-auto md:mx-0 shrink-0">
+                  <img
+                    [src]="usuario.fotoUrl"
+                    alt="Foto de perfil"
+                    class="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-md bg-blue-50">
+
+                  <div class="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-blue-700 text-white border-4 border-white grid place-items-center shadow-md">
+                    <span class="material-symbols-outlined text-[20px]">pets</span>
+                  </div>
+                </div>
+
+                <div class="pb-1">
+                  <p class="inline-flex items-center gap-2 px-3 py-1 bg-white border border-blue-100 text-blue-700 text-xs font-bold uppercase mb-3 shadow-sm">
+                    <span class="material-symbols-outlined text-[17px]">person</span>
+                    Perfil personal
+                  </p>
+
+                  <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+                    {{ usuario.nombre }}
+                  </h1>
+
+                  <div class="mt-3 flex flex-col gap-1">
+                    <p class="text-sm text-slate-500 flex items-center justify-center md:justify-start gap-2">
+                      <span class="material-symbols-outlined text-[18px] text-blue-700">mail</span>
+                      {{ usuario.email }}
+                    </p>
+
+                    <p class="text-sm text-slate-500 flex items-center justify-center md:justify-start gap-2">
+                      <span class="material-symbols-outlined text-[18px] text-blue-700">location_on</span>
+                      {{ usuario.ubicacion }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ACCIONES -->
+              <div class="flex flex-col sm:flex-row gap-3 lg:pb-1">
+
+                <button
+                  type="button"
+                  class="h-11 px-5 bg-blue-700 hover:bg-blue-800 text-white font-bold shadow-md transition-colors flex items-center justify-center gap-2 rounded">
+                  <span class="material-symbols-outlined text-[18px]">edit</span>
+                  Editar perfil
+                </button>
+
+                <button
+                  type="button"
+                  (click)="cerrarSesion()"
+                  class="h-11 px-5 bg-red-600 hover:bg-red-700 text-white font-bold shadow-md transition-colors flex items-center justify-center gap-2 rounded">
+                  <span class="material-symbols-outlined text-[18px]">logout</span>
+                  Cerrar sesión
+                </button>
+
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- RESUMEN PERSONAL -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- DATOS PERSONALES -->
+          <article class="lg:col-span-7 bg-white border border-slate-200 shadow-md overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50">
+              <p class="text-xs font-bold uppercase text-blue-700 mb-1">
+                Mi información
+              </p>
+
+              <h2 class="text-xl font-bold text-slate-900">
+                Datos registrados
+              </h2>
+            </div>
+
+            <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="border border-slate-200 bg-white p-4">
+                <p class="text-xs font-bold uppercase text-slate-400 mb-1">
+                  Nombre
+                </p>
+                <p class="font-bold text-slate-900">
+                  {{ usuario.nombre }}
+                </p>
+              </div>
+
+              <div class="border border-slate-200 bg-white p-4">
+                <p class="text-xs font-bold uppercase text-slate-400 mb-1">
+                  Correo
+                </p>
+                <p class="font-bold text-slate-900 break-all">
+                  {{ usuario.email }}
+                </p>
+              </div>
+
+              <div class="border border-slate-200 bg-white p-4">
+                <p class="text-xs font-bold uppercase text-slate-400 mb-1">
+                  Ubicación
+                </p>
+                <p class="font-bold text-slate-900">
+                  {{ usuario.ubicacion }}
+                </p>
+              </div>
+
+              <div class="border border-slate-200 bg-white p-4">
+                <p class="text-xs font-bold uppercase text-slate-400 mb-1">
+                  Estado de cuenta
+                </p>
+                <p class="font-bold text-emerald-700">
+                  Activa
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- CONTRIBUCIÓN -->
+          <article class="lg:col-span-5 bg-white border border-slate-200 shadow-md overflow-hidden">
+            <div class="p-5 border-b border-blue-100 bg-blue-50">
+              <p class="text-xs font-bold uppercase text-blue-700 mb-1">
+                Contribución PawTrack
+              </p>
+
+              <h2 class="text-xl font-bold text-slate-900">
+                {{ usuario.nivelComunidad }}
+              </h2>
+            </div>
+
+            <div class="p-5">
+              <div class="grid grid-cols-2 gap-3 mb-5">
+                <div class="border border-blue-100 bg-blue-50 p-3">
+                  <p class="text-2xl font-bold text-slate-900">
+                    {{ usuario.reportesTotales }}
+                  </p>
+                  <p class="text-xs font-bold uppercase text-blue-700">
+                    Reportes
+                  </p>
+                </div>
+
+                <div class="border border-emerald-100 bg-emerald-50 p-3">
+                  <p class="text-2xl font-bold text-slate-900">
+                    {{ usuario.misionesAceptadas }}
+                  </p>
+                  <p class="text-xs font-bold uppercase text-emerald-700">
+                    Aceptados
+                  </p>
+                </div>
+
+                <div class="border border-violet-100 bg-violet-50 p-3">
+                  <p class="text-2xl font-bold text-slate-900">
+                    {{ usuario.seguimientosRealizados }}
+                  </p>
+                  <p class="text-xs font-bold uppercase text-violet-700">
+                    Seguimientos
+                  </p>
+                </div>
+
+                <div class="border border-orange-100 bg-orange-50 p-3">
+                  <p class="text-2xl font-bold text-slate-900">
+                    {{ usuario.casosResueltos }}
+                  </p>
+                  <p class="text-xs font-bold uppercase text-orange-700">
+                    Cerrados
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="w-full h-11 border border-blue-700 text-blue-700 font-bold shadow-md hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[19px]">bar_chart</span>
+                Ver reputación completa
+              </button>
+            </div>
+          </article>
+
+        </section>
+
+        <!-- ACTIVIDAD RECIENTE CON TABS -->
+        <section class="bg-white border border-slate-200 shadow-md overflow-hidden">
+
+          <!-- HEADER -->
+          <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <p class="text-xs font-bold uppercase text-blue-700 mb-1">
+                Actividad reciente
+              </p>
+
+              <h2 class="text-2xl font-bold text-slate-900">
+                Últimos movimientos
+              </h2>
+
+              <p class="text-sm text-slate-500 mt-1">
+                Mostramos máximo 3 elementos por categoría. Para ver todo, entra al dashboard correspondiente.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 bg-white border border-slate-200 p-1 shadow-sm w-full sm:w-fit">
+
+              <button
+                type="button"
+                (click)="tabActividad = 'reportes'"
+                class="h-10 px-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
+                [ngClass]="tabActividad === 'reportes'
+                  ? 'bg-blue-700 text-white shadow-md'
+                  : 'bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
+                <span class="material-symbols-outlined text-[18px]">assignment</span>
+                Reportes creados
+              </button>
+
+              <button
+                type="button"
+                (click)="tabActividad = 'aceptados'"
+                class="h-10 px-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
+                [ngClass]="tabActividad === 'aceptados'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'">
+                <span class="material-symbols-outlined text-[18px]">volunteer_activism</span>
+                Casos aceptados
+              </button>
+
+              <button
+                type="button"
+                (click)="tabActividad = 'seguimientos'"
+                class="h-10 px-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
+                [ngClass]="tabActividad === 'seguimientos'
+                  ? 'bg-violet-600 text-white shadow-md'
+                  : 'bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-700'">
+                <span class="material-symbols-outlined text-[18px]">timeline</span>
+                Seguimientos
+              </button>
+
+            </div>
+          </div>
+
+          <!-- TAB REPORTES -->
+          @if (tabActividad === 'reportes') {
+            <div class="p-6">
+
+              @if (usuario.reportesRecientes.length === 0) {
+                <div class="py-12 text-center flex flex-col items-center">
+                  <div class="w-16 h-16 bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center mb-4">
+                    <span class="material-symbols-outlined text-4xl">assignment</span>
+                  </div>
+
+                  <h3 class="font-bold text-slate-900">
+                    Aún no has creado reportes
+                  </h3>
+
+                  <p class="text-sm text-slate-500 mt-2 max-w-md">
+                    Cuando registres un caso, aparecerá aquí como parte de tu actividad reciente.
+                  </p>
+
+                  <button
+                    type="button"
+                    routerLink="/reports/create-report"
+                    class="mt-5 h-11 px-5 bg-blue-700 text-white font-bold shadow-md hover:bg-blue-800 transition-colors">
+                    Crear reporte
+                  </button>
+                </div>
+              } @else {
+                <div class="grid grid-cols-1 gap-4">
+                  @for (reporte of usuario.reportesRecientes; track reporte.id) {
+                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-blue-200 transition-colors">
+
+                      <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto]">
+
+                        <!-- IMAGEN -->
+                        <div class="relative h-44 md:h-full min-h-[150px] bg-slate-100 overflow-hidden">
+                          <img
+                            [src]="reporte.fotoUrl"
+                            [alt]="reporte.titulo"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+
+                          <div class="absolute top-3 left-3">
+                            <span class="inline-flex items-center gap-1.5 bg-white text-blue-700 border border-blue-100 px-2.5 py-1 text-xs font-bold shadow-sm">
+                              <span class="material-symbols-outlined text-[15px]">assignment</span>
+                              Reporte
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- INFO -->
+                        <div class="p-5 flex flex-col justify-center">
+                          <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <span class="text-xs font-bold uppercase bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1">
+                              Reporte creado
+                            </span>
+
+                            <span class="text-xs font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1">
+                              {{ reporte.estado }}
+                            </span>
+
+                            <span class="text-xs text-slate-400 font-bold">
+                              {{ reporte.fecha }}
+                            </span>
+                          </div>
+
+                          <h3 class="font-bold text-slate-900 text-xl leading-tight">
+                            {{ reporte.titulo }}
+                          </h3>
+
+                          <p class="text-sm text-slate-600 mt-1 line-clamp-2">
+                            {{ reporte.descripcion }}
+                          </p>
+
+                          <p class="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-blue-700">location_on</span>
+                            {{ reporte.lugar }}
+                          </p>
+                        </div>
+
+                        <!-- ACCIÓN -->
+                        <div class="p-5 flex md:items-center md:justify-center border-t md:border-t-0 md:border-l border-slate-100">
+                          <button
+                            type="button"
+                            [routerLink]="['/view-report', reporte.id]"
+                            class="h-10 px-5 bg-blue-700 text-white font-bold text-sm shadow-md hover:bg-blue-800 transition-colors">
+                            Ver detalle
+                          </button>
+                        </div>
+
+                      </div>
+
+                    </article>
+                  }
+                </div>
+
+                <div class="mt-5 flex justify-end">
+                  <button
+                    type="button"
+                    routerLink="/dashboard/reporter"
+                    class="h-11 px-5 bg-blue-700 text-white font-bold shadow-md hover:bg-blue-800 transition-colors flex items-center gap-2">
+                    Ver todos mis reportes
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </button>
+                </div>
+              }
+
+            </div>
+          }
+
+          <!-- TAB ACEPTADOS -->
+          @if (tabActividad === 'aceptados') {
+            <div class="p-6">
+
+              @if (usuario.casosAceptadosRecientes.length === 0) {
+                <div class="py-12 text-center flex flex-col items-center">
+                  <div class="w-16 h-16 bg-emerald-50 text-emerald-700 border border-emerald-100 grid place-items-center mb-4">
+                    <span class="material-symbols-outlined text-4xl">volunteer_activism</span>
+                  </div>
+
+                  <h3 class="font-bold text-slate-900">
+                    Aún no has aceptado casos
+                  </h3>
+
+                  <p class="text-sm text-slate-500 mt-2 max-w-md">
+                    Cuando aceptes una misión, aparecerá aquí para que puedas volver a ella rápidamente.
+                  </p>
+
+                  <button
+                    type="button"
+                    routerLink="/volunteer"
+                    class="mt-5 h-11 px-5 bg-emerald-600 text-white font-bold shadow-md hover:bg-emerald-700 transition-colors">
+                    Explorar casos activos
+                  </button>
+                </div>
+              } @else {
+                <div class="grid grid-cols-1 gap-4">
+                  @for (caso of usuario.casosAceptadosRecientes; track caso.id) {
+                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-emerald-200 transition-colors">
+
+                      <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto]">
+
+                        <div class="relative h-44 md:h-full min-h-[150px] bg-slate-100 overflow-hidden">
+                          <img
+                            [src]="caso.fotoUrl"
+                            [alt]="caso.titulo"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+
+                          <div class="absolute top-3 left-3">
+                            <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 border border-emerald-100 px-2.5 py-1 text-xs font-bold shadow-sm">
+                              <span class="material-symbols-outlined text-[15px]">volunteer_activism</span>
+                              Aceptado
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="p-5 flex flex-col justify-center">
+                          <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <span class="text-xs font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-100 px-2.5 py-1">
+                              Caso aceptado
+                            </span>
+
+                            <span class="text-xs font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1">
+                              {{ caso.estado }}
+                            </span>
+
+                            <span class="text-xs text-slate-400 font-bold">
+                              {{ caso.fecha }}
+                            </span>
+                          </div>
+
+                          <h3 class="font-bold text-slate-900 text-xl leading-tight">
+                            {{ caso.titulo }}
+                          </h3>
+
+                          <p class="text-sm text-slate-600 mt-1 line-clamp-2">
+                            {{ caso.descripcion }}
+                          </p>
+
+                          <p class="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-700">location_on</span>
+                            {{ caso.lugar }}
+                          </p>
+                        </div>
+
+                        <div class="p-5 flex md:items-center md:justify-center border-t md:border-t-0 md:border-l border-slate-100">
+                          <button
+                            type="button"
+                            [routerLink]="['/details-case-accepted', caso.id]"
+                            class="h-10 px-5 bg-emerald-600 text-white font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors">
+                            Ver misión
+                          </button>
+                        </div>
+
+                      </div>
+
+                    </article>
+                  }
+                </div>
+
+                <div class="mt-5 flex justify-end">
+                  <button
+                    type="button"
+                    routerLink="/accepted-cases"
+                    class="h-11 px-5 border border-emerald-600 text-emerald-700 font-bold shadow-md hover:bg-emerald-50 transition-colors">
+                    Ver todos los aceptados
+                  </button>
+                </div>
+              }
+
+            </div>
+          }
+
+          <!-- TAB SEGUIMIENTOS -->
+          @if (tabActividad === 'seguimientos') {
+            <div class="p-6">
+
+              @if (usuario.seguimientosRecientes.length === 0) {
+                <div class="py-12 text-center flex flex-col items-center">
+                  <div class="w-16 h-16 bg-violet-50 text-violet-700 border border-violet-100 grid place-items-center mb-4">
+                    <span class="material-symbols-outlined text-4xl">timeline</span>
+                  </div>
+
+                  <h3 class="font-bold text-slate-900">
+                    Aún no tienes seguimientos recientes
+                  </h3>
+
+                  <p class="text-sm text-slate-500 mt-2 max-w-md">
+                    Cuando actualices un caso o registres avances, aparecerán aquí tus últimos seguimientos.
+                  </p>
+
+                  <button
+                    type="button"
+                    routerLink="/accepted-cases"
+                    class="mt-5 h-11 px-5 bg-violet-600 text-white font-bold shadow-md hover:bg-violet-700 transition-colors">
+                    Ver mis casos
+                  </button>
+                </div>
+              } @else {
+                <div class="grid grid-cols-1 gap-4">
+                  @for (seguimiento of usuario.seguimientosRecientes; track seguimiento.id) {
+                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-violet-200 transition-colors">
+
+                      <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto]">
+
+                        <div class="relative h-44 md:h-full min-h-[150px] bg-slate-100 overflow-hidden">
+                          <img
+                            [src]="seguimiento.fotoUrl"
+                            [alt]="seguimiento.titulo"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+
+                          <div class="absolute top-3 left-3">
+                            <span class="inline-flex items-center gap-1.5 bg-white text-violet-700 border border-violet-100 px-2.5 py-1 text-xs font-bold shadow-sm">
+                              <span class="material-symbols-outlined text-[15px]">timeline</span>
+                              Seguimiento
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="p-5 flex flex-col justify-center">
+                          <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <span class="text-xs font-bold uppercase bg-violet-50 text-violet-700 border border-violet-100 px-2.5 py-1">
+                              Seguimiento
+                            </span>
+
+                            <span class="text-xs font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1">
+                              {{ seguimiento.estado }}
+                            </span>
+
+                            <span class="text-xs text-slate-400 font-bold">
+                              {{ seguimiento.fecha }}
+                            </span>
+                          </div>
+
+                          <h3 class="font-bold text-slate-900 text-xl leading-tight">
+                            {{ seguimiento.titulo }}
+                          </h3>
+
+                          <p class="text-sm text-slate-600 mt-1 line-clamp-2">
+                            {{ seguimiento.descripcion }}
+                          </p>
+
+                          <p class="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-violet-700">location_on</span>
+                            {{ seguimiento.lugar }}
+                          </p>
+                        </div>
+
+                        <div class="p-5 flex md:items-center md:justify-center border-t md:border-t-0 md:border-l border-slate-100">
+                          <button
+                            type="button"
+                            [routerLink]="['/progress-case', seguimiento.id]"
+                            class="h-10 px-5 bg-violet-600 text-white font-bold text-sm shadow-md hover:bg-violet-700 transition-colors">
+                            Ver avance
+                          </button>
+                        </div>
+
+                      </div>
+
+                    </article>
+                  }
+                </div>
+              }
+
+            </div>
+          }
+
+        </section>
+
+      </main>
+    }
+
+    <app-footer-web class="relative z-20 mt-auto"></app-footer-web>
+
+  </div>
+</ion-content>

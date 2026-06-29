@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 
-import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
-import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
-import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
+import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
+import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 
 type SituacionActual =
   | ''
@@ -26,12 +26,26 @@ interface FollowUpReportViewModel {
   ubicacion: string;
   situacionActual: SituacionActual;
   observaciones: string;
-  edadEstimada: string;
-  pesoEstimado: string;
-  condiciones: {
-    herido: boolean;
-    deshidratado: boolean;
+  intervencion: {
+    aguaComida: boolean;
+    resguardado: boolean;
+    huyo: boolean;
+    soloObservando: boolean;
+  };
+  riesgoEntorno: {
+    trafico: boolean;
+    climaExtremo: boolean;
+    dificilAcceso: boolean;
+  };
+  senasParticulares: {
+    collar: boolean;
+    gestanteCachorros: boolean;
+    heridaVisible: boolean;
+  };
+  temperamento: {
+    docil: boolean;
     asustado: boolean;
+    agresivo: boolean;
   };
 }
 
@@ -60,31 +74,11 @@ export class FollowUpReportPage implements OnInit {
   mensajeExito: string | null = null;
 
   situacionesDisponibles = [
-    {
-      valor: 'sigue_en_lugar' as SituacionActual,
-      texto: 'Sigue en el mismo lugar',
-      descripcion: 'El animal continúa en la ubicación reportada.',
-    },
-    {
-      valor: 'se_movio' as SituacionActual,
-      texto: 'Se movió de lugar',
-      descripcion: 'El animal cambió de zona o avanzó a otro punto.',
-    },
-    {
-      valor: 'ya_no_esta' as SituacionActual,
-      texto: 'Ya no está en la zona',
-      descripcion: 'No logras encontrarlo en el lugar del reporte.',
-    },
-    {
-      valor: 'empeoro' as SituacionActual,
-      texto: 'Su estado empeoró',
-      descripcion: 'Se ve más débil, herido o en peligro.',
-    },
-    {
-      valor: 'alguien_ayudo' as SituacionActual,
-      texto: 'Alguien ya lo ayudó',
-      descripcion: 'Una persona, vecino o rescatista ya intervino.',
-    },
+    { valor: 'sigue_en_lugar' as SituacionActual, texto: 'Sigue en el mismo lugar' },
+    { valor: 'se_movio' as SituacionActual, texto: 'Se movió de lugar' },
+    { valor: 'ya_no_esta' as SituacionActual, texto: 'Ya no está en la zona' },
+    { valor: 'empeoro' as SituacionActual, texto: 'Su estado empeoró' },
+    { valor: 'alguien_ayudo' as SituacionActual, texto: 'Alguien ya lo ayudó' },
   ];
 
   reporte: FollowUpReportViewModel = {
@@ -97,13 +91,10 @@ export class FollowUpReportPage implements OnInit {
     ubicacion: '',
     situacionActual: '',
     observaciones: '',
-    edadEstimada: '',
-    pesoEstimado: '',
-    condiciones: {
-      herido: false,
-      deshidratado: false,
-      asustado: false,
-    },
+    intervencion: { aguaComida: false, resguardado: false, huyo: false, soloObservando: false },
+    riesgoEntorno: { trafico: false, climaExtremo: false, dificilAcceso: false },
+    senasParticulares: { collar: false, gestanteCachorros: false, heridaVisible: false },
+    temperamento: { docil: false, asustado: false, agresivo: false },
   };
 
   constructor(
@@ -141,109 +132,74 @@ export class FollowUpReportPage implements OnInit {
     this.reporte.folio = data.folio ?? String(data.id);
     this.reporte.nombreCaso = data.nombre_caso ?? 'Reporte sin nombre';
     this.reporte.estado = data.estado ?? 'PENDIENTE';
-
     this.reporte.tipoAnimal = data.tipo_animal ?? '';
     this.reporte.tamanoAnimal = data.tamano_animal ?? '';
     this.reporte.condicionAnimal = data.condicion_animal ?? '';
-
     this.reporte.ubicacion = this.obtenerTextoUbicacion(data);
-
     this.reporte.observaciones = '';
 
-    this.reporte.edadEstimada = data.edad_estimada ?? '';
-    this.reporte.pesoEstimado = data.peso_estimado ?? '';
-
-    this.poblarCondicionesDesdeDatos(data);
-
+    // Los booleanos se inicializan en falso para este nuevo registro de seguimiento.
     this.cargando = false;
   }
 
   private obtenerTextoUbicacion(data: IncidenciaResponse): string {
     const lat = data.lat_out;
     const lng = data.lng_out;
-
     if (lat != null && lng != null) {
       return `${lat}, ${lng}`;
     }
-
     return 'Ubicación registrada en el reporte original';
   }
 
-  private poblarCondicionesDesdeDatos(data: IncidenciaResponse): void {
-    const condicion = `${data.condicion_animal ?? ''} ${data.caracteristicas ?? ''} ${data.notas_animal ?? ''}`.toLowerCase();
-
-    this.reporte.condiciones.herido =
-      condicion.includes('herido') ||
-      condicion.includes('herida') ||
-      condicion.includes('sangre') ||
-      condicion.includes('lastimado');
-
-    this.reporte.condiciones.deshidratado =
-      condicion.includes('deshidratado') ||
-      condicion.includes('deshidratada');
-
-    this.reporte.condiciones.asustado =
-      condicion.includes('asustado') ||
-      condicion.includes('asustada') ||
-      condicion.includes('agresivo') ||
-      condicion.includes('agresiva');
-
-    if (
-      !this.reporte.condiciones.herido &&
-      !this.reporte.condiciones.deshidratado &&
-      !this.reporte.condiciones.asustado
-    ) {
-      const score = data.urgency_score ?? 0;
-
-      this.reporte.condiciones.herido = score >= 50;
-      this.reporte.condiciones.deshidratado = score >= 85;
-      this.reporte.condiciones.asustado =
-        score === 15 || score === 65 || score === 100;
-    }
-  }
-
   calcularUrgencia(): number {
-    const { herido, deshidratado, asustado } = this.reporte.condiciones;
-
-    let urgencia = 0;
-
-    if (herido) urgencia += 50;
-    if (deshidratado) urgencia += 35;
-    if (asustado) urgencia += 15;
-
+    let urgencia = 20; // Base
+    
+    if (this.reporte.senasParticulares.heridaVisible) urgencia += 50;
+    if (this.reporte.temperamento.agresivo) urgencia += 20;
+    if (this.reporte.riesgoEntorno.trafico || this.reporte.riesgoEntorno.climaExtremo) urgencia += 20;
+    if (this.reporte.senasParticulares.gestanteCachorros) urgencia += 15;
+    
     return Math.min(100, urgencia);
   }
 
   obtenerTextoUrgencia(): string {
     const urgencia = this.calcularUrgencia();
-
-    if (urgencia >= 100) return 'CRÍTICA';
-    if (urgencia >= 75) return 'ALTA';
+    if (urgencia >= 90) return 'CRÍTICA';
+    if (urgencia >= 60) return 'ALTA';
     if (urgencia >= 35) return 'MEDIA';
-
     return 'BAJA';
   }
 
-  obtenerColorUrgencia(): string {
-    const urgencia = this.calcularUrgencia();
-
-    if (urgencia >= 100) return 'text-red-950';
-    if (urgencia >= 75) return 'text-red-600';
-    if (urgencia >= 35) return 'text-amber-600';
-
-    return 'text-green-600';
-  }
-
-  obtenerBarraUrgencia(): number {
-    return this.calcularUrgencia();
-  }
-
   obtenerTextoSituacion(situacion: SituacionActual): string {
-    const encontrada = this.situacionesDisponibles.find(
-      (item) => item.valor === situacion
-    );
-
+    const encontrada = this.situacionesDisponibles.find((item) => item.valor === situacion);
     return encontrada?.texto ?? 'Sin especificar';
+  }
+
+  private recopilarAtributosVerdaderos(): string[] {
+    const detalles: string[] = [];
+    
+    // Intervención
+    if (this.reporte.intervencion.aguaComida) detalles.push("Ciudadano brindó agua/comida.");
+    if (this.reporte.intervencion.resguardado) detalles.push("El animal está resguardado temporalmente.");
+    if (this.reporte.intervencion.huyo) detalles.push("El animal huye al acercarse.");
+    if (this.reporte.intervencion.soloObservando) detalles.push("Ciudadano solo observando, sin interacción.");
+
+    // Entorno
+    if (this.reporte.riesgoEntorno.trafico) detalles.push("Alto riesgo de tráfico / avenidas.");
+    if (this.reporte.riesgoEntorno.climaExtremo) detalles.push("Expuesto a clima extremo.");
+    if (this.reporte.riesgoEntorno.dificilAcceso) detalles.push("Zona de difícil acceso.");
+
+    // Señas / Salud
+    if (this.reporte.senasParticulares.collar) detalles.push("Tiene collar/correa (Posible dueño).");
+    if (this.reporte.senasParticulares.gestanteCachorros) detalles.push("Hembra gestante o con cachorros.");
+    if (this.reporte.senasParticulares.heridaVisible) detalles.push("¡ALERTA! Herida visible.");
+
+    // Temperamento
+    if (this.reporte.temperamento.docil) detalles.push("Temperamento dócil.");
+    if (this.reporte.temperamento.asustado) detalles.push("El animal está asustado/tiembla.");
+    if (this.reporte.temperamento.agresivo) detalles.push("¡ALERTA! Temperamento agresivo/defensiva.");
+
+    return detalles;
   }
 
   enviar(): void {
@@ -255,34 +211,34 @@ export class FollowUpReportPage implements OnInit {
       return;
     }
 
-    if (!this.reporte.observaciones.trim()) {
-      this.error = 'Agrega una nota breve de seguimiento.';
-      return;
-    }
-
     this.guardando = true;
-
+    const detallesExtra = this.recopilarAtributosVerdaderos();
+    
     const textoSeguimiento = `
-Seguimiento del reportante:
+--- ACTUALIZACIÓN DE SEGUIMIENTO ---
 Situación actual: ${this.obtenerTextoSituacion(this.reporte.situacionActual)}
-Nota: ${this.reporte.observaciones.trim()}
-Urgencia actual: ${this.obtenerTextoUrgencia()}
-Fecha: ${new Date().toLocaleString()}
+Urgencia Calculada: ${this.obtenerTextoUrgencia()}
+
+Condiciones Observadas:
+${detallesExtra.length > 0 ? detallesExtra.map(d => '- ' + d).join('\n') : '- Ninguna condición específica marcada.'}
+
+Nota adicional del reportante:
+${this.reporte.observaciones.trim() || 'Sin comentarios adicionales.'}
     `.trim();
 
     const payload = {
       caracteristicas: textoSeguimiento,
       urgency_score: this.calcularUrgencia(),
-      edad_estimada: String(this.reporte.edadEstimada ?? ''),
-      peso_estimado: String(this.reporte.pesoEstimado ?? ''),
+      // Se eliminaron edad y peso del envío
     };
 
     this.reportService.actualizarReporte(this.reporteNumericId, payload).subscribe({
       next: () => {
         this.guardando = false;
-        this.mensajeExito = 'Seguimiento guardado correctamente.';
+        this.mensajeExito = 'Seguimiento guardado correctamente. Los voluntarios ya fueron notificados.';
         this.reporte.observaciones = '';
         this.reporte.situacionActual = '';
+        // Puedes resetear los checkboxes aquí si quieres, o dejar que el user navegue
       },
       error: () => {
         this.guardando = false;
@@ -292,6 +248,6 @@ Fecha: ${new Date().toLocaleString()}
   }
 
   volverDashboard(): void {
-    this.router.navigate(['/dashboard/reporter']);
+    this.router.navigate(['/dashboards/reporter']);
   }
 }

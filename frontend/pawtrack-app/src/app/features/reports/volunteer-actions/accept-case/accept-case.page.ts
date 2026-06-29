@@ -1,0 +1,302 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, TitleCasePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonContent } from '@ionic/angular/standalone';
+
+import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
+
+import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { environment } from 'src/environments/environment';
+
+interface CasoAceptacion {
+  id: number;
+  folio: string;
+  titulo: string;
+  descripcion: string;
+  ubicacion: string;
+  tiempo: string;
+  tamano: string;
+  condicion: string;
+  contactoNombre: string;
+  contactoTelefono: string;
+  score: number;
+  prioridad: 'Urgente' | 'Alta' | 'Moderada';
+  especie: 'Perro' | 'Gato' | 'Otro';
+  fotoUrl: string;
+  estado: string;
+  latitud: number | null;
+  longitud: number | null;
+  raw: IncidenciaResponse;
+}
+
+@Component({
+  selector: 'app-accept-case',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent,
+    TitleCasePipe,
+    NavbarWebComponent,
+    FooterWebComponent
+  ],
+  templateUrl: './accept-case.page.html',
+  styleUrls: ['./accept-case.page.scss']
+})
+export class AcceptCasePage implements OnInit {
+  caso: CasoAceptacion | null = null;
+
+  cargando = true;
+  errorCarga: string | null = null;
+
+  revisoInformacion = false;
+  tieneDisponibilidad = false;
+  aceptaSeguimiento = false;
+  aceptaSeguridad = false;
+
+  confirmando = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private reportService: ReportService,
+    private auth: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.cargarCaso();
+  }
+
+  cargarCaso(): void {
+    const folio = this.route.snapshot.paramMap.get('folio');
+
+    if (!folio) {
+      this.errorCarga = 'No se encontró el folio del caso.';
+      this.cargando = false;
+      return;
+    }
+
+    this.cargando = true;
+    this.errorCarga = null;
+
+    this.reportService.listarReportes().subscribe({
+      next: (resp: any) => {
+        const incidencias: IncidenciaResponse[] = Array.isArray(resp)
+          ? resp
+          : Array.isArray(resp.results)
+            ? resp.results
+            : Array.isArray(resp.data)
+              ? resp.data
+              : Array.isArray(resp.incidencias)
+                ? resp.incidencias
+                : [];
+
+        const incidencia = incidencias.find(item =>
+          item.folio === folio || `RPT-${item.id}` === folio
+        );
+
+        if (!incidencia) {
+          this.errorCarga = 'No se encontró el caso solicitado.';
+          this.caso = null;
+          this.cargando = false;
+          return;
+        }
+
+        this.caso = this.mapearCaso(incidencia);
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('ERROR CARGANDO CASO PARA ACEPTACIÓN:', err);
+        this.errorCarga = 'No se pudo cargar la información del caso.';
+        this.caso = null;
+        this.cargando = false;
+      }
+    });
+  }
+
+  confirmarAceptacion(): void {
+    if (!this.caso || !this.puedeConfirmar || this.confirmando) return;
+
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: this.router.url
+        }
+      });
+      return;
+    }
+
+    this.confirmando = true;
+
+    /*
+      AQUÍ IRÍA LA PETICIÓN REAL AL BACKEND CUANDO EXISTA.
+      Ejemplo futuro:
+      this.reportService.aceptarCaso(this.caso.folio).subscribe(...)
+    */
+
+    setTimeout(() => {
+      this.confirmando = false;
+
+      this.router.navigate(['/details-case-accepted', this.caso?.folio]);
+    }, 700);
+  }
+
+  cancelar(): void {
+    if (!this.caso) {
+      this.router.navigate(['/volunteer']);
+      return;
+    }
+
+    this.router.navigate(['/details-case', this.caso.folio]);
+  }
+
+  volverCasos(): void {
+    this.router.navigate(['/volunteer']);
+  }
+
+  private mapearCaso(incidencia: IncidenciaResponse): CasoAceptacion {
+    return {
+      id: incidencia.id,
+      folio: incidencia.folio || `RPT-${incidencia.id}`,
+      titulo: this.obtenerTituloCaso(incidencia),
+      descripcion: this.obtenerDescripcionCaso(incidencia),
+      ubicacion: this.obtenerUbicacionCaso(incidencia),
+      tiempo: this.obtenerTiempoReporte(incidencia.created_at),
+      tamano: incidencia.tamano_animal || 'No especificado',
+      condicion: incidencia.condicion_animal || 'No especificada',
+      contactoNombre: incidencia.nombre_contacto || 'Contacto no registrado',
+      contactoTelefono: incidencia.telefono_contacto || 'Teléfono no registrado',
+      score: incidencia.urgency_score || 0,
+      prioridad: this.obtenerPrioridad(incidencia.urgency_score || 0),
+      especie: this.obtenerEspecie(incidencia.tipo_animal),
+      fotoUrl: this.imagenUrl(incidencia.imagen),
+      estado: incidencia.estado || 'PENDIENTE',
+      latitud: incidencia.lat_out ?? null,
+      longitud: incidencia.lng_out ?? null,
+      raw: incidencia
+    };
+  }
+
+  private obtenerTituloCaso(incidencia: IncidenciaResponse): string {
+    if (incidencia.nombre_caso && incidencia.nombre_caso.trim()) {
+      return incidencia.nombre_caso;
+    }
+
+    const animal = incidencia.tipo_animal || 'Animal';
+    const condicion = this.primerCondicion(incidencia.condicion_animal);
+
+    return `${animal} ${condicion}`.trim();
+  }
+
+  private obtenerDescripcionCaso(incidencia: IncidenciaResponse): string {
+    const notas = incidencia.notas_animal?.trim();
+
+    if (!notas) {
+      return 'Sin notas adicionales registradas por el reportante.';
+    }
+
+    return notas;
+  }
+
+  private obtenerUbicacionCaso(incidencia: IncidenciaResponse): string {
+    if (incidencia.lat_out != null && incidencia.lng_out != null) {
+      return `Ubicación registrada: ${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out.toFixed(5)}`;
+    }
+
+    return 'Ubicación no disponible';
+  }
+
+  private obtenerTiempoReporte(fecha: string | null): string {
+    if (!fecha) return 'Fecha no disponible';
+
+    const fechaReporte = new Date(fecha);
+    const ahora = new Date();
+
+    const diferenciaMs = ahora.getTime() - fechaReporte.getTime();
+    const minutos = Math.floor(diferenciaMs / 60000);
+    const horas = Math.floor(minutos / 60);
+    const dias = Math.floor(horas / 24);
+
+    if (minutos < 1) return 'Hace unos segundos';
+    if (minutos < 60) return `Hace ${minutos} min`;
+    if (horas < 24) return `Hace ${horas} h`;
+
+    return `Hace ${dias} día${dias === 1 ? '' : 's'}`;
+  }
+
+  private obtenerPrioridad(score: number): 'Urgente' | 'Alta' | 'Moderada' {
+    if (score >= 80) return 'Urgente';
+    if (score >= 40) return 'Alta';
+    return 'Moderada';
+  }
+
+  private obtenerEspecie(tipo: string | null): 'Perro' | 'Gato' | 'Otro' {
+    const normalizado = tipo?.toLowerCase();
+
+    if (normalizado === 'perro') return 'Perro';
+    if (normalizado === 'gato') return 'Gato';
+
+    return 'Otro';
+  }
+
+  private primerCondicion(val: string | null): string {
+    if (!val) return 'sin condición especificada';
+
+    return val.split(',')[0]?.trim() || 'sin condición especificada';
+  }
+
+  imagenUrl(imagen: string | null): string {
+    if (!imagen) {
+      return 'assets/images/report-placeholder.jpg';
+    }
+
+    if (imagen.startsWith('http')) {
+      return imagen;
+    }
+
+    return `${environment.apiUrl}${imagen}`;
+  }
+
+  get puedeConfirmar(): boolean {
+    return this.revisoInformacion &&
+      this.tieneDisponibilidad &&
+      this.aceptaSeguimiento &&
+      this.aceptaSeguridad;
+  }
+
+  get progresoCompromiso(): number {
+    const checks = [
+      this.revisoInformacion,
+      this.tieneDisponibilidad,
+      this.aceptaSeguimiento,
+      this.aceptaSeguridad
+    ];
+
+    const completados = checks.filter(Boolean).length;
+
+    return (completados / checks.length) * 100;
+  }
+
+  get prioridadClase(): string {
+    if (!this.caso) return 'bg-slate-100 text-slate-700 border-slate-200';
+
+    if (this.caso.prioridad === 'Urgente') {
+      return 'bg-red-100 text-red-700 border-red-200';
+    }
+
+    if (this.caso.prioridad === 'Alta') {
+      return 'bg-orange-100 text-orange-700 border-orange-200';
+    }
+
+    return 'bg-blue-100 text-blue-700 border-blue-200';
+  }
+
+  get estadoLegible(): string {
+    if (!this.caso?.estado) return 'Pendiente';
+
+    return this.caso.estado.replace(/_/g, ' ').toLowerCase();
+  }
+}
