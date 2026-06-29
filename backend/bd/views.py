@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+
+from core.permissions import IsAuthorOrRescatistaAsignado
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
@@ -108,7 +110,11 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
-        if self.action in ('destroy', 'mis_casos'):
+        if self.action == 'destroy':
+            return [IsAdminUser()]
+        if self.action in ('update', 'partial_update'):
+            return [IsAuthenticated(), IsAuthorOrRescatistaAsignado()]
+        if self.action == 'mis_casos':
             return [IsAuthenticated()]
         return [AllowAny()]
 
@@ -147,9 +153,6 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-
-        if not request.user.is_staff and instance.usuario_reporta_id != request.user.id:
-            raise PermissionDenied("No tienes permiso para editar este reporte.")
 
         # Campos que realmente pertenecen al Animal asociado
         tipo_animal = request.data.get('tipo_animal')
