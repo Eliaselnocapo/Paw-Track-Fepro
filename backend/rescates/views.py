@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import IntegrityError
-from rest_framework.exceptions import NotFound, ValidationError, APIException
+from rest_framework.exceptions import NotFound, ValidationError, APIException, PermissionDenied
 
 from core.permissions import IsRescatista
 from bd.models import Incidencia, PerfilRescatista

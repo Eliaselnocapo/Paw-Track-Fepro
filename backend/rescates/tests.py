@@ -91,27 +91,27 @@ class RescatesEndpointsTests(APITestCase):
 
     # --- NUEVOS TESTS B2 ---
 
-        def test_dos_rescatistas_mismo_caso_devuelve_409(self):
-            """Test B2: Condición de carrera en OneToOneField. El segundo recibe 409."""
-            # 1. Simulamos el milisegundo exacto de la condición de carrera: 
-            # Creamos el registro directamente en la BD saltándonos la vista, 
-            # y dejamos la incidencia como 'PENDIENTE' para engañar la primera validación.
-            Rescate.objects.create(
-                incidencia=self.incidencia,
-                rescatista=self.user_rescatista,
-                estado='EN_CAMINO'
-            )
-    
-            # 2. El Rescatista 2 llega a la vista. Como la incidencia dice 'PENDIENTE', 
-            # pasa el IF de estado. Pero al intentar hacer el Rescate.objects.create(),
-            # PostgreSQL detecta que ya hay un OneToOneField ocupado y lanza el IntegrityError.
-            self.client.force_authenticate(user=self.user_rescatista2)
-            url = reverse('aceptar-rescate', kwargs={'folio': self.incidencia.folio})
-            
-            response = self.client.post(url)
-    
-            self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-            self.assertEqual(response.data['code'], 'case_already_taken')
+    def test_dos_rescatistas_mismo_caso_devuelve_409(self):
+        """Test B2: Condición de carrera en OneToOneField. El segundo recibe 409."""
+        # 1. Simulamos el milisegundo exacto de la condición de carrera:
+        # Creamos el registro directamente en la BD saltándonos la vista,
+        # y dejamos la incidencia como 'PENDIENTE' para engañar la primera validación.
+        Rescate.objects.create(
+            incidencia=self.incidencia,
+            rescatista=self.user_rescatista,
+            estado='EN_CAMINO'
+        )
+
+        # 2. El Rescatista 2 llega a la vista. Como la incidencia dice 'PENDIENTE',
+        # pasa el IF de estado. Pero al intentar hacer el Rescate.objects.create(),
+        # PostgreSQL detecta que ya hay un OneToOneField ocupado y lanza el IntegrityError.
+        self.client.force_authenticate(user=self.user_rescatista2)
+        url = reverse('aceptar-rescate', kwargs={'folio': self.incidencia.folio})
+
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['code'], 'case_already_taken')
 
     def test_disponibles_devuelve_solo_pendientes_en_radio(self):
         """Test B2: PostGIS filtra por 10km correctamente."""
