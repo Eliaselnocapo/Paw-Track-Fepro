@@ -153,7 +153,9 @@ class Incidencia(models.Model):
     # Campos calculados por el sistema
     urgency_score = models.FloatField(default=0)
     trust_score = models.FloatField(default=50)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+    direccion   = models.CharField(max_length=255, blank=True, default='')
 
     folio = models.CharField(max_length=20, unique=True, null=True, blank=True)
 
