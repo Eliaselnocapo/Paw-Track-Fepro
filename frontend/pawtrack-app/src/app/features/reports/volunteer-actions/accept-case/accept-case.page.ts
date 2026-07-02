@@ -41,10 +41,10 @@ interface CasoAceptacion {
     IonContent,
     TitleCasePipe,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
   ],
   templateUrl: './accept-case.page.html',
-  styleUrls: ['./accept-case.page.scss']
+  styleUrls: ['./accept-case.page.scss'],
 })
 export class AcceptCasePage implements OnInit {
   caso: CasoAceptacion | null = null;
@@ -52,23 +52,28 @@ export class AcceptCasePage implements OnInit {
   cargando = true;
   errorCarga: string | null = null;
 
-  revisoInformacion = false;
-  tieneDisponibilidad = false;
-  aceptaSeguimiento = false;
-  aceptaSeguridad = false;
+  revisoInformacion    = false;
+  tieneDisponibilidad  = false;
+  aceptaSeguimiento    = false;
+  aceptaSeguridad      = false;
 
   confirmando = false;
+  errorConfirmacion: string | null = null;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
+    private route:         ActivatedRoute,
+    private router:        Router,
     private reportService: ReportService,
-    private auth: AuthService
+    private auth:          AuthService,
   ) {}
 
   ngOnInit(): void {
     this.cargarCaso();
   }
+
+  // ─────────────────────────────────────────
+  // Carga del caso por folio
+  // ─────────────────────────────────────────
 
   cargarCaso(): void {
     const folio = this.route.snapshot.paramMap.get('folio');
@@ -86,21 +91,14 @@ export class AcceptCasePage implements OnInit {
       next: (resp: any) => {
         const incidencias: IncidenciaResponse[] = Array.isArray(resp)
           ? resp
-          : Array.isArray(resp.results)
-            ? resp.results
-            : Array.isArray(resp.data)
-              ? resp.data
-              : Array.isArray(resp.incidencias)
-                ? resp.incidencias
-                : [];
+          : resp.results ?? resp.data ?? resp.incidencias ?? [];
 
-        const incidencia = incidencias.find(item =>
-          item.folio === folio || `RPT-${item.id}` === folio
+        const incidencia = incidencias.find(
+          item => item.folio === folio || `RPT-${item.id}` === folio
         );
 
         if (!incidencia) {
           this.errorCarga = 'No se encontró el caso solicitado.';
-          this.caso = null;
           this.cargando = false;
           return;
         }
@@ -108,122 +106,150 @@ export class AcceptCasePage implements OnInit {
         this.caso = this.mapearCaso(incidencia);
         this.cargando = false;
       },
-      error: (err) => {
-        console.error('ERROR CARGANDO CASO PARA ACEPTACIÓN:', err);
+      error: () => {
         this.errorCarga = 'No se pudo cargar la información del caso.';
-        this.caso = null;
         this.cargando = false;
-      }
+      },
     });
   }
+
+  // ─────────────────────────────────────────
+  // Confirmación de aceptación
+  //
+  // Delega toda la lógica de simulación / conexión
+  // real a reportService.aceptarCaso().
+  // Para cambiar de simulado a real: solo editar
+  // el método aceptarCaso() en report.service.ts.
+  // ─────────────────────────────────────────
 
   confirmarAceptacion(): void {
     if (!this.caso || !this.puedeConfirmar || this.confirmando) return;
 
     if (!this.auth.isLoggedIn()) {
-      this.router.navigate(['/login'], {
-        queryParams: {
-          returnUrl: this.router.url
-        }
-      });
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
     }
 
     this.confirmando = true;
+    this.errorConfirmacion = null;
 
-    /*
-      AQUÍ IRÍA LA PETICIÓN REAL AL BACKEND CUANDO EXISTA.
-      Ejemplo futuro:
-      this.reportService.aceptarCaso(this.caso.folio).subscribe(...)
-    */
+    this.reportService.aceptarCaso(this.caso.id).subscribe({
+      next: () => {
+        this.confirmando = false;
+        this.navegarAExito();
+      },
+      error: () => {
+        this.confirmando = false;
+        this.errorConfirmacion = 'No se pudo aceptar el caso. Intenta de nuevo.';
+      },
+    });
+  }
 
-    setTimeout(() => {
-      this.confirmando = false;
-
-      this.router.navigate(['/details-case-accepted', this.caso?.folio]);
-    }, 700);
+  private navegarAExito(): void {
+    this.router.navigate(['/case-accepted-success'], {
+      queryParams: {
+        folio:  this.caso?.folio,
+        titulo: this.caso?.titulo,
+      },
+    });
   }
 
   cancelar(): void {
-    if (!this.caso) {
-      this.router.navigate(['/volunteer']);
-      return;
-    }
-
-    this.router.navigate(['/details-case', this.caso.folio]);
+    this.router.navigate(
+      this.caso ? ['/details-case', this.caso.folio] : ['/volunteer']
+    );
   }
 
   volverCasos(): void {
     this.router.navigate(['/volunteer']);
   }
 
-  private mapearCaso(incidencia: IncidenciaResponse): CasoAceptacion {
+  // ─────────────────────────────────────────
+  // Mapeo IncidenciaResponse → CasoAceptacion
+  // ─────────────────────────────────────────
+
+  private mapearCaso(i: IncidenciaResponse): CasoAceptacion {
     return {
-      id: incidencia.id,
-      folio: incidencia.folio || `RPT-${incidencia.id}`,
-      titulo: this.obtenerTituloCaso(incidencia),
-      descripcion: this.obtenerDescripcionCaso(incidencia),
-      ubicacion: this.obtenerUbicacionCaso(incidencia),
-      tiempo: this.obtenerTiempoReporte(incidencia.created_at),
-      tamano: incidencia.tamano_animal || 'No especificado',
-      condicion: incidencia.condicion_animal || 'No especificada',
-      contactoNombre: incidencia.nombre_contacto || 'Contacto no registrado',
-      contactoTelefono: incidencia.telefono_contacto || 'Teléfono no registrado',
-      score: incidencia.urgency_score || 0,
-      prioridad: this.obtenerPrioridad(incidencia.urgency_score || 0),
-      especie: this.obtenerEspecie(incidencia.tipo_animal),
-      fotoUrl: this.imagenUrl(incidencia.imagen),
-      estado: incidencia.estado || 'PENDIENTE',
-      latitud: incidencia.lat_out ?? null,
-      longitud: incidencia.lng_out ?? null,
-      raw: incidencia
+      id:               i.id,
+      folio:            i.folio || `RPT-${i.id}`,
+      titulo:           this.obtenerTitulo(i),
+      descripcion:      i.notas_animal?.trim() || 'Sin notas adicionales registradas por el reportante.',
+      ubicacion:        i.lat_out != null && i.lng_out != null
+                          ? `Ubicación registrada: ${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
+                          : 'Ubicación no disponible',
+      tiempo:           this.tiempoRelativo(i.created_at),
+      tamano:           i.tamano_animal    || 'No especificado',
+      condicion:        i.condicion_animal || 'No especificada',
+      contactoNombre:   i.nombre_contacto  || 'Contacto no registrado',
+      contactoTelefono: i.telefono_contacto|| 'Teléfono no registrado',
+      score:            i.urgency_score    || 0,
+      prioridad:        this.obtenerPrioridad(i.urgency_score || 0),
+      especie:          this.obtenerEspecie(i.tipo_animal),
+      fotoUrl:          this.imagenUrl(i.imagen),
+      estado:           i.estado || 'PENDIENTE',
+      latitud:          i.lat_out  ?? null,
+      longitud:         i.lng_out  ?? null,
+      raw:              i,
     };
   }
 
-  private obtenerTituloCaso(incidencia: IncidenciaResponse): string {
-    if (incidencia.nombre_caso && incidencia.nombre_caso.trim()) {
-      return incidencia.nombre_caso;
-    }
+  // ─────────────────────────────────────────
+  // Getters computados
+  // ─────────────────────────────────────────
 
-    const animal = incidencia.tipo_animal || 'Animal';
-    const condicion = this.primerCondicion(incidencia.condicion_animal);
+  get puedeConfirmar(): boolean {
+    return this.revisoInformacion &&
+           this.tieneDisponibilidad &&
+           this.aceptaSeguimiento &&
+           this.aceptaSeguridad;
+  }
 
+  get progresoCompromiso(): number {
+    const checks = [
+      this.revisoInformacion,
+      this.tieneDisponibilidad,
+      this.aceptaSeguimiento,
+      this.aceptaSeguridad,
+    ];
+    return (checks.filter(Boolean).length / checks.length) * 100;
+  }
+
+  get prioridadClase(): string {
+    if (!this.caso) return 'bg-slate-100 text-slate-700 border-slate-200';
+    if (this.caso.prioridad === 'Urgente') return 'bg-red-100 text-red-700 border-red-200';
+    if (this.caso.prioridad === 'Alta')    return 'bg-orange-100 text-orange-700 border-orange-200';
+    return 'bg-blue-100 text-blue-700 border-blue-200';
+  }
+
+  get estadoLegible(): string {
+    return this.caso?.estado.replace(/_/g, ' ').toLowerCase() ?? 'pendiente';
+  }
+
+  // ─────────────────────────────────────────
+  // Utilidades privadas
+  // ─────────────────────────────────────────
+
+  imagenUrl(imagen: string | null): string {
+    if (!imagen) return 'assets/images/report-placeholder.jpg';
+    return imagen.startsWith('http') ? imagen : `${environment.apiUrl}${imagen}`;
+  }
+
+  private obtenerTitulo(i: IncidenciaResponse): string {
+    if (i.nombre_caso?.trim()) return i.nombre_caso.trim();
+    const animal    = i.tipo_animal || 'Animal';
+    const condicion = i.condicion_animal?.split(',')[0]?.trim() || 'sin condición';
     return `${animal} ${condicion}`.trim();
   }
 
-  private obtenerDescripcionCaso(incidencia: IncidenciaResponse): string {
-    const notas = incidencia.notas_animal?.trim();
-
-    if (!notas) {
-      return 'Sin notas adicionales registradas por el reportante.';
-    }
-
-    return notas;
-  }
-
-  private obtenerUbicacionCaso(incidencia: IncidenciaResponse): string {
-    if (incidencia.lat_out != null && incidencia.lng_out != null) {
-      return `Ubicación registrada: ${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out.toFixed(5)}`;
-    }
-
-    return 'Ubicación no disponible';
-  }
-
-  private obtenerTiempoReporte(fecha: string | null): string {
+  private tiempoRelativo(fecha: string | null): string {
     if (!fecha) return 'Fecha no disponible';
-
-    const fechaReporte = new Date(fecha);
-    const ahora = new Date();
-
-    const diferenciaMs = ahora.getTime() - fechaReporte.getTime();
-    const minutos = Math.floor(diferenciaMs / 60000);
-    const horas = Math.floor(minutos / 60);
-    const dias = Math.floor(horas / 24);
-
-    if (minutos < 1) return 'Hace unos segundos';
-    if (minutos < 60) return `Hace ${minutos} min`;
-    if (horas < 24) return `Hace ${horas} h`;
-
+    const diff = Date.now() - new Date(fecha).getTime();
+    const min  = Math.floor(diff / 60000);
+    const hrs  = Math.floor(min / 60);
+    const dias = Math.floor(hrs / 24);
+    if (min < 1)  return 'Hace unos segundos';
+    if (min < 60) return `Hace ${min} min`;
+    if (hrs < 24) return `Hace ${hrs} h`;
     return `Hace ${dias} día${dias === 1 ? '' : 's'}`;
   }
 
@@ -234,69 +260,9 @@ export class AcceptCasePage implements OnInit {
   }
 
   private obtenerEspecie(tipo: string | null): 'Perro' | 'Gato' | 'Otro' {
-    const normalizado = tipo?.toLowerCase();
-
-    if (normalizado === 'perro') return 'Perro';
-    if (normalizado === 'gato') return 'Gato';
-
+    const n = tipo?.toLowerCase();
+    if (n === 'perro') return 'Perro';
+    if (n === 'gato')  return 'Gato';
     return 'Otro';
-  }
-
-  private primerCondicion(val: string | null): string {
-    if (!val) return 'sin condición especificada';
-
-    return val.split(',')[0]?.trim() || 'sin condición especificada';
-  }
-
-  imagenUrl(imagen: string | null): string {
-    if (!imagen) {
-      return 'assets/images/report-placeholder.jpg';
-    }
-
-    if (imagen.startsWith('http')) {
-      return imagen;
-    }
-
-    return `${environment.apiUrl}${imagen}`;
-  }
-
-  get puedeConfirmar(): boolean {
-    return this.revisoInformacion &&
-      this.tieneDisponibilidad &&
-      this.aceptaSeguimiento &&
-      this.aceptaSeguridad;
-  }
-
-  get progresoCompromiso(): number {
-    const checks = [
-      this.revisoInformacion,
-      this.tieneDisponibilidad,
-      this.aceptaSeguimiento,
-      this.aceptaSeguridad
-    ];
-
-    const completados = checks.filter(Boolean).length;
-
-    return (completados / checks.length) * 100;
-  }
-
-  get prioridadClase(): string {
-    if (!this.caso) return 'bg-slate-100 text-slate-700 border-slate-200';
-
-    if (this.caso.prioridad === 'Urgente') {
-      return 'bg-red-100 text-red-700 border-red-200';
-    }
-
-    if (this.caso.prioridad === 'Alta') {
-      return 'bg-orange-100 text-orange-700 border-orange-200';
-    }
-
-    return 'bg-blue-100 text-blue-700 border-blue-200';
-  }
-
-  get estadoLegible(): string {
-    if (!this.caso?.estado) return 'Pendiente';
-
-    return this.caso.estado.replace(/_/g, ' ').toLowerCase();
   }
 }

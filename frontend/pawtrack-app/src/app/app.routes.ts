@@ -114,4 +114,10 @@ export const routes: Routes = [
     path: 'dashboard/reports/history',
     loadComponent: () => import('./features/reports/reporter-actions/reports-history/reports-history.page').then( m => m.ReportsHistory)
   },
+  {
+  path: 'case-accepted-success',
+  loadComponent: () =>
+    import('./features/reports/volunteer-actions/case-accepted-success/case-accepted-success.page')
+      .then(m => m.CaseAcceptedSuccessPage),
+},
 ];

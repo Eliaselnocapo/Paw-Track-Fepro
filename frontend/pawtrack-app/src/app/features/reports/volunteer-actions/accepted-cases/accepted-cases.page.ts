@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { IonContent } from '@ionic/angular/standalone';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
+import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { environment } from 'src/environments/environment';
@@ -14,13 +17,6 @@ import { environment } from 'src/environments/environment';
 // ─────────────────────────────────────────
 
 type EstadoRescate = 'Aceptado' | 'En camino' | 'En sitio' | 'Rescatado';
-
-interface EntradaBitacora {
-  titulo: string;
-  descripcion: string;
-  hora: string;
-  estado: 'completado' | 'activo' | 'pendiente';
-}
 
 interface ItemProtocolo {
   titulo: string;
@@ -44,19 +40,19 @@ interface CasoAceptado {
   contactoNombre: string;
   contactoTelefono: string;
   estadoRescate: EstadoRescate;
-  progresoRescate: number;
-  bitacora: EntradaBitacora[];
+  estadoBackend: string;
   raw: IncidenciaResponse;
 }
 
 // ─────────────────────────────────────────
-// Mapa de progreso por estado
+// Orden de prioridad para el caso enfocado
+// en el aside (En sitio > En camino > Aceptado)
 // ─────────────────────────────────────────
-const PROGRESO_POR_ESTADO: Record<EstadoRescate, number> = {
-  Aceptado:   15,
-  'En camino': 40,
-  'En sitio':  65,
-  Rescatado:  100,
+const ORDEN_PRIORIDAD_FOCO: Record<EstadoRescate, number> = {
+  'En sitio':  0,
+  'En camino': 1,
+  Aceptado:    2,
+  Rescatado:   3,
 };
 
 @Component({
@@ -67,7 +63,6 @@ const PROGRESO_POR_ESTADO: Record<EstadoRescate, number> = {
     RouterLink,
     FormsModule,
     IonContent,
-    TitleCasePipe,
     NavbarWebComponent,
     FooterWebComponent,
   ],
@@ -77,16 +72,13 @@ const PROGRESO_POR_ESTADO: Record<EstadoRescate, number> = {
 export class AcceptedCasesPage implements OnInit {
 
   casos: CasoAceptado[] = [];
-  alertasCercanas: CasoAceptado[] = [];
   cargando = true;
   errorCarga: string | null = null;
 
-  searchTerm = '';
-  filtroActivo = 'Todos';
+  filtroEstado: EstadoRescate | 'Todos' = 'Todos';
   paginaActualCasos = 1;
   casosPorPagina = 5;
 
-  // Checklist de protocolo — estado local del turno
   protocolo: ItemProtocolo[] = [
     {
       titulo: 'Verificar equipo de contención',
@@ -107,6 +99,7 @@ export class AcceptedCasesPage implements OnInit {
 
   constructor(
     private reportService: ReportService,
+    private localReportCache: LocalReportCacheService,
     private router: Router,
   ) {}
 
@@ -114,126 +107,139 @@ export class AcceptedCasesPage implements OnInit {
     this.cargarCasos();
   }
 
+  ionViewWillEnter(): void {
+    this.cargarCasos();
+  }
+
   // ─────────────────────────────────────────
-  // Carga de datos
+  // Carga de datos — mismo patrón que reporter.page.ts:
+  // sesión real usa listarMisCasos(), invitado usa
+  // los folios guardados en caché local.
+  // Filtramos solo los que el backend marcó como ASIGNADO
+  // (es decir, ya los tomó un voluntario).
   // ─────────────────────────────────────────
 
   cargarCasos(): void {
     this.cargando = true;
     this.errorCarga = null;
+    this.casos = [];
+    this.paginaActualCasos = 1;
 
-    this.reportService.listarReportes().subscribe({
-      next: (resp: any) => {
-        const incidencias: IncidenciaResponse[] = Array.isArray(resp)
-          ? resp
-          : resp.results ?? resp.data ?? resp.incidencias ?? [];
+    if (this.haySesion()) {
+      this.cargarDesdeCuenta();
+      return;
+    }
 
-        this.casos = incidencias
+    this.cargarDesdeCache();
+  }
+
+  haySesion(): boolean {
+    return !!localStorage.getItem('pawtrack_access');
+  }
+
+  private cargarDesdeCuenta(): void {
+    this.reportService.listarMisCasos().subscribe({
+      next: (resp) => {
+        this.casos = resp
           .filter(i => i.estado === 'ASIGNADO')
           .map(i => this.mapearCaso(i));
-
-        this.alertasCercanas = incidencias
-          .filter(i => i.estado === 'REPORTADO' && (i.urgency_score ?? 0) >= 60)
-          .slice(0, 3)
-          .map(i => this.mapearCaso(i));
-
         this.cargando = false;
       },
       error: () => {
-        this.errorCarga = 'No se pudieron cargar los casos.';
+        this.errorCarga = 'No se pudieron cargar tus casos aceptados.';
+        this.cargando = false;
+      },
+    });
+  }
+
+  private cargarDesdeCache(): void {
+    const folios = this.localReportCache.obtenerFolios();
+
+    if (folios.length === 0) {
+      this.cargando = false;
+      return;
+    }
+
+    const peticiones = folios.map(folio =>
+      this.reportService.obtenerReportePorFolio(folio).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    forkJoin(peticiones).subscribe({
+      next: (resp) => {
+        this.casos = (resp.filter((i): i is IncidenciaResponse => i !== null))
+          .filter(i => i.estado === 'ASIGNADO')
+          .map(i => this.mapearCaso(i));
+        this.cargando = false;
+      },
+      error: () => {
+        this.errorCarga = 'No se pudieron cargar los casos guardados en este navegador.';
         this.cargando = false;
       },
     });
   }
 
   // ─────────────────────────────────────────
-  // Mapeo de incidencia → CasoAceptado
+  // Mapeo de IncidenciaResponse → CasoAceptado
   // ─────────────────────────────────────────
 
   private mapearCaso(i: IncidenciaResponse): CasoAceptado {
     const score = i.urgency_score ?? 0;
-    const estadoRescate = this.inferirEstadoRescate(i.estado);
 
     return {
-      id:               i.id,
-      folio:            i.folio ?? `RPT-${i.id}`,
-      titulo:           i.nombre_caso?.trim() || `${i.tipo_animal ?? 'Animal'} en incidencia`,
-      descripcion:      i.notas_animal?.trim() || 'Sin descripción.',
-      ubicacion:        i.lat_out != null && i.lng_out != null
-                          ? `${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
-                          : 'Ubicación no disponible',
-      tiempo:           this.calcularTiempo(i.created_at),
-      prioridad:        score >= 80 ? 'Urgente' : score >= 40 ? 'Alta' : 'Moderada',
-      fotoUrl:          this.imagenUrl(i.imagen),
-      especie:          i.tipo_animal ?? 'Desconocido',
-      tamano:           i.tamano_animal ?? 'No especificado',
-      condicion:        i.condicion_animal ?? 'No especificada',
+      id:              i.id,
+      folio:           i.folio ?? `RPT-${i.id}`,
+      titulo:          i.nombre_caso?.trim() || `${i.tipo_animal ?? 'Animal'} en incidencia`,
+      descripcion:     i.notas_animal?.trim() || 'Sin descripción.',
+      ubicacion:       i.lat_out != null && i.lng_out != null
+                         ? `Ubicación registrada: ${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
+                         : 'Ubicación no disponible',
+      tiempo:          this.tiempoRelativo(i.created_at),
+      prioridad:       score >= 80 ? 'Urgente' : score >= 40 ? 'Alta' : 'Moderada',
+      fotoUrl:         this.imagenUrl(i.imagen),
+      especie:         i.tipo_animal ?? 'Desconocido',
+      tamano:          i.tamano_animal ?? 'No especificado',
+      condicion:       i.condicion_animal ?? 'No especificada',
       score,
-      contactoNombre:   i.nombre_contacto ?? 'Anónimo',
+      contactoNombre:  i.nombre_contacto ?? 'Anónimo',
       contactoTelefono: i.telefono_contacto ?? 'No disponible',
-      estadoRescate,
-      progresoRescate:  PROGRESO_POR_ESTADO[estadoRescate],
-      bitacora:         this.construirBitacora(i, estadoRescate),
-      raw:              i,
+      estadoRescate:   this.inferirEstadoRescate(i.estado),
+      estadoBackend:   i.estado,
+      raw:             i,
     };
   }
 
   // ─────────────────────────────────────────
-  // Bitácora — construye los pasos del rescate
-  // basándose en el estado actual del backend.
-  // Si tu backend devuelve eventos reales, reemplaza
-  // esta lógica con el array de eventos directamente.
+  // Caso enfocado para el aside
   // ─────────────────────────────────────────
 
-  private construirBitacora(i: IncidenciaResponse, estado: EstadoRescate): EntradaBitacora[] {
-    const created = this.formatearHora(i.created_at);
+  get casoEnfocado(): CasoAceptado | undefined {
+    if (this.casos.length === 0) return undefined;
+    return [...this.casos].sort(
+      (a, b) => ORDEN_PRIORIDAD_FOCO[a.estadoRescate] - ORDEN_PRIORIDAD_FOCO[b.estadoRescate]
+    )[0];
+  }
 
-    const pasos: Array<{ titulo: string; descripcion: string; minEstado: EstadoRescate }> = [
-      {
-        titulo: 'Caso aceptado',
-        descripcion: 'Misión confirmada por el voluntario.',
-        minEstado: 'Aceptado',
-      },
-      {
-        titulo: 'Unidad despachada',
-        descripcion: 'En ruta hacia la ubicación del reporte.',
-        minEstado: 'En camino',
-      },
-      {
-        titulo: 'Llegada al sitio',
-        descripcion: 'Voluntario presente en la ubicación.',
-        minEstado: 'En sitio',
-      },
-      {
-        titulo: 'Animal rescatado',
-        descripcion: 'Traslado a clínica u hogar temporal confirmado.',
-        minEstado: 'Rescatado',
-      },
-    ];
-
-    const orden: EstadoRescate[] = ['Aceptado', 'En camino', 'En sitio', 'Rescatado'];
-    const idxActual = orden.indexOf(estado);
-
-    return pasos.map((paso, idx) => {
-      const idxPaso = orden.indexOf(paso.minEstado);
-      const esActivo    = idxPaso === idxActual;
-      const esCompletado = idxPaso < idxActual;
-
-      return {
-        titulo:      paso.titulo,
-        descripcion: paso.descripcion,
-        hora:        idxPaso === 0 ? created : esCompletado || esActivo ? this.horaRelativa(i.created_at, idxPaso * 30) : '',
-        estado:      esCompletado ? 'completado' : esActivo ? 'activo' : 'pendiente',
-      };
-    });
+  proximaAccion(caso: CasoAceptado): { titulo: string; descripcion: string } {
+    switch (caso.estadoRescate) {
+      case 'Aceptado':
+        return { titulo: 'Salir a campo', descripcion: 'Confirma que vas en camino al punto de ubicación del animal.' };
+      case 'En camino':
+        return { titulo: 'Registrar llegada', descripcion: 'Marca cuando llegues al sitio para iniciar la evaluación visual.' };
+      case 'En sitio':
+        return { titulo: 'Confirmar traslado', descripcion: 'El animal está estable y listo para ser trasladado al refugio asignado.' };
+      case 'Rescatado':
+        return { titulo: 'Caso cerrado', descripcion: 'Esta misión ya fue completada exitosamente.' };
+    }
   }
 
   // ─────────────────────────────────────────
-  // Getters de métricas del header
+  // Métricas del header
   // ─────────────────────────────────────────
 
   get casosCompletadosHoy(): number {
-    return 0; // Reemplazar con datos reales del backend
+    return 0;
   }
 
   get casosUrgentes(): number {
@@ -241,7 +247,7 @@ export class AcceptedCasesPage implements OnInit {
   }
 
   get tiempoEnCampo(): string {
-    return '—'; // Reemplazar con lógica de sesión si la tienes
+    return '—';
   }
 
   get protocoloCompletado(): number {
@@ -253,16 +259,8 @@ export class AcceptedCasesPage implements OnInit {
   // ─────────────────────────────────────────
 
   get casosPorVista(): CasoAceptado[] {
-    return this.casos.filter(c => {
-      const term = this.searchTerm.toLowerCase();
-      const matchSearch = !term
-        || c.titulo.toLowerCase().includes(term)
-        || c.ubicacion.toLowerCase().includes(term)
-        || c.especie.toLowerCase().includes(term)
-        || c.folio.toLowerCase().includes(term);
-      const matchFilter = this.filtroActivo === 'Todos' || c.prioridad === this.filtroActivo;
-      return matchSearch && matchFilter;
-    });
+    if (this.filtroEstado === 'Todos') return this.casos;
+    return this.casos.filter(c => c.estadoRescate === this.filtroEstado);
   }
 
   get casosPaginados(): CasoAceptado[] {
@@ -287,9 +285,7 @@ export class AcceptedCasesPage implements OnInit {
   }
 
   cambiarPaginaCasos(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginasCasos) {
-      this.paginaActualCasos = pagina;
-    }
+    if (pagina >= 1 && pagina <= this.totalPaginasCasos) this.paginaActualCasos = pagina;
   }
 
   // ─────────────────────────────────────────
@@ -300,16 +296,16 @@ export class AcceptedCasesPage implements OnInit {
     this.router.navigate(['/details-case-accepted', caso.folio]);
   }
 
-  actualizarProgreso(caso: CasoAceptado): void {
-    this.router.navigate(['/progress-case', caso.folio]);
+  actualizarCaso(caso: CasoAceptado): void {
+    this.router.navigate(['/update-case', caso.folio]);
   }
 
-  verDetalleAlerta(caso: CasoAceptado): void {
-    this.router.navigate(['/details-case', caso.folio]);
+  verCronologia(caso: CasoAceptado): void {
+    this.router.navigate(['/cronology-case', caso.folio]);
   }
 
   // ─────────────────────────────────────────
-  // Utilidades privadas
+  // Utilidades (espejadas de reporter.page.ts)
   // ─────────────────────────────────────────
 
   imagenUrl(imagen: string | null): string {
@@ -317,7 +313,29 @@ export class AcceptedCasesPage implements OnInit {
     return imagen.startsWith('http') ? imagen : `${environment.apiUrl}${imagen}`;
   }
 
-  private calcularTiempo(fecha: string | null): string {
+  getStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      ASIGNADO:   'Asignado',
+      EN_CAMINO:  'Rescatista en camino',
+      EN_SITIO:   'En sitio',
+      RESCATADO:  'Rescatado',
+      COMPLETADO: 'Completado',
+    };
+    return labels[status] || status;
+  }
+
+  getStatusClass(status: string): string {
+    const classes: Record<string, string> = {
+      ASIGNADO:   'bg-slate-100 text-slate-600 border-slate-200',
+      EN_CAMINO:  'bg-amber-100 text-amber-700 border-amber-200',
+      EN_SITIO:   'bg-blue-100 text-blue-700 border-blue-200',
+      RESCATADO:  'bg-emerald-100 text-emerald-700 border-emerald-200',
+      COMPLETADO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    };
+    return classes[status] || 'bg-slate-100 text-slate-600 border-slate-200';
+  }
+
+  private tiempoRelativo(fecha: string | null | undefined): string {
     if (!fecha) return 'Fecha no disponible';
     const diff = Date.now() - new Date(fecha).getTime();
     const min  = Math.floor(diff / 60000);
@@ -329,24 +347,12 @@ export class AcceptedCasesPage implements OnInit {
     return `Hace ${dias} día${dias === 1 ? '' : 's'}`;
   }
 
-  private formatearHora(fecha: string | null): string {
-    if (!fecha) return '—';
-    return new Date(fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  private horaRelativa(fecha: string | null, minutosExtra: number): string {
-    if (!fecha) return '—';
-    const d = new Date(new Date(fecha).getTime() + minutosExtra * 60000);
-    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-  }
-
   private inferirEstadoRescate(estadoBackend: string): EstadoRescate {
-    // Adaptar según los valores reales que devuelva tu backend
     switch (estadoBackend) {
-      case 'EN_CAMINO':   return 'En camino';
-      case 'EN_SITIO':    return 'En sitio';
-      case 'RESCATADO':   return 'Rescatado';
-      default:            return 'Aceptado';
+      case 'EN_CAMINO':  return 'En camino';
+      case 'EN_SITIO':   return 'En sitio';
+      case 'RESCATADO':  return 'Rescatado';
+      default:           return 'Aceptado';
     }
   }
 }
