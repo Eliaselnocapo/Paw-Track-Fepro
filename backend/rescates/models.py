@@ -13,6 +13,9 @@ class Rescate(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADOS_RESCATE, default='EN_CAMINO')
     fecha_aceptacion = models.DateTimeField(auto_now_add=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)
+    
+    # Campo inyectado para B2
+    historial = models.JSONField(default=list)
 
     def __str__(self):
         return f"Rescate {self.id} - Incidencia: {self.incidencia.folio}"

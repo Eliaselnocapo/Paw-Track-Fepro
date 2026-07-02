@@ -1,16 +1,17 @@
-"""
-ASGI config for pawtrack project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
-"""
-
 import os
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pawtrack.settings")
+
+# get_asgi_application() inicializa el app registry de Django.
+# Las importaciones de routing deben ir DESPUÉS de esta llamada.
 from django.core.asgi import get_asgi_application
+django_asgi_app = get_asgi_application()
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pawtrack.settings')
+from channels.routing import ProtocolTypeRouter, URLRouter
+from notificaciones.routing import websocket_urlpatterns as notif_patterns
+from rescates.routing import websocket_urlpatterns as rescate_patterns
 
-application = get_asgi_application()
+application = ProtocolTypeRouter({
+    "http": django_asgi_app,
+    "websocket": URLRouter(notif_patterns + rescate_patterns),
+})

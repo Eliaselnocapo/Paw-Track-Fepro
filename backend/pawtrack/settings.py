@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'core',
     'rescates',
+    'notificaciones',
 ]
 
 MIDDLEWARE = [
@@ -146,6 +147,8 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
+
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
     'PAGE_SIZE': 20,
     'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
