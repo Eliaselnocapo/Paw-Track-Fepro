@@ -125,19 +125,24 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     notas_animal     = serializers.CharField(source='animal.otros',          read_only=True, default='')
     edad_estimada    = serializers.CharField(source='animal.edad_estimada',  read_only=True, default='')
     peso_estimado    = serializers.CharField(source='animal.peso_estimado',  read_only=True, default='')
+
+    # Quién tomó el caso: nombre y email del rescatista asignado
+    rescatista_info  = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Incidencia
         fields = (
             'id',
             'usuario_reporta', 'animal',
-            'patrocinador', 'rescatista_asignado',
+            'patrocinador', 'rescatista_asignado', 'rescatista_info',
             'imagen',
             'latitud', 'longitud',
             'lat_out', 'lng_out',
+            'direccion',
             'tipo_animal', 'tamano_animal', 'condicion_animal', 'notas_animal', 'edad_estimada', 'peso_estimado',
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
             'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
-            'urgency_score', 'trust_score', 'created_at', 'folio',
+            'urgency_score', 'trust_score', 'created_at', 'updated_at', 'folio',
         )
         extra_kwargs = {
             'usuario_reporta':     {'required': False, 'allow_null': True},
@@ -152,9 +157,11 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'nombre_contacto':     {'required': False, 'allow_blank': True, 'default': ''},
             'telefono_contacto':   {'required': False, 'allow_blank': True, 'default': ''},
             'caracteristicas':     {'required': False, 'allow_blank': True, 'default': ''},
+            'direccion':           {'required': False, 'allow_blank': True, 'default': ''},
             'urgency_score':       {'required': False},
             'trust_score':         {'read_only': True},
             'created_at':          {'read_only': True},
+            'updated_at':          {'read_only': True},
             'folio':               {'read_only': True},
         }
 
@@ -163,6 +170,16 @@ class IncidenciaSerializer(serializers.ModelSerializer):
 
     def get_lng_out(self, obj):
         return obj.ubicacion.x if obj.ubicacion else None
+
+    def get_rescatista_info(self, obj):
+        if not obj.rescatista_asignado:
+            return None
+        u = obj.rescatista_asignado.usuario
+        return {
+            "id":     u.id,
+            "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
+            "email":  u.email,
+        }
 
     def create(self, validated_data):
         lat = validated_data.pop('latitud')
