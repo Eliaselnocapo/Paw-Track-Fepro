@@ -2,10 +2,10 @@ import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/co
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
-import { ReportService } from '../../../core/services/report.service';
-import { LocalReportCacheService } from '../../../core/services/local-report-cache.service';
+import { ReportService } from '../../../../core/services/report.service';
+import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 
 declare let L: any;
 
@@ -400,4 +400,27 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     this.pasoActual = 3;
     this.initInteractiveMap();
   }
+  get enlaceSeguimiento(): string {
+  if (!this.folioGenerado) {
+    return '';
+  }
+
+  return `/seguimiento/${this.folioGenerado}`;
+}
+
+copiarEnlaceSeguimiento(): void {
+  if (!this.folioGenerado) {
+    return;
+  }
+
+  const enlaceCompleto = `${window.location.origin}${this.enlaceSeguimiento}`;
+
+  navigator.clipboard.writeText(enlaceCompleto)
+    .then(() => {
+      console.log('Enlace copiado:', enlaceCompleto);
+    })
+    .catch((err) => {
+      console.error('No se pudo copiar el enlace:', err);
+    });
+}
 }

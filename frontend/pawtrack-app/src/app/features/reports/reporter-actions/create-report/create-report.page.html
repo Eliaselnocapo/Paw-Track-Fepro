@@ -588,14 +588,45 @@
 
         <div class="w-full md:w-7/12 p-10 flex flex-col justify-between bg-white">
           <div class="space-y-6">
-            <div class="bg-blue-100 p-4 rounded-xl border border-blue-100 shadow-sm" [class.animate-pulse]="enviando">
-              <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Folio de Seguimiento</p>
+            <div
+              class="bg-blue-100 p-4 rounded-xl border border-blue-100 shadow-sm"
+              [class.animate-pulse]="enviando"
+            >
+              <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                Folio de Seguimiento
+              </p>
+
               @if (enviando) {
-                <p class="text-base text-slate-400">Generando folio...</p>
+                <p class="text-base text-slate-400">
+                  Generando folio...
+                </p>
               } @else if (errorEnvio) {
-                <p class="text-sm text-red-600">{{ errorEnvio }}</p>
+                <p class="text-sm text-red-600">
+                  {{ errorEnvio }}
+                </p>
               } @else {
-                <p class="text-2xl text-blue-700 font-bold">{{ folioGenerado }}</p>
+                <p class="text-2xl text-blue-700 font-bold">
+                  {{ folioGenerado }}
+                </p>
+
+                <div class="mt-4 bg-white border border-blue-200 rounded-xl p-3">
+                  <p class="text-xs font-bold text-slate-500 uppercase mb-1">
+                    Enlace de seguimiento
+                  </p>
+
+                  <p class="text-sm font-semibold text-blue-700 break-all">
+                    {{ enlaceSeguimiento }}
+                  </p>
+
+                  <button
+                    type="button"
+                    (click)="copiarEnlaceSeguimiento()"
+                    class="mt-3 h-10 px-4 rounded-lg bg-blue-700 text-white text-sm font-bold hover:bg-blue-800 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                    Copiar enlace
+                  </button>
+                </div>
               }
             </div>
 

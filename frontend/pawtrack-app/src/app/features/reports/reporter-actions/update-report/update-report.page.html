@@ -1,0 +1,734 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+    <!-- FORMAS DECORATIVAS -->
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute left-[-150px] top-[140px] w-[360px] h-[360px] md:w-[520px] md:h-[520px] bg-blue-100 rounded-full opacity-80"></div>
+      <div class="absolute right-[-150px] top-[380px] w-[320px] h-[320px] md:w-[460px] md:h-[460px] bg-emerald-100 rounded-full opacity-80"></div>
+      <div class="absolute right-[12%] top-[220px] w-[130px] h-[130px] bg-sky-100 rounded-full opacity-80"></div>
+      <div class="absolute left-[8%] bottom-[160px] w-[220px] h-[220px] bg-violet-100 rounded-full opacity-60"></div>
+    </div>
+
+    @if (cargando) {
+      <main class="flex-1 flex items-center justify-center relative z-10">
+        <p class="text-slate-500 animate-pulse">Cargando reporte...</p>
+      </main>
+    }
+
+    @if (!cargando && error && !mensajeExito) {
+      <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+        <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
+        <p class="text-slate-600 text-center">{{ error }}</p>
+
+        <button
+          type="button"
+          routerLink="/dashboard/reporter"
+          class="h-11 px-5 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md"
+        >
+          Volver al dashboard
+        </button>
+      </main>
+    }
+
+    @if (!cargando && !error) {
+      <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-10 relative z-10">
+
+        <!-- HERO -->
+        <section class="relative overflow-hidden bg-white border border-slate-300 shadow-md mb-8">
+
+          <!-- FIGURAS DECORATIVAS DEL HERO -->
+          <div class="absolute inset-0 pointer-events-none overflow-hidden">
+            <div class="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-blue-100"></div>
+            <div class="absolute top-10 left-[48%] w-16 h-16 rounded-full bg-cyan-200/80"></div>
+            <div class="absolute bottom-8 left-[42%] w-10 h-10 rounded-full bg-orange-200/80"></div>
+          </div>
+
+          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12">
+
+            <!-- IZQUIERDA -->
+            <div class="lg:col-span-8 p-6 md:p-10">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase mb-5">
+                <span class="material-symbols-outlined text-[17px]">edit_note</span>
+                Edición del reporte
+              </div>
+
+              <h1 class="text-3xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">
+                Actualizar datos del caso
+              </h1>
+
+              <p class="text-slate-600 leading-relaxed max-w-2xl">
+                Modifica los datos principales del reporte: nombre, animal, tamaño, condición visible
+                y notas originales. Para agregar una actualización al historial usa “Agregar seguimiento”.
+              </p>
+
+              <div class="flex flex-wrap gap-2 mt-6">
+                <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-bold">
+                  <span class="material-symbols-outlined text-[16px]">confirmation_number</span>
+                  {{ reporte.folio }}
+                </span>
+
+                <span class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs font-bold">
+                  <span class="material-symbols-outlined text-[16px]">flag</span>
+                  {{ reporte.estado || 'Reporte activo' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- DERECHA -->
+            <div class="lg:col-span-4 relative overflow-hidden border-t  p-6 md:p-8 flex items-center">
+              <div class="relative z-10 bg-white border border-blue-200 shadow-md p-5 w-full">
+                <div class="flex items-start gap-3">
+                  <div class="w-11 h-11 bg-blue-600 text-white grid place-items-center shrink-0">
+                    <span class="material-symbols-outlined text-[22px]">edit_note</span>
+                  </div>
+
+                  <div>
+                    <h2 class="font-bold text-slate-900 mb-1">
+                      Esto edita el reporte original
+                    </h2>
+
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                      Los cambios reemplazan datos base del caso. Si quieres contar qué pasó después, usa seguimiento.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        @if (mensajeExito) {
+          <section class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 text-sm font-semibold flex items-center gap-2 shadow-md">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+            {{ mensajeExito }}
+          </section>
+        }
+
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+          <!-- COLUMNA PRINCIPAL -->
+          <div class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- DATOS PRINCIPALES -->
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+              <div class="flex items-start justify-between gap-4 mb-6">
+                <div>
+                  <h2 class="text-xl font-bold text-slate-900">Datos principales</h2>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Ajusta la información que identifica el reporte.
+                  </p>
+                </div>
+
+                <div class="w-12 h-12 bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100 shrink-0">
+                  <span class="material-symbols-outlined">description</span>
+                </div>
+              </div>
+
+              <label class="block text-sm font-bold text-slate-900 mb-2">
+                Nombre del caso
+              </label>
+
+              <input
+                type="text"
+                [(ngModel)]="reporte.nombreCaso"
+                maxlength="60"
+                class="w-full h-12 border bg-slate-50 px-4 text-sm text-slate-900 outline-none transition-all focus:bg-white focus:ring-2"
+                [ngClass]="{
+                  'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.nombreCaso && !nombreCasoValido(),
+                  'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.nombreCaso || nombreCasoValido()
+                }"
+                placeholder="Ej. Perrito herido cerca de CU"
+              >
+
+              @if (reporte.nombreCaso && !nombreCasoValido()) {
+                <p class="mt-2 text-xs font-semibold text-red-600">
+                  Escribe un nombre más claro. Ejemplo: “Perrito herido cerca de CU”.
+                </p>
+              }
+
+              <p class="mt-2 text-xs text-slate-500">
+                Este nombre aparece en tu dashboard y ayuda a ubicar el caso.
+              </p>
+            </section>
+
+            <!-- TIPO DE ANIMAL -->
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Tipo de animal</h2>
+              <p class="text-sm text-slate-500 mb-6">
+                Selecciona la especie reportada.
+              </p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  (click)="seleccionarTipo('perro')"
+                  class="relative flex flex-col items-center justify-center p-6 border-2 transition-all hover:shadow-md"
+                  [ngClass]="reporte.tipoAnimal === 'perro'
+                    ? 'border-blue-600 bg-blue-50 opacity-100'
+                    : 'border-slate-200 bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-300'"
+                >
+                  <img src="assets/icon/corgi.png" alt="Perro" class="w-14 h-14 mb-3 object-contain">
+
+                  <span
+                    class="font-bold text-sm"
+                    [ngClass]="reporte.tipoAnimal === 'perro' ? 'text-blue-800' : 'text-slate-700'"
+                  >
+                    Perro
+                  </span>
+
+                  @if (reporte.tipoAnimal === 'perro') {
+                    <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                      <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                    </div>
+                  }
+                </button>
+
+                <button
+                  type="button"
+                  (click)="seleccionarTipo('gato')"
+                  class="relative flex flex-col items-center justify-center p-6 border-2 transition-all hover:shadow-md"
+                  [ngClass]="reporte.tipoAnimal === 'gato'
+                    ? 'border-blue-600 bg-blue-50 opacity-100'
+                    : 'border-slate-200 bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-300'"
+                >
+                  <img src="assets/icon/exotic-shorthair.png" alt="Gato" class="w-14 h-14 mb-3 object-contain">
+
+                  <span
+                    class="font-bold text-sm"
+                    [ngClass]="reporte.tipoAnimal === 'gato' ? 'text-blue-800' : 'text-slate-700'"
+                  >
+                    Gato
+                  </span>
+
+                  @if (reporte.tipoAnimal === 'gato') {
+                    <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                      <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                    </div>
+                  }
+                </button>
+              </div>
+            </section>
+
+            <!-- TAMAÑO -->
+            <section
+              class="bg-white border border-slate-300 shadow-md p-6 md:p-8"
+              [class.opacity-60]="!reporte.tipoAnimal"
+            >
+              <div class="flex justify-between items-center mb-5">
+                <div>
+                  <h2 class="text-xl font-bold text-slate-900">Tamaño aproximado</h2>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Cambia el tamaño registrado si fue incorrecto.
+                  </p>
+                </div>
+
+                @if (!reporte.tipoAnimal) {
+                  <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 uppercase tracking-wider">
+                    Selecciona animal primero
+                  </span>
+                }
+              </div>
+
+              @if (reporte.tipoAnimal === 'gato') {
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    (click)="seleccionarTamano('cachorro')"
+                    class="relative flex items-center p-4 border-2 transition-all text-left hover:shadow-md"
+                    [ngClass]="reporte.tamanoAnimal === 'cachorro'
+                      ? 'border-blue-600 bg-blue-50 opacity-100'
+                      : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                  >
+                    <img src="assets/icon/cat.png" alt="Cachorro" class="w-10 h-10 mr-3 object-contain">
+
+                    <div>
+                      <span class="block font-bold text-sm">Cachorro</span>
+                      <span class="block text-xs text-slate-500 mt-0.5">Menos de 6 meses</span>
+                    </div>
+
+                    @if (reporte.tamanoAnimal === 'cachorro') {
+                      <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                      </div>
+                    }
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="seleccionarTamano('adulto')"
+                    class="relative flex items-center p-4 border-2 transition-all text-left hover:shadow-md"
+                    [ngClass]="reporte.tamanoAnimal === 'adulto'
+                      ? 'border-blue-600 bg-blue-50 opacity-100'
+                      : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                  >
+                    <img src="assets/icon/cat_adult.png" alt="Adulto" class="w-10 h-10 mr-3 object-contain">
+
+                    <div>
+                      <span class="block font-bold text-sm">Adulto</span>
+                      <span class="block text-xs text-slate-500 mt-0.5">Tamaño estándar</span>
+                    </div>
+
+                    @if (reporte.tamanoAnimal === 'adulto') {
+                      <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                      </div>
+                    }
+                  </button>
+                </div>
+              } @else {
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    type="button"
+                    (click)="seleccionarTamano('pequeño')"
+                    class="relative flex items-center p-4 border-2 transition-all text-left hover:shadow-md"
+                    [ngClass]="reporte.tamanoAnimal === 'pequeño'
+                      ? 'border-blue-600 bg-blue-50 opacity-100'
+                      : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                  >
+                    <img src="assets/icon/small_dog.png" alt="Pequeño" class="w-10 h-10 mr-3 object-contain">
+
+                    <div>
+                      <span class="block font-bold text-sm">Pequeño</span>
+                      <span class="block text-xs text-slate-500 mt-0.5">&lt; 10 kg</span>
+                    </div>
+
+                    @if (reporte.tamanoAnimal === 'pequeño') {
+                      <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                      </div>
+                    }
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="seleccionarTamano('mediano')"
+                    class="relative flex items-center p-4 border-2 transition-all text-left hover:shadow-md"
+                    [ngClass]="reporte.tamanoAnimal === 'mediano'
+                      ? 'border-blue-600 bg-blue-50 opacity-100'
+                      : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                  >
+                    <img src="assets/icon/medium_dog.png" alt="Mediano" class="w-10 h-10 mr-3 object-contain">
+
+                    <div>
+                      <span class="block font-bold text-sm">Mediano</span>
+                      <span class="block text-xs text-slate-500 mt-0.5">10 - 25 kg</span>
+                    </div>
+
+                    @if (reporte.tamanoAnimal === 'mediano') {
+                      <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                      </div>
+                    }
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="seleccionarTamano('grande')"
+                    class="relative flex items-center p-4 border-2 transition-all text-left hover:shadow-md"
+                    [ngClass]="reporte.tamanoAnimal === 'grande'
+                      ? 'border-blue-600 bg-blue-50 opacity-100'
+                      : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                  >
+                    <img src="assets/icon/big_dog.png" alt="Grande" class="w-10 h-10 mr-3 object-contain">
+
+                    <div>
+                      <span class="block font-bold text-sm">Grande</span>
+                      <span class="block text-xs text-slate-500 mt-0.5">&gt; 25 kg</span>
+                    </div>
+
+                    @if (reporte.tamanoAnimal === 'grande') {
+                      <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                        <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                      </div>
+                    }
+                  </button>
+                </div>
+              }
+            </section>
+
+            <!-- CONDICIÓN -->
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Condición visible</h2>
+              <p class="text-sm text-slate-500 mb-6">
+                Marca las condiciones base del reporte.
+              </p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  (click)="toggleCondicion('herido')"
+                  [disabled]="condicionBloqueada('herido')"
+                  class="relative flex flex-col p-4 border-2 transition-all text-left hover:shadow-md"
+                  [ngClass]="tieneCondicion('herido')
+                    ? 'border-red-500 bg-red-50 opacity-100'
+                    : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                >
+                  <img src="assets/icon/medicine.png" alt="Herido" class="w-10 h-10 mb-3 object-contain">
+
+                  <span class="font-bold text-sm" [ngClass]="tieneCondicion('herido') ? 'text-red-700' : 'text-slate-700'">
+                    Herido
+                  </span>
+
+                  <span class="text-xs text-slate-500 mt-1">
+                    Signos de dolor o sangrado.
+                  </span>
+
+                  @if (tieneCondicion('herido')) {
+                    <div class="absolute top-3 right-3 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center shadow-md">
+                      <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                    </div>
+                  }
+                </button>
+
+                <button
+                  type="button"
+                  (click)="toggleCondicion('callejero')"
+                  [disabled]="condicionBloqueada('callejero')"
+                  class="relative flex flex-col p-4 border-2 transition-all text-left hover:shadow-md"
+                  [ngClass]="tieneCondicion('callejero')
+                    ? 'border-amber-500 bg-amber-50 opacity-100'
+                    : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                >
+                  <img src="assets/icon/street.png" alt="Callejero" class="w-10 h-10 mb-3 object-contain">
+
+                  <span class="font-bold text-sm" [ngClass]="tieneCondicion('callejero') ? 'text-amber-700' : 'text-slate-700'">
+                    Callejero
+                  </span>
+
+                  <span class="text-xs text-slate-500 mt-1">
+                    Deambula sin dueño aparente.
+                  </span>
+
+                  @if (tieneCondicion('callejero')) {
+                    <div class="absolute top-3 right-3 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center shadow-md">
+                      <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                    </div>
+                  }
+                </button>
+
+                <button
+                  type="button"
+                  (click)="toggleCondicion('extraviado')"
+                  [disabled]="condicionBloqueada('extraviado')"
+                  class="relative flex flex-col p-4 border-2 transition-all text-left hover:shadow-md"
+                  [ngClass]="tieneCondicion('extraviado')
+                    ? 'border-blue-600 bg-blue-50 opacity-100'
+                    : 'border-transparent bg-white opacity-45 grayscale hover:opacity-80 hover:border-slate-200'"
+                >
+                  <img src="assets/icon/search.png" alt="Extraviado" class="w-10 h-10 mb-3 object-contain">
+
+                  <span class="font-bold text-sm" [ngClass]="tieneCondicion('extraviado') ? 'text-blue-700' : 'text-slate-700'">
+                    Extraviado
+                  </span>
+
+                  <span class="text-xs text-slate-500 mt-1">
+                    Perdido o desorientado.
+                  </span>
+
+                  @if (tieneCondicion('extraviado')) {
+                    <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                      <span class="material-symbols-outlined text-white text-[12px]">check</span>
+                    </div>
+                  }
+                </button>
+              </div>
+            </section>
+
+            <!-- NOTAS -->
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Notas del reporte</h2>
+              <p class="text-sm text-slate-500 mb-4">
+                Edita la descripción original del caso.
+              </p>
+
+              <textarea
+                [(ngModel)]="reporte.notasAnimal"
+                rows="5"
+                class="w-full border bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:ring-2"
+                [ngClass]="{
+                  'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.notasAnimal && !descripcionValida(),
+                  'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.notasAnimal || descripcionValida()
+                }"
+                placeholder="Ej. Es color café, tiene collar azul, parece asustado..."
+              ></textarea>
+
+              @if (reporte.notasAnimal && !descripcionValida()) {
+                <p class="mt-2 text-xs font-semibold text-red-600">
+                  La descripción debe tener al menos 10 caracteres útiles.
+                </p>
+              }
+            </section>
+
+            <!-- CONTACTO -->
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Datos de contacto</h2>
+              <p class="text-sm text-slate-500 mb-5">
+                Actualiza la información para que los rescatistas puedan contactarte.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">
+                    Nombre completo
+                  </label>
+
+                  <input
+                    type="text"
+                    [(ngModel)]="reporte.nombreContacto"
+                    class="w-full h-12 border bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:ring-2"
+                    [ngClass]="{
+                      'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.nombreContacto && !nombreContactoValido(),
+                      'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.nombreContacto || nombreContactoValido()
+                    }"
+                    placeholder="Ej. Juan Pérez"
+                  >
+
+                  @if (reporte.nombreContacto && !nombreContactoValido()) {
+                    <p class="mt-2 text-xs font-semibold text-red-600">
+                      El nombre debe contener nombre y apellido, solo letras y espacios.
+                    </p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">
+                    Teléfono móvil
+                  </label>
+
+                  <input
+                    type="tel"
+                    [(ngModel)]="reporte.telefonoContacto"
+                    maxlength="10"
+                    inputmode="numeric"
+                    class="w-full h-12 border bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:ring-2"
+                    [ngClass]="{
+                      'border-red-400 focus:border-red-500 focus:ring-red-100': reporte.telefonoContacto && !telefonoContactoValido(),
+                      'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !reporte.telefonoContacto || telefonoContactoValido()
+                    }"
+                    placeholder="Ej. 2221234567"
+                  >
+
+                  @if (reporte.telefonoContacto && !telefonoContactoValido()) {
+                    <p class="mt-2 text-xs font-semibold text-red-600">
+                      El teléfono debe tener exactamente 10 dígitos, sin espacios ni guiones.
+                    </p>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- UBICACIÓN -->
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+              <h2 class="text-xl font-bold text-slate-900 mb-2">Ubicación del reporte</h2>
+
+              <p class="text-sm text-slate-500 mb-5">
+                Busca una dirección, da clic en el mapa o arrastra el marcador para ajustar la ubicación.
+              </p>
+
+              <div class="flex flex-col gap-3 mb-5">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Buscar dirección
+                </label>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input
+                    #searchInputUpdate
+                    type="text"
+                    class="h-12 flex-1 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+                    placeholder="Ej. San Manuel, Puebla"
+                    (keyup.enter)="buscarDireccion(searchInputUpdate.value)"
+                  >
+
+                  <button
+                    type="button"
+                    (click)="buscarDireccion(searchInputUpdate.value)"
+                    class="h-12 px-5 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md"
+                  >
+                    Buscar
+                  </button>
+                </div>
+              </div>
+
+              <div class="relative h-[420px] w-full border border-slate-300 bg-slate-200 overflow-hidden shadow-md">
+                <div id="mapa-update" class="absolute inset-0 z-0 h-full w-full"></div>
+              </div>
+
+              <div class="mt-4 bg-blue-50 border border-blue-100 p-4 shadow-md">
+                <div class="flex items-start gap-3">
+                  <span class="material-symbols-outlined text-blue-700">
+                    location_on
+                  </span>
+
+                  <div>
+                    <p class="font-bold text-slate-900">
+                      {{ cargandoDireccion ? 'Actualizando ubicación...' : reporte.ubicacionTexto }}
+                    </p>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                      {{ reporte.lat | number:'1.6-6' }}, {{ reporte.lng | number:'1.6-6' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- PANEL LATERAL -->
+          <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
+
+            <!-- CAMBIOS QUE SE GUARDARÁN -->
+            <section class="relative overflow-hidden bg-white border border-slate-300 shadow-md p-6">
+
+              <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                <div class="absolute top-20 right-8 w-8 h-8 rounded-full bg-cyan-200/80"></div>
+              </div>
+
+              <div class="relative z-10">
+                <div class="flex items-start justify-between gap-4 mb-5">
+                  <div>
+                    <p class="text-xs font-bold uppercase text-blue-700 mb-1">
+                      Resumen de edición
+                    </p>
+
+                    <h2 class="text-xl font-bold text-slate-900">
+                      Cambios que se guardarán
+                    </h2>
+
+                    <p class="text-sm text-slate-500 mt-2">
+                      Aquí se muestran solo los datos que modificaste del reporte original.
+                    </p>
+                  </div>
+
+                  <div class="w-11 h-11 bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center shrink-0">
+                    <span class="material-symbols-outlined text-[22px]">difference</span>
+                  </div>
+                </div>
+
+                @if (hayCambios) {
+                  <div class="space-y-4">
+                    @for (cambio of cambiosAplicados; track cambio.campo) {
+                      <div class="border border-blue-100 bg-blue-50/70 p-4 shadow-md">
+                        <p class="text-xs font-bold text-blue-700 uppercase mb-3">
+                          {{ cambio.campo }}
+                        </p>
+
+                        <div class="space-y-3">
+                          <div class="bg-white border border-slate-200 p-3">
+                            <span class="block text-[11px] font-bold uppercase text-slate-400">
+                              Antes
+                            </span>
+
+                            <p class="text-sm text-slate-500 line-through mt-1">
+                              {{ cambio.antes }}
+                            </p>
+                          </div>
+
+                          <div class="bg-white border border-emerald-200 p-3">
+                            <span class="block text-[11px] font-bold uppercase text-emerald-600">
+                              Ahora
+                            </span>
+
+                            <p class="text-sm font-bold text-slate-900 mt-1">
+                              {{ cambio.ahora }}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="border border-blue-100 bg-blue-50 p-4 shadow-md">
+                    <div class="flex items-start gap-3">
+                      <span class="material-symbols-outlined text-blue-700">
+                        info
+                      </span>
+
+                      <p class="text-sm text-slate-600 leading-relaxed">
+                        Todavía no has cambiado ningún dato. Modifica algún campo para ver aquí el resumen.
+                      </p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </section>
+
+            <!-- DIFERENCIA IMPORTANTE -->
+            <section class="relative overflow-hidden bg-blue-700 text-white shadow-md p-6">
+              <div class="relative z-10 flex items-start gap-3">
+                <div class="w-10 h-10 bg-white/20 grid place-items-center shrink-0">
+                  <span class="material-symbols-outlined text-white text-[22px]">info</span>
+                </div>
+
+                <div>
+                  <h3 class="font-bold mb-2">
+                    Diferencia importante
+                  </h3>
+
+                  <p class="text-sm text-blue-50 leading-relaxed">
+                    Actualizar caso cambia datos del reporte original. Agregar seguimiento crea una nueva nota en la evolución del caso.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ACCIONES -->
+            <section class="bg-white border border-slate-300 shadow-md p-6">
+              @if (error && !cargando) {
+                <p class="text-red-600 text-sm mb-4">{{ error }}</p>
+              }
+
+              <button
+                type="button"
+                (click)="guardarCambios()"
+                [disabled]="guardando || !hayCambios || !formularioValido()"
+                class="w-full h-12 bg-blue-700 text-white font-bold  hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                @if (guardando) {
+                  <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                }
+
+                {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+
+              <button
+                type="button"
+                (click)="irASeguimiento()"
+                class="w-full h-12 mt-3 border border-blue-700 text-blue-700 font-bold hover:bg-blue-50 transition-colors d"
+              >
+                Agregar seguimiento
+              </button>
+
+              <button
+                type="button"
+                (click)="irADetalle()"
+                class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors"
+              >
+                Ver detalle
+              </button>
+
+              <button
+                type="button"
+                (click)="volverDashboard()"
+                class="w-full h-12 mt-3 text-slate-500 font-bold hover:text-slate-700 transition-colors"
+              >
+                Volver al dashboard
+              </button>
+            </section>
+
+          </aside>
+
+        </section>
+      </main>
+    }
+
+    <footer class="relative z-20 bg-white mt-auto">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
+</ion-content>

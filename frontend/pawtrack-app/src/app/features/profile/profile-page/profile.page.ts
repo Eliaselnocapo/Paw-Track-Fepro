@@ -5,15 +5,15 @@ import { IonContent } from '@ionic/angular/standalone';
 import { forkJoin } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
-import { NavbarWebComponent } from '../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 
 import {
   ProfileService,
   UsuarioResponse,
   IncidenciaResponse
-} from '../../core/services/profile.service';
+} from '../../../core/services/profile.service';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 interface ReporteReciente {
   id: number;
@@ -30,9 +30,16 @@ interface UsuarioPerfil {
   email: string;
   ubicacion: string;
   fotoUrl: string;
+
   reportesTotales: number;
   casosResueltos: number;
+  misionesAceptadas: number;
+  seguimientosRealizados: number;
+  nivelComunidad: string;
+
   reportesRecientes: ReporteReciente[];
+  casosAceptadosRecientes: ReporteReciente[];
+  seguimientosRecientes: ReporteReciente[];
 }
 
 @Component({
@@ -50,8 +57,10 @@ interface UsuarioPerfil {
 })
 export class ProfilePage implements OnInit {
 
-  esPantallaGrande = window.innerWidth >= 768;
+  tabActividad: 'reportes' | 'aceptados' | 'seguimientos' = 'reportes';
 
+  esPantallaGrande = window.innerWidth >= 768;
+  
   cargando = true;
   error = '';
 
@@ -60,11 +69,17 @@ export class ProfilePage implements OnInit {
     email: '',
     ubicacion: 'Ubicación no registrada',
     fotoUrl: 'https://ui-avatars.com/api/?name=Usuario&background=1d4ed8&color=fff',
+
     reportesTotales: 0,
     casosResueltos: 0,
-    reportesRecientes: []
-  };
+    misionesAceptadas: 0,
+    seguimientosRealizados: 0,
+    nivelComunidad: 'Comunidad inicial',
 
+    reportesRecientes: [],
+    casosAceptadosRecientes: [],
+    seguimientosRecientes: []
+  };
   constructor(private profileService: ProfileService, private authService: AuthService) {}
 
   private getUserIdFromToken(): number | null {
@@ -123,9 +138,16 @@ export class ProfilePage implements OnInit {
       email: usuarioBackend.email,
       ubicacion: this.obtenerUbicacion(usuarioBackend),
       fotoUrl: this.resolverUrlMedia(usuarioBackend.foto_perfil, usuarioBackend.username),
+
       reportesTotales: reportesBackend.length,
       casosResueltos: this.obtenerCasosResueltos(usuarioBackend, reportesBackend),
-      reportesRecientes
+      misionesAceptadas: usuarioBackend.perfil_rescatista?.misiones_completadas || 0,
+      seguimientosRealizados: 0,
+      nivelComunidad: this.obtenerNivelComunidad(reportesBackend.length),
+
+      reportesRecientes,
+      casosAceptadosRecientes: [],
+      seguimientosRecientes: []
     };
   }
 
@@ -214,5 +236,12 @@ export class ProfilePage implements OnInit {
   }
   cerrarSesion() {
     this.authService.logout();
+  }
+  private obtenerNivelComunidad(totalReportes: number): string {
+    if (totalReportes >= 10) return 'Aliado comunitario';
+    if (totalReportes >= 5) return 'Colaborador activo';
+    if (totalReportes >= 1) return 'Primer apoyo registrado';
+
+    return 'Comunidad inicial';
   }
 }

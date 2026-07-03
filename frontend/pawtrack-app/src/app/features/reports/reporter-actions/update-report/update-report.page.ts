@@ -10,9 +10,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 
-import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
-import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
-import { ReportService, IncidenciaResponse } from '../../../core/services/report.service';
+import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
+import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
+import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 
 declare let L: any;
 
