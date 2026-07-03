@@ -159,6 +159,6 @@ class RescatesEndpointsTests(APITestCase):
         }
         
         response = self.client.post(url, data, format='multipart')
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data['code'], 'gps_too_far')

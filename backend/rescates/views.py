@@ -1,12 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from rest_framework.exceptions import NotFound, ValidationError, APIException, PermissionDenied
 
 from core.permissions import IsRescatista
 from bd.models import Incidencia, PerfilRescatista
 from .models import Rescate
+from .serializers import RescateSerializer
 from notificaciones.services import broadcast_status_changed
 
 from rest_framework.generics import ListAPIView
@@ -28,9 +29,10 @@ class AceptarRescateView(APIView):
     # 1. Delegamos la validación del rol al permiso centralizado
     permission_classes = [IsRescatista]
 
+    @transaction.atomic
     def post(self, request, folio):
         user = request.user
-        
+
         # 2. Búsqueda con raise NotFound (El handler global lo atrapa)
         try:
             incidencia = Incidencia.objects.get(folio=folio)
@@ -41,20 +43,23 @@ class AceptarRescateView(APIView):
         if incidencia.estado != 'PENDIENTE':
             raise ValidationError(f"La incidencia ya no está disponible. Estado actual: {incidencia.estado}")
 
-        # 4. Manejo de Condición de Carrera (Dos rescatistas al mismo tiempo)
+        # 4. Manejo de Condición de Carrera (Dos rescatistas al mismo tiempo).
+        # Savepoint propio: si el create() truena, no debe tumbar la transacción atómica
+        # de toda la vista, solo revertir hasta aquí para poder lanzar CaseAlreadyTaken.
         try:
-            rescate = Rescate.objects.create(
-                incidencia=incidencia,
-                rescatista=user,
-                estado='EN_CAMINO'
-            )
+            with transaction.atomic():
+                rescate = Rescate.objects.create(
+                    incidencia=incidencia,
+                    rescatista=user,
+                    estado='EN_CAMINO'
+                )
         except IntegrityError:
             # Si el OneToOneField de la DB detecta que ya existe, lanza IntegrityError
             raise CaseAlreadyTaken()
-        
+
         # Actualizamos la incidencia
+        perfil_rescatista, _ = PerfilRescatista.objects.get_or_create(usuario=user)
         incidencia.estado = 'ATENDIENDOSE'
-        perfil_rescatista = PerfilRescatista.objects.get(usuario=user)
         incidencia.rescatista_asignado = perfil_rescatista
         incidencia.save()
 
@@ -108,6 +113,8 @@ class DisponiblesView(ListAPIView):
 class ActualizarEstadoView(APIView):
     permission_classes = [IsRescatista]
 
+    ESTADOS_PERMITIDOS = ['EN_SITIO', 'COMPLETADO', 'CANCELADO']
+
     def patch(self, request, rescate_id):
         try:
             rescate = Rescate.objects.get(id=rescate_id)
@@ -118,14 +125,18 @@ class ActualizarEstadoView(APIView):
             raise PermissionDenied("No tienes permiso para actualizar este rescate.")
 
         nuevo_estado = request.data.get('estado')
-        if nuevo_estado not in ['COMPLETADO', 'CANCELADO']:
-            raise ValidationError("Estado inválido. Las opciones son COMPLETADO o CANCELADO.")
+        if nuevo_estado not in self.ESTADOS_PERMITIDOS:
+            raise ValidationError("Estado inválido. Las opciones son EN_SITIO, COMPLETADO o CANCELADO.")
 
         # Guardamos en el campo JSONField inyectado en la Fase 1
-        rescate.historial.append({
+        entrada_historial = {
             "estado": nuevo_estado,
             "timestamp": timezone.now().isoformat()
-        })
+        }
+        nota = request.data.get('nota')
+        if nota:
+            entrada_historial["nota"] = nota
+        rescate.historial.append(entrada_historial)
         rescate.estado = nuevo_estado
         rescate.save()
 
@@ -190,3 +201,35 @@ class CerrarRescateView(APIView):
             "detail": "Rescate documentado y cerrado exitosamente.",
             "field_errors": {}
         }, status=status.HTTP_200_OK)
+
+
+class MisRescatesView(ListAPIView):
+    """Rescates del voluntario logueado, con el rescate_id necesario para
+    actualizar estado y cerrar el caso."""
+    permission_classes = [IsRescatista]
+    serializer_class = RescateSerializer
+    pagination_class = StandardPagination
+
+    def get_queryset(self):
+        return Rescate.objects.filter(
+            rescatista=self.request.user
+        ).select_related('incidencia', 'incidencia__animal').order_by('-fecha_aceptacion')
+
+
+class RescateDetailView(APIView):
+    """Detalle de un rescate (incluye historial) para las pantallas de
+    cronología y seguimiento del voluntario."""
+    permission_classes = [IsRescatista]
+
+    def get(self, request, rescate_id):
+        try:
+            rescate = Rescate.objects.select_related(
+                'incidencia', 'incidencia__animal'
+            ).get(id=rescate_id)
+        except Rescate.DoesNotExist:
+            raise NotFound("Rescate no encontrado.")
+
+        if rescate.rescatista != request.user:
+            raise PermissionDenied("No tienes permiso para ver este rescate.")
+
+        return Response(RescateSerializer(rescate).data)
