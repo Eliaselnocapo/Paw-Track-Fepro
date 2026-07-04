@@ -1,13 +1,418 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>details-case-accepted</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">details-case-accepted</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden">
+
+<!-- ===== CÍRCULOS ===== -->
+<div class="absolute top-[-140px] right-[-120px] w-[460px] h-[460px] bg-blue-100/55 rounded-full"></div>
+<div class="absolute bottom-[-120px] left-[-100px] w-[400px] h-[400px] bg-emerald-100/50 rounded-full"></div>
+<div class="absolute top-[30%] left-[-80px] w-[240px] h-[240px] bg-teal-100/45 rounded-full"></div>
+<div class="absolute top-[8%] left-[30%] w-[90px] h-[90px] bg-amber-100/60 rounded-full"></div>
+
+<!-- ===== CUADRADOS INCLINADOS ===== -->
+<div class="absolute top-[15%] left-[-90px] w-[260px] h-[260px] bg-amber-100/50 rotate-[18deg]"></div>
+<div class="absolute bottom-[-60px] right-[-40px] w-[220px] h-[220px] bg-orange-100/50 rotate-[10deg]"></div>
+<div class="absolute top-[45%] right-[8%] w-[130px] h-[130px] bg-emerald-100/50 rotate-12"></div>
+<div class="absolute bottom-[20%] left-[12%] w-[100px] h-[100px] bg-blue-100/55 -rotate-6"></div>
+
+<!-- ===== DIAMANTES (cuadros a 45°) ===== -->
+<div class="absolute top-[52%] right-[16%] w-[110px] h-[110px] bg-emerald-100/50 rotate-45"></div>
+<div class="absolute top-[20%] right-[35%] w-[60px] h-[60px] bg-amber-200/50 rotate-45"></div>
+<div class="absolute bottom-[30%] left-[40%] w-[70px] h-[70px] bg-teal-200/45 rotate-45"></div>
+
+<!-- ===== FRANJAS / BARRAS ===== -->
+<div class="absolute top-[22%] left-[10%] w-[180px] h-[14px] bg-emerald-100/80"></div>
+<div class="absolute top-[26%] left-[14%] w-[130px] h-[14px] bg-teal-100/80"></div>
+<div class="absolute top-[60%] right-[10%] w-[200px] h-[14px] bg-amber-100/75"></div>
+<div class="absolute top-[64%] right-[16%] w-[150px] h-[14px] bg-orange-100/70"></div>
+
+<!-- ===== MINI CUADROS DISPERSOS ===== -->
+<div class="absolute top-[16%] left-[42%] w-4 h-4 bg-amber-300/70 rotate-45"></div>
+<div class="absolute top-[70%] left-[30%] w-5 h-5 bg-emerald-300/70 -rotate-12"></div>
+<div class="absolute bottom-[18%] right-[40%] w-4 h-4 bg-teal-300/70 rotate-12"></div>
+<div class="absolute top-[38%] left-[55%] w-6 h-6 bg-blue-300/60 rotate-6"></div>
+<div class="absolute top-[80%] right-[25%] w-5 h-5 bg-orange-300/65 -rotate-6"></div>
+
+<!-- ===== RECTÁNGULOS TIPO DOCUMENTO ===== -->
+<div class="absolute top-[25%] left-[6%] w-[200px] h-[280px] bg-white/55 border border-white/70 rotate-[-7deg]"></div>
+<div class="absolute top-[28%] left-[9%] w-[180px] h-[260px] bg-emerald-100/45 rotate-[5deg]"></div>
+
+<!-- ===== ARCOS CONCÉNTRICOS (SVG) ===== -->
+<svg class="absolute top-[10%] right-[5%] w-[180px] h-[180px] opacity-[0.12]" viewBox="0 0 200 200" aria-hidden="true">
+  <circle cx="200" cy="0" r="160" fill="none" stroke="#94a3b8" stroke-width="14"/>
+  <circle cx="200" cy="0" r="120" fill="none" stroke="#94a3b8" stroke-width="8"/>
+  <circle cx="200" cy="0" r="80"  fill="none" stroke="#94a3b8" stroke-width="4"/>
+</svg>
+
+<!-- ===== GRILLA DE PUNTOS (SVG) ===== -->
+<svg class="absolute bottom-[50px] left-[24%] w-[130px] h-[100px] opacity-[0.18]" viewBox="0 0 120 90" aria-hidden="true">
+  <circle cx="10" cy="10" r="3" fill="#64748b"/><circle cx="30" cy="10" r="3" fill="#64748b"/>
+  <circle cx="50" cy="10" r="3" fill="#64748b"/><circle cx="70" cy="10" r="3" fill="#64748b"/>
+  <circle cx="10" cy="30" r="3" fill="#64748b"/><circle cx="30" cy="30" r="3" fill="#64748b"/>
+  <circle cx="50" cy="30" r="3" fill="#64748b"/><circle cx="70" cy="30" r="3" fill="#64748b"/>
+  <circle cx="10" cy="50" r="3" fill="#64748b"/><circle cx="30" cy="50" r="3" fill="#64748b"/>
+  <circle cx="50" cy="50" r="3" fill="#64748b"/><circle cx="70" cy="50" r="3" fill="#64748b"/>
+</svg>
+
+<!-- ===== ANILLOS (círculo sin relleno) ===== -->
+<div class="absolute top-[40%] left-[25%] w-[120px] h-[120px] rounded-full border-[10px] border-blue-200/40"></div>
+<div class="absolute bottom-[25%] right-[30%] w-[80px] h-[80px] rounded-full border-[8px] border-emerald-200/40"></div>
+
+    <app-navbar-web class="relative z-20"></app-navbar-web>
+
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-12">
+
+      <!-- VOLVER -->
+      <button
+        type="button"
+        (click)="volver()"
+        class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        Volver a mis casos
+      </button>
+
+      <!-- CARGANDO -->
+      @if (cargando) {
+        <section class="bg-white border border-slate-300 rounded shadow-md p-12 flex flex-col items-center text-center">
+          <span class="material-symbols-outlined text-6xl text-blue-300 mb-4 animate-pulse">hourglass_empty</span>
+          <h2 class="text-xl font-bold text-slate-800">Cargando detalle</h2>
+          <p class="text-slate-500 mt-1">Estamos consultando la información del caso.</p>
+        </section>
+      } @else if (errorCarga) {
+        <section class="bg-red-50 border border-red-200 rounded shadow-sm p-8">
+          <h2 class="text-lg font-bold text-red-700">No se pudo cargar el caso</h2>
+          <p class="text-sm text-red-600 mt-1">{{ errorCarga }}</p>
+          <button
+            type="button"
+            (click)="cargarCaso()"
+            class="mt-4 h-10 px-5 rounded bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors">
+            Reintentar
+          </button>
+        </section>
+      } @else if (rescate) {
+
+        <!-- HERO / EXPEDIENTE -->
+        <section class="relative overflow-hidden rounded border border-slate-300 shadow-md bg-slate-900 mb-8">
+          <div class="relative min-h-[420px] md:min-h-[480px]">
+            <img [src]="imagenUrl(rescate.incidencia?.imagen)" [alt]="titulo" class="absolute inset-0 w-full h-full object-cover opacity-80">
+            <div class="absolute inset-0 bg-slate-950/45"></div>
+
+            <div class="relative z-10 min-h-[420px] md:min-h-[480px] flex flex-col justify-end p-6 md:p-8">
+              <div class="max-w-4xl">
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold border shadow-sm" [ngClass]="prioridadClase">
+                    <span class="material-symbols-outlined text-[16px]">
+                      {{ prioridad === 'Urgente' ? 'emergency' : 'priority_high' }}
+                    </span>
+                    {{ prioridad }}
+                  </span>
+
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-emerald-100/95 text-emerald-800 border border-emerald-200 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">assignment_turned_in</span>
+                    {{ estadoLegible }}
+                  </span>
+
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-blue-100/95 text-blue-800 border border-blue-200 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">schedule</span>
+                    {{ tiempo }}
+                  </span>
+                </div>
+
+                <p class="text-blue-100 text-sm font-bold tracking-wider uppercase mb-2">Expediente de misión</p>
+                <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight drop-shadow-md">Caso #{{ rescate.incidencia?.folio }}</h1>
+                <h2 class="mt-2 text-xl md:text-3xl font-semibold text-white/95 leading-tight drop-shadow-md">{{ titulo }}</h2>
+              </div>
+            </div>
+          </div>
+
+          <!-- BARRA DE DATOS CLAVE -->
+          <div class="bg-white border-t border-slate-200 grid grid-cols-2 md:grid-cols-4">
+            <div class="p-4 border-r border-b md:border-b-0 border-slate-200">
+              <p class="text-xs font-bold uppercase text-slate-500 mb-1">Animal</p>
+              <p class="font-bold text-slate-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600 text-[20px]">pets</span>
+                {{ especie | titlecase }}
+              </p>
+            </div>
+            <div class="p-4 border-r border-b md:border-b-0 border-slate-200">
+              <p class="text-xs font-bold uppercase text-slate-500 mb-1">Tamaño</p>
+              <p class="font-bold text-slate-900">{{ tamano | titlecase }}</p>
+            </div>
+            <div class="p-4 border-r border-slate-200">
+              <p class="text-xs font-bold uppercase text-slate-500 mb-1">Condición</p>
+              <p class="font-bold text-slate-900">{{ condicion }}</p>
+            </div>
+            <div class="p-4">
+              <p class="text-xs font-bold uppercase text-slate-500 mb-1">Urgencia</p>
+              <div class="flex items-center gap-3">
+                <p class="font-bold text-slate-900">{{ score }}/100</p>
+                <div class="flex-1 h-2 bg-slate-200 rounded overflow-hidden">
+                  <div class="h-full rounded bg-blue-600" [style.width.%]="score"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CUERPO -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+
+          <!-- COLUMNA PRINCIPAL -->
+          <section class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- REPORTE CIUDADANO -->
+            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-bold uppercase text-blue-600 mb-1">Reporte ciudadano</p>
+                  <h2 class="text-xl font-bold text-slate-900">Descripción de la situación</h2>
+                </div>
+                <div class="w-11 h-11 rounded bg-blue-100 text-blue-700 grid place-items-center shrink-0">
+                  <span class="material-symbols-outlined">description</span>
+                </div>
+              </div>
+              <div class="p-6">
+                <p class="text-sm md:text-base text-slate-600 leading-relaxed">{{ descripcion }}</p>
+
+                <div class="mt-6 p-4 rounded border border-amber-200 bg-amber-50">
+                  <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-amber-600 text-[22px]">info</span>
+                    <div>
+                      <p class="font-bold text-amber-800 text-sm">Recordatorio de seguridad</p>
+                      <p class="text-sm text-amber-700 mt-1">
+                        Mantén distancia de 5 m para evaluar al animal. Si muestra agresividad o lesión
+                        grave, solicita apoyo antes de acercarte.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- PERFIL DEL ANIMAL (más info) -->
+            <article class="bg-white border border-slate-300 rounded shadow-md p-6">
+              <div class="flex items-center justify-between gap-4 mb-5">
+                <div>
+                  <p class="text-xs font-bold uppercase text-emerald-600 mb-1">Ficha completa</p>
+                  <h2 class="text-xl font-bold text-slate-900">Perfil del animal</h2>
+                </div>
+                <span class="material-symbols-outlined text-emerald-500 text-3xl">cruelty_free</span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Especie</p>
+                  <p class="text-base font-bold text-slate-900">{{ especie | titlecase }}</p>
+                </div>
+                <div class="rounded border border-blue-100 bg-blue-50 p-4">
+                  <p class="text-xs font-bold text-blue-500 mb-1 uppercase">Tamaño</p>
+                  <p class="text-base font-bold text-blue-800">{{ tamano | titlecase }}</p>
+                </div>
+                <div class="rounded border border-amber-100 bg-amber-50 p-4">
+                  <p class="text-xs font-bold text-amber-600 mb-1 uppercase">Condición</p>
+                  <p class="text-base font-bold text-amber-800">{{ condicion }}</p>
+                </div>
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Edad estimada</p>
+                  <p class="text-base font-bold text-slate-900">{{ edad }}</p>
+                </div>
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Peso estimado</p>
+                  <p class="text-base font-bold text-slate-900">{{ peso }}</p>
+                </div>
+                <div class="rounded border border-red-100 bg-red-50 p-4">
+                  <p class="text-xs font-bold text-red-500 mb-1 uppercase">Urgencia</p>
+                  <p class="text-base font-bold text-red-800">{{ score }}/100</p>
+                </div>
+              </div>
+            </article>
+            <!-- EVALUACIÓN DEL VOLUNTARIO -->
+            @if (evaluacionItems.length > 0 || notasClinicas) {
+              <article class="bg-white border border-slate-300 rounded shadow-md p-6">
+                <div class="flex items-center gap-2 mb-5">
+                  <span class="material-symbols-outlined text-emerald-600">stethoscope</span>
+                  <h2 class="text-lg font-bold text-slate-900">Evaluación del voluntario</h2>
+                </div>
+
+                @if (evaluacionItems.length > 0) {
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                    @for (item of evaluacionItems; track item.label) {
+                      <div class="rounded border border-emerald-100 bg-emerald-50 p-3">
+                        <p class="text-xs font-bold uppercase text-emerald-600">{{ item.label }}</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5">{{ item.valor }}</p>
+                      </div>
+                    }
+                  </div>
+                }
+
+                @if (notasClinicas) {
+                  <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-xs font-bold uppercase text-slate-500 mb-1">Notas clínicas</p>
+                    <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
+                  </div>
+                }
+              </article>
+            }
+
+            <!-- UBICACIÓN -->
+            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-bold uppercase text-red-500 mb-1">Punto reportado</p>
+                  <h2 class="text-xl font-bold text-slate-900">Ubicación del caso</h2>
+                </div>
+                <div class="w-11 h-11 rounded bg-red-50 text-red-500 grid place-items-center shrink-0">
+                  <span class="material-symbols-outlined">location_on</span>
+                </div>
+              </div>
+              <div class="p-6">
+                <div class="w-full h-64 bg-slate-100 border border-slate-200 rounded overflow-hidden mb-4 relative">
+                  <div class="absolute inset-0 bg-blue-50">
+                    <div class="absolute inset-0 opacity-70" style="background-image: linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px); background-size: 30px 30px;"></div>
+                    <div class="absolute inset-0 grid place-items-center">
+                      <div class="bg-white border border-blue-200 shadow-md rounded px-5 py-4 text-center">
+                        <span class="material-symbols-outlined text-blue-600 text-4xl">pin_drop</span>
+                        <p class="text-sm font-bold text-slate-900">Ubicación registrada</p>
+                        <p class="text-xs text-slate-500 mt-1">
+                          {{ latitud !== null ? latitud : 'N/D' }}, {{ longitud !== null ? longitud : 'N/D' }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 rounded border border-slate-200 bg-slate-50 p-4">
+                  <span class="material-symbols-outlined text-[20px] text-slate-500 mt-0.5">map</span>
+                  <p class="text-sm text-slate-600 leading-relaxed">{{ ubicacion }}</p>
+                </div>
+              </div>
+            </article>
+
+          </section>
+
+          <!-- PANEL LATERAL -->
+          <aside class="lg:col-span-4 flex flex-col gap-6">
+
+            <!-- ACCIÓN PRINCIPAL -->
+            <article class="bg-white border border-blue-300 rounded shadow-md overflow-hidden lg:sticky lg:top-24">
+              <div class="h-1 bg-blue-600"></div>
+              <div class="p-6">
+                <p class="text-xs font-bold uppercase text-blue-600 mb-1">Misión en curso</p>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">Este caso es tuyo</h3>
+                <p class="text-sm text-slate-600 leading-relaxed mb-5">
+                  Ya aceptaste esta misión. Actualiza el avance conforme te acerques al animal y
+                  ciérrala cuando esté asegurado.
+                </p>
+
+                <button
+                  type="button"
+                  (click)="actualizarCaso()"
+                  class="w-full h-12 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[20px]">edit</span>
+                  Actualizar caso
+                </button>
+              </div>
+            </article>
+
+<article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+  <!-- cabecera fija (sin toggle) -->
+  <div class="p-6 border-b border-slate-100">
+    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+      <span class="material-symbols-outlined text-blue-600">timeline</span>
+      Progreso de la misión
+    </h3>
+    <p class="text-xs text-slate-400 mt-1">Toca un paso para ver sus notas.</p>
+  </div>
+
+  <div class="p-4">
+    <div class="relative flex flex-col">
+      <!-- línea vertical de fondo -->
+      <div class="absolute left-[27px] top-6 bottom-6 w-0.5 bg-slate-100"></div>
+
+      @for (paso of pasos; track paso; let i = $index) {
+        <div class="relative">
+          <!-- fila del paso -->
+          <button type="button"
+            (click)="entradasDePaso(i).length > 0 ? togglePaso(i) : null"
+            class="w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors"
+            [ngClass]="{
+              'hover:bg-slate-50 cursor-pointer': entradasDePaso(i).length > 0,
+              'cursor-default': entradasDePaso(i).length === 0
+            }">
+
+            <div class="relative z-10 w-11 h-11 rounded-full grid place-items-center shrink-0 shadow-sm transition-all"
+              [ngClass]="{
+                'bg-emerald-500 text-white': esPasoCompletado(i),
+                'bg-blue-600 text-white ring-4 ring-blue-100': esPasoActivo(i),
+                'bg-slate-100 text-slate-400': !esPasoCompletado(i) && !esPasoActivo(i)
+              }">
+              <span class="material-symbols-outlined text-[22px]">{{ esPasoCompletado(i) ? 'check' : iconoPaso(i) }}</span>
+            </div>
+
+            <div class="flex-grow">
+              <p class="font-bold text-sm"
+                [ngClass]="esPasoActivo(i) || esPasoCompletado(i) ? 'text-slate-800' : 'text-slate-400'">
+                {{ paso }}
+              </p>
+              @if (entradasDePaso(i).length > 0) {
+                <p class="text-xs text-slate-400 mt-0.5">
+                  {{ entradasDePaso(i).length }} nota{{ entradasDePaso(i).length === 1 ? '' : 's' }} registrada{{ entradasDePaso(i).length === 1 ? '' : 's' }}
+                </p>
+              }
+            </div>
+
+            @if (entradasDePaso(i).length > 0) {
+              <span class="material-symbols-outlined text-slate-400 text-[22px] transition-transform shrink-0"
+                [class.rotate-180]="pasoExpandido === i">expand_more</span>
+            }
+          </button>
+
+          <!-- detalle desplegado -->
+          @if (pasoExpandido === i && entradasDePaso(i).length > 0) {
+            <div class="ml-[54px] mr-2 mb-3 mt-1 flex flex-col gap-3">
+              @for (entrada of entradasDePaso(i); track $index) {
+                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-xs text-blue-600 font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">schedule</span>
+                    {{ entrada.timestamp | date:'dd MMM, HH:mm' }}
+                  </p>
+                  <p class="text-sm text-slate-700 mt-1 leading-relaxed">{{ entrada.nota || 'Sin nota registrada.' }}</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="px-6 py-3 border-t border-slate-100 bg-slate-50">
+    <p class="text-xs text-slate-400">Avanza el estado desde "Actualizar caso".</p>
+  </div>
+</article>
+
+            <!-- CONTACTO -->
+            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-200 bg-slate-50">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-slate-500">person</span>
+                  Reportante
+                </h3>
+              </div>
+              <div class="p-5">
+                <p class="text-xs font-bold text-slate-500 uppercase">Nombre de contacto</p>
+                <p class="font-bold text-slate-800">{{ contactoNombre }}</p>
+                <p class="text-xs font-bold text-slate-500 uppercase mt-4">Teléfono</p>
+                <p class="font-bold text-slate-800 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[18px] text-blue-600">call</span>
+                  {{ contactoTelefono }}
+                </p>
+              </div>
+            </article>
+
+          </aside>
+
+        </div>
+      }
+    </main>
+
+    <app-footer-web class="relative z-10 mt-auto"></app-footer-web>
+  </div>
 </ion-content>

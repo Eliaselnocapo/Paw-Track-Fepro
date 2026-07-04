@@ -105,7 +105,7 @@ cargarCasos(): void {
   private esCasoVisibleParaVoluntario(incidencia: IncidenciaResponse): boolean {
     const estado = incidencia.estado || 'PENDIENTE';
 
-    return estado !== 'CERRADO' && estado !== 'COMPLETADO';
+    return estado === 'PENDIENTE';
   }
 
   private mapearCaso(incidencia: IncidenciaResponse): CasoVoluntario {

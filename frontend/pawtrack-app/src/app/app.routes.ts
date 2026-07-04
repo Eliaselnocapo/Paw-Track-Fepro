@@ -103,12 +103,8 @@ export const routes: Routes = [
     loadComponent: () => import('./features/reports/volunteer-actions/details-case-accepted/details-case-accepted.page').then( m => m.DetailsCaseAcceptedPage)
   },
   {
-    path: 'progress-case/:folio',
-    loadComponent: () => import('./features/reports/volunteer-actions/progress-case/progress-case.page').then( m => m.ProgressCasePage)
-  },
-  {
-    path: 'update-case/:folio/update',
-    loadComponent: () => import('./features/reports/volunteer-actions/update-case/update-case.page').then( m => m.UpdateCasePage)
+    path: 'update-case/:folio',
+    loadComponent: () => import('./features/reports/volunteer-actions/update-case/update-case.page').then(m => m.UpdateCasePage)
   },
   {
     path: 'dashboard/reports/history',
@@ -119,5 +115,9 @@ export const routes: Routes = [
   loadComponent: () =>
     import('./features/reports/volunteer-actions/case-accepted-success/case-accepted-success.page')
       .then(m => m.CaseAcceptedSuccessPage),
-},
+  },
+  {
+  path: 'view-follow-up/:folio',
+  loadComponent: () => import('./features/reports/reporter-actions/view-follow-up/view-follow-up.page').then(m => m.ViewFollowUpPage)
+  },
 ];
