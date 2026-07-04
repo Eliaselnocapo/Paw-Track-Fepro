@@ -175,10 +175,9 @@
                       </div>
                       <button
                         type="button"
-                        (click)="verCronologia(caso)"
+                        (click)="verDetalles(caso)"
                         class="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-100 px-2.5 py-1.5 rounded hover:bg-blue-100 transition-colors flex items-center gap-1 shrink-0">
-                        <span class="material-symbols-outlined text-[14px]">timeline</span>
-                        Cronología
+                        Ver Detalles
                       </button>
                     </div>
 
@@ -224,10 +223,10 @@
                   <div class="flex gap-2">
                     <button
                       type="button"
-                      (click)="verDetalle(caso)"
+                      (click)="verProgreso(caso)"
                       class="px-4 py-2 rounded bg-blue-100 border-2 border-blue-700 text-blue-700 font-bold text-xs hover:bg-blue-50 transition-all flex items-center gap-1.5 active:scale-95">
                       <span class="material-symbols-outlined text-[15px]">visibility</span>
-                      Detalles
+                      Ver progreso
                     </button>
 
                     @if (caso.estadoRescate !== 'Rescatado') {

@@ -1,13 +1,336 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>update-case</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">update-case</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+    <!-- FONDO DECORATIVO -->
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute left-[-140px] top-[120px] w-[420px] h-[420px] bg-emerald-100 rounded-full opacity-70"></div>
+      <div class="absolute right-[-120px] top-[300px] w-[360px] h-[360px] bg-blue-100 rounded-full opacity-70"></div>
+      <div class="absolute right-[10%] top-[160px] w-[90px] h-[90px] bg-amber-100 rotate-45 opacity-70"></div>
+      <div class="absolute left-[8%] bottom-[140px] w-[180px] h-[180px] bg-teal-100 rotate-[12deg] opacity-60"></div>
+      <div class="absolute right-[25%] bottom-[220px] w-4 h-4 bg-emerald-300/70 rotate-45"></div>
+    </div>
+
+    <!-- CARGANDO / ERROR -->
+    @if (cargando) {
+      <main class="flex-1 flex items-center justify-center relative z-10">
+        <p class="text-slate-500 animate-pulse">Cargando caso...</p>
+      </main>
+    } @else if (errorCarga) {
+      <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+        <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
+        <p class="text-slate-600 text-center">{{ errorCarga }}</p>
+        <button type="button" (click)="volver()" class="h-11 px-5 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md">
+          Volver a mis casos
+        </button>
+      </main>
+    } @else if (rescate) {
+
+      <main class="flex-1 w-full max-w-[1100px] mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10">
+
+        <!-- VOLVER -->
+        <button type="button" (click)="volver()" class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+          <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+          Volver a mis casos
+        </button>
+
+        <!-- HERO -->
+        <section class="relative overflow-hidden bg-white border border-slate-300 shadow-md mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-3">
+            <div class="md:col-span-1 h-40 md:h-auto relative overflow-hidden">
+              <img [src]="imagenUrl(rescate.incidencia?.imagen)" [alt]="titulo" class="absolute inset-0 w-full h-full object-cover">
+            </div>
+            <div class="md:col-span-2 p-6 md:p-8">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase mb-4">
+                <span class="material-symbols-outlined text-[17px]">medical_services</span>
+                Actualización del voluntario
+              </div>
+              <h1 class="text-2xl md:text-4xl font-bold text-slate-900 mb-2 leading-tight">{{ titulo }}</h1>
+              <p class="text-slate-600 leading-relaxed max-w-2xl text-sm">
+                Ahora que tienes al animal contigo, registra su información real (peso, edad, salud) y
+                deja constancia de cada avance en la bitácora.
+              </p>
+              <span class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs font-bold mt-4">
+                <span class="material-symbols-outlined text-[16px]">confirmation_number</span>
+                {{ rescate.incidencia?.folio }}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= ZONA 1: FICHA CLÍNICA ================= -->
+        <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8">
+          <div class="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <p class="text-xs font-bold uppercase text-emerald-600 mb-1">Evaluación en mano</p>
+              <h2 class="text-xl font-bold text-slate-900">Ficha clínica del animal</h2>
+              <p class="text-sm text-slate-500 mt-1">Datos reales que solo se conocen teniendo al animal cerca.</p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-700 grid place-items-center border border-emerald-100 shrink-0">
+              <span class="material-symbols-outlined">stethoscope</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <!-- Peso -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-2">Peso real (kg)</label>
+              <input type="text" inputmode="decimal" [(ngModel)]="ficha.peso"
+                class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+                placeholder="Ej. 12.5">
+            </div>
+
+            <!-- Edad -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-2">Edad estimada</label>
+              <select [(ngModel)]="ficha.edad"
+                class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100">
+                <option value="">Sin especificar</option>
+                <option value="cachorro">Cachorro (&lt; 6 meses)</option>
+                <option value="joven">Joven</option>
+                <option value="adulto">Adulto</option>
+                <option value="senior">Senior</option>
+              </select>
+            </div>
+
+            <!-- Sexo -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-2">Sexo</label>
+              <select [(ngModel)]="ficha.sexo"
+                class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100">
+                <option value="">Sin especificar</option>
+                <option value="macho">Macho</option>
+                <option value="hembra">Hembra</option>
+                <option value="indeterminado">No determinado</option>
+              </select>
+            </div>
+
+            <!-- Esterilizado -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-2">¿Esterilizado?</label>
+              <select [(ngModel)]="ficha.esterilizado"
+                class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100">
+                <option value="">Sin especificar</option>
+                <option value="si">Sí</option>
+                <option value="no">No</option>
+                <option value="desconocido">Desconocido</option>
+              </select>
+            </div>
+
+            <!-- Salud -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-2">Estado de salud</label>
+              <select [(ngModel)]="ficha.salud"
+                class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100">
+                <option value="">Sin especificar</option>
+                <option value="estable">Estable</option>
+                <option value="delicado">Delicado</option>
+                <option value="critico">Crítico</option>
+              </select>
+            </div>
+
+            <!-- Temperamento -->
+            <div>
+              <label class="block text-sm font-bold text-slate-900 mb-2">Temperamento</label>
+              <select [(ngModel)]="ficha.temperamento"
+                class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100">
+                <option value="">Sin especificar</option>
+                <option value="docil">Dócil</option>
+                <option value="asustadizo">Asustadizo</option>
+                <option value="agresivo">Agresivo</option>
+                <option value="no_evaluable">No evaluable</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Notas clínicas -->
+          <div class="mt-5">
+            <label class="block text-sm font-bold text-slate-900 mb-2">Notas clínicas</label>
+            <textarea [(ngModel)]="ficha.notas" rows="4"
+              class="w-full border border-slate-300 bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+              placeholder="Heridas detectadas, parásitos, deshidratación, medicación aplicada..."></textarea>
+          </div>
+
+          @if (errorFicha) {
+            <p class="mt-3 text-sm text-red-600 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[18px]">error</span>{{ errorFicha }}
+            </p>
+          }
+          @if (fichaOk) {
+            <p class="mt-3 text-sm text-emerald-700 flex items-center gap-1.5 font-semibold">
+              <span class="material-symbols-outlined text-[18px]">check_circle</span>Ficha guardada correctamente.
+            </p>
+          }
+
+          <button type="button" (click)="guardarFicha()" [disabled]="guardandoFicha"
+            class="mt-5 w-full sm:w-auto h-12 px-6 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold shadow-md shadow-emerald-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+            @if (guardandoFicha) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
+            {{ guardandoFicha ? 'Guardando...' : 'Guardar ficha del animal' }}
+          </button>
+        </section>
+
+        <!-- ================= ZONA 2: BITÁCORA DE AVANCE (desplegable) ================= -->
+        <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+
+          <!-- Cabecera clickeable -->
+          <button type="button" (click)="toggleBitacora()"
+            class="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-slate-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 bg-blue-100 text-blue-700 grid place-items-center shrink-0">
+                <span class="material-symbols-outlined">history</span>
+              </div>
+              <div>
+                <p class="text-xs font-bold uppercase text-blue-600">Seguimiento</p>
+                <h2 class="text-xl font-bold text-slate-900">Bitácora de avance</h2>
+                <p class="text-sm text-slate-500 mt-0.5">{{ historial.length }} registro{{ historial.length === 1 ? '' : 's' }} · toca para ver y agregar</p>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-slate-400 text-[28px] transition-transform"
+                  [class.rotate-180]="bitacoraAbierta">expand_more</span>
+          </button>
+
+          <!-- Contenido desplegable -->
+          @if (bitacoraAbierta) {
+            <div class="border-t border-slate-200 p-6">
+
+              <!-- TIMELINE del historial -->
+              @if (historial.length > 0) {
+                <div class="relative pl-7 flex flex-col gap-6 mb-8">
+                  <div class="absolute left-[10px] top-2 bottom-2 w-px bg-slate-200"></div>
+                  @for (entrada of historial; track $index) {
+                    <div class="relative">
+                      <div class="absolute -left-7 top-1 w-5 h-5 rounded-full bg-blue-600 border-4 border-white shadow"></div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-bold text-slate-900">{{ estadoLegible(entrada.estado) }}</span>
+                        <span class="text-xs text-slate-400">{{ entrada.timestamp | date:'dd MMM, HH:mm' }}</span>
+                      </div>
+                      @if (entrada.nota) {
+                        <p class="text-sm text-slate-600 mt-1">{{ entrada.nota }}</p>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="border border-blue-100 bg-blue-50 p-4 mb-8 flex items-start gap-3">
+                  <span class="material-symbols-outlined text-blue-700">info</span>
+                  <p class="text-sm text-slate-600">Aún no hay registros de avance. Agrega el primero abajo.</p>
+                </div>
+              }
+
+              <!-- FORMULARIO nuevo avance -->
+              <div class="border border-slate-200 bg-slate-50 p-5">
+                <h3 class="font-bold text-slate-800 mb-4">Registrar nuevo avance</h3>
+
+                <label class="block text-sm font-bold text-slate-900 mb-2">Nuevo estado</label>
+                <select [(ngModel)]="avance.estado"
+                  class="w-full h-12 border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-100 mb-4">
+                  <option value="">Selecciona...</option>
+                  <option value="EN_SITIO">En sitio (llegué al punto)</option>
+                  <option value="COMPLETADO">Rescatado (misión completada)</option>
+                  <option value="CANCELADO">Cancelado</option>
+                </select>
+
+                <label class="block text-sm font-bold text-slate-900 mb-2">Nota del avance</label>
+                <textarea [(ngModel)]="avance.nota" rows="3"
+                  class="w-full border border-slate-300 bg-white p-4 text-sm resize-none outline-none focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
+                  placeholder="Describe qué hiciste: dónde está el animal, a qué veterinaria lo llevaste, etc."></textarea>
+
+                @if (errorAvance) {
+                  <p class="mt-3 text-sm text-red-600 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px]">error</span>{{ errorAvance }}
+                  </p>
+                }
+                @if (avanceOk) {
+                  <p class="mt-3 text-sm text-emerald-700 flex items-center gap-1.5 font-semibold">
+                    <span class="material-symbols-outlined text-[18px]">check_circle</span>Avance registrado.
+                  </p>
+                }
+
+                <p class="text-xs text-slate-400 mt-3">
+                  Nota: "Rescatado" cierra la misión de forma definitiva (para cerrar con foto y GPS usa la pantalla de cierre).
+                </p>
+
+                <button type="button" (click)="registrarAvance()" [disabled]="registrandoAvance"
+                  class="mt-4 w-full sm:w-auto h-12 px-6 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                  @if (registrandoAvance) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
+                  {{ registrandoAvance ? 'Registrando...' : 'Registrar avance' }}
+                </button>
+              </div>
+
+            </div>
+          }
+        </section>
+        <!-- ================= ZONA 3: CIERRE DEL CASO ================= -->
+        @if (yaCerrado) {
+          <section class="mt-8 bg-emerald-50 border border-emerald-200 shadow-md p-8 text-center">
+            <span class="material-symbols-outlined text-6xl text-emerald-500 mb-3">verified</span>
+            <h2 class="text-xl font-bold text-emerald-800 mb-1">Caso cerrado</h2>
+            <p class="text-sm text-emerald-700">Esta misión ya fue completada. ¡Gracias por tu ayuda!</p>
+          </section>
+        } @else if (puedeCerrar) {
+          <section class="mt-8 bg-white border-2 border-emerald-300 shadow-md overflow-hidden">
+            <div class="h-1 bg-emerald-500"></div>
+            <div class="p-6 md:p-8">
+              <div class="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <p class="text-xs font-bold uppercase text-emerald-600 mb-1">Paso final</p>
+                  <h2 class="text-xl font-bold text-slate-900">Cerrar el caso</h2>
+                  <p class="text-sm text-slate-500 mt-1">
+                    Sube una foto del animal asegurado. Tomaremos tu ubicación como evidencia
+                    (debes estar cerca del punto reportado).
+                  </p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-700 grid place-items-center border border-emerald-100 shrink-0">
+                  <span class="material-symbols-outlined">task_alt</span>
+                </div>
+              </div>
+
+              <!-- Subir foto -->
+              <label class="block mb-4">
+                <span class="text-sm font-bold text-slate-900 mb-2 block">Foto de evidencia</span>
+                <div class="border-2 border-dashed border-slate-300 p-4 hover:border-emerald-400 transition-colors cursor-pointer bg-slate-50">
+                  @if (fotoPreview) {
+                    <img [src]="fotoPreview" alt="Evidencia" class="w-full max-h-64 object-contain">
+                    <p class="text-xs text-slate-500 text-center mt-2">Toca para cambiar la foto</p>
+                  } @else {
+                    <div class="flex flex-col items-center text-center py-6">
+                      <span class="material-symbols-outlined text-4xl text-slate-400 mb-1">add_a_photo</span>
+                      <p class="text-sm font-semibold text-slate-600">Subir foto desde galería o cámara</p>
+                    </div>
+                  }
+                  <input type="file" accept="image/*" capture="environment" (change)="onFotoSeleccionada($event)" class="hidden">
+                </div>
+              </label>
+
+              @if (errorCierre) {
+                <p class="mb-3 text-sm text-red-600 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[18px]">error</span>{{ errorCierre }}
+                </p>
+              }
+
+              <button type="button" (click)="cerrarCaso()" [disabled]="cerrando"
+                class="w-full sm:w-auto h-12 px-6 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold shadow-md shadow-emerald-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                @if (cerrando) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
+                {{ cerrando ? 'Cerrando...' : 'Marcar como rescatado y cerrar' }}
+              </button>
+            </div>
+          </section>
+        } @else {
+          <section class="mt-8 bg-slate-50 border border-slate-200 p-5 flex items-start gap-3">
+            <span class="material-symbols-outlined text-slate-400">lock</span>
+            <p class="text-sm text-slate-500">
+              Para cerrar el caso primero debes marcarlo como <strong>"En sitio"</strong> en la bitácora de arriba.
+            </p>
+          </section>
+        }
+      </main>
+    }
+
+    <footer class="relative z-20 bg-white mt-auto">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
 </ion-content>

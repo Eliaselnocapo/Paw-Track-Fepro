@@ -133,7 +133,7 @@ export class AcceptCasePage implements OnInit {
     this.confirmando = true;
     this.errorConfirmacion = null;
 
-    this.reportService.aceptarCaso(this.caso.id).subscribe({
+    this.reportService.aceptarCaso(this.caso.folio!).subscribe({
       next: () => {
         this.confirmando = false;
         this.navegarAExito();

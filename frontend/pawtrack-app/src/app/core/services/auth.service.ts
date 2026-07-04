@@ -88,4 +88,15 @@ export class AuthService {
   getCurrentUser(): Usuario | null {
     return this.userSubject.getValue();
   }
+/** Le da al usuario los roles REPORTERO + RESCATISTA y crea su PerfilRescatista en el back. */
+  habilitarRoles(userId: number): Observable<Usuario> {
+    return this.http
+      .patch<Usuario>(
+        `${environment.apiUrl}/usuarios/${userId}/roles/`,
+        { roles: ['REPORTERO', 'RESCATISTA'] }
+      )
+      .pipe(
+        tap((usuarioActualizado) => this.userSubject.next(usuarioActualizado))
+      );
+  }
 }

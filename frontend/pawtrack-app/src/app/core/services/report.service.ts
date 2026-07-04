@@ -1,8 +1,20 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TIPOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Estados posibles de una Incidencia (el reporte). */
+export type EstadoIncidencia = 'PENDIENTE' | 'ATENDIENDOSE' | 'CERRADO';
+
+/**
+ * Estados posibles de un Rescate (la "misión" del rescatista).
+ * EN_SITIO es el paso intermedio que el back agregó (En camino → En sitio → Rescatado).
+ */
+export type EstadoRescate = 'EN_CAMINO' | 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO';
 
 export interface ReportePayload {
   nombre_caso: string;
@@ -17,29 +29,42 @@ export interface ReportePayload {
   telefono_contacto?: string;
 }
 
+/** Info del rescatista asignado que devuelve el serializer cuando el caso ya fue tomado. */
+export interface RescatistaInfo {
+  id: number;
+  nombre: string;
+  email: string;
+}
+
 export interface IncidenciaResponse {
-  id:                number;
-  nombre_caso:       string | null;
-  nombre_contacto:   string | null;
-  telefono_contacto: string | null;
-  lat_out:           number;
-  lng_out:           number;
-  tipo_incidencia:   string;
-  estado:            string;
-  caracteristicas:   string;
-  imagen:            string | null;
-  tipo_animal:       string | null;
-  tamano_animal:     string | null;
-  condicion_animal:  string | null;
-  notas_animal:      string | null;
-  edad_estimada:     string | null;
-  peso_estimado:     string | null;
-  urgency_score:     number;
-  trust_score:       number;
-  created_at:        string;
-  updated_at?:       string | null;
-  folio:             string | null;
-  usuario_reporta:   number | null;
+  id:                  number;
+  usuario_reporta:     number | null;
+  animal:              number | null;
+  patrocinador:        number | null;
+  rescatista_asignado: number | null;
+  rescatista_info:     RescatistaInfo | null;
+  imagen:              string | null;
+  lat_out:             number | null;
+  lng_out:             number | null;
+  direccion:           string;
+  tipo_animal:         string | null;
+  tamano_animal:       string | null;
+  condicion_animal:    string | null;
+  notas_animal:        string | null;
+  edad_estimada:       string | null;
+  peso_estimado:       string | null;
+  nombre_caso:         string | null;
+  nombre_contacto:     string | null;
+  telefono_contacto:   string | null;
+  caracteristicas:     string;
+  estado:              EstadoIncidencia | string;
+  tipo_incidencia:     string;
+  recompensa:          number | null;
+  urgency_score:       number;
+  trust_score:         number;
+  created_at:          string;
+  updated_at?:         string | null;
+  folio:               string | null;
 }
 
 export interface ActualizarReportePayload {
@@ -50,7 +75,7 @@ export interface ActualizarReportePayload {
   notas_animal?:     string;
   latitud?:          number;
   longitud?:         number;
-  estado?:           string;
+  estado?:           EstadoIncidencia | string;
   caracteristicas?:  string;
   urgency_score?:    number;
   edad_estimada?:    string;
@@ -62,17 +87,87 @@ export interface ActualizarReportePayload {
   lng_out?:          number;
 }
 
+/**
+ * Respuesta estándar de mensaje del back para las acciones de rescate.
+ * (aceptar / actualizar-estado / cerrar devuelven esto, NO una IncidenciaResponse).
+ */
+export interface MensajeResponse {
+  code:         string;
+  detail:       string;
+  field_errors: Record<string, string[]>;
+}
+
+/** Una entrada del historial/cronología de un rescate. */
+export interface EntradaHistorial {
+  estado:    string;
+  timestamp: string;
+  nota?:     string;
+}
+
+/**
+ * Incidencia embebida dentro de un Rescate (la que devuelven mis-rescates
+ * y el detalle de rescate). Es un subconjunto de IncidenciaResponse.
+ */
+export interface IncidenciaEnRescate {
+  id:                number;
+  folio:             string | null;
+  nombre_caso:       string | null;
+  estado:            EstadoIncidencia | string;
+  lat_out:           number | null;
+  lng_out:           number | null;
+  imagen:            string | null;
+  tipo_animal:       string | null;
+  urgency_score:     number;
+  nombre_contacto:   string | null;
+  telefono_contacto: string | null;
+  // El back manda "resto de campos de IncidenciaSerializer", así que dejamos
+  // pasar cualquier campo extra sin romper el tipado.
+  [key: string]: any;
+}
+
+/**
+ * Respuesta de GET /rescates/mis-rescates/ (cada item) y de GET /rescates/{id}/.
+ * Este es el objeto que trae el rescate_id que necesitamos para todo lo demás.
+ */
+export interface RescateResponse {
+  rescate_id:       number;
+  estado:           EstadoRescate | string;
+  historial:        EntradaHistorial[];
+  fecha_aceptacion: string | null;
+  fecha_cierre:     string | null;
+  incidencia:       IncidenciaEnRescate;
+}
+
+/** Envoltura de paginación de DRF (PageNumberPagination). */
+export interface Paginated<T> {
+  count:    number;
+  next:     string | null;
+  previous: string | null;
+  results:  T[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SERVICIO
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Injectable({
   providedIn: 'root',
 })
 export class ReportService {
+  /** CRUD de reportes: /api/incidencias/ */
   private readonly apiUrl = `${environment.apiUrl}/incidencias/`;
+
+  /** Acciones de rescatista: /api/rescates/ */
+  private readonly rescatesUrl = `${environment.apiUrl}/rescates/`;
 
   constructor(private http: HttpClient) {}
 
+  // ───────────────────────────── REPORTES (REPORTERO) ─────────────────────────
+
   /**
    * Crea un nuevo reporte.
-   * Usa FormData para poder enviar imagen + datos de texto en un solo request multipart.
+   * Usa FormData para enviar imagen + datos de texto en un solo request multipart.
+   * El back lo crea en estado PENDIENTE por defecto.
    */
   crearReporte(payload: ReportePayload): Observable<IncidenciaResponse> {
     const form = new FormData();
@@ -85,7 +180,7 @@ export class ReportService {
     form.append('latitud',          String(payload.latitud));
     form.append('longitud',         String(payload.longitud));
 
-    if (payload.imagen)            form.append('imagen',             payload.imagen, payload.imagen.name);
+    if (payload.imagen)            form.append('imagen',            payload.imagen, payload.imagen.name);
     if (payload.nombre_contacto)   form.append('nombre_contacto',   payload.nombre_contacto);
     if (payload.telefono_contacto) form.append('telefono_contacto', payload.telefono_contacto);
 
@@ -93,82 +188,45 @@ export class ReportService {
   }
 
   /**
-   * Lista todos los reportes (útil para el mapa general y el dashboard de voluntario).
+   * Lista TODOS los reportes (AllowAny). Útil para el mapa general.
+   * OJO: para el dashboard de voluntario usa listarCasosDisponibles();
+   * para "mis casos aceptados" usa listarMisRescates().
    */
   listarReportes(): Observable<IncidenciaResponse[]> {
     return this.http.get<IncidenciaResponse[]>(this.apiUrl);
   }
 
-  /**
-   * Obtiene un reporte por su ID.
-   */
+  /** Obtiene un reporte por su ID. */
   obtenerReporte(id: number): Observable<IncidenciaResponse> {
     return this.http.get<IncidenciaResponse>(`${this.apiUrl}${id}/`);
   }
 
   /**
-   * Lista solo los reportes del usuario autenticado.
-   * Requiere token JWT (enviado automáticamente por el interceptor).
+   * Lista solo los reportes del usuario autenticado (los que YO reporté).
+   * Requiere token JWT (lo agrega el interceptor).
    */
   listarMisCasos(): Observable<IncidenciaResponse[]> {
     return this.http.get<IncidenciaResponse[]>(`${this.apiUrl}mis-casos/`);
   }
 
-  /**
-   * Obtiene un reporte por su folio (ej. "PT-2024-0001").
-   */
+  /** Obtiene un reporte por su folio (ej. "REG-EMG-00042"). */
   obtenerReportePorFolio(folio: string): Observable<IncidenciaResponse> {
     return this.http.get<IncidenciaResponse>(`${this.apiUrl}folio/${folio}/`);
   }
 
   /**
-   * Acepta un caso como voluntario.
-   *
-   * ESTADO ACTUAL: simulado — devuelve un observable vacío con delay
-   * para no romper el flujo mientras el back no tiene el endpoint.
-   *
-   * CUANDO EL BACK ESTÉ LISTO, hay dos opciones:
-   *
-   * ── Opción A (recomendada): endpoint dedicado ────────────────────────
-   * El back crea POST /incidencias/{id}/aceptar/ que:
-   *   1. Cambia estado a ASIGNADO
-   *   2. Registra al voluntario autenticado como responsable
-   *   3. Evita race conditions si dos voluntarios intentan al mismo tiempo
-   *
-   * Descomentar:
-   *   return this.http.post<IncidenciaResponse>(`${this.apiUrl}${id}/aceptar/`, {});
-   * Comentar el bloque "SIMULADO" de abajo.
-   *
-   * ── Opción B (mientras no hay endpoint dedicado): PATCH directo ──────
-   * Usa actualizarReporte() que ya existe. Funciona si el back
-   * permite que cualquier usuario autenticado haga PATCH al estado.
-   * OJO: no registra al voluntario ni protege race conditions.
-   *
-   * Descomentar:
-   *   return this.actualizarReporte(id, { estado: 'ASIGNADO' });
-   * Comentar el bloque "SIMULADO" de abajo.
-   * ─────────────────────────────────────────────────────────────────────
+   * Seguimiento público de un reporte por folio (AllowAny).
+   * Pensado para la pantalla "ver seguimiento" del reportante una vez que su
+   * caso fue tomado (ya no puede editarlo, solo seguirlo).
+   * Devuelve estado, tipo, urgency_score, created_at y si ya tiene rescatista.
    */
-  aceptarCaso(id: number): Observable<IncidenciaResponse | null> {
-    // ── SIMULADO ─────────────────────────────────────────────────────────
-    // Devuelve null con un pequeño delay para simular la latencia de red.
-    // El componente accept-case.page.ts ya maneja el null correctamente.
-    // Eliminar este return cuando el back esté listo.
-    return of(null).pipe(delay(800));
-    // ─────────────────────────────────────────────────────────────────────
-
-    // ── OPCIÓN A: endpoint dedicado (recomendado) ─────────────────────────
-    // return this.http.post<IncidenciaResponse>(`${this.apiUrl}${id}/aceptar/`, {});
-    // ─────────────────────────────────────────────────────────────────────
-
-    // ── OPCIÓN B: PATCH directo al estado ────────────────────────────────
-    // return this.actualizarReporte(id, { estado: 'ASIGNADO' });
-    // ─────────────────────────────────────────────────────────────────────
+  seguimientoPorFolio(folio: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}seguimiento/${folio}/`);
   }
 
   /**
    * Actualiza un reporte existente (PATCH — solo los campos enviados).
-   * Solo el dueño o un admin pueden editar.
+   * Solo el autor (mientras esté PENDIENTE) o el rescatista asignado pueden editar.
    */
   actualizarReporte(id: number, payload: ActualizarReportePayload): Observable<IncidenciaResponse> {
     const form = new FormData();
@@ -193,5 +251,114 @@ export class ReportService {
     if (payload.imagen) form.append('imagen', payload.imagen, payload.imagen.name);
 
     return this.http.patch<IncidenciaResponse>(`${this.apiUrl}${id}/`, form);
+  }
+
+  // ───────────────────────────── RESCATE (RESCATISTA) ─────────────────────────
+
+  /**
+   * Lista los casos DISPONIBLES para el rescatista logueado.
+   *
+   * GET /api/rescates/disponibles/?lat=..&lng=..
+   *  - Requiere rol RESCATISTA (IsRescatista) → si no, 403.
+   *  - lat y lng OBLIGATORIOS → si faltan, 400.
+   *  - Solo incidencias PENDIENTE dentro de 10 km, ordenadas por urgency_score.
+   *  - PAGINADO: { count, next, previous, results: [...] }.
+   */
+  listarCasosDisponibles(lat: number, lng: number): Observable<Paginated<IncidenciaResponse>> {
+    const params = new HttpParams()
+      .set('lat', String(lat))
+      .set('lng', String(lng));
+
+    return this.http.get<Paginated<IncidenciaResponse>>(`${this.rescatesUrl}disponibles/`, { params });
+  }
+
+  /**
+   * Lista los rescates que YO acepté (como rescatista).
+   *
+   * GET /api/rescates/mis-rescates/  (IsRescatista, PAGINADO)
+   *  - Devuelve RescateResponse[] dentro de { results }.
+   *  - Cada uno trae el rescate_id (necesario para estado/cerrar) + la incidencia.
+   *  - Si sale vacío NO es bug: es que esa cuenta no ha aceptado ningún caso.
+   *
+   * Esta es la fuente correcta para la pantalla accepted-cases (reemplaza el
+   * truco temporal de filtrar listarReportes()).
+   */
+  listarMisRescates(): Observable<Paginated<RescateResponse>> {
+    return this.http.get<Paginated<RescateResponse>>(`${this.rescatesUrl}mis-rescates/`);
+  }
+
+  /**
+   * Detalle de un rescate + su historial/cronología.
+   *
+   * GET /api/rescates/{rescateId}/  (IsRescatista, dueño del rescate)
+   *  - 403 si el rescate no es tuyo.
+   *  - Úsalo para las pantallas cronology-case y progress-case.
+   */
+  obtenerRescate(rescateId: number): Observable<RescateResponse> {
+    return this.http.get<RescateResponse>(`${this.rescatesUrl}${rescateId}/`);
+  }
+
+  /**
+   * Acepta un caso como rescatista.
+   *
+   * POST /api/rescates/aceptar/{folio}/
+   *  - Requiere rol RESCATISTA → si no, 403.
+   *  - Usa el FOLIO (string), no el id.
+   *  - Cambia la incidencia a ATENDIENDOSE y crea el Rescate (EN_CAMINO).
+   *  - Devuelve un MensajeResponse, NO la incidencia.
+   *
+   * Errores a manejar en el componente:
+   *  - 403 → no tiene rol RESCATISTA.
+   *  - 404 → folio inexistente.
+   *  - 400 → la incidencia ya no está PENDIENTE.
+   *  - 409 → otro rescatista la tomó primero (condición de carrera).
+   *
+   * NOTA: no devuelve el rescate_id. Para obtenerlo, después de aceptar
+   *       llama listarMisRescates() y busca por el folio.
+   */
+  aceptarCaso(folio: string): Observable<MensajeResponse> {
+    return this.http.post<MensajeResponse>(`${this.rescatesUrl}aceptar/${folio}/`, {});
+  }
+
+  /**
+   * Actualiza el estado de un Rescate ya aceptado y registra una nota opcional
+   * en el historial.
+   *
+   * PATCH /api/rescates/{rescateId}/estado/
+   *  - Solo el rescatista dueño (si no, 403).
+   *  - estado válido: 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO'.
+   *    (EN_CAMINO es el estado inicial al aceptar; RESCATADO se logra cerrando.)
+   *  - nota es opcional y se guarda en el historial con timestamp.
+   *
+   * Flujo típico del voluntario:
+   *   aceptar → (EN_CAMINO) → PATCH EN_SITIO → cerrar (COMPLETADO)
+   */
+  actualizarEstadoRescate(
+    rescateId: number,
+    estado: Extract<EstadoRescate, 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO'>,
+    nota?: string,
+  ): Observable<MensajeResponse> {
+    const body: { estado: string; nota?: string } = { estado };
+    if (nota != null && nota.trim() !== '') body.nota = nota.trim();
+
+    return this.http.patch<MensajeResponse>(`${this.rescatesUrl}${rescateId}/estado/`, body);
+  }
+
+  /**
+   * Cierra un Rescate con evidencia (foto + GPS).
+   *
+   * POST /api/rescates/{rescateId}/cerrar/
+   *  - Solo el rescatista dueño (si no, 403).
+   *  - foto y coordenadas actuales OBLIGATORIAS.
+   *  - Exige estar a menos de 100 m del reporte → si no, 403 (gps_too_far).
+   *  - Marca la incidencia como CERRADO y el rescate como COMPLETADO.
+   */
+  cerrarRescate(rescateId: number, lat: number, lng: number, foto: File): Observable<MensajeResponse> {
+    const form = new FormData();
+    form.append('lat', String(lat));
+    form.append('lng', String(lng));
+    form.append('foto', foto, foto.name);
+
+    return this.http.post<MensajeResponse>(`${this.rescatesUrl}${rescateId}/cerrar/`, form);
   }
 }

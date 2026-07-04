@@ -43,7 +43,7 @@ export class LoginPage {
           this.route.snapshot.queryParamMap.get('returnUrl') || '/home';
 
         if (roles.length > 1) {
-          this.router.navigate(['/role-selector'], {
+          this.router.navigate(['/home'], {
             queryParams: {
               returnUrl: returnUrl,
             },
