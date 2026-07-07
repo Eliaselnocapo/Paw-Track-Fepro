@@ -144,3 +144,38 @@ class MisRescatesYSeguimientoTests(APITestCase):
         self.assertEqual(rescate.estado, 'EN_SITIO')
         self.assertEqual(rescate.historial[-1]['estado'], 'EN_SITIO')
         self.assertEqual(rescate.historial[-1]['nota'], 'Llegué al punto, animal estable')
+
+    def test_seguimiento_historial_publico_devuelve_bitacora_por_folio(self):
+        """GET /api/incidencias/seguimiento/{folio}/historial/ es público y
+        expone la bitácora del rescate para el reportante."""
+        Rescate.objects.create(
+            incidencia=self.incidencia,
+            rescatista=self.user_rescatista,
+            estado='EN_SITIO',
+            historial=[
+                {"estado": "EN_CAMINO", "timestamp": "2026-07-01T00:00:00"},
+                {"estado": "EN_SITIO", "timestamp": "2026-07-01T01:00:00", "nota": "Llegué"},
+            ]
+        )
+
+        url = reverse('incidencia-seguimiento-historial', kwargs={'folio': self.incidencia.folio})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['folio'], self.incidencia.folio)
+        self.assertEqual(len(response.data['historial']), 2)
+        self.assertEqual(response.data['historial'][-1]['nota'], 'Llegué')
+
+    def test_seguimiento_historial_sin_rescate_devuelve_lista_vacia(self):
+        """Si aún no hay Rescate asociado (caso PENDIENTE), historial es []."""
+        url = reverse('incidencia-seguimiento-historial', kwargs={'folio': self.incidencia.folio})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['historial'], [])
+
+    def test_seguimiento_historial_folio_inexistente_devuelve_404(self):
+        url = reverse('incidencia-seguimiento-historial', kwargs={'folio': 'NO-EXISTE-00000'})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

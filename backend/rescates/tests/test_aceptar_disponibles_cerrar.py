@@ -1,3 +1,6 @@
+import os
+from unittest import mock
+
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
@@ -136,8 +139,10 @@ class RescatesEndpointsTests(APITestCase):
         self.assertEqual(len(resultados), 1)
         self.assertEqual(resultados[0]['folio'], self.incidencia.folio)
 
-    def test_cerrar_con_gps_lejano_devuelve_403(self):
-        """Test B2: Validación estricta de 100 metros bloquea intentos fraudulentos."""
+    def test_cerrar_con_gps_lejano_por_defecto_no_bloquea(self):
+        """El GPS de cierre es evidencia (a dónde se llevó al animal), no un
+        candado por distancia: sin RESCATE_CIERRE_RADIO_METROS configurado,
+        cerrar lejos del punto del reporte debe permitirse."""
         rescate = Rescate.objects.create(
             incidencia=self.incidencia,
             rescatista=self.user_rescatista,
@@ -149,15 +154,44 @@ class RescatesEndpointsTests(APITestCase):
 
         self.client.force_authenticate(user=self.user_rescatista)
         url = reverse('cerrar-rescate', kwargs={'rescate_id': rescate.id})
-        
-        # Mandamos un cierre desde coordenadas lejanas
+
         foto_falsa = SimpleUploadedFile("foto.jpg", b"file_content", content_type="image/jpeg")
         data = {
-            'lat': '19.4326', 
+            'lat': '19.4326',
             'lng': '-99.1332',
             'foto': foto_falsa
         }
-        
+
+        response = self.client.post(url, data, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rescate.refresh_from_db()
+        self.assertEqual(rescate.historial[-1]['ubicacion_cierre'], {'lat': 19.4326, 'lng': -99.1332})
+
+    @mock.patch.dict(os.environ, {'RESCATE_CIERRE_RADIO_METROS': '100'})
+    def test_cerrar_con_gps_lejano_devuelve_403_si_radio_configurado(self):
+        """Con RESCATE_CIERRE_RADIO_METROS definido, sí se vuelve a exigir
+        cercanía al punto del reporte."""
+        rescate = Rescate.objects.create(
+            incidencia=self.incidencia,
+            rescatista=self.user_rescatista,
+            estado='EN_CAMINO'
+        )
+        self.incidencia.estado = 'ATENDIENDOSE'
+        self.incidencia.rescatista_asignado = self.perfil_rescatista
+        self.incidencia.save()
+
+        self.client.force_authenticate(user=self.user_rescatista)
+        url = reverse('cerrar-rescate', kwargs={'rescate_id': rescate.id})
+
+        # Mandamos un cierre desde coordenadas lejanas
+        foto_falsa = SimpleUploadedFile("foto.jpg", b"file_content", content_type="image/jpeg")
+        data = {
+            'lat': '19.4326',
+            'lng': '-99.1332',
+            'foto': foto_falsa
+        }
+
         response = self.client.post(url, data, format='multipart')
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

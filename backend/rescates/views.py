@@ -1,8 +1,11 @@
+import os
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import IntegrityError, transaction
 from rest_framework.exceptions import NotFound, ValidationError, APIException, PermissionDenied
+from rest_framework.permissions import AllowAny
 
 from core.permissions import IsRescatista
 from bd.models import Incidencia, PerfilRescatista
@@ -80,8 +83,24 @@ class MissingCoordsError(APIException):
 
 class GpsTooFarError(APIException):
     status_code = status.HTTP_403_FORBIDDEN
-    default_detail = 'Debes estar a menos de 100m del reporte para cerrarlo.'
     default_code = 'gps_too_far'
+
+    def __init__(self, radio_metros):
+        super().__init__(detail=f'Debes estar a menos de {radio_metros:.0f}m del reporte para cerrarlo.')
+
+
+def _radio_maximo_cierre_metros():
+    """Radio máximo (en metros) permitido entre el punto del reporte y el punto
+    de cierre. El GPS del cierre es evidencia de a dónde fue el animal, no un
+    candado por defecto: sin la variable de entorno no se valida distancia.
+    Configurable vía RESCATE_CIERRE_RADIO_METROS para reactivar el límite."""
+    valor = os.environ.get('RESCATE_CIERRE_RADIO_METROS')
+    if not valor:
+        return None
+    try:
+        return float(valor)
+    except ValueError:
+        return None
 
 
 # --- Nuevas Vistas ---
@@ -175,10 +194,16 @@ class CerrarRescateView(APIView):
         except ValueError:
             raise ValidationError("Coordenadas inválidas.")
 
-        # Verificación estricta de 100m (.distance() en SRID 4326 devuelve grados, factorizamos a metros)
-        distancia = punto_cierre.distance(rescate.incidencia.ubicacion)
-        if (distancia * 111320) > 100:
-            raise GpsTooFarError()
+        # El GPS del cierre queda como evidencia de a dónde fue el animal
+        # (clínica, refugio, casa del voluntario), no como candado por
+        # distancia. Por defecto no se valida; solo si se configura
+        # RESCATE_CIERRE_RADIO_METROS se vuelve a exigir cercanía al reporte.
+        radio_maximo = _radio_maximo_cierre_metros()
+        if radio_maximo is not None:
+            # .distance() en SRID 4326 devuelve grados, factorizamos a metros
+            distancia = punto_cierre.distance(rescate.incidencia.ubicacion) * 111320
+            if distancia > radio_maximo:
+                raise GpsTooFarError(radio_maximo)
 
         # Actualizamos Incidencia
         rescate.incidencia.imagen = foto
@@ -188,7 +213,8 @@ class CerrarRescateView(APIView):
         # Actualizamos Rescate
         rescate.historial.append({
             "estado": "COMPLETADO",
-            "timestamp": timezone.now().isoformat()
+            "timestamp": timezone.now().isoformat(),
+            "ubicacion_cierre": {"lat": float(lat), "lng": float(lng)},
         })
         rescate.estado = 'COMPLETADO'
         rescate.fecha_cierre = timezone.now()
@@ -233,3 +259,27 @@ class RescateDetailView(APIView):
             raise PermissionDenied("No tienes permiso para ver este rescate.")
 
         return Response(RescateSerializer(rescate).data)
+
+
+class SeguimientoHistorialView(APIView):
+    """Historial público (bitácora paso a paso) del rescate asociado a un
+    folio, para que el reportante vea en su seguimiento cada avance del
+    voluntario, no solo el estado general."""
+    permission_classes = [AllowAny]
+
+    def get(self, request, folio):
+        try:
+            incidencia = Incidencia.objects.get(folio=folio)
+        except Incidencia.DoesNotExist:
+            raise NotFound("Reporte no encontrado.")
+
+        try:
+            rescate = incidencia.rescate_activo
+        except Rescate.DoesNotExist:
+            rescate = None
+
+        return Response({
+            "folio": incidencia.folio,
+            "estado": incidencia.estado,
+            "historial": rescate.historial if rescate else [],
+        })

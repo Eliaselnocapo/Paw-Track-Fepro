@@ -36,6 +36,10 @@ services:
       - DB_HOST=db
       - DB_PORT=${DB_PORT}
       - REDIS_URL=redis://redis:6379/1
+      # Opcional: radio máximo en metros entre el reporte y el punto de cierre
+      # del rescate. Sin definir, el GPS de cierre queda solo como evidencia
+      # (no bloquea el cierre por distancia).
+      - RESCATE_CIERRE_RADIO_METROS=${RESCATE_CIERRE_RADIO_METROS:-}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - CELERY_BROKER_URL=redis://redis:6379/0
