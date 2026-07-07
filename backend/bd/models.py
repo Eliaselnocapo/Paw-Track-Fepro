@@ -138,6 +138,7 @@ class Incidencia(models.Model):
     imagen = models.ImageField(upload_to='incidencias/', blank=True, null=True)
     ubicacion = models.PointField(srid=4326)
     caracteristicas = models.TextField(blank=True, default='')
+    ficha_voluntario = models.TextField(blank=True, default='')
     nombre_caso = models.CharField(max_length=150, blank=True, default='')
     nombre_contacto = models.CharField(max_length=150, blank=True, default='')
     telefono_contacto = models.CharField(max_length=20, blank=True, default='')

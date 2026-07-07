@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from django.http import JsonResponse
 
 from bd.views import AnimalViewSet, IncidenciaViewSet, UsuarioViewSet, GoogleLogin, LoginView
+from rescates.views import SeguimientoHistorialView
 
 #  Creamos el Router de DRF para que arme las rutas CRUD automáticamente
 router = DefaultRouter()
@@ -16,7 +17,8 @@ router.register(r'incidencias', IncidenciaViewSet, basename='incidencia')
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('api/incidencias/seguimiento/<str:folio>/', IncidenciaViewSet.as_view({'get': 'seguimiento'}), name='incidencia-seguimiento'),    
+    path('api/incidencias/seguimiento/<str:folio>/', IncidenciaViewSet.as_view({'get': 'seguimiento'}), name='incidencia-seguimiento'),
+    path('api/incidencias/seguimiento/<str:folio>/historial/', SeguimientoHistorialView.as_view(), name='incidencia-seguimiento-historial'),
     #  Rutas para el CRUD de nuestra API (ej. /api/usuarios/)
     path('api/', include(router.urls)),
     
