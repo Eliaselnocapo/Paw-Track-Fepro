@@ -457,3 +457,11 @@ app-footer-web {
   font-size: 0.76rem !important;
   color: #94a3b8 !important;
 }
+
+.mapa-general {
+  scroll-margin-top: 90px;
+}
+
+.alerta-card[role="button"] {
+  cursor: pointer;
+}
