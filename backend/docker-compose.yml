@@ -10,6 +10,11 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
       
   redis: 
     image: redis:7-alpine
@@ -31,13 +36,20 @@ services:
       - DB_HOST=db
       - DB_PORT=${DB_PORT}
       - REDIS_URL=redis://redis:6379/1
+      # Opcional: radio máximo en metros entre el reporte y el punto de cierre
+      # del rescate. Sin definir, el GPS de cierre queda solo como evidencia
+      # (no bloquea el cierre por distancia).
+      - RESCATE_CIERRE_RADIO_METROS=${RESCATE_CIERRE_RADIO_METROS:-}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: on-failure
 
   celery-worker:
     build: .

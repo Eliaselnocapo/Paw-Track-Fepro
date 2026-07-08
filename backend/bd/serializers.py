@@ -61,21 +61,25 @@ class CustomRegisterSerializer(RegisterSerializer):
         return value
 
     def validate_roles(self, value):
-        if not value:
-            return ['REPORTERO']
         validos = set(Usuario.ROLES_VALIDOS)
         invalidos = [r for r in value if r not in validos]
         if invalidos:
             raise serializers.ValidationError(
                 f"Roles inválidos: {invalidos}. Válidos: {Usuario.ROLES_VALIDOS}"
             )
-        return value
+        # Ya no hay selector de rol en el registro: todo usuario nuevo es
+        # REPORTERO + RESCATISTA. PATROCINADOR sigue siendo opt-in explícito
+        # porque es un flujo de aprobación aparte, no parte de este par.
+        roles = ['REPORTERO', 'RESCATISTA']
+        if 'PATROCINADOR' in value:
+            roles.append('PATROCINADOR')
+        return roles
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
         data['first_name'] = self.validated_data.get('first_name', '')
         data['last_name']  = self.validated_data.get('last_name', '')
-        data['roles']      = self.validated_data.get('roles', ['REPORTERO'])
+        data['roles']      = self.validated_data.get('roles', ['REPORTERO', 'RESCATISTA'])
         return data
 
     def save(self, request):
@@ -83,7 +87,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         cleaned = self.get_cleaned_data()
         user.first_name = cleaned.get('first_name', '')
         user.last_name  = cleaned.get('last_name', '')
-        user.roles      = cleaned.get('roles', ['REPORTERO'])
+        user.roles      = cleaned.get('roles', ['REPORTERO', 'RESCATISTA'])
         user.save(update_fields=['first_name', 'last_name', 'roles'])
 
         roles = user.roles or []
@@ -125,19 +129,24 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     notas_animal     = serializers.CharField(source='animal.otros',          read_only=True, default='')
     edad_estimada    = serializers.CharField(source='animal.edad_estimada',  read_only=True, default='')
     peso_estimado    = serializers.CharField(source='animal.peso_estimado',  read_only=True, default='')
+
+    # Quién tomó el caso: nombre y email del rescatista asignado
+    rescatista_info  = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Incidencia
         fields = (
             'id',
             'usuario_reporta', 'animal',
-            'patrocinador', 'rescatista_asignado',
+            'patrocinador', 'rescatista_asignado', 'rescatista_info',
             'imagen',
             'latitud', 'longitud',
             'lat_out', 'lng_out',
+            'direccion',
             'tipo_animal', 'tamano_animal', 'condicion_animal', 'notas_animal', 'edad_estimada', 'peso_estimado',
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
-            'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
-            'urgency_score', 'trust_score', 'created_at', 'folio',
+            'caracteristicas', 'ficha_voluntario', 'estado', 'tipo_incidencia', 'recompensa',
+            'urgency_score', 'trust_score', 'created_at', 'updated_at', 'folio',
         )
         extra_kwargs = {
             'usuario_reporta':     {'required': False, 'allow_null': True},
@@ -152,9 +161,12 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'nombre_contacto':     {'required': False, 'allow_blank': True, 'default': ''},
             'telefono_contacto':   {'required': False, 'allow_blank': True, 'default': ''},
             'caracteristicas':     {'required': False, 'allow_blank': True, 'default': ''},
+            'ficha_voluntario':    {'required': False, 'allow_blank': True, 'default': ''},
+            'direccion':           {'required': False, 'allow_blank': True, 'default': ''},
             'urgency_score':       {'required': False},
             'trust_score':         {'read_only': True},
             'created_at':          {'read_only': True},
+            'updated_at':          {'read_only': True},
             'folio':               {'read_only': True},
         }
 
@@ -163,6 +175,16 @@ class IncidenciaSerializer(serializers.ModelSerializer):
 
     def get_lng_out(self, obj):
         return obj.ubicacion.x if obj.ubicacion else None
+
+    def get_rescatista_info(self, obj):
+        if not obj.rescatista_asignado:
+            return None
+        u = obj.rescatista_asignado.usuario
+        return {
+            "id":     u.id,
+            "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
+            "email":  u.email,
+        }
 
     def create(self, validated_data):
         lat = validated_data.pop('latitud')

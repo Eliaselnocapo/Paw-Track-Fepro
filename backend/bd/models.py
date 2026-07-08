@@ -138,6 +138,7 @@ class Incidencia(models.Model):
     imagen = models.ImageField(upload_to='incidencias/', blank=True, null=True)
     ubicacion = models.PointField(srid=4326)
     caracteristicas = models.TextField(blank=True, default='')
+    ficha_voluntario = models.TextField(blank=True, default='')
     nombre_caso = models.CharField(max_length=150, blank=True, default='')
     nombre_contacto = models.CharField(max_length=150, blank=True, default='')
     telefono_contacto = models.CharField(max_length=20, blank=True, default='')
@@ -153,7 +154,9 @@ class Incidencia(models.Model):
     # Campos calculados por el sistema
     urgency_score = models.FloatField(default=0)
     trust_score = models.FloatField(default=50)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+    direccion   = models.CharField(max_length=255, blank=True, default='')
 
     folio = models.CharField(max_length=20, unique=True, null=True, blank=True)
 

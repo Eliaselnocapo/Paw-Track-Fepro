@@ -34,6 +34,8 @@ interface ReporterReport {
   notasAnimal: string;
 
   raw: IncidenciaResponse;
+
+  tipoIncidencia: string;
 }
 
 @Component({
@@ -51,6 +53,8 @@ interface ReporterReport {
 })
 export class ReporterPage implements OnInit {
   reports: ReporterReport[] = [];
+  reportesPorPagina = 5;
+  paginaActualReportes = 1;
 
   cargando = true;
   errorCarga: string | null = null;
@@ -70,20 +74,56 @@ export class ReporterPage implements OnInit {
   ionViewWillEnter(): void {
     this.cargarReportes();
   }
-
-cargarReportes(): void {
-  this.cargando = true;
-  this.errorCarga = null;
-  this.reports = [];
-  this.totalCount = 0;
-
-  if (this.haySesion()) {
-    this.cargarMisReportesDeCuenta();
-    return;
+  get totalPaginasReportes(): number {
+  return Math.ceil(this.reports.length / this.reportesPorPagina);
   }
 
-  this.cargarReportesInvitado();
-}
+  get reportesPaginados(): ReporterReport[] {
+    const inicio = (this.paginaActualReportes - 1) * this.reportesPorPagina;
+    const fin = inicio + this.reportesPorPagina;
+
+    return this.reports.slice(inicio, fin);
+  }
+
+  get inicioPaginaReportes(): number {
+    if (this.reports.length === 0) return 0;
+
+    return (this.paginaActualReportes - 1) * this.reportesPorPagina + 1;
+  }
+
+  get finPaginaReportes(): number {
+    const fin = this.paginaActualReportes * this.reportesPorPagina;
+
+    return Math.min(fin, this.reports.length);
+  }
+
+  get paginasReportes(): number[] {
+    return Array.from(
+      { length: this.totalPaginasReportes },
+      (_, index) => index + 1
+    );
+  }
+
+  cambiarPaginaReportes(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginasReportes) return;
+
+    this.paginaActualReportes = pagina;
+  }
+
+  cargarReportes(): void {
+    this.cargando = true;
+    this.errorCarga = null;
+    this.reports = [];
+    this.totalCount = 0;
+    this.paginaActualReportes = 1;
+
+    if (this.haySesion()) {
+      this.cargarMisReportesDeCuenta();
+      return;
+    }
+
+    this.cargarReportesInvitado();
+  }
   haySesion(): boolean {
     return !!localStorage.getItem('pawtrack_access');
   }
@@ -168,7 +208,8 @@ private cargarMisReportesDeCuenta(): void {
       condicionAnimal: incidencia.condicion_animal || 'No especificada',
       notasAnimal: incidencia.notas_animal || '',
 
-      raw: incidencia
+      raw: incidencia,
+      tipoIncidencia: incidencia.tipo_incidencia || 'No especificada'
     };
   }
 

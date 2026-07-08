@@ -50,6 +50,10 @@ interface CasoVoluntario {
 export class VolunteerPage implements OnInit {
   searchTerm: string = '';
   filtroActivo: string = 'Todos';
+  vistaCasos: 'disponibles' | 'urgentes' | 'aceptados' = 'disponibles';
+
+  casosPorPagina = 5;
+  paginaActualCasos = 1;
 
   casos: CasoVoluntario[] = [];
   cargando = true;
@@ -101,7 +105,7 @@ cargarCasos(): void {
   private esCasoVisibleParaVoluntario(incidencia: IncidenciaResponse): boolean {
     const estado = incidencia.estado || 'PENDIENTE';
 
-    return estado !== 'CERRADO' && estado !== 'COMPLETADO';
+    return estado === 'PENDIENTE';
   }
 
   private mapearCaso(incidencia: IncidenciaResponse): CasoVoluntario {
@@ -234,6 +238,45 @@ cargarCasos(): void {
 
     return filtrados;
   }
+  get casosPorVista(): CasoVoluntario[] {
+    return this.casosFiltrados;
+  }
+
+  get totalPaginasCasos(): number {
+    return Math.ceil(this.casosPorVista.length / this.casosPorPagina);
+  }
+
+  get casosPaginados(): CasoVoluntario[] {
+    const inicio = (this.paginaActualCasos - 1) * this.casosPorPagina;
+    const fin = inicio + this.casosPorPagina;
+
+    return this.casosPorVista.slice(inicio, fin);
+  }
+
+  get inicioPaginaCasos(): number {
+    if (this.casosPorVista.length === 0) return 0;
+
+    return (this.paginaActualCasos - 1) * this.casosPorPagina + 1;
+  }
+
+  get finPaginaCasos(): number {
+    const fin = this.paginaActualCasos * this.casosPorPagina;
+
+    return Math.min(fin, this.casosPorVista.length);
+  }
+
+  get paginasCasos(): number[] {
+    return Array.from(
+      { length: this.totalPaginasCasos },
+      (_, index) => index + 1
+    );
+  }
+
+  cambiarPaginaCasos(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginasCasos) return;
+
+    this.paginaActualCasos = pagina;
+  }
 
   get alertasCercanas(): CasoVoluntario[] {
   return this.casos
@@ -254,8 +297,10 @@ cargarCasos(): void {
       });
       return;
     }
-
-    // Si ya tiene sesión iniciada, no hace nada por ahora
-    return;
+    this.router.navigate(['/accept-case', caso.folio]);
   }
+  verDetalles(caso: CasoVoluntario): void {
+  this.router.navigate(['/details-case', caso.folio]);
+  }
+
 }
