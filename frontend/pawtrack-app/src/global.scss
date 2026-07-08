@@ -43,3 +43,213 @@ html, body {
   min-height: 100%;
   overflow-y: auto; // Deja que el navegador maneje el scroll nativo
 }
+
+// Modal móvil para mostrar la información de una incidencia
+// Modal centrado para mostrar la información de una incidencia
+ion-modal.modal-caso-animal {
+  --width: min(92vw, 680px);
+  --height: min(88vh, 820px);
+
+  --border-radius: 24px;
+  --box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
+  --backdrop-opacity: 0.65;
+}
+
+ion-modal.modal-caso-animal::part(content) {
+  overflow: hidden;
+  border-radius: 24px;
+  background: #f5f7fb;
+}
+
+ion-modal.modal-caso-animal::part(backdrop) {
+  background: #111827;
+  backdrop-filter: blur(2px);
+}
+
+ion-modal.modal-caso-animal ion-header {
+  box-shadow: 0 1px 5px rgb(0 0 0 / 12%);
+}
+
+ion-modal.modal-caso-animal ion-toolbar {
+  --background: #ffffff;
+  --color: #172033;
+  --border-color: transparent;
+}
+
+ion-modal.modal-caso-animal ion-title {
+  color: #172033;
+  font-weight: 700;
+}
+
+ion-modal.modal-caso-animal ion-toolbar ion-button {
+  --color: #172033;
+}
+
+ion-modal.modal-caso-animal ion-content {
+  --background: #f5f7fb;
+}
+
+@media (max-width: 480px) {
+  ion-modal.modal-caso-animal {
+    --width: calc(100% - 28px);
+    --height: 88vh;
+    --border-radius: 22px;
+  }
+
+  ion-modal.modal-caso-animal::part(content) {
+    border-radius: 22px;
+  }
+}
+
+.detalle-caso {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: 18px;
+}
+
+.detalle-caso__imagen-contenedor {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #e7edf5;
+}
+
+.detalle-caso__imagen,
+.detalle-caso__placeholder {
+  width: 100%;
+  height: 220px;
+}
+
+.detalle-caso__imagen {
+  display: block;
+  object-fit: cover;
+}
+
+.detalle-caso__placeholder {
+  display: grid;
+  place-items: center;
+  background: #e7edf5;
+  font-size: 4rem;
+}
+
+.detalle-caso__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(0 88 190 / 90%);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detalle-caso__encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detalle-caso__titulo {
+  min-width: 0;
+}
+
+.detalle-caso__titulo h2 {
+  margin: 4px 0 0;
+  color: #172033;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.detalle-caso__tipo {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detalle-caso ion-chip {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.detalle-caso__seccion {
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.detalle-caso__seccion h3 {
+  margin: 0 0 8px;
+  color: #172033;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.detalle-caso__descripcion {
+  margin: 0;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.detalle-caso ion-list {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.detalle-caso ion-item {
+  --background: transparent;
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  --min-height: 68px;
+  --border-color: #e2e8f0;
+}
+
+.detalle-caso ion-icon {
+  margin-right: 14px;
+  color: #0058be;
+  font-size: 1.35rem;
+}
+
+.detalle-caso ion-label p {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.detalle-caso ion-label h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.detalle-caso__boton {
+  --background: linear-gradient(135deg, #0058be, #2170e4);
+  --border-radius: 14px;
+  --box-shadow: 0 8px 20px rgb(0 88 190 / 22%);
+
+  min-height: 50px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: none;
+}
+
+@media (max-width: 480px) {
+  .detalle-caso__imagen,
+  .detalle-caso__placeholder {
+    height: 190px;
+  }
+
+  .detalle-caso__titulo h2 {
+    font-size: 1.3rem;
+  }
+}
