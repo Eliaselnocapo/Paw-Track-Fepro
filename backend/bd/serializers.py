@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from .models import Usuario, PerfilRescatista, PerfilPatrocinador, Animal, Incidencia
+from deduplicacion.services import VisionService
 
 class PerfilRescatistaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -121,6 +122,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     longitud = serializers.FloatField(write_only=True)
     lat_out  = serializers.SerializerMethodField(read_only=True)
     lng_out  = serializers.SerializerMethodField(read_only=True)
+    coincidencias_visuales = serializers.SerializerMethodField()
 
     # Campos del animal para lectura (evita un segundo request desde el front)
     tipo_animal      = serializers.CharField(source='animal.tipo',           read_only=True, default='')
@@ -185,6 +187,26 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
             "email":  u.email,
         }
+    
+    def get_coincidencias_visuales(self, obj):
+        # Si no hay imagen, no hay nada que buscar
+        if not obj.imagen:
+            return []
+        
+        # Instanciamos el servicio y buscamos
+        vision_ai = VisionService()
+        
+        # Realizamos la búsqueda
+        # Nota: aquí filtramos el propio ID para no mostrarse a sí mismo
+        ids_encontrados = vision_ai.process_new_report(
+            image_file=obj.imagen.path, 
+            especie=obj.animal.tipo, 
+            db_id=obj.id
+        )
+        
+        # Filtramos para que no salga el mismo caso en la lista
+        # y devolvemos solo una lista de IDs para el front
+        return [i for i in ids_encontrados if str(i) != str(obj.id)]
 
     def create(self, validated_data):
         lat = validated_data.pop('latitud')

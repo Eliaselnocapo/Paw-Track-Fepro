@@ -18,7 +18,6 @@ from dj_rest_auth.registration.views import SocialLoginView
 from .models import Usuario, Animal, Incidencia
 from .serializers import UsuarioSerializer, AnimalSerializer, IncidenciaSerializer
 
-
 def _jwt_response(user):
     """Genera el response estándar {access, refresh, user} con simplejwt."""
     refresh = RefreshToken.for_user(user)
