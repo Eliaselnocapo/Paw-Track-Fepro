@@ -130,21 +130,31 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       .then(response => response.json())
       .then(data => {
         this.cargandoDireccion = false;
-        if (data && data.length > 0) {
-          const lat = parseFloat(data[0].lat);
-          const lng = parseFloat(data[0].lon);
-          
-          this.direccionActual = data[0].display_name.split(',')[0] || direccion;
-          this.ciudadActual = 'Puebla, México'; 
-          
-          this.actualizarCoordenadas(lat, lng);
-          if (this.markerInteractive) {
-            const newLatLng = new L.LatLng(lat, lng);
-            this.markerInteractive.setLatLng(newLatLng);
-            this.mapInteractive.setView(newLatLng, 16);
-          }
-          this.cdr.detectChanges();
+        if (data && data.address) {
+          const a = data.address;
+
+          // Numero de casa pegado a la calle
+          const calle = a.road
+            ? `${a.road}${a.house_number ? ' #' + a.house_number : ''}`
+            : '';
+
+          // Armamos la direccion completa, campo por campo, quitando vacios
+          const partes = [
+            calle,                                   // Calle #123
+            a.neighbourhood || a.suburb,             // Colonia
+            a.postcode,                              // CP
+            a.city || a.town || a.village,           // Ciudad
+            a.state,                                 // Estado
+            a.country,                               // Pais
+          ].filter(Boolean);                         // elimina los que esten vacios
+
+          this.direccionActual = partes.length
+            ? partes.join(', ')
+            : (data.display_name || 'Ubicación exacta');
+
+          this.ciudadActual = a.city || a.town || a.state || 'Puebla, México';
         }
+        this.cdr.detectChanges();
       })
       .catch(() => {
         this.cargandoDireccion = false;
@@ -363,6 +373,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       notas_animal:      this.notasAdicionales,
       latitud:           this.latActual,
       longitud:          this.lngActual,
+      direccion:         this.direccionActual,   // ← AGREGA ESTA LÍNEA
       imagen:            this.archivosSeleccionados[0]?.archivoFisico,
       nombre_contacto:   this.nombreUsuario   || undefined,
       telefono_contacto: this.telefonoUsuario || undefined,

@@ -2,21 +2,23 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 
-import {
-  ProfileService,
-  UsuarioResponse,
-  IncidenciaResponse
-} from '../../../core/services/profile.service';
+import {ProfileService, UsuarioResponse, IncidenciaResponse} from '../../../core/services/profile.service';
+
+// Fuente correcta de los casos que YO acepté como rescatista.
+// (la misma que usa accepted-cases y que sí funciona)
+import { ReportService, RescateResponse } from '../../../core/services/report.service';
 
 import { environment } from '../../../../environments/environment';
 
 interface ReporteReciente {
   id: number;
+  folio: string;
   titulo: string;
   descripcion: string;
   fecha: string;
@@ -60,7 +62,7 @@ export class ProfilePage implements OnInit {
   tabActividad: 'reportes' | 'aceptados' | 'seguimientos' = 'reportes';
 
   esPantallaGrande = window.innerWidth >= 768;
-  
+
   cargando = true;
   error = '';
 
@@ -80,7 +82,12 @@ export class ProfilePage implements OnInit {
     casosAceptadosRecientes: [],
     seguimientosRecientes: []
   };
-  constructor(private profileService: ProfileService, private authService: AuthService) {}
+
+  constructor(
+    private profileService: ProfileService,
+    private authService: AuthService,
+    private reportService: ReportService,
+  ) {}
 
   private getUserIdFromToken(): number | null {
     const token = localStorage.getItem('pawtrack_access');
@@ -114,9 +121,14 @@ export class ProfilePage implements OnInit {
     forkJoin({
       usuario: this.profileService.obtenerUsuario(userId),
       reportes: this.profileService.obtenerMisCasos(),
+      // Si el usuario NO es rescatista, el back responde 403.
+      // El catchError evita que eso tumbe todo el perfil: cae a lista vacía.
+      rescates: this.reportService.listarMisRescates().pipe(
+        catchError(() => of({ count: 0, next: null, previous: null, results: [] as RescateResponse[] })),
+      ),
     }).subscribe({
-      next: ({ usuario, reportes }) => {
-        this.usuario = this.mapearPerfil(usuario, reportes);
+      next: ({ usuario, reportes, rescates }) => {
+        this.usuario = this.mapearPerfil(usuario, reportes, rescates.results);
         this.cargando = false;
       },
       error: () => {
@@ -126,12 +138,23 @@ export class ProfilePage implements OnInit {
     });
   }
 
-  private mapearPerfil(usuarioBackend: UsuarioResponse, reportesBackend: IncidenciaResponse[]): UsuarioPerfil {
+  private mapearPerfil(
+    usuarioBackend: UsuarioResponse,
+    reportesBackend: IncidenciaResponse[],
+    rescatesBackend: RescateResponse[],
+  ): UsuarioPerfil {
     const nombreCompleto = `${usuarioBackend.first_name || ''} ${usuarioBackend.last_name || ''}`.trim();
 
     const reportesRecientes = reportesBackend
       .slice(0, 3)
       .map((reporte) => this.mapearReporte(reporte));
+
+    // Casos aceptados = todos mis rescates.
+    // Casos resueltos = solo los que ya cerré (COMPLETADO).
+    const aceptados = rescatesBackend.map((r) => this.mapearRescate(r));
+    const resueltos = rescatesBackend
+      .filter((r) => r.estado === 'COMPLETADO')
+      .map((r) => this.mapearRescate(r));
 
     return {
       nombre: nombreCompleto || usuarioBackend.username,
@@ -140,20 +163,21 @@ export class ProfilePage implements OnInit {
       fotoUrl: this.resolverUrlMedia(usuarioBackend.foto_perfil, usuarioBackend.username),
 
       reportesTotales: reportesBackend.length,
-      casosResueltos: this.obtenerCasosResueltos(usuarioBackend, reportesBackend),
-      misionesAceptadas: usuarioBackend.perfil_rescatista?.misiones_completadas || 0,
-      seguimientosRealizados: 0,
+      casosResueltos: this.obtenerCasosResueltos(usuarioBackend, reportesBackend, resueltos.length),
+      misionesAceptadas: rescatesBackend.length,
+      seguimientosRealizados: resueltos.length,
       nivelComunidad: this.obtenerNivelComunidad(reportesBackend.length),
 
       reportesRecientes,
-      casosAceptadosRecientes: [],
-      seguimientosRecientes: []
+      casosAceptadosRecientes: aceptados.slice(0, 3),
+      seguimientosRecientes: resueltos.slice(0, 3),
     };
   }
 
   private mapearReporte(reporte: IncidenciaResponse): ReporteReciente {
     return {
       id: reporte.id,
+      folio: (reporte as any).folio ?? `RPT-${reporte.id}`,
       titulo: this.formatearTituloReporte(reporte),
       descripcion: reporte.caracteristicas || 'Sin descripción registrada.',
       fecha: 'Sin fecha',
@@ -163,6 +187,20 @@ export class ProfilePage implements OnInit {
         reporte.imagen,
         `Reporte ${reporte.id}`
       )
+    };
+  }
+
+  private mapearRescate(r: RescateResponse): ReporteReciente {
+    const i = r.incidencia;
+    return {
+      id: i.id,
+      folio: i.folio ?? `RPT-${i.id}`,
+      titulo: i.nombre_caso?.trim() || `${i.tipo_animal ?? 'Animal'} en incidencia`,
+      descripcion: (i['notas_animal'] as string)?.trim() || 'Sin descripción registrada.',
+      fecha: this.formatearFechaRelativa(r.fecha_aceptacion),
+      lugar: this.formatearLugarRescate(i),
+      estado: this.formatearEstadoRescate(r.estado),
+      fotoUrl: this.resolverUrlMedia(i.imagen, i.nombre_caso || `Caso ${i.id}`),
     };
   }
 
@@ -201,6 +239,17 @@ export class ProfilePage implements OnInit {
     return estados[estadoNormalizado] || estado;
   }
 
+  // Estado del RESCATE (no de la incidencia): EN_CAMINO / EN_SITIO / COMPLETADO / CANCELADO
+  private formatearEstadoRescate(estado: string): string {
+    const estados: Record<string, string> = {
+      EN_CAMINO:  'En camino',
+      EN_SITIO:   'En sitio',
+      COMPLETADO: 'Rescatado',
+      CANCELADO:  'Cancelado',
+    };
+    return estados[estado] || estado;
+  }
+
   private formatearTituloReporte(reporte: IncidenciaResponse): string {
     if (reporte.tipo_incidencia) {
       return reporte.tipo_incidencia;
@@ -209,12 +258,43 @@ export class ProfilePage implements OnInit {
     return `Reporte #${reporte.id}`;
   }
 
+  // Prefiere la direccion guardada; cae a coords y luego a texto genérico.
   private formatearLugar(reporte: IncidenciaResponse): string {
+    const direccion = (reporte as any).direccion;
+    if (typeof direccion === 'string' && direccion.trim()) {
+      return direccion.trim();
+    }
+
     if (reporte.lat_out !== null && reporte.lng_out !== null) {
-      return `Lat: ${reporte.lat_out}, Lng: ${reporte.lng_out}`;
+      return `${reporte.lat_out}, ${reporte.lng_out}`;
     }
 
     return 'Ubicación registrada';
+  }
+
+  // Igual que el anterior pero para la incidencia embebida en un rescate.
+  private formatearLugarRescate(i: any): string {
+    if (i?.direccion && typeof i.direccion === 'string' && i.direccion.trim()) {
+      return i.direccion.trim();
+    }
+
+    if (i?.lat_out != null && i?.lng_out != null) {
+      return `${Number(i.lat_out).toFixed(5)}, ${Number(i.lng_out).toFixed(5)}`;
+    }
+
+    return 'Ubicación no disponible';
+  }
+
+  private formatearFechaRelativa(fecha: string | null | undefined): string {
+    if (!fecha) return 'Sin fecha';
+    const diff = Date.now() - new Date(fecha).getTime();
+    const min  = Math.floor(diff / 60000);
+    const hrs  = Math.floor(min / 60);
+    const dias = Math.floor(hrs / 24);
+    if (min < 1)  return 'Hace un momento';
+    if (min < 60) return `Hace ${min} min`;
+    if (hrs < 24) return `Hace ${hrs} h`;
+    return `Hace ${dias} día${dias === 1 ? '' : 's'}`;
   }
 
   private obtenerUbicacion(usuarioBackend: UsuarioResponse): string {
@@ -225,18 +305,28 @@ export class ProfilePage implements OnInit {
     return 'Ubicación no registrada';
   }
 
-  private obtenerCasosResueltos(usuarioBackend: UsuarioResponse, reportesBackend: IncidenciaResponse[]): number {
+  private obtenerCasosResueltos(
+    usuarioBackend: UsuarioResponse,
+    reportesBackend: IncidenciaResponse[],
+    resueltosRescate: number,
+  ): number {
+    // Preferimos el conteo real de rescates COMPLETADO;
+    // si el back trae misiones_completadas, usamos el mayor de los dos.
     if (usuarioBackend.perfil_rescatista?.misiones_completadas !== undefined) {
-      return usuarioBackend.perfil_rescatista.misiones_completadas;
+      return Math.max(usuarioBackend.perfil_rescatista.misiones_completadas, resueltosRescate);
     }
 
-    return reportesBackend.filter((reporte) =>
+    const porEstado = reportesBackend.filter((reporte) =>
       reporte.estado?.toUpperCase() === 'RESUELTO'
     ).length;
+
+    return Math.max(porEstado, resueltosRescate);
   }
+
   cerrarSesion() {
     this.authService.logout();
   }
+
   private obtenerNivelComunidad(totalReportes: number): string {
     if (totalReportes >= 10) return 'Aliado comunitario';
     if (totalReportes >= 5) return 'Colaborador activo';

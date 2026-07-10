@@ -155,12 +155,16 @@ cargarCasos(): void {
   }
 
   private obtenerUbicacionCaso(incidencia: IncidenciaResponse): string {
-    if (incidencia.lat_out != null && incidencia.lng_out != null) {
-      return `Ubicación registrada: ${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out.toFixed(5)}`;
-    }
+      if (incidencia.direccion?.trim()) {
+        return incidencia.direccion.trim();
+      }
 
-    return 'Ubicación no disponible';
-  }
+      if (incidencia.lat_out != null && incidencia.lng_out != null) {
+        return `${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out.toFixed(5)}`;
+      }
+
+      return 'Ubicación no disponible';
+    }
 
   private obtenerTiempoReporte(fecha: string | null): string {
     if (!fecha) return 'Fecha no disponible';

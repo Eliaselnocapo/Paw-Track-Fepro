@@ -72,7 +72,7 @@ export class AcceptedCasesPage implements OnInit {
   casos: CasoAceptado[] = [];
   cargando = true;
   errorCarga: string | null = null;
-
+  ubicacionUsuario = 'Zona Metropolitana, CDMX'; // TODO: traer de geolocalización o perfil del usuario
   filtroEstado: EstadoRescate | 'Todos' = 'Todos';
   paginaActualCasos = 1;
   casosPorPagina = 5;
@@ -151,9 +151,10 @@ private mapearCaso(r: RescateResponse): CasoAceptado {
       folio:           i.folio ?? `RPT-${i.id}`,
       titulo:          i.nombre_caso?.trim() || `${i.tipo_animal ?? 'Animal'} en incidencia`,
       descripcion:     (i['notas_animal'] as string)?.trim() || 'Sin descripción.',
-      ubicacion:       i.lat_out != null && i.lng_out != null
-                         ? `Ubicación registrada: ${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
-                         : 'Ubicación no disponible',
+      ubicacion:       (i['direccion'] as string)?.trim()
+                              || (i.lat_out != null && i.lng_out != null
+                                    ? `${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
+                                    : 'Ubicación no disponible'),
       tiempo:          this.tiempoRelativo(r.fecha_aceptacion),
       prioridad:       score >= 80 ? 'Urgente' : score >= 40 ? 'Alta' : 'Moderada',
       fotoUrl:         this.imagenUrl(i.imagen),
@@ -198,15 +199,11 @@ private mapearCaso(r: RescateResponse): CasoAceptado {
   // ─────────────────────────────────────────
 
   get casosCompletadosHoy(): number {
-    return 0;
+    return this.casos.filter(c => c.estadoRescate === 'Rescatado').length;
   }
 
   get casosUrgentes(): number {
     return this.casos.filter(c => c.prioridad === 'Urgente').length;
-  }
-
-  get tiempoEnCampo(): string {
-    return '—';
   }
 
   get protocoloCompletado(): number {
@@ -256,7 +253,7 @@ verProgreso(caso: CasoAceptado): void {
 }
 
 actualizarCaso(caso: CasoAceptado): void {
-  this.router.navigate(['/update-case/:folio/update', caso.folio]);
+  this.router.navigate(['/update-case', caso.folio]);
 }
 
 verDetalles(caso: CasoAceptado): void {

@@ -48,4 +48,7 @@ export class ProfileService {
   obtenerMisCasos(): Observable<IncidenciaResponse[]> {
     return this.http.get<IncidenciaResponse[]>(`${this.incidenciasUrl}mis-casos/`);
   }
+  actualizarPerfil(datos: FormData): Observable<UsuarioResponse> {
+    return this.http.patch<UsuarioResponse>(`${environment.apiUrl}/auth/user/`, datos);
+  }
 }

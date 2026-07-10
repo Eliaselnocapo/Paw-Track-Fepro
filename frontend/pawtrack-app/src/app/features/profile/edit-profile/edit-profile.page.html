@@ -1,0 +1,156 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+    <!-- FONDO DECORATIVO -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+      <div class="absolute -top-[15px] left-[-130px] w-[420px] h-[420px] bg-indigo-200/45 rounded-full"></div>
+      <div class="absolute top-[10%] -right-[1%] w-[350px] h-[350px] bg-blue-200/45 rotate-[8deg]"></div>
+      <div class="absolute top-[40%] left-[38%] w-[120px] h-[120px] bg-blue-100/40 rotate-[15deg]"></div>
+      <div class="absolute bottom-[-80px] left-[-60px] w-[280px] h-[280px] bg-indigo-200/45 rotate-[8deg]"></div>
+      <div class="absolute bottom-[-60px] right-[-50px] w-[240px] h-[240px] bg-blue-200/40 rounded-full"></div>
+
+      <div class="absolute top-[54%] left-[6%]  w-5 h-5 bg-indigo-300/80 rotate-12"></div>
+      <div class="absolute top-[58%] left-[9%]  w-4 h-4 bg-blue-300/75 -rotate-6"></div>
+      <div class="absolute top-[52%] left-[14%] w-6 h-6 bg-blue-300/70 rotate-12"></div>
+    </div>
+
+    <!-- CARGANDO / ERROR -->
+    @if (cargando) {
+      <main class="flex-1 flex items-center justify-center relative z-10">
+        <p class="text-slate-500 animate-pulse">Cargando tu perfil...</p>
+      </main>
+    } @else if (errorCarga) {
+      <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+        <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
+        <p class="text-slate-600 text-center">{{ errorCarga }}</p>
+        <button type="button" (click)="cancelar()"
+          class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md">
+          Volver al perfil
+        </button>
+      </main>
+    } @else {
+
+      <main class="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-10 relative z-10">
+
+        <!-- VOLVER -->
+        <button type="button" (click)="cancelar()"
+          class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+          <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+          Volver al perfil
+        </button>
+
+        <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+
+          <!-- CABECERA -->
+          <div class="px-6 md:px-8 py-6 border-b border-slate-100 bg-slate-50 flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-700 text-white grid place-items-center shrink-0 shadow-sm">
+              <span class="material-symbols-outlined">manage_accounts</span>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase text-blue-700 mb-0.5">Editar perfil</p>
+              <h1 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight">Actualiza tus datos</h1>
+            </div>
+          </div>
+
+          <div class="p-6 md:p-8">
+
+            <!-- FOTO -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-5 pb-6 mb-6 border-b border-slate-100">
+              <img [src]="avatarMostrado" alt="Foto de perfil"
+                class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md bg-blue-50 mx-auto sm:mx-0">
+
+              <div class="text-center sm:text-left">
+                <label class="inline-flex items-center gap-2 h-11 px-5 bg-blue-50 border border-blue-200 text-blue-700 font-bold text-sm cursor-pointer hover:bg-blue-100 transition-colors">
+                  <span class="material-symbols-outlined text-[18px]">add_a_photo</span>
+                  Cambiar foto
+                  <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" class="hidden">
+                </label>
+                <p class="text-xs text-slate-400 mt-2">JPG o PNG. Opcional.</p>
+              </div>
+            </div>
+
+            <!-- CAMPOS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Nombre</label>
+                <input type="text" [(ngModel)]="form.first_name" name="first_name"
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                  placeholder="Tu nombre">
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Apellidos</label>
+                <input type="text" [(ngModel)]="form.last_name" name="last_name"
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                  placeholder="Tus apellidos">
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Teléfono</label>
+                <input type="tel" inputmode="tel" [(ngModel)]="form.telefono" name="telefono"
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                  placeholder="Ej. 2481100755">
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Ubicación / zona</label>
+                <input type="text" [(ngModel)]="form.ubicacion" name="ubicacion"
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                  placeholder="Ej. Zona Metropolitana, CDMX">
+              </div>
+
+              <!-- EMAIL (bloqueado) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-slate-700 mb-2">
+                  Correo <span class="font-normal text-slate-400">(no editable)</span>
+                </label>
+                <div class="relative">
+                  <input type="email" [value]="email" readonly disabled
+                    class="w-full h-12 border border-slate-200 bg-slate-100 text-slate-500 px-4 pr-11 text-sm cursor-not-allowed">
+                  <span class="material-symbols-outlined text-slate-400 text-[20px] absolute right-3 top-1/2 -translate-y-1/2">lock</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">El correo es tu identificador de acceso, por eso no se edita aquí.</p>
+              </div>
+
+            </div>
+
+            <!-- MENSAJES -->
+            @if (errorGuardar) {
+              <p class="mt-5 text-sm text-red-600 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px]">error</span>{{ errorGuardar }}
+              </p>
+            }
+            @if (guardadoOk) {
+              <p class="mt-5 text-sm text-emerald-700 font-semibold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px]">check_circle</span>Cambios guardados.
+              </p>
+            }
+
+            <!-- ACCIONES -->
+            <div class="mt-7 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:justify-end gap-3">
+              <button type="button" (click)="cancelar()"
+                class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
+                Cancelar
+              </button>
+
+              <button type="button" (click)="guardar()" [disabled]="guardando"
+                class="h-12 px-8 bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white font-bold text-sm shadow-md shadow-blue-700/25 transition-all active:scale-95 flex items-center justify-center gap-2">
+                @if (guardando) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
+                {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            </div>
+
+          </div>
+        </section>
+      </main>
+    }
+
+    <footer class="relative z-20 bg-white mt-auto">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
+</ion-content>
