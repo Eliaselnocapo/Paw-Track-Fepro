@@ -24,6 +24,7 @@ export interface ReportePayload {
   notas_animal: string;
   latitud: number;
   longitud: number;
+  direccion?: string;
   imagen?: File;
   nombre_contacto?: string;
   telefono_contacto?: string;
@@ -34,6 +35,12 @@ export interface RescatistaInfo {
   id: number;
   nombre: string;
   email: string;
+}
+
+export interface SeguimientoHistorial {
+  folio: string;
+  estado: string;
+  historial: EntradaHistorial[];
 }
 
 export interface IncidenciaResponse {
@@ -65,6 +72,7 @@ export interface IncidenciaResponse {
   created_at:          string;
   updated_at?:         string | null;
   folio:               string | null;
+  ficha_voluntario?: string;
 }
 
 export interface ActualizarReportePayload {
@@ -75,6 +83,7 @@ export interface ActualizarReportePayload {
   notas_animal?:     string;
   latitud?:          number;
   longitud?:         number;
+  direccion?:        string;
   estado?:           EstadoIncidencia | string;
   caracteristicas?:  string;
   urgency_score?:    number;
@@ -85,6 +94,7 @@ export interface ActualizarReportePayload {
   telefono_contacto?:string;
   lat_out?:          number;
   lng_out?:          number;
+  ficha_voluntario?: string;
 }
 
 /**
@@ -179,7 +189,8 @@ export class ReportService {
     form.append('notas_animal',     payload.notas_animal);
     form.append('latitud',          String(payload.latitud));
     form.append('longitud',         String(payload.longitud));
-
+    
+    if (payload.direccion)         form.append('direccion', payload.direccion);
     if (payload.imagen)            form.append('imagen',            payload.imagen, payload.imagen.name);
     if (payload.nombre_contacto)   form.append('nombre_contacto',   payload.nombre_contacto);
     if (payload.telefono_contacto) form.append('telefono_contacto', payload.telefono_contacto);
@@ -201,6 +212,11 @@ export class ReportService {
     return this.http.get<IncidenciaResponse>(`${this.apiUrl}${id}/`);
   }
 
+  seguimientoHistorialPorFolio(folio: string) {
+    return this.http.get<SeguimientoHistorial>(
+      `${this.apiUrl.replace('/incidencias/', '/incidencias/')}seguimiento/${folio}/historial/`
+    );
+  }
   /**
    * Lista solo los reportes del usuario autenticado (los que YO reporté).
    * Requiere token JWT (lo agrega el interceptor).
@@ -238,8 +254,10 @@ export class ReportService {
     if (payload.notas_animal     != null) form.append('notas_animal',     payload.notas_animal);
     if (payload.latitud          != null) form.append('latitud',          String(payload.latitud));
     if (payload.longitud         != null) form.append('longitud',         String(payload.longitud));
+    if (payload.direccion        != null) form.append('direccion',        payload.direccion);
     if (payload.estado           != null) form.append('estado',           payload.estado);
     if (payload.caracteristicas  != null) form.append('caracteristicas',  payload.caracteristicas);
+    if (payload.ficha_voluntario != null) form.append('ficha_voluntario', payload.ficha_voluntario);
     if (payload.urgency_score    != null) form.append('urgency_score',    String(payload.urgency_score));
     if (payload.edad_estimada    != null) form.append('edad_estimada',    payload.edad_estimada);
     if (payload.peso_estimado    != null) form.append('peso_estimado',    payload.peso_estimado);
@@ -345,6 +363,36 @@ export class ReportService {
   }
 
   /**
+ * Convierte coordenadas en una direccion completa (calle, colonia, CP, ciudad, estado, pais)
+ * usando reverse-geocoding de Nominatim. Un solo lugar para toda la app.
+ */
+  obtenerDireccionCompleta(lat: number, lng: number): Promise<string> {
+    return fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+      .then(r => r.json())
+      .then(data => {
+        const a = data?.address || {};
+        const calle = a.road
+          ? `${a.road}${a.house_number ? ' #' + a.house_number : ''}`
+          : '';
+        // Nominatim usa distintos nombres para "colonia" segun la zona
+        const colonia = a.neighbourhood || a.suburb || a.hamlet || a.quarter || a.residential || '';
+        const ciudad  = a.city || a.town || a.village || a.municipality || a.county || '';
+
+        const partes = [
+          calle,        // Avenida 93 Oriente
+          colonia,      // Universidades
+          a.postcode,   // 72587
+          ciudad,       // Puebla
+          a.state,      // Puebla
+          a.country,    // Mexico
+        ].filter(Boolean);
+
+        return partes.length ? partes.join(', ') : (data?.display_name || 'Ubicación exacta');
+      })
+      .catch(() => 'Ubicación ajustada en el mapa');
+  }
+
+  /**
    * Cierra un Rescate con evidencia (foto + GPS).
    *
    * POST /api/rescates/{rescateId}/cerrar/
@@ -353,12 +401,13 @@ export class ReportService {
    *  - Exige estar a menos de 100 m del reporte → si no, 403 (gps_too_far).
    *  - Marca la incidencia como CERRADO y el rescate como COMPLETADO.
    */
-  cerrarRescate(rescateId: number, lat: number, lng: number, foto: File): Observable<MensajeResponse> {
-    const form = new FormData();
-    form.append('lat', String(lat));
-    form.append('lng', String(lng));
-    form.append('foto', foto, foto.name);
+  cerrarRescate(rescateId: number, lat: number, lng: number, foto: File, nota?: string): Observable<MensajeResponse> {
+      const form = new FormData();
+      form.append('lat', String(lat));
+      form.append('lng', String(lng));
+      form.append('foto', foto, foto.name);
+      if (nota && nota.trim()) form.append('nota', nota.trim());
 
-    return this.http.post<MensajeResponse>(`${this.rescatesUrl}${rescateId}/cerrar/`, form);
-  }
+      return this.http.post<MensajeResponse>(`${this.rescatesUrl}${rescateId}/cerrar/`, form);
+    }
 }

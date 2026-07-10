@@ -174,9 +174,10 @@ export class AcceptCasePage implements OnInit {
       folio:            i.folio || `RPT-${i.id}`,
       titulo:           this.obtenerTitulo(i),
       descripcion:      i.notas_animal?.trim() || 'Sin notas adicionales registradas por el reportante.',
-      ubicacion:        i.lat_out != null && i.lng_out != null
-                          ? `Ubicación registrada: ${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
-                          : 'Ubicación no disponible',
+      ubicacion:        i.direccion?.trim()
+                                || (i.lat_out != null && i.lng_out != null
+                                      ? `${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
+                                      : 'Ubicación no disponible'),
       tiempo:           this.tiempoRelativo(i.created_at),
       tamano:           i.tamano_animal    || 'No especificado',
       condicion:        i.condicion_animal || 'No especificada',

@@ -50,6 +50,8 @@ export class UpdateCasePage implements OnInit {
   fotoPreview: string | null = null;
   cerrando = false;
   errorCierre: string | null = null;
+  cierreAbierto = false;   // desplegable cerrado por defecto
+  notaCierre = '';         // nota de cierre
 
   // ── Bitácora de avance ────────────────────────────────────
   bitacoraAbierta = true;
@@ -140,9 +142,9 @@ export class UpdateCasePage implements OnInit {
     if (this.ficha.notas.trim()) extras.push(`Notas clínicas: ${this.ficha.notas.trim()}`);
 
     this.reportService.actualizarReporte(incidenciaId, {
-      peso_estimado:   this.ficha.peso || undefined,
-      edad_estimada:   this.ficha.edad || undefined,
-      caracteristicas: extras.length ? extras.join(' | ') : undefined,
+      peso_estimado:    this.ficha.peso || undefined,
+      edad_estimada:    this.ficha.edad || undefined,
+      ficha_voluntario: extras.length ? extras.join(' | ') : undefined,
     }).subscribe({
       next: () => {
         this.guardandoFicha = false;
@@ -158,13 +160,21 @@ export class UpdateCasePage implements OnInit {
   // ─────────────────────────────────────────
   // Bitácora de avance → rescate
   // ─────────────────────────────────────────
-
+  get especie(): string { return this.rescate?.incidencia?.tipo_animal || 'No especificado'; }
+  get tamano(): string { return this.rescate?.incidencia?.['tamano_animal'] || 'No especificado'; }
+  get condicion(): string { return this.rescate?.incidencia?.['condicion_animal'] || 'No especificada'; }
+  get score(): number { return this.rescate?.incidencia?.urgency_score ?? 0; }
+  get contactoNombre(): string { return this.rescate?.incidencia?.nombre_contacto || 'No registrado'; }
+  get contactoTelefono(): string { return this.rescate?.incidencia?.telefono_contacto || 'No registrado'; }
   get historial(): EntradaHistorial[] {
     return this.rescate?.historial ?? [];
   }
 
   toggleBitacora(): void {
     this.bitacoraAbierta = !this.bitacoraAbierta;
+  }
+  toggleCierre(): void {
+    this.cierreAbierto = !this.cierreAbierto;
   }
 
   registrarAvance(): void {
@@ -266,13 +276,11 @@ cerrarCaso(): void {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       this.reportService
-        .cerrarRescate(rescateId, pos.coords.latitude, pos.coords.longitude, this.foto!)
+        .cerrarRescate(rescateId, pos.coords.latitude, pos.coords.longitude, this.foto!, this.notaCierre.trim() || undefined)
         .subscribe({
           next: () => {
             this.cerrando = false;
-            this.router.navigate(['/case-accepted-success'], {
-              queryParams: { folio: this.rescate?.incidencia?.folio, cerrado: '1' },
-            });
+            this.router.navigate(['/rescue-complete', this.rescate?.incidencia?.folio]);
           },
           error: (err) => {
             this.cerrando = false;

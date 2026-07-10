@@ -1,0 +1,101 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+    <!-- FONDO DECORATIVO -->
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute left-[-150px] top-[100px] w-[440px] h-[440px] bg-emerald-100/70 rounded-full"></div>
+      <div class="absolute right-[-130px] top-[280px] w-[380px] h-[380px] bg-teal-100/60 rounded-full"></div>
+      <div class="absolute left-[12%] bottom-[120px] w-[160px] h-[160px] bg-blue-100/55 rotate-[12deg]"></div>
+
+      <div class="absolute top-[20%] left-[8%]">
+        <span class="absolute w-4 h-4 rounded-full bg-emerald-300/60" style="top:0; left:0;"></span>
+        <span class="absolute w-2.5 h-2.5 rounded-full bg-teal-300/60" style="top:16px; left:22px;"></span>
+        <span class="absolute w-5 h-5 rounded-full bg-emerald-400/50" style="top:34px; left:6px;"></span>
+      </div>
+      <div class="absolute top-[45%] right-[10%]">
+        <span class="absolute w-3 h-3 rounded-full bg-blue-300/60" style="top:0; left:12px;"></span>
+        <span class="absolute w-5 h-5 rounded-full bg-emerald-300/50" style="top:16px; left:0;"></span>
+        <span class="absolute w-2.5 h-2.5 rounded-full bg-teal-400/60" style="top:40px; left:24px;"></span>
+      </div>
+    </div>
+
+    <main class="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 py-10 md:py-16 relative z-10 flex flex-col items-center">
+
+      <!-- TARJETA DE EXITO -->
+      <section class="w-full bg-white border border-slate-300 shadow-xl overflow-hidden">
+
+        <!-- Franja superior de celebracion -->
+        <div class="relative bg-gradient-to-br from-emerald-500 to-teal-600 px-8 pt-12 pb-16 text-center overflow-hidden">
+          <span class="material-symbols-outlined absolute -left-6 -top-6 text-[140px] text-white/10 pointer-events-none">pets</span>
+          <span class="material-symbols-outlined absolute -right-8 -bottom-10 text-[160px] text-white/10 pointer-events-none rotate-12">favorite</span>
+
+          <div class="relative z-10 flex flex-col items-center">
+            <div class="w-24 h-24 rounded-full bg-white grid place-items-center shadow-lg mb-5">
+              <span class="material-symbols-outlined text-[60px] text-emerald-500">verified</span>
+            </div>
+            <p class="text-emerald-50 font-bold uppercase tracking-widest text-xs mb-2">Mision cumplida</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-white leading-tight drop-shadow">Rescate completado</h1>
+          </div>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="px-6 md:px-10 py-8 -mt-6 relative z-10">
+
+          <div class="bg-white border border-slate-200 shadow-md p-6 text-center mb-8">
+            <p class="text-slate-600 leading-relaxed">
+              Gracias a ti, <span class="font-bold text-slate-900">{{ titulo }}</span> ya esta a salvo.
+              Tu esfuerzo hizo la diferencia para este {{ especie }}. 💚
+            </p>
+
+            @if (folio) {
+              <div class="inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 bg-slate-100 text-slate-600 border border-slate-200 text-xs font-bold">
+                <span class="material-symbols-outlined text-[15px]">confirmation_number</span>
+                {{ folio }}
+              </div>
+            }
+          </div>
+
+          <!-- Mini stats -->
+          @if (!cargando && rescate) {
+            <div class="grid grid-cols-2 gap-4 mb-8">
+              <div class="border border-emerald-100 bg-emerald-50 p-5 text-center">
+                <span class="material-symbols-outlined text-emerald-600 text-3xl mb-1">timeline</span>
+                <p class="text-2xl font-bold text-slate-900">{{ totalPasos }}</p>
+                <p class="text-xs font-bold uppercase text-slate-500 mt-0.5">Avances registrados</p>
+              </div>
+              <div class="border border-blue-100 bg-blue-50 p-5 text-center">
+                <span class="material-symbols-outlined text-blue-600 text-3xl mb-1">check_circle</span>
+                <p class="text-2xl font-bold text-slate-900">100%</p>
+                <p class="text-xs font-bold uppercase text-slate-500 mt-0.5">Caso cerrado</p>
+              </div>
+            </div>
+          }
+
+          <!-- Acciones -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button type="button" (click)="irADisponibles()"
+              class="flex-1 h-12 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[19px]">search</span>
+              Buscar mas casos
+            </button>
+            <button type="button" (click)="irAMisCasos()"
+              class="flex-1 h-12 px-6 bg-white border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[19px]">assignment_turned_in</span>
+              Ver mis casos
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <p class="text-center text-sm text-slate-400 mt-6 max-w-md">
+        El reportante sera notificado de que su caso fue resuelto. Puede ver el seguimiento completo desde su cuenta.
+      </p>
+
+    </main>
+
+    <app-footer-web class="relative z-10 mt-auto"></app-footer-web>
+  </div>
+</ion-content>

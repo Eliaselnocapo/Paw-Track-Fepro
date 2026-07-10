@@ -10,7 +10,9 @@ import { AuthService } from '../../../../core/services/auth.service';
   imports: [CommonModule, RouterLink, RouterLinkActive, MenuToggleComponent],
   templateUrl: './navbar-web.component.html',
   styleUrls: ['./navbar-web.component.scss']
+  
 })
+
 export class NavbarWebComponent {
   
   private authService = inject(AuthService);
@@ -18,6 +20,15 @@ export class NavbarWebComponent {
   // El getter ahora le pregunta directamente a tu excelente servicio
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn(); 
+  }
+  constructor(private auth: AuthService) {}
+
+  // getters:
+  get iniciales(): string {
+    const u = this.auth.getCurrentUser();
+    if (!u) return '?';
+    const n = (u.first_name?.[0] ?? '') + (u.last_name?.[0] ?? '');
+    return n.toUpperCase() || u.email?.[0]?.toUpperCase() || '?';
   }
 
 }
