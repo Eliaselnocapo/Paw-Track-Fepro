@@ -15,6 +15,8 @@ def notify_user(uid: int, event: dict):
 
 
 def broadcast_new_report(incidencia):
+    if not incidencia.ubicacion:
+        return
     lat = incidencia.ubicacion.y
     lng = incidencia.ubicacion.x
     zona_key = compute_zona_key(lat, lng)
@@ -31,6 +33,8 @@ def broadcast_new_report(incidencia):
 
 
 def broadcast_status_changed(incidencia):
+    if not incidencia.ubicacion:
+        return
     lat = incidencia.ubicacion.y
     lng = incidencia.ubicacion.x
     zona_key = compute_zona_key(lat, lng)

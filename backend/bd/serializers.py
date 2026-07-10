@@ -61,21 +61,25 @@ class CustomRegisterSerializer(RegisterSerializer):
         return value
 
     def validate_roles(self, value):
-        if not value:
-            return ['REPORTERO']
         validos = set(Usuario.ROLES_VALIDOS)
         invalidos = [r for r in value if r not in validos]
         if invalidos:
             raise serializers.ValidationError(
                 f"Roles inválidos: {invalidos}. Válidos: {Usuario.ROLES_VALIDOS}"
             )
-        return value
+        # Ya no hay selector de rol en el registro: todo usuario nuevo es
+        # REPORTERO + RESCATISTA. PATROCINADOR sigue siendo opt-in explícito
+        # porque es un flujo de aprobación aparte, no parte de este par.
+        roles = ['REPORTERO', 'RESCATISTA']
+        if 'PATROCINADOR' in value:
+            roles.append('PATROCINADOR')
+        return roles
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
         data['first_name'] = self.validated_data.get('first_name', '')
         data['last_name']  = self.validated_data.get('last_name', '')
-        data['roles']      = self.validated_data.get('roles', ['REPORTERO'])
+        data['roles']      = self.validated_data.get('roles', ['REPORTERO', 'RESCATISTA'])
         return data
 
     def save(self, request):
@@ -83,7 +87,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         cleaned = self.get_cleaned_data()
         user.first_name = cleaned.get('first_name', '')
         user.last_name  = cleaned.get('last_name', '')
-        user.roles      = cleaned.get('roles', ['REPORTERO'])
+        user.roles      = cleaned.get('roles', ['REPORTERO', 'RESCATISTA'])
         user.save(update_fields=['first_name', 'last_name', 'roles'])
 
         roles = user.roles or []
@@ -141,7 +145,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'direccion',
             'tipo_animal', 'tamano_animal', 'condicion_animal', 'notas_animal', 'edad_estimada', 'peso_estimado',
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
-            'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
+            'caracteristicas', 'ficha_voluntario', 'estado', 'tipo_incidencia', 'recompensa',
             'urgency_score', 'trust_score', 'created_at', 'updated_at', 'folio',
         )
         extra_kwargs = {
@@ -157,6 +161,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'nombre_contacto':     {'required': False, 'allow_blank': True, 'default': ''},
             'telefono_contacto':   {'required': False, 'allow_blank': True, 'default': ''},
             'caracteristicas':     {'required': False, 'allow_blank': True, 'default': ''},
+            'ficha_voluntario':    {'required': False, 'allow_blank': True, 'default': ''},
             'direccion':           {'required': False, 'allow_blank': True, 'default': ''},
             'urgency_score':       {'required': False},
             'trust_score':         {'read_only': True},

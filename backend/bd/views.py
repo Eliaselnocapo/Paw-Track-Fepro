@@ -214,12 +214,28 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             if campos_animal:
                 animal.save(update_fields=campos_animal)
 
-        response = super().update(request, *args, **kwargs)
+        # El reportante (autor) y el rescatista asignado comparten el permiso
+        # de PATCH, pero cada uno solo puede escribir su propio campo de texto:
+        # caracteristicas = seguimiento del reportante, ficha_voluntario = ficha
+        # clínica del rescatista. Así ninguno pisa las notas del otro.
+        data = {key: request.data[key] for key in request.data}
+        es_autor = instance.usuario_reporta_id == request.user.id
+        perfil = getattr(request.user, 'perfil_rescatista', None)
+        es_rescatista_asignado = perfil is not None and instance.rescatista_asignado_id == perfil.id
+
+        if not es_autor:
+            data.pop('caracteristicas', None)
+        if not es_rescatista_asignado:
+            data.pop('ficha_voluntario', None)
+
+        partial = kwargs.get('partial', False)
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
         instance.refresh_from_db()
 
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data, status=response.status_code)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
