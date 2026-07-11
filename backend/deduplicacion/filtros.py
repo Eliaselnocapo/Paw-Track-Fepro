@@ -19,6 +19,34 @@ def _ventana_dias():
     return float(os.environ.get('DEDUP_VENTANA_DIAS', 60))
 
 
+def radio_dinamico(incidencia) -> float:
+    """Radio de búsqueda (metros) según especie y antigüedad del reporte,
+    documentado en SYSTEM_CONTRACT.md ("Alternativa: pHash"): perro <2h→300m,
+    2-6h→800m, >6h→2000m; gato ×0.5 en cada umbral. Disponible como utilidad
+    — NO se usa como default de filtrar_candidatos_geograficos() todavía:
+    check_duplicados corre una sola vez, en el momento exacto en que se crea
+    la Incidencia (señal post_save), así que su propia edad siempre es ~0h
+    en ese punto. Aplicado tal cual reduciría el radio de búsqueda de 10km
+    (default actual) a 300m/150m — una regresión real de cuántos duplicados
+    se detectan, no solo un ajuste fino. Requiere decidir con el equipo
+    (¿aplicar la edad del candidato en vez de la del reporte nuevo?, ¿correr
+    el chequeo de nuevo pasadas unas horas?) antes de wirearlo como default.
+    """
+    animal_tipo = (incidencia.animal.tipo or '').upper() if incidencia.animal else ''
+    edad_horas = (timezone.now() - incidencia.created_at).total_seconds() / 3600
+
+    factor = 0.5 if 'GATO' in animal_tipo else 1.0
+
+    if edad_horas < 2:
+        base = 300
+    elif edad_horas < 6:
+        base = 800
+    else:
+        base = 2000
+
+    return base * factor
+
+
 def filtrar_candidatos_geograficos(incidencia, radio_metros=None):
     """
     Etapa 1 del pipeline: descarta cualquier incidencia fuera del radio y las

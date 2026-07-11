@@ -1,3 +1,4 @@
+import difflib
 import os
 
 
@@ -33,22 +34,41 @@ class RankingService:
             # deduplicacion.filtros (Distance de PostGIS). cand.ubicacion es
             # SRID 4326 (grados), así que GEOSGeometry.distance() aquí daría
             # grados, no metros, y el score no discriminaría por cercanía real.
-            distancia_m = cand.distancia_m.m if hasattr(cand, 'distancia_m') else None
-            if distancia_m is None:
-                distancia_m = cand.ubicacion.distance(nueva.ubicacion)
+            # Si no viene anotado es que quien llamó a esta función no pasó
+            # por filtrar_candidatos_geograficos() — mejor tronar fuerte que
+            # dar un score silenciosamente corrupto en grados-como-metros.
+            if not hasattr(cand, 'distancia_m'):
+                raise ValueError(
+                    "calcular_score_final requiere candidatos anotados con distancia_m — "
+                    "usa deduplicacion.filtros.filtrar_candidatos_geograficos()."
+                )
+            distancia_m = cand.distancia_m.m
             score_geo = max(0, 1 - (distancia_m / RankingService.RADIO_REFERENCIA_M))
 
-            # Score Estructurado
+            # Score Estructurado — case-insensitive, igual que el __iexact
+            # que ya usa filtros.py para el mismo campo (tamano); si no,
+            # dos reportes del mismo animal con distinta capitalización
+            # pasan el filtro pero pierden puntos aquí sin motivo real.
             score_estruc = 0.0
-            if cand.animal.color == nueva.animal.color: score_estruc += 0.5
-            if cand.animal.tamano == nueva.animal.tamano: score_estruc += 0.5
+            cand_color = (cand.animal.color or '').strip().lower()
+            nueva_color = (nueva.animal.color or '').strip().lower()
+            if cand_color == nueva_color: score_estruc += 0.5
+            cand_tamano = (cand.animal.tamano or '').strip().lower()
+            nueva_tamano = (nueva.animal.tamano or '').strip().lower()
+            if cand_tamano == nueva_tamano: score_estruc += 0.5
 
             # Score Foto (Normalizamos el dict de similitud que devuelve la IA)
             score_foto = similitud_visual.get(str(cand.id), 0.0)
 
-            # Score Texto (Simulación de similitud simple por palabra clave)
-            # Aquí podrías integrar algo más complejo luego
-            score_texto = 1.0 if cand.caracteristicas == nueva.caracteristicas else 0.0
+            # Score Texto — similitud real (difflib, stdlib) en vez de
+            # igualdad exacta de string, que casi nunca da 1.0 entre dos
+            # reportes independientes aunque describan lo mismo.
+            texto_cand = (cand.caracteristicas or "").strip().lower()
+            texto_nueva = (nueva.caracteristicas or "").strip().lower()
+            score_texto = (
+                difflib.SequenceMatcher(None, texto_cand, texto_nueva).ratio()
+                if texto_cand and texto_nueva else 0.0
+            )
 
             # 4. Ponderación Final
             score_final = (score_geo * w_geo) + \
