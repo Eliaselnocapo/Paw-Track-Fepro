@@ -157,6 +157,8 @@ class Incidencia(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
     direccion   = models.CharField(max_length=255, blank=True, default='')
+    # models.py
+    coincidencias_visuales_ids = models.JSONField(default=list, blank=True, null=True)
 
     folio = models.CharField(max_length=20, unique=True, null=True, blank=True)
 

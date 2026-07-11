@@ -40,9 +40,15 @@ class CheckDuplicadosPipelineTests(TestCase):
 
         with mock.patch("deduplicacion.tasks.VisionService") as MockVision:
             instancia = MockVision.return_value
-            instancia.get_similarity_scores.return_value = {str(original.id): 1.0}
+            # 1. Mockeamos el cálculo del embedding para que no falle
+            instancia._get_embedding.return_value = "fake_embedding_vector"
+            # 2. Actualizamos al nuevo nombre: buscar_similares
+            instancia.buscar_similares.return_value = {str(original.id): 1.0}
+            
             check_duplicados(nueva.id)
-            instancia.aprender.assert_called_once()
+            
+            # 3. Actualizamos al nuevo nombre: aprender_embedding
+            instancia.aprender_embedding.assert_called_once()
 
         nueva.refresh_from_db()
         original.refresh_from_db()
@@ -55,9 +61,11 @@ class CheckDuplicadosPipelineTests(TestCase):
 
         with mock.patch("deduplicacion.tasks.VisionService") as MockVision:
             instancia = MockVision.return_value
+            instancia._get_embedding.return_value = "fake_embedding_vector"
             # geo + estructura ya matchean 100% (mismo punto, mismo animal);
             # con score_foto=0 el score_final queda en la banda de revisión.
-            instancia.get_similarity_scores.return_value = {str(original.id): 0.0}
+            instancia.buscar_similares.return_value = {str(original.id): 0.0}
+            
             check_duplicados(nueva.id)
 
         nueva.refresh_from_db()
@@ -73,7 +81,9 @@ class CheckDuplicadosPipelineTests(TestCase):
 
         with mock.patch("deduplicacion.tasks.VisionService") as MockVision:
             instancia = MockVision.return_value
-            instancia.get_similarity_scores.return_value = {str(original.id): 0.0}
+            instancia._get_embedding.return_value = "fake_embedding_vector"
+            instancia.buscar_similares.return_value = {str(original.id): 0.0}
+            
             check_duplicados(nueva.id)
 
         nueva.refresh_from_db()

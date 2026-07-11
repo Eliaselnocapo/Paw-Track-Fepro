@@ -2,8 +2,6 @@ from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from .models import Usuario, PerfilRescatista, PerfilPatrocinador, Animal, Incidencia
-from deduplicacion.services import VisionService
-from deduplicacion.filtros import candidatos_por_metadatos
 
 class PerfilRescatistaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,9 +67,6 @@ class CustomRegisterSerializer(RegisterSerializer):
             raise serializers.ValidationError(
                 f"Roles inválidos: {invalidos}. Válidos: {Usuario.ROLES_VALIDOS}"
             )
-        # Ya no hay selector de rol en el registro: todo usuario nuevo es
-        # REPORTERO + RESCATISTA. PATROCINADOR sigue siendo opt-in explícito
-        # porque es un flujo de aprobación aparte, no parte de este par.
         roles = ['REPORTERO', 'RESCATISTA']
         if 'PATROCINADOR' in value:
             roles.append('PATROCINADOR')
@@ -125,7 +120,6 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     lng_out  = serializers.SerializerMethodField(read_only=True)
     coincidencias_visuales = serializers.SerializerMethodField()
 
-    # Campos del animal para lectura (evita un segundo request desde el front)
     tipo_animal      = serializers.CharField(source='animal.tipo',           read_only=True, default='')
     tamano_animal    = serializers.CharField(source='animal.tamano',         read_only=True, default='')
     condicion_animal = serializers.CharField(source='animal.salud',          read_only=True, default='')
@@ -133,7 +127,6 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     edad_estimada    = serializers.CharField(source='animal.edad_estimada',  read_only=True, default='')
     peso_estimado    = serializers.CharField(source='animal.peso_estimado',  read_only=True, default='')
 
-    # Quién tomó el caso: nombre y email del rescatista asignado
     rescatista_info  = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -191,25 +184,9 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         }
     
     def get_coincidencias_visuales(self, obj):
-        # Si no hay imagen, no hay nada que buscar
-        if not obj.imagen:
-            return []
-
-        # Solo lectura: candidatos_por_metadatos() ya excluye a `obj` mismo, y
-        # get_similarity_scores() nunca escribe en el índice HNSW. Antes esto
-        # llamaba process_new_report(), que SÍ mutaba el índice — cada GET
-        # metía otra copia del embedding de esta misma foto al índice.
-        candidatos = [c for c in candidatos_por_metadatos(obj) if c.imagen]
-        if not candidatos:
-            return []
-
-        vision_ai = VisionService()
-        scores = vision_ai.get_similarity_scores(
-            obj.imagen.path, obj.animal.tipo, [c.id for c in candidatos]
-        )
-
-        # IDs ordenados por similitud descendente
-        return sorted(scores.keys(), key=lambda k: scores[k], reverse=True)
+        # Fix P0-5: Retorna directamente la lista persistida desde la BD.
+        # Cero llamadas a IA bloqueando la petición del cliente y total aislamiento de módulos.
+        return obj.coincidencias_visuales_ids
 
     def create(self, validated_data):
         lat = validated_data.pop('latitud')

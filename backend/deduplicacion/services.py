@@ -82,32 +82,27 @@ class VisionService:
             return self.cat_session, self.cat_index, self.cat_map, 'cat_embedding_index_v1.bin', 'cat_embedding_index_v1_map.json'
         return None
 
-    def aprender(self, image_file, especie, db_id):
+    def aprender_embedding(self, emb, especie, db_id):
         """
-        Inserta el embedding de un reporte nuevo en el índice HNSW y persiste
-        el índice a disco. Es la única función que MUTA el índice — no debe
-        llamarse desde rutas de lectura (serializers, vistas), solo desde el
-        task de Celery, una vez por reporte.
+        Inserta el embedding (ya calculado) de un reporte nuevo en el índice HNSW y persiste
+        el índice a disco.
         """
         recursos = self._index_para(especie)
         if recursos is None:
-            return  # especie no soportada, se ignora
-
-        _, index, mapping, bin_name, map_name = recursos
-        emb = self._get_embedding(image_file, especie)
+            raise ValueError(f"Especie no soportada para deduplicación visual: {especie}")
+            
+        session, index, mapping, bin_name, map_name = recursos
         base_dir = os.path.join(settings.BASE_DIR, 'deduplicacion', 'ml_models')
 
         new_label = index.get_current_count()
-        # HNSW necesita saber si nos pasamos del límite para expandir la RAM
         if new_label >= index.get_max_elements():
             index.resize_index(index.get_max_elements() + 1000)
 
         index.add_items([emb], [new_label])
-        mapping[new_label] = str(db_id)  # Enlazamos el número entero con el ID real de PostgreSQL
+        mapping[new_label] = str(db_id) 
 
         index.save_index(os.path.join(base_dir, bin_name))
 
-        # Guardamos manteniendo la estructura esperada por _parse_json_map
         final_data = {"animal_ids": list(mapping.values())}
         with open(os.path.join(base_dir, map_name), 'w') as f:
             json.dump(final_data, f)
@@ -115,40 +110,45 @@ class VisionService:
         logger.info("VisionService: reporte %s aprendido y guardado en disco (%s).", db_id, bin_name)
 
     def _get_embedding(self, image_file, especie):
-        """Método auxiliar interno para evitar repetir código."""
+        recursos = self._index_para(especie)
+        if recursos is None:
+            raise ValueError(f"Especie no soportada para deduplicación visual: {especie}")
+        
+        session, *_ = recursos
         img = Image.open(image_file).convert("RGB")
         tensor = self.transform(img).unsqueeze(0).numpy()
-        
-        session = self.dog_session if especie.lower() == 'perro' else self.cat_session
         return session.run(None, {self.input_name: tensor})[0][0]
 
-    def get_similarity_scores(self, image_file, especie, candidatos_ids):
-        """
-        Retorna un diccionario {db_id: score_normalizado} de los candidatos.
-        """
-        emb = self._get_embedding(image_file, especie)
-        session, index, mapping = (self.dog_session, self.dog_index, self.dog_map) \
-                                  if especie.lower() == 'perro' else \
-                                  (self.cat_session, self.cat_index, self.cat_map)
-
-        # Hacemos la consulta vectorial
-        k_search = min(len(candidatos_ids), index.get_current_count())
-        if k_search == 0: return {}
-
-        labels, distances = index.knn_query(emb, k=k_search)
+    def buscar_similares(self, emb, especie, candidatos_ids):
+        recursos = self._index_para(especie)
+        if recursos is None:
+            return {}
         
-        # Convertimos las distancias (L2) a un score normalizado de 0 a 1
-        # L2 es distancia euclidiana, a menor distancia, mayor similitud.
-        # Una fórmula simple de normalización: 1 / (1 + distancia)
+        _, index, mapping, *_ = recursos
+
+        db_id_a_label = {}
+        for k, v in mapping.items():
+            try:
+                clean_v = str(v).split('&')[0]
+                db_id = int(clean_v)
+                
+                if db_id in candidatos_ids:
+                    db_id_a_label[db_id] = k
+            except (ValueError, TypeError):
+                continue
+
+        if not db_id_a_label:
+            return {}
+
+        labels = list(db_id_a_label.values())
+        vectores = index.get_items(labels) 
+
         scores = {}
-        for i, label in enumerate(labels[0]):
-            db_id = mapping[label]
-            if int(db_id) in candidatos_ids:
-                distancia = distances[0][i]
-                scores[str(db_id)] = 1 / (1 + distancia)
-
+        for db_id, label, vector in zip(db_id_a_label.keys(), labels, vectores):
+            distancia = np.linalg.norm(np.array(vector) - emb)
+            scores[str(db_id)] = 1 / (1 + distancia)
+            
         return scores
-
 
 def fusionar(original, duplicado):
     """

@@ -15,7 +15,9 @@ from notificaciones.services import (
 logger = logging.getLogger(__name__)
 
 
-@shared_task
+# Fix P0-4: Forzamos la tarea a una cola dedicada ('dedup') para evitar colisiones 
+# al escribir en el índice HNSW.
+@shared_task(queue='dedup')
 def check_duplicados(incidencia_id):
     logger.info("check_duplicados iniciado para incidencia %s", incidencia_id)
 
@@ -25,7 +27,6 @@ def check_duplicados(incidencia_id):
         logger.warning("check_duplicados: incidencia %s no encontrada", incidencia_id)
         return "Incidencia no encontrada"
 
-    # La imagen vive en el modelo Incidencia, no en Animal.
     if not nueva_incidencia.imagen:
         broadcast_new_report(nueva_incidencia)
         return "Sin imagen, omitiendo deduplicación"
@@ -33,30 +34,41 @@ def check_duplicados(incidencia_id):
     especie = nueva_incidencia.animal.tipo
     vision_ai = VisionService()
 
-    # 1. Filtros baratos (geo + estructura) — deduplicacion/filtros.py
+    # Usamos _get_embedding directo del servicio.
+    try:
+        emb = vision_ai._get_embedding(nueva_incidencia.imagen.path, especie)
+    except ValueError as e:
+        logger.error("Deduplicación abortada: %s", e)
+        return "Especie no soportada para IA"
+
+    # Filtros baratos (geo + estructura)
     candidatos = [c for c in candidatos_por_metadatos(nueva_incidencia) if c.imagen]
 
     if not candidatos:
-        # Nada con qué comparar: igual aprendemos esta imagen para futuras comparaciones.
-        vision_ai.aprender(nueva_incidencia.imagen.path, especie, nueva_incidencia.id)
+        # Pasamos el embedding ya calculado
+        vision_ai.aprender_embedding(emb, especie, nueva_incidencia.id)
         broadcast_new_report(nueva_incidencia)
         return "No se encontraron candidatos tras el filtro geográfico y de especie."
 
-    # 2. Inferencia IA — similitud visual de solo lectura contra el índice existente
+    # Inferencia IA (Solo lectura)
     candidatos_ids = [c.id for c in candidatos]
-    similitud_visual = vision_ai.get_similarity_scores(
-        nueva_incidencia.imagen.path, especie, candidatos_ids
-    )
+    # Pasamos el embedding ya calculado
+    similitud_visual = vision_ai.buscar_similares(emb, especie, candidatos_ids)
 
-    # Aprender este reporte nuevo (mutar el índice) DESPUÉS de buscar, una sola vez.
-    vision_ai.aprender(nueva_incidencia.imagen.path, especie, nueva_incidencia.id)
+    # Pasamos el embedding ya calculado
+    vision_ai.aprender_embedding(emb, especie, nueva_incidencia.id)
 
-    # 3. Ranking final — pesos ponderados sobre geo + estructura + foto + texto
+    #  Ranking final
     resultados = RankingService.calcular_score_final(candidatos, similitud_visual, nueva_incidencia)
 
     if not resultados:
         broadcast_new_report(nueva_incidencia)
         return "Sin resultados de ranking."
+
+    # Fix P0-5: Guardamos los resultados ordenados en la BD para que el 
+    # serializer los lea de aquí y no bloquee las peticiones GET.
+    nueva_incidencia.coincidencias_visuales_ids = [r["incidencia"].id for r in resultados]
+    nueva_incidencia.save(update_fields=['coincidencias_visuales_ids'])
 
     mejor = resultados[0]
     mejor_candidato, score_final = mejor["incidencia"], mejor["score"]
