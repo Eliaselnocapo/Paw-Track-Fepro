@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.generics import RetrieveUpdateAPIView
 
-from core.permissions import IsAuthorOrRescatistaAsignado
+from core.permissions import IsAuthorOrRescatistaAsignado, IsSelf
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
@@ -86,6 +86,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             permission_classes = [AllowAny]
+        elif self.action in ('update', 'partial_update', 'destroy'):
+            # Antes cualquier usuario autenticado podía editar o borrar la
+            # cuenta de CUALQUIER otro usuario vía este ViewSet genérico
+            # (solo se validaba autenticación, nunca dueño) — incluía poder
+            # cambiar email/roles/password ajenos. IsSelf lo cierra.
+            permission_classes = [IsAuthenticated, IsSelf]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]

@@ -110,3 +110,27 @@ class UsuarioCRUDTests(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Usuario.objects.filter(id=self.usuario_auth.id).exists())
+
+    # --- Seguridad: no se puede editar/borrar la cuenta de otro usuario ---
+
+    def test_no_se_puede_editar_a_otro_usuario(self):
+        """PATCH /api/usuarios/{id}/ contra la cuenta de OTRO usuario debe
+        rechazarse — antes cualquier autenticado podía cambiar email, roles
+        y hasta corromper el password de cualquier otra cuenta."""
+        otro = crear_usuario(email='otro@pawtrack.com')
+        self.client.force_authenticate(user=self.usuario_auth)
+        url = f'{self.url_list}{otro.id}/'
+        response = self.client.patch(url, {'email': 'hackeado@test.com'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        otro.refresh_from_db()
+        self.assertEqual(otro.email, 'otro@pawtrack.com')
+
+    def test_no_se_puede_borrar_a_otro_usuario(self):
+        otro = crear_usuario(email='otro2@pawtrack.com')
+        self.client.force_authenticate(user=self.usuario_auth)
+        url = f'{self.url_list}{otro.id}/'
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Usuario.objects.filter(id=otro.id).exists())
