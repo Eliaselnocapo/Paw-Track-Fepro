@@ -10,7 +10,7 @@ from channels.routing import URLRouter
 from channels.testing import WebsocketCommunicator
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from bd.models import Animal, Incidencia, PerfilRescatista, Usuario
@@ -105,7 +105,11 @@ class MapaConsumerTests(TestCase):
 # ---------------------------------------------------------------------------
 
 @override_settings(CHANNEL_LAYERS=CHANNEL_LAYERS_TEST)
-class NotifConsumerTests(TestCase):
+class NotifConsumerTests(TransactionTestCase):
+    # TransactionTestCase, no TestCase: WebsocketCommunicator corre el
+    # consumer en otro hilo/conexión. Con TestCase (transacción compartida
+    # entre hilos) el primer test deja la conexión de BD cerrada y todos los
+    # siguientes truenan en setUp() con "connection already closed".
     def setUp(self):
         self.usuario = Usuario.objects.create_user(
             email='notif@test.com', password='Test1234!', roles=['RESCATISTA']

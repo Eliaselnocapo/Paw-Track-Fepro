@@ -47,6 +47,32 @@ def broadcast_status_changed(incidencia):
     })
 
 
+def broadcast_duplicate_detected(incidencia, original):
+    if not incidencia.usuario_reporta_id:
+        return  # reporte anónimo: no hay canal /ws/notif/{uid}/ al cual avisarle
+    notify_user(incidencia.usuario_reporta_id, {
+        "type": "duplicate_detected",
+        "tipo": "duplicate_detected",
+        "id": incidencia.id,
+        "folio": incidencia.folio,
+        "duplicado_de": original.id,
+        "duplicado_de_folio": original.folio,
+    })
+
+
+def broadcast_revision_requerida(incidencia, candidato):
+    if not incidencia.usuario_reporta_id:
+        return
+    notify_user(incidencia.usuario_reporta_id, {
+        "type": "revision_requerida",
+        "tipo": "revision_requerida",
+        "id": incidencia.id,
+        "folio": incidencia.folio,
+        "posible_duplicado_de": candidato.id,
+        "posible_duplicado_de_folio": candidato.folio,
+    })
+
+
 def broadcast_rescate_update(rescate_id: int, event: dict):
     async_to_sync(_layer.group_send)(f"rescate_{rescate_id}", event)
 

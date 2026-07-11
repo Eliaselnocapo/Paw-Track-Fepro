@@ -3,6 +3,7 @@ from django.contrib.gis.geos import Point
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from .models import Usuario, PerfilRescatista, PerfilPatrocinador, Animal, Incidencia
 from deduplicacion.services import VisionService
+from deduplicacion.filtros import candidatos_por_metadatos
 
 class PerfilRescatistaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -149,6 +150,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
             'caracteristicas', 'ficha_voluntario', 'estado', 'tipo_incidencia', 'recompensa',
             'urgency_score', 'trust_score', 'created_at', 'updated_at', 'folio',
+            'coincidencias_visuales',
         )
         extra_kwargs = {
             'usuario_reporta':     {'required': False, 'allow_null': True},
@@ -192,21 +194,22 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         # Si no hay imagen, no hay nada que buscar
         if not obj.imagen:
             return []
-        
-        # Instanciamos el servicio y buscamos
+
+        # Solo lectura: candidatos_por_metadatos() ya excluye a `obj` mismo, y
+        # get_similarity_scores() nunca escribe en el índice HNSW. Antes esto
+        # llamaba process_new_report(), que SÍ mutaba el índice — cada GET
+        # metía otra copia del embedding de esta misma foto al índice.
+        candidatos = [c for c in candidatos_por_metadatos(obj) if c.imagen]
+        if not candidatos:
+            return []
+
         vision_ai = VisionService()
-        
-        # Realizamos la búsqueda
-        # Nota: aquí filtramos el propio ID para no mostrarse a sí mismo
-        ids_encontrados = vision_ai.process_new_report(
-            image_file=obj.imagen.path, 
-            especie=obj.animal.tipo, 
-            db_id=obj.id
+        scores = vision_ai.get_similarity_scores(
+            obj.imagen.path, obj.animal.tipo, [c.id for c in candidatos]
         )
-        
-        # Filtramos para que no salga el mismo caso en la lista
-        # y devolvemos solo una lista de IDs para el front
-        return [i for i in ids_encontrados if str(i) != str(obj.id)]
+
+        # IDs ordenados por similitud descendente
+        return sorted(scores.keys(), key=lambda k: scores[k], reverse=True)
 
     def create(self, validated_data):
         lat = validated_data.pop('latitud')

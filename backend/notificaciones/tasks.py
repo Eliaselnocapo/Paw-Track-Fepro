@@ -2,13 +2,13 @@ from celery import shared_task
 from django.utils import timezone
 from django.core.cache import cache
 
+from bd.models import Incidencia, PerfilRescatista
+from notificaciones.services import broadcast_urgency_update, notify_user
+from core.zona import compute_zona_key
+
 
 @shared_task
 def recalc_urgency_score():
-    from bd.models import Incidencia, PerfilRescatista
-    from notificaciones.services import broadcast_urgency_update, notify_user
-    from core.zona import compute_zona_key
-
     CONDICION_MAP = {"estable": 20, "herido": 70, "critico": 100}
 
     incidencias = (

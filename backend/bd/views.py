@@ -64,12 +64,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         usuario = self.get_object()
             
         if usuario.id != request.user.id:
-             raise PermissionDenied("No puedes modificar roles de otro usuario.")
-                           
+             raise PermissionDenied("No puedes modificar roles de otro usuario.", code='not_owner')
+
         nuevos = request.data.get('roles', [])
-            
+
         if 'PATROCINADOR' in nuevos and not request.user.is_staff:
-                    raise PermissionDenied("El rol PATROCINADOR requiere verificación.")
+                    raise PermissionDenied("El rol PATROCINADOR requiere verificación.", code='role_requires_approval')
                             
         roles_actuales = usuario.roles or []
         for rol in nuevos:
