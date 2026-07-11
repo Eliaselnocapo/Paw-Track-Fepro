@@ -116,8 +116,22 @@ class ExceptionHandlerTests(TestCase):
         from rest_framework.exceptions import PermissionDenied
         
         response = pawtrack_exception_handler(PermissionDenied("Acceso denegado"), None)
-        
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertIn('code', response.data)
         self.assertIn('detail', response.data)
         self.assertIn('field_errors', response.data)
+
+    def test_validation_error_con_detail_dict_extrae_code_del_leaf(self):
+        """DRF le pega .code al ErrorDetail hoja cuando el detail es un dict
+        (la forma real de serializer.errors: {'campo': ['mensaje']]}), nunca
+        al dict contenedor — antes esto se perdía y siempre caía al code
+        genérico de la clase ('invalid'), ignorando el code explícito."""
+        from core.exceptions import pawtrack_exception_handler
+        from rest_framework.exceptions import ValidationError
+
+        exc = ValidationError({'campo': ['mensaje']}, code='campo_invalido')
+        response = pawtrack_exception_handler(exc, None)
+
+        self.assertEqual(response.data['code'], 'campo_invalido')
+        self.assertEqual(response.data['field_errors'], {'campo': ['mensaje']})
