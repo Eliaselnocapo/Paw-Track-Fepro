@@ -21,7 +21,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
+        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'ubicacion', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_roles(self, value):
@@ -45,6 +45,20 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if 'PATROCINADOR' in roles:
             PerfilPatrocinador.objects.get_or_create(usuario=usuario)
         return usuario
+
+class EditarPerfilSerializer(serializers.ModelSerializer):
+    """Serializer dedicado a PATCH/PUT /api/auth/user/ (self-service).
+
+    A propósito NO incluye email/password/roles: si el front los manda de
+    todas formas, DRF los ignora por completo porque no están declarados
+    aquí — así evitamos que este endpoint permita cambiar el correo, dejar
+    la contraseña sin hashear (bug real que tenía UsuarioSerializer.update()
+    por herencia de ModelSerializer) o autoasignarse roles.
+    """
+    class Meta:
+        model = Usuario
+        fields = ('first_name', 'last_name', 'telefono', 'ubicacion', 'foto_perfil')
+
 
 class CustomRegisterSerializer(RegisterSerializer):
     """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name."""

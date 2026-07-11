@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.generics import RetrieveUpdateAPIView
 
 from core.permissions import IsAuthorOrRescatistaAsignado
 from rest_framework.views import APIView
@@ -9,14 +10,17 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed, ValidationError, NotFound
 from django.contrib.auth import authenticate
+from django.utils import timezone
 import os
 
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
 
+from notificaciones.services import notify_user
+
 from .models import Usuario, Animal, Incidencia
-from .serializers import UsuarioSerializer, AnimalSerializer, IncidenciaSerializer
+from .serializers import UsuarioSerializer, AnimalSerializer, IncidenciaSerializer, EditarPerfilSerializer
 
 def _jwt_response(user):
     """Genera el response estándar {access, refresh, user} con simplejwt."""
@@ -46,6 +50,33 @@ class LoginView(APIView):
                 raise AuthenticationFailed("Esta cuenta está desactivada.")
 
         return Response(_jwt_response(user), status=status.HTTP_200_OK)
+
+
+class MiPerfilView(RetrieveUpdateAPIView):
+    """GET/PATCH /api/auth/user/ — perfil propio (self-service).
+
+    Registrada explícitamente ANTES de include('dj_rest_auth.urls') en
+    pawtrack/urls.py para tomar precedencia sobre la vista por defecto de
+    dj_rest_auth, que usaba UsuarioSerializer también para escritura y por
+    lo tanto permitía cambiar email/roles y corrompía la contraseña (la
+    guardaba sin hashear vía el update() genérico de ModelSerializer).
+    """
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    http_method_names = ['get', 'put', 'patch']
+
+    def get_object(self):
+        return self.request.user
+
+    def get_serializer_class(self):
+        if self.request.method in ('PUT', 'PATCH'):
+            return EditarPerfilSerializer
+        return UsuarioSerializer
+
+    def update(self, request, *args, **kwargs):
+        super().update(request, *args, **kwargs)
+        # El front pide el usuario completo tras editar, no solo los campos que cambiaron
+        return Response(UsuarioSerializer(request.user).data)
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
@@ -245,6 +276,57 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         qs = Incidencia.objects.filter(usuario_reporta=request.user).order_by('-id')
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path=r'(?P<folio>[^/.]+)/cancelar', permission_classes=[IsAuthenticated])
+    def cancelar(self, request, folio=None):
+        """El reportante cancela su propio reporte ("falsa alarma / ya se
+        resolvió"). Estado terminal CANCELADO, distinto de CERRADO (que
+        significa rescatado con éxito). Si había un rescate activo, también
+        se cancela y se notifica al voluntario."""
+        try:
+            incidencia = Incidencia.objects.get(folio=folio)
+        except Incidencia.DoesNotExist:
+            raise NotFound("Reporte no encontrado.")
+
+        if incidencia.usuario_reporta_id != request.user.id:
+            raise PermissionDenied("Solo quien creó el reporte puede cancelarlo.")
+        if incidencia.estado == 'CERRADO':
+            raise ValidationError("No se puede cancelar un reporte ya cerrado.")
+        if incidencia.estado == 'CANCELADO':
+            raise ValidationError("Este reporte ya está cancelado.")
+
+        motivo = request.data.get('motivo', '')
+
+        from rescates.models import Rescate  # import local: evita import circular a nivel de módulo
+        try:
+            rescate = incidencia.rescate_activo
+        except Rescate.DoesNotExist:
+            rescate = None
+
+        if rescate is not None and rescate.estado not in ('COMPLETADO', 'CANCELADO'):
+            rescate.historial.append({
+                "estado": "CANCELADO",
+                "timestamp": timezone.now().isoformat(),
+                "motivo": f"Reporte cancelado por el reportante. {motivo}".strip(),
+            })
+            rescate.estado = 'CANCELADO'
+            rescate.fecha_cierre = timezone.now()
+            rescate.save()
+            notify_user(rescate.rescatista_id, {
+                "type": "reporte_cancelado",
+                "tipo": "reporte_cancelado",
+                "folio": incidencia.folio,
+                "mensaje": "El reportante canceló este caso.",
+            })
+
+        incidencia.estado = 'CANCELADO'
+        incidencia.save(update_fields=['estado'])
+
+        return Response({
+            "code": "incidencia_cancelada",
+            "detail": "Reporte cancelado.",
+            "field_errors": {}
+        }, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path=r'folio/(?P<folio>[^/.]+)')
     def por_folio(self, request, folio=None):
