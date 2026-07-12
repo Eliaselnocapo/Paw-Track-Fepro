@@ -43,7 +43,15 @@
         <!-- Avatar dinamico -->
         <button routerLink="/profile"
           class="hidden md:flex w-10 h-10 bg-white items-center rounded-full justify-center overflow-hidden border-2 border-[#7DB7FF] hover:border-white hover:bg-blue-50 transition-colors focus:outline-none shadow-sm">
-          <span class="text-[#2E5BD8] font-bold text-sm">{{ iniciales }}</span>
+          @if (usuario$ | async; as u) {
+            @if (fotoUrl(u)) {
+              <img [src]="fotoUrl(u)" alt="" class="w-full h-full object-cover">
+            } @else {
+              <span class="text-[#2E5BD8] font-bold text-sm">{{ iniciales(u) }}</span>
+            }
+          } @else {
+            <span class="material-symbols-outlined text-[#2E5BD8] text-[22px]">person</span>
+          }
         </button>
       }
 

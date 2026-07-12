@@ -46,6 +46,7 @@ class Usuario(AbstractUser):
     
     roles = models.JSONField(default=list, help_text="Lista de roles: REPORTERO, RESCATISTA, PATROCINADOR")
     telefono = models.CharField(max_length=20, blank=True)
+    ubicacion = models.CharField(max_length=255, blank=True, default='')
     foto_perfil = models.ImageField(upload_to='usuarios/perfiles/', blank=True, null=True)
     reputation_score = models.FloatField(default=100)
     fraud_flags = models.IntegerField(default=0)

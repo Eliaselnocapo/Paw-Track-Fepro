@@ -51,11 +51,33 @@ class AceptarRescateView(APIView):
         # de toda la vista, solo revertir hasta aquí para poder lanzar CaseAlreadyTaken.
         try:
             with transaction.atomic():
-                rescate = Rescate.objects.create(
+                # Rescate.incidencia es un OneToOneField: un rescate CANCELADO sigue
+                # ocupando la relación aunque el caso ya esté libre. Sin esto, un caso
+                # cancelado nunca podría volver a aceptarse (IntegrityError -> 409).
+                rescate_previo = Rescate.objects.filter(
                     incidencia=incidencia,
-                    rescatista=user,
-                    estado='EN_CAMINO'
-                )
+                    estado='CANCELADO',
+                ).first()
+
+                if rescate_previo:
+                    # El caso fue liberado: lo reasignamos al nuevo rescatista.
+                    rescate_previo.rescatista = user
+                    rescate_previo.estado = 'EN_CAMINO'
+                    rescate_previo.fecha_aceptacion = timezone.now()
+                    rescate_previo.fecha_cierre = None
+                    rescate_previo.historial.append({
+                        "estado": "EN_CAMINO",
+                        "timestamp": timezone.now().isoformat(),
+                        "nota": "Caso retomado tras una cancelación previa.",
+                    })
+                    rescate_previo.save()
+                    rescate = rescate_previo
+                else:
+                    rescate = Rescate.objects.create(
+                        incidencia=incidencia,
+                        rescatista=user,
+                        estado='EN_CAMINO'
+                    )
         except IntegrityError:
             # Si el OneToOneField de la DB detecta que ya existe, lanza IntegrityError
             raise CaseAlreadyTaken()
@@ -132,7 +154,11 @@ class DisponiblesView(ListAPIView):
 class ActualizarEstadoView(APIView):
     permission_classes = [IsRescatista]
 
-    ESTADOS_PERMITIDOS = ['EN_SITIO', 'COMPLETADO', 'CANCELADO']
+    # CANCELADO ya NO se acepta aquí — tiene su propio endpoint
+    # (CancelarRescateView) porque cancelar requiere efectos secundarios
+    # (revertir la Incidencia a PENDIENTE, desasignar rescatista) que este
+    # PATCH genérico no debe hacer.
+    ESTADOS_PERMITIDOS = ['EN_SITIO', 'COMPLETADO']
 
     def patch(self, request, rescate_id):
         try:
@@ -145,7 +171,10 @@ class ActualizarEstadoView(APIView):
 
         nuevo_estado = request.data.get('estado')
         if nuevo_estado not in self.ESTADOS_PERMITIDOS:
-            raise ValidationError("Estado inválido. Las opciones son EN_SITIO, COMPLETADO o CANCELADO.")
+            raise ValidationError(
+                "Estado inválido. Las opciones son EN_SITIO o COMPLETADO "
+                "(para cancelar usa POST /api/rescates/{id}/cancelar/)."
+            )
 
         # Guardamos en el campo JSONField inyectado en la Fase 1
         entrada_historial = {
@@ -215,6 +244,7 @@ class CerrarRescateView(APIView):
             "estado": "COMPLETADO",
             "timestamp": timezone.now().isoformat(),
             "ubicacion_cierre": {"lat": float(lat), "lng": float(lng)},
+            "foto_cierre": request.build_absolute_uri(rescate.incidencia.imagen.url) if rescate.incidencia.imagen else None,
         })
         rescate.estado = 'COMPLETADO'
         rescate.fecha_cierre = timezone.now()
@@ -225,6 +255,52 @@ class CerrarRescateView(APIView):
         return Response({
             "code": "rescate_cerrado",
             "detail": "Rescate documentado y cerrado exitosamente.",
+            "field_errors": {}
+        }, status=status.HTTP_200_OK)
+
+
+class CancelarRescateView(APIView):
+    """El voluntario cancela su propio rescate ("acepté pero no puedo /
+    se complicó / el animal ya no está"). A diferencia de ActualizarEstadoView,
+    esto SÍ tiene efectos secundarios sobre la Incidencia: regresa a
+    PENDIENTE (no se queda cerrada) y se desasigna al rescatista, para que
+    el caso vuelva a aparecer en /disponibles/."""
+    permission_classes = [IsRescatista]
+
+    def post(self, request, rescate_id):
+        try:
+            rescate = Rescate.objects.select_related('incidencia').get(id=rescate_id)
+        except Rescate.DoesNotExist:
+            raise NotFound("Rescate no encontrado.")
+
+        if rescate.rescatista != request.user:
+            raise PermissionDenied("No tienes permiso para cancelar este rescate.")
+        if rescate.estado == 'COMPLETADO':
+            raise ValidationError("No se puede cancelar un rescate ya completado.")
+        if rescate.estado == 'CANCELADO':
+            raise ValidationError("Este rescate ya está cancelado.")
+
+        motivo = request.data.get('motivo', '')
+
+        rescate.historial.append({
+            "estado": "CANCELADO",
+            "timestamp": timezone.now().isoformat(),
+            "motivo": motivo,
+        })
+        rescate.estado = 'CANCELADO'
+        rescate.fecha_cierre = timezone.now()
+        rescate.save()
+
+        incidencia = rescate.incidencia
+        incidencia.estado = 'PENDIENTE'
+        incidencia.rescatista_asignado = None
+        incidencia.save(update_fields=['estado', 'rescatista_asignado'])
+
+        broadcast_status_changed(incidencia)
+
+        return Response({
+            "code": "rescate_cancelado",
+            "detail": "Cancelaste el rescate. El caso vuelve a estar disponible.",
             "field_errors": {}
         }, status=status.HTTP_200_OK)
 

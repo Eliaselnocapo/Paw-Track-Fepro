@@ -10,6 +10,8 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 import { ReportService, RescateResponse, EntradaHistorial } from '../../../../core/services/report.service';
 import { environment } from 'src/environments/environment';
 
+type EstadoAvance = '' | 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO';
+
 @Component({
   selector: 'app-update-case',
   standalone: true,
@@ -45,25 +47,31 @@ export class UpdateCasePage implements OnInit {
   fichaOk = false;
   errorFicha: string | null = null;
 
-  // ── Cierre del caso ───────────────────────────────────────
-  foto: File | null = null;
-  fotoPreview: string | null = null;
-  cerrando = false;
-  errorCierre: string | null = null;
-  cierreAbierto = false;   // desplegable cerrado por defecto
-  notaCierre = '';         // nota de cierre
-
-  // ── Bitácora de avance ────────────────────────────────────
+  // ── Bitácora: centro de mando único ───────────────────────
+  // El select decide qué formulario se muestra y a qué endpoint se llama:
+  //   EN_SITIO   → PATCH /rescates/{id}/estado/   (solo nota)
+  //   COMPLETADO → POST  /rescates/{id}/cerrar/   (foto + GPS)
+  //   CANCELADO  → POST  /rescates/{id}/cancelar/ (motivo obligatorio)
   bitacoraAbierta = true;
 
   avance = {
-    estado: '' as '' | 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO',
+    estado: '' as EstadoAvance,
     nota: '',
   };
 
-  registrandoAvance = false;
+  // Cierre (solo aplica si estado === COMPLETADO)
+  foto: File | null = null;
+  fotoPreview: string | null = null;
+
+  // Cancelación (solo aplica si estado === CANCELADO)
+  motivoCancelacion = '';
+
+  procesando = false;         // cubre avance, cierre y cancelación
   avanceOk = false;
   errorAvance: string | null = null;
+
+  // Confirmación para acciones definitivas
+  modalConfirmarAbierto = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -133,7 +141,7 @@ export class UpdateCasePage implements OnInit {
     this.fichaOk = false;
     this.errorFicha = null;
 
-    // Los campos sin columna propia se guardan concatenados en "caracteristicas".
+    // Los campos sin columna propia se guardan concatenados en "ficha_voluntario".
     const extras: string[] = [];
     if (this.ficha.sexo)         extras.push(`Sexo: ${this.etiqueta('sexo', this.ficha.sexo)}`);
     if (this.ficha.esterilizado) extras.push(`Esterilizado: ${this.etiqueta('esterilizado', this.ficha.esterilizado)}`);
@@ -158,52 +166,202 @@ export class UpdateCasePage implements OnInit {
   }
 
   // ─────────────────────────────────────────
-  // Bitácora de avance → rescate
+  // Getters de la bitácora
   // ─────────────────────────────────────────
+
   get especie(): string { return this.rescate?.incidencia?.tipo_animal || 'No especificado'; }
   get tamano(): string { return this.rescate?.incidencia?.['tamano_animal'] || 'No especificado'; }
   get condicion(): string { return this.rescate?.incidencia?.['condicion_animal'] || 'No especificada'; }
   get score(): number { return this.rescate?.incidencia?.urgency_score ?? 0; }
   get contactoNombre(): string { return this.rescate?.incidencia?.nombre_contacto || 'No registrado'; }
   get contactoTelefono(): string { return this.rescate?.incidencia?.telefono_contacto || 'No registrado'; }
-  get historial(): EntradaHistorial[] {
-    return this.rescate?.historial ?? [];
+  get historial(): EntradaHistorial[] { return this.rescate?.historial ?? []; }
+
+  get esCierre(): boolean     { return this.avance.estado === 'COMPLETADO'; }
+  get esCancelacion(): boolean { return this.avance.estado === 'CANCELADO'; }
+  get esDefinitivo(): boolean  { return this.esCierre || this.esCancelacion; }
+
+  // El caso ya terminó: no se puede registrar nada más.
+  get casoTerminado(): boolean {
+    return this.rescate?.estado === 'COMPLETADO' || this.rescate?.estado === 'CANCELADO';
+  }
+
+  get yaCerrado(): boolean   { return this.rescate?.estado === 'COMPLETADO'; }
+  get yaCancelado(): boolean { return this.rescate?.estado === 'CANCELADO'; }
+
+  // Texto y color del botón según lo que se eligió
+  get textoBoton(): string {
+    if (this.esCierre)      return 'Cerrar caso como rescatado';
+    if (this.esCancelacion) return 'Cancelar rescate';
+    return 'Registrar avance';
+  }
+
+  get claseBoton(): string {
+    if (this.esCierre)      return 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-emerald-600/30';
+    if (this.esCancelacion) return 'bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-600/30';
+    return 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-600/30';
   }
 
   toggleBitacora(): void {
     this.bitacoraAbierta = !this.bitacoraAbierta;
   }
-  toggleCierre(): void {
-    this.cierreAbierto = !this.cierreAbierto;
+
+  // Al cambiar de estado limpiamos lo que no aplica, para no mandar basura.
+  onCambioEstado(): void {
+    this.errorAvance = null;
+    this.avanceOk = false;
+
+    if (!this.esCierre) {
+      this.foto = null;
+      this.fotoPreview = null;
+    }
+    if (!this.esCancelacion) {
+      this.motivoCancelacion = '';
+    }
   }
 
-  registrarAvance(): void {
-    const rescateId = this.rescate?.rescate_id;
-    if (!rescateId || this.registrandoAvance) return;
+  onFotoSeleccionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0] ?? null;
+    this.foto = archivo;
+    this.fotoPreview = archivo ? URL.createObjectURL(archivo) : null;
+  }
 
-    if (!this.avance.estado) {
-      this.errorAvance = 'Selecciona el nuevo estado del rescate.';
+  // ─────────────────────────────────────────
+  // Envío: valida, confirma si es definitivo, y despacha al endpoint correcto
+  // ─────────────────────────────────────────
+
+  enviar(): void {
+    if (this.procesando) return;
+    if (!this.validar()) return;
+
+    // Cierre y cancelación son irreversibles → confirmamos primero.
+    if (this.esDefinitivo) {
+      this.modalConfirmarAbierto = true;
       return;
     }
 
-    this.registrandoAvance = true;
+    this.ejecutar();
+  }
+
+  private validar(): boolean {
+    this.errorAvance = null;
+
+    if (!this.avance.estado) {
+      this.errorAvance = 'Selecciona el nuevo estado del rescate.';
+      return false;
+    }
+    if (this.esCierre && !this.foto) {
+      this.errorAvance = 'Sube una foto del animal asegurado para cerrar el caso.';
+      return false;
+    }
+    if (this.esCancelacion && !this.motivoCancelacion.trim()) {
+      this.errorAvance = 'Cuéntanos por qué cancelas el rescate.';
+      return false;
+    }
+    return true;
+  }
+
+  cerrarModalConfirmar(): void {
+    if (this.procesando) return;
+    this.modalConfirmarAbierto = false;
+  }
+
+  confirmarAccion(): void {
+    this.ejecutar();
+  }
+
+  private ejecutar(): void {
+    const rescateId = this.rescate?.rescate_id;
+    if (!rescateId) return;
+
+    this.procesando = true;
     this.avanceOk = false;
     this.errorAvance = null;
 
+    if (this.esCierre)          this.ejecutarCierre(rescateId);
+    else if (this.esCancelacion) this.ejecutarCancelacion(rescateId);
+    else                         this.ejecutarAvance(rescateId);
+  }
+
+  // EN_SITIO → PATCH estado
+  private ejecutarAvance(rescateId: number): void {
     this.reportService
-      .actualizarEstadoRescate(rescateId, this.avance.estado, this.avance.nota)
+      .actualizarEstadoRescate(rescateId, this.avance.estado as 'EN_SITIO', this.avance.nota)
       .subscribe({
         next: () => {
-          this.registrandoAvance = false;
+          this.procesando = false;
           this.avanceOk = true;
-          this.avance = { estado: '', nota: '' };
+          this.resetForm();
           this.cargarCaso(); // refresca historial
         },
-        error: () => {
-          this.registrandoAvance = false;
-          this.errorAvance = 'No se pudo registrar el avance. Intenta de nuevo.';
+        error: (err) => {
+          this.procesando = false;
+          this.errorAvance = err?.error?.detail || 'No se pudo registrar el avance. Intenta de nuevo.';
         },
       });
+  }
+
+  // COMPLETADO → POST cerrar (necesita foto + GPS actual)
+  private ejecutarCierre(rescateId: number): void {
+    if (!navigator.geolocation) {
+      this.procesando = false;
+      this.modalConfirmarAbierto = false;
+      this.errorAvance = 'Tu navegador no permite obtener la ubicación.';
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.reportService
+          .cerrarRescate(rescateId, pos.coords.latitude, pos.coords.longitude, this.foto!)
+          .subscribe({
+            next: () => {
+              this.procesando = false;
+              this.modalConfirmarAbierto = false;
+              this.router.navigate(['/rescue-complete', this.rescate?.incidencia?.folio]);
+            },
+            error: (err) => {
+              this.procesando = false;
+              this.modalConfirmarAbierto = false;
+              this.errorAvance = err?.error?.code === 'gps_too_far'
+                ? 'Estás demasiado lejos del punto reportado para cerrar el caso.'
+                : (err?.error?.detail || 'No se pudo cerrar el caso. Verifica la foto y tu ubicación.');
+            },
+          });
+      },
+      () => {
+        this.procesando = false;
+        this.modalConfirmarAbierto = false;
+        this.errorAvance = 'No pudimos obtener tu ubicación. Activa el GPS y permite el acceso.';
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
+  // CANCELADO → POST cancelar (el caso vuelve a estar disponible)
+  private ejecutarCancelacion(rescateId: number): void {
+    this.reportService
+      .cancelarRescate(rescateId, this.motivoCancelacion)
+      .subscribe({
+        next: () => {
+          this.procesando = false;
+          this.modalConfirmarAbierto = false;
+          this.router.navigate(['/accepted-cases']);
+        },
+        error: (err) => {
+          this.procesando = false;
+          this.modalConfirmarAbierto = false;
+          this.errorAvance = err?.error?.detail || 'No se pudo cancelar el rescate. Intenta de nuevo.';
+        },
+      });
+  }
+
+  private resetForm(): void {
+    this.avance = { estado: '', nota: '' };
+    this.foto = null;
+    this.fotoPreview = null;
+    this.motivoCancelacion = '';
   }
 
   // ─────────────────────────────────────────
@@ -230,7 +388,7 @@ export class UpdateCasePage implements OnInit {
     }
   }
 
-  // Traduce el value del select a etiqueta bonita para guardar en caracteristicas
+  // Traduce el value del select a etiqueta bonita para guardar en la ficha
   private etiqueta(campo: string, val: string): string {
     const mapas: Record<string, Record<string, string>> = {
       sexo:         { macho: 'Macho', hembra: 'Hembra', indeterminado: 'No determinado' },
@@ -243,58 +401,5 @@ export class UpdateCasePage implements OnInit {
 
   volver(): void {
     this.router.navigate(['/accepted-cases']);
-    }
-    get puedeCerrar(): boolean {
-    return this.rescate?.estado === 'EN_SITIO';
   }
-  get yaCerrado(): boolean {
-    return this.rescate?.estado === 'COMPLETADO';
-  }
-  onFotoSeleccionada(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  const archivo = input.files?.[0] ?? null;
-  this.foto = archivo;
-  this.fotoPreview = archivo ? URL.createObjectURL(archivo) : null;
-}
-
-cerrarCaso(): void {
-  const rescateId = this.rescate?.rescate_id;
-  if (!rescateId || this.cerrando) return;
-
-  if (!this.foto) {
-    this.errorCierre = 'Sube una foto del animal asegurado para cerrar el caso.';
-    return;
-  }
-  if (!navigator.geolocation) {
-    this.errorCierre = 'Tu navegador no permite obtener la ubicación.';
-    return;
-  }
-
-  this.cerrando = true;
-  this.errorCierre = null;
-
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      this.reportService
-        .cerrarRescate(rescateId, pos.coords.latitude, pos.coords.longitude, this.foto!, this.notaCierre.trim() || undefined)
-        .subscribe({
-          next: () => {
-            this.cerrando = false;
-            this.router.navigate(['/rescue-complete', this.rescate?.incidencia?.folio]);
-          },
-          error: (err) => {
-            this.cerrando = false;
-            this.errorCierre = err?.error?.code === 'gps_too_far'
-              ? 'Debes estar a menos de 100 m del punto reportado para cerrar el caso.'
-              : 'No se pudo cerrar el caso. Verifica la foto y tu ubicación.';
-          },
-        });
-    },
-    () => {
-      this.cerrando = false;
-      this.errorCierre = 'No pudimos obtener tu ubicación. Activa el GPS y permite el acceso.';
-    },
-    { enableHighAccuracy: true, timeout: 10000 },
-  );
-}
 }

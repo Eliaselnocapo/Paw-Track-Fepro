@@ -12,6 +12,12 @@ class IsOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.usuario_reporta_id == request.user.id
 
+class IsSelf(BasePermission):
+    """Para vistas sobre el propio modelo Usuario: solo el dueño de la
+    cuenta puede editarla o eliminarla, nunca otro usuario autenticado."""
+    def has_object_permission(self, request, view, obj):
+        return obj.id == request.user.id
+
 class IsAuthorOrRescatistaAsignado(BasePermission):
     """PATCH: autor mientras PENDIENTE, o rescatista asignado durante rescate."""
     def has_object_permission(self, request, view, obj):

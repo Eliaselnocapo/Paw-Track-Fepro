@@ -30,13 +30,13 @@
       <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
         <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
         <p class="text-slate-600 text-center">{{ errorCarga }}</p>
-        <button type="button" (click)="volver()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md">
+        <button type="button" (click)="volver()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 active:bg-blue-900 active:scale-95 transition-all shadow-md">
           Volver a mis casos
         </button>
       </main>
     } @else if (rescate) {
 
-      <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10">
+      <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10 flex flex-col">
 
         <!-- VOLVER -->
         <button type="button" (click)="volver()" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
@@ -45,8 +45,8 @@
         </button>
 
         <!-- ===================== HEADER GRANDE ===================== -->
-        <section class="border border-slate-300 shadow-md overflow-hidden mb-8 bg-white">
-          <div class="relative min-h-[280px] md:min-h-[320px] overflow-hidden">
+        <section class="border border-slate-300 shadow-md overflow-hidden mb-8 bg-white rounded">
+          <div class="relative min-h-[180px] md:min-h-[320px] overflow-hidden">
             <img [src]="imagenUrl(rescate.incidencia?.imagen)" [alt]="titulo"
               class="absolute inset-0 w-full h-full object-cover blur-[1px] scale-105 opacity-45">
             <div class="absolute inset-0 bg-slate-950/30"></div>
@@ -59,7 +59,7 @@
               </div>
               <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight drop-shadow-sm">Actualizar caso</h1>
               <p class="mt-3 text-lg text-white/95 font-semibold drop-shadow-sm">{{ titulo }}</p>
-              <p class="mt-4 max-w-2xl text-sm md:text-base text-white/90 leading-relaxed">
+              <p class="hidden md:block mt-4 max-w-2xl text-sm md:text-base text-white/90 leading-relaxed">
                 Ya tienes al animal contigo. Registra su informacion clinica real y deja
                 constancia de cada avance del rescate.
               </p>
@@ -78,10 +78,10 @@
         </section>
 
         <!-- ============ BLOQUE 1: FICHA (ancha) + ASIDE ============ -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 mb-8 order-2 lg:order-1">
 
           <!-- FICHA CLINICA -->
-          <section class="lg:col-span-8 bg-white border border-slate-300 shadow-md p-6 md:p-8">
+          <section class="lg:col-span-8 bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
             <div class="flex items-start gap-4 pb-5 mb-6 border-b border-slate-100">
               <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
                 <span class="material-symbols-outlined">stethoscope</span>
@@ -96,13 +96,13 @@
               <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Peso real (kg)</label>
                 <input type="text" inputmode="decimal" [(ngModel)]="ficha.peso"
-                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 rounded text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
                   placeholder="Ej. 12.5">
               </div>
               <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Edad estimada</label>
                 <select [(ngModel)]="ficha.edad"
-                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 rounded text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
                   <option value="">Sin especificar</option>
                   <option value="cachorro">Cachorro (&lt; 6 meses)</option>
                   <option value="joven">Joven</option>
@@ -113,7 +113,7 @@
               <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Sexo</label>
                 <select [(ngModel)]="ficha.sexo"
-                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 rounded text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
                   <option value="">Sin especificar</option>
                   <option value="macho">Macho</option>
                   <option value="hembra">Hembra</option>
@@ -123,7 +123,7 @@
               <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Esterilizado?</label>
                 <select [(ngModel)]="ficha.esterilizado"
-                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 rounded text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
                   <option value="">Sin especificar</option>
                   <option value="si">Si</option>
                   <option value="no">No</option>
@@ -133,7 +133,7 @@
               <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Estado de salud</label>
                 <select [(ngModel)]="ficha.salud"
-                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 rounded text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
                   <option value="">Sin especificar</option>
                   <option value="estable">Estable</option>
                   <option value="delicado">Delicado</option>
@@ -143,7 +143,7 @@
               <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Temperamento</label>
                 <select [(ngModel)]="ficha.temperamento"
-                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 rounded text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
                   <option value="">Sin especificar</option>
                   <option value="docil">Docil</option>
                   <option value="asustadizo">Asustadizo</option>
@@ -156,7 +156,7 @@
             <div class="mt-5">
               <label class="block text-sm font-bold text-slate-700 mb-2">Notas clinicas</label>
               <textarea [(ngModel)]="ficha.notas" rows="4"
-                class="w-full border border-slate-300 bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+                class="w-full border border-slate-300 bg-slate-50 p-4 rounded text-sm resize-none outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
                 placeholder="Heridas detectadas, parasitos, deshidratacion, medicacion aplicada..."></textarea>
             </div>
 
@@ -172,8 +172,8 @@
             }
 
             <div class="mt-6 pt-6 border-t border-slate-100 flex justify-end">
-              <button type="button" (click)="guardarFicha()" [disabled]="guardandoFicha"
-                class="w-full sm:w-auto h-12 px-8 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold shadow-md shadow-emerald-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+            <button type="button" (click)="guardarFicha()" [disabled]="guardandoFicha"
+                class="w-full sm:w-auto h-12 px-8 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 text-white font-bold shadow-md shadow-emerald-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
                 @if (guardandoFicha) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
                 {{ guardandoFicha ? 'Guardando...' : 'Guardar ficha del animal' }}
               </button>
@@ -183,7 +183,7 @@
           <!-- ASIDE -->
           <aside class="lg:col-span-4 flex flex-col gap-6">
             <!-- Resumen del animal -->
-            <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-600 text-[20px]">summarize</span>
                 <h3 class="font-bold text-slate-800">Resumen del caso</h3>
@@ -217,7 +217,7 @@
             </section>
 
             <!-- Tips -->
-            <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <section class="hidden lg:block bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-600 text-[20px]">lightbulb</span>
                 <h3 class="font-bold text-slate-800">Guia rapida</h3>
@@ -232,6 +232,10 @@
                   <span><strong>Rescatado:</strong> cierra el caso con foto y ubicacion de evidencia.</span>
                 </p>
                 <p class="flex gap-2">
+                  <span class="material-symbols-outlined text-[18px] text-red-500 shrink-0">cancel</span>
+                  <span><strong>Cancelado:</strong> liberas el caso y vuelve a estar disponible.</span>
+                </p>
+                <p class="flex gap-2">
                   <span class="material-symbols-outlined text-[18px] text-slate-400 shrink-0">edit_note</span>
                   <span>Deja notas claras en cada avance para que el reportante siga el caso.</span>
                 </p>
@@ -239,7 +243,7 @@
             </section>
 
             <!-- Aviso de seguridad -->
-            <div class="bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg p-5 relative overflow-hidden">
+            <div class="bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg p-5 relative overflow-hidden rounded">
               <span class="material-symbols-outlined absolute -right-3 -bottom-3 text-[90px] opacity-20 pointer-events-none">health_and_safety</span>
               <div class="relative z-10 flex gap-3 items-start">
                 <span class="material-symbols-outlined mt-0.5">warning</span>
@@ -256,10 +260,10 @@
 
         </div>
 
-        <!-- ============ BLOQUE 2: BITACORA (ancho completo, timeline | formulario) ============ -->
-        <section class="bg-white border border-slate-300 shadow-md overflow-hidden mb-8">
-          <button type="button" (click)="toggleBitacora()"
-            class="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-slate-50 transition-colors">
+        <!-- ============ BLOQUE 2: BITACORA (centro de mando unico) ============ -->
+        <section class="bg-white border border-slate-300 shadow-md overflow-hidden order-1 lg:order-2 mb-8 lg:mb-0 rounded">
+        <button type="button" (click)="toggleBitacora()"
+            class="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-slate-50 active:bg-slate-100 transition-colors">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
                 <span class="material-symbols-outlined">history</span>
@@ -273,183 +277,238 @@
                   [class.rotate-180]="bitacoraAbierta">expand_more</span>
           </button>
 
-@if (bitacoraAbierta) {
-  <div class="border-t border-slate-200 p-6 md:p-8">
+          @if (bitacoraAbierta) {
+            <div class="border-t border-slate-200 p-6 md:p-8 animate-fade-in-up">
 
-    <!-- HISTORIAL (ancho completo) -->
-    <h3 class="text-xs font-bold uppercase text-slate-400 mb-4">Historial</h3>
-    @if (historial.length > 0) {
-      <div class="relative pl-7 flex flex-col gap-6 mb-8">
-        <div class="absolute left-[10px] top-2 bottom-2 w-px bg-slate-200"></div>
-        @for (entrada of historial; track $index) {
-          <div class="relative">
-            <div class="absolute -left-7 top-1 w-5 h-5 rounded-full bg-blue-600 border-4 border-white shadow"></div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-sm font-bold text-slate-900">{{ estadoLegible(entrada.estado) }}</span>
-              <span class="text-xs text-slate-400">{{ entrada.timestamp | date:'dd MMM, HH:mm' }}</span>
-            </div>
-            @if (entrada.nota) {
-              <p class="text-sm text-slate-600 mt-1.5 bg-slate-50 border border-slate-100 p-3">{{ entrada.nota }}</p>
-            }
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="border border-blue-100 bg-blue-50 p-4 mb-8 flex items-start gap-3">
-        <span class="material-symbols-outlined text-blue-700">info</span>
-        <p class="text-sm text-slate-600">Aun no hay registros de avance. Agrega el primero abajo.</p>
-      </div>
-    }
-
-    <!-- FORMULARIO NUEVO AVANCE (ancho completo) -->
-    <div class="border border-slate-200 bg-slate-50 p-5 md:p-6">
-      <h3 class="font-bold text-slate-800 mb-5 flex items-center gap-2">
-        <span class="material-symbols-outlined text-blue-600 text-[20px]">add_circle</span>
-        Registrar nuevo avance
-      </h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-2">Nuevo estado</label>
-          <select [(ngModel)]="avance.estado"
-            class="w-full h-12 border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all">
-            <option value="">Selecciona...</option>
-            <option value="EN_SITIO">En sitio (llegue al punto)</option>
-            <option value="COMPLETADO">Rescatado (mision completada)</option>
-            <option value="CANCELADO">Cancelado</option>
-          </select>
-          <p class="text-xs text-slate-400 mt-2">
-            "Rescatado" cierra la mision (para cerrar con foto y GPS usa la seccion de abajo).
-          </p>
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-2">Nota del avance</label>
-          <textarea [(ngModel)]="avance.nota" rows="4"
-            class="w-full border border-slate-300 bg-white p-4 text-sm resize-none outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
-            placeholder="Describe que hiciste: donde esta el animal, a que veterinaria lo llevaste, etc."></textarea>
-        </div>
-      </div>
-
-      @if (errorAvance) {
-        <p class="mt-3 text-sm text-red-600 flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-[18px]">error</span>{{ errorAvance }}
-        </p>
-      }
-      @if (avanceOk) {
-        <p class="mt-3 text-sm text-emerald-700 flex items-center gap-1.5 font-semibold">
-          <span class="material-symbols-outlined text-[18px]">check_circle</span>Avance registrado.
-        </p>
-      }
-
-      <div class="mt-5 flex justify-end">
-        <button type="button" (click)="registrarAvance()" [disabled]="registrandoAvance"
-          class="w-full sm:w-auto h-12 px-8 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
-          @if (registrandoAvance) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
-          {{ registrandoAvance ? 'Registrando...' : 'Registrar avance' }}
-        </button>
-      </div>
-    </div>
-  </div>
-}
-        </section>
-
-        <!-- ============ BLOQUE 3: CIERRE (ancho completo) ============ -->
-        @if (yaCerrado) {
-          <section class="bg-emerald-50 border border-emerald-200 shadow-md p-8 text-center">
-            <span class="material-symbols-outlined text-6xl text-emerald-500 mb-3">verified</span>
-            <h2 class="text-xl font-bold text-emerald-800 mb-1">Caso cerrado</h2>
-            <p class="text-sm text-emerald-700">Esta mision ya fue completada. Gracias por tu ayuda!</p>
-          </section>
-          } @else if (puedeCerrar) {
-          <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
-
-            <!-- HEADER CLICKEABLE (acordeón) -->
-            <button type="button" (click)="toggleCierre()"
-              class="w-full flex items-center gap-4 p-6 md:p-8 text-left hover:bg-slate-50 transition-colors">
-              <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
-                <span class="material-symbols-outlined">task_alt</span>
-              </div>
-              <div class="flex-1">
-                <h2 class="text-xl md:text-2xl font-bold text-slate-900">Cerrar el caso</h2>
-                <p class="text-sm text-slate-500 mt-0.5">
-                  Foto del animal asegurado, tu ubicacion y una nota final. Toca para {{ cierreAbierto ? 'ocultar' : 'abrir' }}.
-                </p>
-              </div>
-              <span class="material-symbols-outlined text-slate-400 text-[28px] transition-transform duration-300"
-                [class.rotate-180]="cierreAbierto">expand_more</span>
-            </button>
-
-            <!-- CUERPO DESPLEGABLE -->
-            @if (cierreAbierto) {
-              <div class="px-6 md:px-8 pb-6 md:pb-8 border-t border-slate-100 pt-6">
-
-                <!-- Foto de evidencia -->
-                <label class="block mb-5">
-                  <span class="text-sm font-bold text-slate-700 mb-2 block">Foto de evidencia</span>
-                  <div class="border-2 border-dashed border-slate-300 p-4 hover:border-emerald-400 transition-colors cursor-pointer bg-slate-50">
-                    @if (fotoPreview) {
-                      <img [src]="fotoPreview" alt="Evidencia" class="w-full max-h-72 object-contain">
-                      <p class="text-xs text-slate-500 text-center mt-2">Toca para cambiar la foto</p>
-                    } @else {
-                      <div class="flex flex-col items-center text-center py-10">
-                        <span class="material-symbols-outlined text-4xl text-slate-400 mb-1">add_a_photo</span>
-                        <p class="text-sm font-semibold text-slate-600">Subir foto desde galeria o camara</p>
+              <!-- HISTORIAL -->
+              <h3 class="text-xs font-bold uppercase text-slate-400 mb-4">Historial</h3>
+              @if (historial.length > 0) {
+                <div class="relative pl-7 flex flex-col gap-6 mb-8">
+                  <div class="absolute left-[10px] top-2 bottom-2 w-px bg-slate-200"></div>
+                  @for (entrada of historial; track $index) {
+                    <div class="relative">
+                      <div class="absolute -left-7 top-1 w-5 h-5 rounded-full border-4 border-white shadow"
+                        [ngClass]="{
+                          'bg-emerald-500': entrada.estado === 'COMPLETADO',
+                          'bg-red-500': entrada.estado === 'CANCELADO',
+                          'bg-blue-600': entrada.estado !== 'COMPLETADO' && entrada.estado !== 'CANCELADO'
+                        }"></div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-bold text-slate-900">{{ estadoLegible(entrada.estado) }}</span>
+                        <span class="text-xs text-slate-400">{{ entrada.timestamp | date:'dd MMM, HH:mm' }}</span>
                       </div>
-                    }
-                    <input type="file" accept="image/*" capture="environment" (change)="onFotoSeleccionada($event)" class="hidden">
-                  </div>
-                </label>
-
-                <!-- Nota de cierre -->
-                <div class="mb-5">
-                  <label class="block text-sm font-bold text-slate-700 mb-2">
-                    Nota de cierre <span class="font-normal text-slate-400">(opcional)</span>
-                  </label>
-                  <textarea [(ngModel)]="notaCierre" rows="3"
-                    class="w-full border border-slate-300 bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
-                    placeholder="Ej. Animal asegurado y trasladado a la veterinaria San Rafael. Estable."></textarea>
+                      @if (entrada.nota) {
+                        <p class="text-sm text-slate-600 mt-1.5 bg-slate-50 border border-slate-100 p-3">{{ entrada.nota }}</p>
+                      }
+                      @if (entrada.motivo) {
+                        <p class="text-sm text-red-700 mt-1.5 bg-red-50 border border-red-100 p-3">
+                          <strong>Motivo:</strong> {{ entrada.motivo }}
+                        </p>
+                      }
+                    </div>
+                  }
                 </div>
-
-                <!-- Aviso + boton -->
-                <div class="flex flex-col md:flex-row md:items-center gap-4 pt-5 border-t border-slate-100">
-                  <div class="flex-1 border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800">
-                    <p class="font-bold mb-1 flex items-center gap-1.5">
-                      <span class="material-symbols-outlined text-[18px]">info</span> Ultimo paso
-                    </p>
-                    <p class="text-emerald-700 leading-relaxed">
-                      Al cerrar, el caso se marca como <strong>Rescatado</strong> y el reportante lo vera completado. Esta accion es definitiva.
-                    </p>
-                  </div>
-
-                  <button type="button" (click)="cerrarCaso()" [disabled]="cerrando"
-                    class="w-full md:w-auto h-12 px-8 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold shadow-md shadow-emerald-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0">
-                    @if (cerrando) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
-                    {{ cerrando ? 'Cerrando...' : 'Marcar como rescatado y cerrar' }}
-                  </button>
+              } @else {
+                <div class="border border-blue-100 bg-blue-50 p-4 mb-8 flex items-start gap-3">
+                  <span class="material-symbols-outlined text-blue-700">info</span>
+                  <p class="text-sm text-slate-600">Aun no hay registros de avance. Agrega el primero abajo.</p>
                 </div>
+              }
 
-                @if (errorCierre) {
-                  <p class="mt-3 text-sm text-red-600 flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-[18px]">error</span>{{ errorCierre }}
-                  </p>
+              <!-- CASO YA TERMINADO -->
+              @if (casoTerminado) {
+                @if (yaCerrado) {
+                  <div class="border border-emerald-200 bg-emerald-50 p-6 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-emerald-500 text-[42px]">verified</span>
+                    <div>
+                      <h3 class="font-bold text-emerald-800">Caso cerrado</h3>
+                      <p class="text-sm text-emerald-700">Esta mision ya fue completada. Gracias por tu ayuda!</p>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="border border-red-200 bg-red-50 p-6 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-red-500 text-[42px]">cancel</span>
+                    <div>
+                      <h3 class="font-bold text-red-800">Rescate cancelado</h3>
+                      <p class="text-sm text-red-700">Liberaste este caso. Ya esta disponible para otro voluntario.</p>
+                    </div>
+                  </div>
                 }
-              </div>
-            }
-          </section>
-        } @else {
-          <section class="bg-slate-50 border border-slate-200 p-5 flex items-start gap-3">
-            <span class="material-symbols-outlined text-slate-400">lock</span>
-            <p class="text-sm text-slate-500">
-              Para cerrar el caso primero debes marcarlo como <strong>"En sitio"</strong> en la bitacora de arriba.
-            </p>
-          </section>
-        }
+              } @else {
+
+                <!-- ===== FORMULARIO UNICO: cambia segun el estado elegido ===== -->
+                <div class="border border-slate-200 bg-slate-50 p-5 md:p-6">
+                  <h3 class="font-bold text-slate-800 mb-5 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600 text-[20px]">add_circle</span>
+                    Registrar nuevo avance
+                  </h3>
+
+                  <!-- 1. SELECT DE ESTADO -->
+                  <div class="mb-5">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Nuevo estado</label>
+                    <select [(ngModel)]="avance.estado" (ngModelChange)="onCambioEstado()"
+                      class="w-full md:max-w-md h-12 border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all">
+                      <option value="">Selecciona...</option>
+                      <option value="EN_SITIO">En sitio (llegue al punto)</option>
+                      <option value="COMPLETADO">Rescatado (cerrar el caso)</option>
+                      <option value="CANCELADO">Cancelado (liberar el caso)</option>
+                    </select>
+                  </div>
+
+                  <!-- 2. NOTA (solo para avance normal) -->
+                  @if (!esDefinitivo) {
+                    <div class="mb-2 animate-fade-in-up">
+                      <label class="block text-sm font-bold text-slate-700 mb-2">Nota del avance</label>
+                      <textarea [(ngModel)]="avance.nota" rows="4"
+                        class="w-full border border-slate-300 bg-white p-4 text-sm resize-none outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                        placeholder="Describe que hiciste: donde esta el animal, a que veterinaria lo llevaste, etc."></textarea>
+                    </div>
+                  }
+
+                  <!-- 3. CIERRE: foto + aviso de GPS -->
+                  @if (esCierre) {
+                    <div class="border border-emerald-200 bg-white p-5 animate-fade-in-up">
+                      <div class="flex items-center gap-2 pb-4 mb-4 border-b border-slate-100">
+                        <span class="material-symbols-outlined text-emerald-600">task_alt</span>
+                        <h4 class="font-bold text-slate-800">Evidencia de cierre</h4>
+                      </div>
+
+                      <label class="block mb-4">
+                        <span class="text-sm font-bold text-slate-700 mb-2 block">Foto del animal asegurado <span class="text-red-600">*</span></span>
+                        <div class="border-2 border-dashed border-slate-300 p-4 hover:border-emerald-400 transition-colors cursor-pointer bg-slate-50">
+                          @if (fotoPreview) {
+                            <img [src]="fotoPreview" alt="Evidencia" class="w-full max-h-72 object-contain">
+                            <p class="text-xs text-slate-500 text-center mt-2">Toca para cambiar la foto</p>
+                          } @else {
+                            <div class="flex flex-col items-center text-center py-10">
+                              <span class="material-symbols-outlined text-4xl text-slate-400 mb-1">add_a_photo</span>
+                              <p class="text-sm font-semibold text-slate-600">Subir foto desde galeria o camara</p>
+                            </div>
+                          }
+                          <input type="file" accept="image/*" capture="environment" (change)="onFotoSeleccionada($event)" class="hidden">
+                        </div>
+                      </label>
+
+                      <div class="border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800">
+                        <p class="font-bold mb-1 flex items-center gap-1.5">
+                          <span class="material-symbols-outlined text-[18px]">my_location</span> Ubicacion automatica
+                        </p>
+                        <p class="text-emerald-700 leading-relaxed">
+                          Al confirmar tomaremos tu ubicacion actual como evidencia de donde quedo el animal.
+                          Activa el GPS y permite el acceso.
+                        </p>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- 4. CANCELACION: motivo obligatorio -->
+                  @if (esCancelacion) {
+                    <div class="border border-red-200 bg-white p-5 animate-fade-in-up">
+                      <div class="flex items-center gap-2 pb-4 mb-4 border-b border-slate-100">
+                        <span class="material-symbols-outlined text-red-600">cancel</span>
+                        <h4 class="font-bold text-slate-800">Cancelar el rescate</h4>
+                      </div>
+
+                      <div class="border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800 mb-4">
+                        <p class="leading-relaxed">
+                          Al cancelar, el caso <strong>vuelve a estar disponible</strong> para que otro
+                          voluntario lo tome. Dejara de aparecer en tus casos aceptados.
+                        </p>
+                      </div>
+
+                      <label class="block text-sm font-bold text-slate-700 mb-2">
+                        Motivo de la cancelacion <span class="text-red-600">*</span>
+                      </label>
+                      <textarea [(ngModel)]="motivoCancelacion" rows="4"
+                        class="w-full border border-slate-300 bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all"
+                        placeholder="Ej. Se me complico el traslado / el animal ya no estaba en el punto / surgio una emergencia."></textarea>
+                    </div>
+                  }
+
+                  <!-- MENSAJES -->
+                  @if (errorAvance) {
+                    <p class="mt-4 text-sm text-red-600 flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[18px]">error</span>{{ errorAvance }}
+                    </p>
+                  }
+                  @if (avanceOk) {
+                    <p class="mt-4 text-sm text-emerald-700 flex items-center gap-1.5 font-semibold">
+                      <span class="material-symbols-outlined text-[18px]">check_circle</span>Avance registrado.
+                    </p>
+                  }
+
+                  <!-- BOTON (cambia segun el estado) -->
+                  <div class="mt-5 flex justify-end">
+                  <button type="button" (click)="enviar()" [disabled]="procesando"
+                      class="w-full sm:w-auto h-12 px-8 disabled:opacity-60 text-white font-bold shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                      [ngClass]="claseBoton">
+                      @if (procesando) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
+                      {{ procesando ? 'Procesando...' : textoBoton }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
       </main>
+
+      <!-- ============ MODAL DE CONFIRMACION (acciones definitivas) ============ -->
+      @if (modalConfirmarAbierto) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60"
+          (click)="cerrarModalConfirmar()">
+
+          <div class="w-full max-w-lg bg-white border border-slate-300 shadow-xl animate-fade-in-up" (click)="$event.stopPropagation()">
+
+            <div class="p-6 border-b border-slate-100 flex items-start gap-4">
+              <div class="w-12 h-12 text-white grid place-items-center shrink-0 shadow-sm"
+                [ngClass]="esCierre ? 'bg-emerald-600' : 'bg-red-600'">
+                <span class="material-symbols-outlined">{{ esCierre ? 'verified' : 'warning' }}</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-slate-900">
+                  {{ esCierre ? 'Cerrar este caso?' : 'Cancelar este rescate?' }}
+                </h3>
+                <p class="text-sm text-slate-500 mt-0.5">Esta accion es definitiva.</p>
+              </div>
+            </div>
+
+            <div class="p-6">
+              @if (esCierre) {
+                <p class="text-sm text-slate-600 leading-relaxed">
+                  El caso se marcara como <strong>Rescatado</strong> y el reportante lo vera completado.
+                  Guardaremos tu foto y tu ubicacion actual como evidencia.
+                </p>
+              } @else {
+                <p class="text-sm text-slate-600 leading-relaxed">
+                  Liberaras el caso y <strong>volvera a estar disponible</strong> para otro voluntario.
+                  Dejara de aparecer en tus casos aceptados.
+                </p>
+              }
+            </div>
+
+            <div class="p-6 pt-0 flex flex-col sm:flex-row sm:justify-end gap-3">
+            <button type="button" (click)="cerrarModalConfirmar()" [disabled]="procesando"
+                class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 active:bg-slate-100 active:scale-95 disabled:opacity-60 transition-all">
+                Volver al caso
+              </button>
+
+              <button type="button" (click)="confirmarAccion()" [disabled]="procesando"
+                class="h-12 px-6 disabled:opacity-60 text-white font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                [ngClass]="esCierre ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-emerald-600/25' : 'bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-600/25'">
+                @if (procesando) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
+                {{ procesando ? 'Procesando...' : (esCierre ? 'Si, cerrar el caso' : 'Si, cancelar rescate') }}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      }
     }
 
-    <footer class="relative z-20 bg-white mt-auto">
-      <app-footer-web></app-footer-web>
-    </footer>
+  <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+    <app-footer-web></app-footer-web>
+  </footer>
 
   </div>
 </ion-content>
