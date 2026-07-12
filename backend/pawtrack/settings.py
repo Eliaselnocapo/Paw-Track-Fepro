@@ -7,6 +7,7 @@ from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DEDUP_MODELS_DIR = os.environ.get('DEDUP_MODELS_DIR', os.path.join(BASE_DIR, 'deduplicacion', 'ml_models'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-4_wjky+xcs*sn#jxg^n2r2^m5shnxq@%2^11puiy#2al36)4nw'

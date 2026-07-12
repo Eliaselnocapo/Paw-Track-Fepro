@@ -7,9 +7,18 @@ import onnxruntime as ort
 from torchvision import transforms
 import hnswlib
 from django.conf import settings
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
+"""
+Nota de Arquitectura (S5): 
+Actualmente, los embeddings de incidencias cerradas o resueltas permanecen en el índice físico 
+HNSW (.bin). Esto no afecta la precisión de la búsqueda ya que `filtros.py` excluye estos IDs 
+antes de que lleguen a `buscar_similares()`. La purga periódica del índice queda como deuda 
+técnica de muy baja prioridad, a evaluarse únicamente si el tamaño de ml_models/ compromete 
+el almacenamiento del servidor.
+"""
 
 class VisionService:
     _instance = None
@@ -40,7 +49,8 @@ class VisionService:
 
     def _initialize_models(self):
         logger.info("VisionService: cargando modelos ONNX y HNSW a la memoria...")
-        base_dir = os.path.join(settings.BASE_DIR, 'deduplicacion', 'ml_models')
+        
+        base_dir = settings.DEDUP_MODELS_DIR
 
         # 1. Cargar el motor ONNX (Perros y Gatos)
         self.dog_session = ort.InferenceSession(
@@ -92,16 +102,23 @@ class VisionService:
             raise ValueError(f"Especie no soportada para deduplicación visual: {especie}")
             
         session, index, mapping, bin_name, map_name = recursos
-        base_dir = os.path.join(settings.BASE_DIR, 'deduplicacion', 'ml_models')
+        # La ruta la vamos a cambiar en el siguiente paso
+        base_dir = settings.DEDUP_MODELS_DIR        
 
-        new_label = index.get_current_count()
-        if new_label >= index.get_max_elements():
-            index.resize_index(index.get_max_elements() + 1000)
+        # --- INICIO DEL LOCK REAL ---
+        lock_key = f"dedup_index_lock_{especie.lower()}"
+        with cache.lock(lock_key, timeout=30):
+            new_label = index.get_current_count()
+            if new_label >= index.get_max_elements():
+                index.resize_index(index.get_max_elements() + 1000)
 
-        index.add_items([emb], [new_label])
-        mapping[new_label] = str(db_id) 
+            index.add_items([emb], [new_label])
+            
+            db_id_limpio = int(str(db_id).split('&')[0])
+            mapping[new_label] = str(db_id_limpio) 
 
-        index.save_index(os.path.join(base_dir, bin_name))
+            # Escritura a disco protegida por el lock
+            index.save_index(os.path.join(base_dir, bin_name))
 
         final_data = {"animal_ids": list(mapping.values())}
         with open(os.path.join(base_dir, map_name), 'w') as f:
@@ -122,7 +139,7 @@ class VisionService:
     def buscar_similares(self, emb, especie, candidatos_ids):
         recursos = self._index_para(especie)
         if recursos is None:
-            return {}
+            raise ValueError(f"Especie no soportada para deduplicación visual: {especie}")
         
         _, index, mapping, *_ = recursos
 
