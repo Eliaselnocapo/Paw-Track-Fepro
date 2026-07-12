@@ -4,6 +4,7 @@ from bd.models import Usuario, Incidencia
 class Rescate(models.Model):
     ESTADOS_RESCATE = [
         ('EN_CAMINO', 'En Camino'),
+        ('EN_SITIO', 'En Sitio'),
         ('COMPLETADO', 'Completado'),
         ('CANCELADO', 'Cancelado'),
     ]

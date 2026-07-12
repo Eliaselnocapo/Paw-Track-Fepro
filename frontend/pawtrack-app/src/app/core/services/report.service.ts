@@ -22,6 +22,9 @@ export interface ReportePayload {
   tamano_animal: string;
   condicion_animal: string;
   notas_animal: string;
+  color_animal?: string;
+  raza_animal?: string;
+  agresividad_animal?: string;
   latitud: number;
   longitud: number;
   direccion?: string;
@@ -60,6 +63,9 @@ export interface IncidenciaResponse {
   notas_animal:        string | null;
   edad_estimada:       string | null;
   peso_estimado:       string | null;
+  color_animal:        string | null;
+  raza_animal:         string | null;
+  agresividad_animal:  string | null;
   nombre_caso:         string | null;
   nombre_contacto:     string | null;
   telefono_contacto:   string | null;
@@ -86,6 +92,9 @@ export interface ActualizarReportePayload {
   direccion?:        string;
   estado?:           EstadoIncidencia | string;
   caracteristicas?:  string;
+  color_animal?:       string;
+  raza_animal?:        string;
+  agresividad_animal?: string;
   urgency_score?:    number;
   edad_estimada?:    string;
   peso_estimado?:    string;
@@ -112,6 +121,9 @@ export interface EntradaHistorial {
   estado:    string;
   timestamp: string;
   nota?:     string;
+  motivo?:   string;
+  ubicacion_cierre?: { lat: number; lng: number };
+  foto_cierre?: string | null;
 }
 
 /**
@@ -189,11 +201,14 @@ export class ReportService {
     form.append('notas_animal',     payload.notas_animal);
     form.append('latitud',          String(payload.latitud));
     form.append('longitud',         String(payload.longitud));
-    
-    if (payload.direccion)         form.append('direccion', payload.direccion);
-    if (payload.imagen)            form.append('imagen',            payload.imagen, payload.imagen.name);
-    if (payload.nombre_contacto)   form.append('nombre_contacto',   payload.nombre_contacto);
-    if (payload.telefono_contacto) form.append('telefono_contacto', payload.telefono_contacto);
+
+    if (payload.color_animal)       form.append('color_animal',       payload.color_animal);
+    if (payload.raza_animal)        form.append('raza_animal',        payload.raza_animal);
+    if (payload.agresividad_animal) form.append('agresividad_animal', payload.agresividad_animal);
+    if (payload.direccion)          form.append('direccion',          payload.direccion);
+    if (payload.imagen)             form.append('imagen',             payload.imagen, payload.imagen.name);
+    if (payload.nombre_contacto)    form.append('nombre_contacto',    payload.nombre_contacto);
+    if (payload.telefono_contacto)  form.append('telefono_contacto',  payload.telefono_contacto);
 
     return this.http.post<IncidenciaResponse>(this.apiUrl, form);
   }
@@ -255,6 +270,9 @@ export class ReportService {
     if (payload.latitud          != null) form.append('latitud',          String(payload.latitud));
     if (payload.longitud         != null) form.append('longitud',         String(payload.longitud));
     if (payload.direccion        != null) form.append('direccion',        payload.direccion);
+    if (payload.color_animal       != null) form.append('color_animal',       payload.color_animal);
+    if (payload.raza_animal        != null) form.append('raza_animal',        payload.raza_animal);
+    if (payload.agresividad_animal != null) form.append('agresividad_animal', payload.agresividad_animal);
     if (payload.estado           != null) form.append('estado',           payload.estado);
     if (payload.caracteristicas  != null) form.append('caracteristicas',  payload.caracteristicas);
     if (payload.ficha_voluntario != null) form.append('ficha_voluntario', payload.ficha_voluntario);
@@ -410,4 +428,11 @@ export class ReportService {
 
       return this.http.post<MensajeResponse>(`${this.rescatesUrl}${rescateId}/cerrar/`, form);
     }
+
+  cancelarRescate(rescateId: number, motivo?: string): Observable<MensajeResponse> {
+    return this.http.post<MensajeResponse>(
+      `${this.rescatesUrl}${rescateId}/cancelar/`,
+      { motivo: motivo?.trim() || '' },
+    );
+  }
 }

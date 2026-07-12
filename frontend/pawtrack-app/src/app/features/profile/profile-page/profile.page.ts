@@ -151,7 +151,9 @@ export class ProfilePage implements OnInit {
 
     // Casos aceptados = todos mis rescates.
     // Casos resueltos = solo los que ya cerré (COMPLETADO).
-    const aceptados = rescatesBackend.map((r) => this.mapearRescate(r));
+    const aceptados = rescatesBackend
+      .filter((r) => r.estado !== 'CANCELADO')
+      .map((r) => this.mapearRescate(r));
     const resueltos = rescatesBackend
       .filter((r) => r.estado === 'COMPLETADO')
       .map((r) => this.mapearRescate(r));
@@ -164,7 +166,7 @@ export class ProfilePage implements OnInit {
 
       reportesTotales: reportesBackend.length,
       casosResueltos: this.obtenerCasosResueltos(usuarioBackend, reportesBackend, resueltos.length),
-      misionesAceptadas: rescatesBackend.length,
+      misionesAceptadas: aceptados.length,
       seguimientosRealizados: resueltos.length,
       nivelComunidad: this.obtenerNivelComunidad(reportesBackend.length),
 
@@ -213,7 +215,9 @@ export class ProfilePage implements OnInit {
       return url;
     }
 
-    return `${environment.apiUrl}${url}`;
+    // Las imágenes se sirven desde /media/, no bajo /api/
+    const base = environment.apiUrl.replace(/\/api\/?$/, '');
+    return `${base}${url}`;
   }
 
   private formatearRol(rol: string): string {
@@ -298,6 +302,12 @@ export class ProfilePage implements OnInit {
   }
 
   private obtenerUbicacion(usuarioBackend: UsuarioResponse): string {
+    // El back agregó 'ubicacion' directo en el modelo Usuario (migración 0015).
+    const ubicacion = (usuarioBackend as any).ubicacion;
+    if (typeof ubicacion === 'string' && ubicacion.trim()) {
+      return ubicacion.trim();
+    }
+
     if (usuarioBackend.perfil_patrocinador?.ubicacion) {
       return usuarioBackend.perfil_patrocinador.ubicacion;
     }

@@ -9,6 +9,7 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 
 import { ProfileService, UsuarioResponse } from '../../../core/services/profile.service';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-edit-profile',
@@ -49,6 +50,7 @@ export class EditProfilePage implements OnInit {
   constructor(
     private router: Router,
     private profileService: ProfileService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -144,10 +146,11 @@ export class EditProfilePage implements OnInit {
     if (this.foto) datos.append('foto_perfil', this.foto, this.foto.name);
 
     this.profileService.actualizarPerfil(datos).subscribe({
-      next: () => {
+      next: (usuarioActualizado: any) => {
         this.guardando = false;
         this.guardadoOk = true;
-        // Pequeña pausa para que se vea el "Guardado" y regresa al perfil.
+        // Refresca el usuario en sesión → el navbar ve la foto nueva al instante.
+        this.auth.setCurrentUser(usuarioActualizado);
         setTimeout(() => this.router.navigate(['/profile']), 700);
       },
       error: (err) => {
