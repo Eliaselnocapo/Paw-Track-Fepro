@@ -53,7 +53,7 @@ services:
 
   celery-worker:
     build: .
-    command: celery -A pawtrack worker -l info -Q dedup,celery 1
+    command: celery -A pawtrack worker -l info -Q dedup,celery
     volumes:
       - .:/app
     environment:
