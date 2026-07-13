@@ -547,6 +547,7 @@
                     }
 
                   </button>
+                  
                 </div>
 
               </div>
@@ -559,6 +560,55 @@
 
     </main>
 
-    <app-footer-web class="relative z-10 mt-auto"></app-footer-web>
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
+    <!-- ============ MODAL DE ERROR AL ACEPTAR ============ -->
+    @if (modalErrorAbierto) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60"
+        (click)="cerrarModalError()">
+
+        <div class="w-full max-w-md bg-white border border-slate-300 shadow-xl" (click)="$event.stopPropagation()">
+
+          <div class="p-6 border-b border-slate-100 flex items-start gap-4">
+            <div class="w-12 h-12 bg-red-600 text-white grid place-items-center shrink-0 shadow-sm">
+              <span class="material-symbols-outlined">error</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-slate-900">
+                {{ errorEsDefinitivo ? 'No puedes tomar este caso' : 'Algo salió mal' }}
+              </h3>
+              <p class="text-sm text-slate-500 mt-0.5">
+                {{ errorEsDefinitivo ? 'El caso ya no está disponible para ti.' : 'Puedes intentarlo de nuevo.' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <p class="text-sm text-slate-600 leading-relaxed">{{ errorConfirmacion }}</p>
+          </div>
+
+          <div class="p-6 pt-0 flex flex-col sm:flex-row sm:justify-end gap-3">
+            @if (errorEsDefinitivo) {
+              <button type="button" (click)="volverCasos()"
+                class="h-12 px-6 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-700/25 transition-all active:scale-95 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">search</span>
+                Ver otros casos disponibles
+              </button>
+            } @else {
+              <button type="button" (click)="cerrarModalError()"
+                class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
+                Cerrar
+              </button>
+              <button type="button" (click)="cerrarModalError(); confirmarAceptacion()"
+                class="h-12 px-6 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-700/25 transition-all active:scale-95">
+                Reintentar
+              </button>
+            }
+          </div>
+
+        </div>
+      </div>
+    }
   </div>
 </ion-content>

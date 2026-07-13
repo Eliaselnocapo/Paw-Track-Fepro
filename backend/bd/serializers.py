@@ -134,12 +134,21 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     lng_out  = serializers.SerializerMethodField(read_only=True)
     coincidencias_visuales = serializers.SerializerMethodField()
 
-    tipo_animal      = serializers.CharField(source='animal.tipo',           read_only=True, default='')
-    tamano_animal    = serializers.CharField(source='animal.tamano',         read_only=True, default='')
-    condicion_animal = serializers.CharField(source='animal.salud',          read_only=True, default='')
-    notas_animal     = serializers.CharField(source='animal.otros',          read_only=True, default='')
-    edad_estimada    = serializers.CharField(source='animal.edad_estimada',  read_only=True, default='')
-    peso_estimado    = serializers.CharField(source='animal.peso_estimado',  read_only=True, default='')
+    # Campos del animal, aplanados en la incidencia (evita un segundo request
+    # desde el front). Son ESCRIBIBLES: el voluntario los llena desde
+    # update-case al registrar la ficha clinica del animal.
+    tipo_animal      = serializers.CharField(source='animal.tipo',           required=False, allow_blank=True, default='')
+    tamano_animal    = serializers.CharField(source='animal.tamano',         required=False, allow_blank=True, default='')
+    condicion_animal = serializers.CharField(source='animal.salud',          required=False, allow_blank=True, default='')
+    notas_animal     = serializers.CharField(source='animal.otros',          required=False, allow_blank=True, default='')
+    edad_estimada    = serializers.CharField(source='animal.edad_estimada',  required=False, allow_blank=True, default='')
+    peso_estimado    = serializers.CharField(source='animal.peso_estimado',  required=False, allow_blank=True, default='')
+
+    # Existian en el modelo Animal pero no se exponian en la incidencia,
+    # asi que desde el front eran invisibles.
+    color_animal       = serializers.CharField(source='animal.color',        required=False, allow_blank=True, default='')
+    raza_animal        = serializers.CharField(source='animal.raza',         required=False, allow_blank=True, default='')
+    agresividad_animal = serializers.CharField(source='animal.agresividad',  required=False, allow_blank=True, default='')
 
     rescatista_info  = serializers.SerializerMethodField(read_only=True)
 
@@ -147,13 +156,14 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         model = Incidencia
         fields = (
             'id',
-            'usuario_reporta', 'animal',
+            'usuario_reporta',
             'patrocinador', 'rescatista_asignado', 'rescatista_info',
             'imagen',
             'latitud', 'longitud',
             'lat_out', 'lng_out',
             'direccion',
             'tipo_animal', 'tamano_animal', 'condicion_animal', 'notas_animal', 'edad_estimada', 'peso_estimado',
+            'color_animal', 'raza_animal', 'agresividad_animal',
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
             'caracteristicas', 'ficha_voluntario', 'estado', 'tipo_incidencia', 'recompensa',
             'urgency_score', 'trust_score', 'created_at', 'updated_at', 'folio',
@@ -161,7 +171,6 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         )
         extra_kwargs = {
             'usuario_reporta':     {'required': False, 'allow_null': True},
-            'animal':              {'required': False, 'allow_null': True},
             'patrocinador':        {'required': False, 'allow_null': True},
             'rescatista_asignado': {'required': False, 'allow_null': True},
             'recompensa':          {'required': False, 'allow_null': True},
@@ -202,10 +211,43 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         # Cero llamadas a IA bloqueando la petición del cliente y total aislamiento de módulos.
         return obj.coincidencias_visuales_ids
 
+    # Los campos declarados con source='animal.x' llegan a validated_data
+    # agrupados bajo la llave 'animal'. Pero 'animal' TAMBIEN es la FK, que
+    # puede venir como PK (un entero) desde el front. Este helper distingue
+    # los dos casos para no confundirlos.
+    def _extraer_datos_animal(self, validated_data):
+        """
+        Saca la llave 'animal' de validated_data y devuelve (campos_anidados, fk).
+        - campos_anidados: dict con {tipo, tamano, salud, ...} o None
+        - fk: instancia/PK de Animal si vino como FK directa, o None
+        """
+        animal_data = validated_data.pop('animal', None)
+
+        if isinstance(animal_data, dict):
+            # Ignoramos strings vacios para no borrar datos ya guardados
+            campos = {k: v for k, v in animal_data.items() if v not in (None, '')}
+            return (campos or None), None
+
+        return None, animal_data
+
     def create(self, validated_data):
         lat = validated_data.pop('latitud')
         lng = validated_data.pop('longitud')
         validated_data['ubicacion'] = Point(lng, lat, srid=4326)
+
+        # Los campos con source='animal.x' llegan agrupados bajo 'animal'.
+        campos_animal = validated_data.pop('animal', {})
+
+        # El modelo Animal exige varios campos sin default: los rellenamos.
+        base = {
+            'nombre': 'Sin nombre', 'color': '', 'tamano': '', 'tipo': '',
+            'raza': '', 'agresividad': '', 'salud': '', 'otros': '',
+            'edad_estimada': '', 'peso_estimado': '',
+        }
+        base.update({k: v for k, v in campos_animal.items() if v is not None})
+
+        validated_data['animal'] = Animal.objects.create(**base)
+
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -213,4 +255,15 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         lng = validated_data.pop('longitud', None)
         if lat is not None and lng is not None:
             validated_data['ubicacion'] = Point(lng, lat, srid=4326)
+
+        campos_animal = validated_data.pop('animal', {})
+
+        # Ficha clinica: actualizamos el animal existente.
+        # Ignoramos vacios para no borrar datos ya guardados.
+        if campos_animal and instance.animal:
+            for campo, valor in campos_animal.items():
+                if valor not in (None, ''):
+                    setattr(instance.animal, campo, valor)
+            instance.animal.save()
+
         return super().update(instance, validated_data)

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
@@ -8,6 +8,8 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 
 import { ReportService, RescateResponse } from '../../../../core/services/report.service';
 import { environment } from 'src/environments/environment';
+
+declare let L: any;
 
 @Component({
   selector: 'app-details-case-accepted',
@@ -22,10 +24,10 @@ import { environment } from 'src/environments/environment';
   templateUrl: './details-case-accepted.page.html',
   styleUrls: ['./details-case-accepted.page.scss'],
 })
-export class DetailsCaseAcceptedPage implements OnInit {
+export class DetailsCaseAcceptedPage implements OnInit, AfterViewInit {
 
   rescate: RescateResponse | null = null;
-
+  private mapa: any = null;
   cargando = true;
   errorCarga: string | null = null;
 
@@ -42,6 +44,39 @@ export class DetailsCaseAcceptedPage implements OnInit {
     this.cargarCaso();
   }
 
+  ngAfterViewInit(): void {
+  // esperamos a que el rescate cargue; lo inicializa cargarCaso al terminar
+}
+
+private initMapa(): void {
+  if (this.mapa || this.latitud == null || this.longitud == null) return;
+
+  // pequeño delay para que el div exista en el DOM
+  setTimeout(() => {
+    const el = document.getElementById('mapa-detalle');
+    if (!el || this.latitud == null || this.longitud == null) return;
+
+    this.mapa = L.map('mapa-detalle', {
+      zoomControl: true,
+      attributionControl: false,
+      scrollWheelZoom: false,
+    }).setView([this.latitud, this.longitud], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(this.mapa);
+
+    const icono = L.divIcon({
+      className: 'pin-detalle',
+      html: '<div class="pin-detalle-inner"><span class="material-symbols-outlined">pets</span></div>',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+    });
+
+    L.marker([this.latitud, this.longitud], { icon: icono }).addTo(this.mapa);
+  }, 100);
+}
   // ─────────────────────────────────────────
   // Carga: por folio buscamos el rescate en mis-rescates
   // ─────────────────────────────────────────
@@ -70,6 +105,7 @@ export class DetailsCaseAcceptedPage implements OnInit {
 
         this.rescate = encontrado;
         this.cargando = false;
+        this.initMapa();
       },
       error: () => {
         this.errorCarga = 'No se pudo cargar la información del caso.';
@@ -188,7 +224,7 @@ export class DetailsCaseAcceptedPage implements OnInit {
 
 // Evaluación del voluntario en pares {label, valor}, SIN las notas clínicas
   get evaluacionItems(): { label: string; valor: string }[] {
-    const raw: string = this.rescate?.incidencia?.['caracteristicas']?.trim() || '';
+    const raw: string = this.rescate?.incidencia?.['ficha_voluntario']?.trim() || '';
     if (!raw) return [];
     return raw.split('|')
       .map(p => p.trim())
@@ -202,9 +238,23 @@ export class DetailsCaseAcceptedPage implements OnInit {
 
   // Solo las notas clínicas
   get notasClinicas(): string {
-    const raw: string = this.rescate?.incidencia?.['caracteristicas'] || '';
+    const raw: string = this.rescate?.incidencia?.['ficha_voluntario'] || '';
     const parte = raw.split('|').map(p => p.trim()).find(p => p.toLowerCase().startsWith('notas clínicas'));
     return parte ? parte.split(':').slice(1).join(':').trim() : '';
+  }
+
+  //Saber si está rescatado
+  get yaRescatado(): boolean {
+    return this.
+    rescate?.estado === 'COMPLETADO';
+  }
+
+  get direccion(): string {
+    return this.rescate?.incidencia?.['direccion']?.trim() || '';
+  }
+
+  get fechaReporte(): string | null {
+    return (this.rescate?.incidencia as any)?.created_at || null;
   }
 
   // Desplegable del progreso
@@ -252,4 +302,10 @@ export class DetailsCaseAcceptedPage implements OnInit {
   volver(): void {
     this.router.navigate(['/accepted-cases']);
   }
+
+  verCronologia(): void {
+  if (this.rescate) {
+    this.router.navigate(['/cronology-case', this.rescate.incidencia?.folio]);
+  }
+}
 }

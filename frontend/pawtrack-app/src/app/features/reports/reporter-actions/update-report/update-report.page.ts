@@ -146,7 +146,7 @@ export class UpdateReportPage implements OnInit, AfterViewInit {
 
     this.reporte.lat = this.obtenerLatitud(data);
     this.reporte.lng = this.obtenerLongitud(data);
-    this.reporte.ubicacionTexto = this.obtenerTextoUbicacion();
+    this.reporte.ubicacionTexto = (data as any).direccion?.trim() || this.obtenerTextoUbicacion();
     this.reporte.nombreContacto = (data as any).nombre_contacto ?? '';
     this.reporte.telefonoContacto = (data as any).telefono_contacto ?? '';
 
@@ -347,39 +347,12 @@ initInteractiveMap(): void {
       });
   }
 
-  obtenerDireccionDesdeCoordenadas(lat: number, lng: number): void {
-    this.cargandoDireccion = true;
-
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
-      .then((response) => response.json())
-      .then((data) => {
-        this.cargandoDireccion = false;
-
-        if (data && data.address) {
-          const road = data.address.road || '';
-          const houseNumber = data.address.house_number
-            ? ` #${data.address.house_number}`
-            : '';
-          const suburb = data.address.suburb || '';
-
-          if (road) {
-            this.reporte.ubicacionTexto = `${road}${houseNumber}${suburb ? ', ' + suburb : ''}`;
-          } else {
-            this.reporte.ubicacionTexto =
-              data.display_name?.split(',')[0] ?? 'Ubicación ajustada en el mapa';
-          }
-        } else {
-          this.reporte.ubicacionTexto = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        }
-
-        this.cdr.detectChanges();
-      })
-      .catch(() => {
-        this.cargandoDireccion = false;
-        this.reporte.ubicacionTexto = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        this.cdr.detectChanges();
-      });
-  }
+  obtenerDireccionDesdeCoordenadas(lat: number, lng: number) {
+    this.reportService.obtenerDireccionCompleta(lat, lng).then(dir => {
+      this.reporte.ubicacionTexto = dir;
+      this.cdr.detectChanges();
+    });
+}
 
   seleccionarTipo(tipo: TipoAnimal): void {
     this.reporte.tipoAnimal = tipo;
@@ -702,6 +675,7 @@ descripcionValida(): boolean {
       longitud: this.reporte.lng,
       lat_out: this.reporte.lat,
       lng_out: this.reporte.lng,
+      direccion: this.reporte.ubicacionTexto,
 
       nombre_contacto: this.reporte.nombreContacto.trim(),
       telefono_contacto: this.reporte.telefonoContacto.trim(),

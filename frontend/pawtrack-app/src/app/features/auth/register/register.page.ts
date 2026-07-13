@@ -5,11 +5,13 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { IonContent } from '@ionic/angular/standalone';
 import { switchMap, map, catchError, of } from 'rxjs';
+import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
+
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink, FormsModule, CommonModule, IonContent],
+  imports: [RouterLink, FormsModule, CommonModule, IonContent, FooterWebComponent],
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
 })

@@ -3,30 +3,19 @@
 
     <app-navbar-web class="relative z-30"></app-navbar-web>
 
-<!-- FONDO — profile-page, reputation, edit-profile (bg-[#f7f9ff]) -->
-<div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+<!-- FONDO ESCRITORIO — profile-page, reputation, edit-profile -->
+<div class="hidden md:block absolute inset-0 pointer-events-none overflow-hidden z-0">
 
   <!-- ZONA SUPERIOR -->
-  <div class="absolute top-[85px] left-[-130px] w-[420px] h-[420px] bg-indigo-200/50 rounded-full"></div>
-  <div class="absolute top-[95px] left-[-40px] w-[220px] h-[220px] bg-violet-100/55 rounded-full"></div>
-  <div class="absolute top-[90px] left-[28%] w-[90px] h-[90px] bg-fuchsia-200/40 rotate-[18deg]"></div>
-  <div class="absolute top-[100px] right-[-80px] w-[260px] h-[260px] bg-purple-200/55 -rotate-[10deg]"></div>
+   <div class="absolute top-[25px] left-[-50px] w-[450px] h-[450px] bg-fuchsia-200/55 rotate-[8deg]"></div>
 
   <!-- ZONA SUPERIOR MEDIA -->
-  <div class="absolute top-[22%] left-[11%] w-[230px] h-[310px] bg-white/55 border border-white/75 rotate-[-7deg] shadow-[0_16px_40px_rgba(255,255,255,0.30)]"></div>
-  <div class="absolute top-[26%] left-[14%] w-[210px] h-[290px] bg-indigo-100/50 rotate-[5deg]"></div>
-  <div class="absolute top-[20%] left-[48%] w-[100px] h-[100px] bg-violet-200/40 rotate-[22deg]"></div>
-  <div class="absolute top-[18%] right-[8%] w-[150px] h-[150px] bg-fuchsia-200/55 rotate-[8deg]"></div>
-
-  <!-- FRANJAS DECORATIVAS — zona media -->
-  <div class="absolute top-[38%] right-[12%] w-[200px] h-[14px] bg-indigo-100/80"></div>
-  <div class="absolute top-[43%] right-[20%] w-[155px] h-[14px] bg-violet-100/75"></div>
-  <div class="absolute top-[48%] right-[9%]  w-[180px] h-[14px] bg-purple-100/75"></div>
+  <div class="absolute top-[30%] left-[8%] w-[210px] h-[210px] bg-amber-200/35 rotate-[5deg]"></div>
+  <div class="absolute top-[20%] left-[48%] w-[100px] h-[100px] bg-emerald-200/50 rotate-[22deg]"></div>
+ 
 
   <!-- ZONA MEDIA -->
-  <div class="absolute top-[36%] left-[-70px] w-[200px] h-[200px] rounded-full border-[22px] border-violet-300/35"></div>
-  <div class="absolute top-[40%] left-[38%] w-[120px] h-[120px] bg-purple-100/40 rotate-[15deg]"></div>
-  <div class="absolute top-[34%] right-[-70px] w-[280px] h-[280px] bg-indigo-100/45 rounded-full"></div>
+  <div class="absolute top-[14%] right-[-70px] w-[280px] h-[280px] bg-violet-200/50 rounded-full"></div>
 
   <!-- ZONA MEDIA BAJA -->
   <div class="absolute top-[54%] left-[6%]  w-5 h-5 bg-indigo-300/80 rotate-12"></div>
@@ -47,14 +36,15 @@
   <div class="absolute bottom-[8%] left-[32%] w-[65px] h-[65px] bg-violet-200/40 rotate-[-15deg]"></div>
   <div class="absolute bottom-[-60px] right-[-50px] w-[240px] h-[240px] bg-purple-200/45 rounded-full"></div>
 
-  <!-- FIGURA BRÚJULA INFERIOR CENTRO -->
-  <svg class="absolute bottom-[70px] left-[28%] w-[55px] h-[55px] opacity-[0.18]" viewBox="0 0 50 50" aria-hidden="true">
-    <line x1="25" y1="0"  x2="25" y2="50" stroke="#6366f1" stroke-width="2"/>
-    <line x1="0"  y1="25" x2="50" y2="25" stroke="#6366f1" stroke-width="2"/>
-    <line x1="7"  y1="7"  x2="43" y2="43" stroke="#6366f1" stroke-width="2"/>
-    <line x1="43" y1="7"  x2="7"  y2="43" stroke="#6366f1" stroke-width="2"/>
-  </svg>
+</div>
 
+<!-- FONDO MOVIL -->
+<div class="md:hidden absolute inset-0 pointer-events-none overflow-hidden z-0">
+  <div class="absolute top-[30px] right-[-70px] w-[210px] h-[210px] bg-fuchsia-200/50 rotate-[8deg]"></div>
+  <div class="absolute top-[22%] left-[-80px] w-[190px] h-[190px] bg-violet-200/45 rounded-full"></div>
+  <div class="absolute top-[45%] right-[-60px] w-[170px] h-[170px] bg-amber-200/35 rotate-[12deg]"></div>
+  <div class="absolute top-[68%] left-[-70px] w-[180px] h-[180px] bg-indigo-200/45 rotate-[-8deg]"></div>
+  <div class="absolute bottom-[20px] right-[-60px] w-[200px] h-[200px] bg-purple-200/50 rounded-full"></div>
 </div>
 
     @if (cargando) {
@@ -137,6 +127,7 @@
 
                 <button
                   type="button"
+                  routerLink="/edit-profile"
                   class="h-11 px-5 bg-blue-700 hover:bg-blue-800 text-white font-bold shadow-md transition-colors flex items-center justify-center gap-2 rounded">
                   <span class="material-symbols-outlined text-[18px]">edit</span>
                   Editar perfil
@@ -291,15 +282,15 @@
               </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 bg-white border border-slate-200 p-1 shadow-sm w-full sm:w-fit">
+            <div class="grid grid-cols-1 sm:grid-cols-3 bg-white border border-slate-200 shadow-sm w-full sm:w-fit overflow-hidden">
 
               <button
                 type="button"
                 (click)="tabActividad = 'reportes'"
-                class="h-10 px-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
+                class="h-11 px-5 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
                 [ngClass]="tabActividad === 'reportes'
-                  ? 'bg-blue-700 text-white shadow-md'
-                  : 'bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
+                  ? 'bg-sky-700 text-white'
+                  : 'bg-white text-slate-600 hover:bg-sky-50 hover:text-sky-700'">
                 <span class="material-symbols-outlined text-[18px]">assignment</span>
                 Reportes creados
               </button>
@@ -307,10 +298,10 @@
               <button
                 type="button"
                 (click)="tabActividad = 'aceptados'"
-                class="h-10 px-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
+                class="h-11 px-5 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full border-y sm:border-y-0 sm:border-x border-slate-200"
                 [ngClass]="tabActividad === 'aceptados'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'">
+                  ? 'bg-blue-700 text-white border-blue-700'
+                  : 'bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700'">
                 <span class="material-symbols-outlined text-[18px]">volunteer_activism</span>
                 Casos aceptados
               </button>
@@ -318,12 +309,12 @@
               <button
                 type="button"
                 (click)="tabActividad = 'seguimientos'"
-                class="h-10 px-4 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
+                class="h-11 px-5 text-sm font-bold transition-colors flex items-center justify-center gap-2 w-full"
                 [ngClass]="tabActividad === 'seguimientos'
-                  ? 'bg-violet-600 text-white shadow-md'
-                  : 'bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-700'">
-                <span class="material-symbols-outlined text-[18px]">timeline</span>
-                Seguimientos
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'">
+                <span class="material-symbols-outlined text-[18px]">verified</span>
+                Casos resueltos
               </button>
 
             </div>
@@ -335,7 +326,7 @@
 
               @if (usuario.reportesRecientes.length === 0) {
                 <div class="py-12 text-center flex flex-col items-center">
-                  <div class="w-16 h-16 bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center mb-4">
+                  <div class="w-16 h-16 bg-orange-50 text-orange-600 border border-orange-100 grid place-items-center mb-4">
                     <span class="material-symbols-outlined text-4xl">assignment</span>
                   </div>
 
@@ -350,14 +341,14 @@
                   <button
                     type="button"
                     routerLink="/reports/create-report"
-                    class="mt-5 h-11 px-5 bg-blue-700 text-white font-bold shadow-md hover:bg-blue-800 transition-colors">
+                    class="mt-5 h-11 px-5 bg-sky-700 text-white font-bold shadow-md hover:bg-sky-600 transition-colors">
                     Crear reporte
                   </button>
                 </div>
               } @else {
                 <div class="grid grid-cols-1 gap-4">
                   @for (reporte of usuario.reportesRecientes; track reporte.id) {
-                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-blue-200 transition-colors">
+                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-gray-200 transition-colors">
 
                       <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto]">
 
@@ -369,17 +360,17 @@
                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
 
                           <div class="absolute top-3 left-3">
-                            <span class="inline-flex items-center gap-1.5 bg-white text-blue-700 border border-blue-100 px-2.5 py-1 text-xs font-bold shadow-sm">
-                              <span class="material-symbols-outlined text-[15px]">assignment</span>
-                              Reporte
-                            </span>
+                          <span class="inline-flex items-center gap-1.5 bg-white bg-sky-700 text-white border border-gray-100 px-2.5 py-1 text-xs font-bold shadow-sm">
+                            <span class="material-symbols-outlined text-[15px]">assignment</span>
+                            Reporte
+                          </span>
                           </div>
                         </div>
 
                         <!-- INFO -->
                         <div class="p-5 flex flex-col justify-center">
                           <div class="flex flex-wrap items-center gap-2 mb-3">
-                            <span class="text-xs font-bold uppercase bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1">
+                            <span class="text-xs font-bold uppercase bg-sky-50 text-sky-600 border border-sky-100 px-2.5 py-1">
                               Reporte creado
                             </span>
 
@@ -401,7 +392,7 @@
                           </p>
 
                           <p class="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[16px] text-blue-700">location_on</span>
+                            <span class="material-symbols-outlined text-[16px] text-sky-600">location_on</span>
                             {{ reporte.lugar }}
                           </p>
                         </div>
@@ -411,7 +402,7 @@
                           <button
                             type="button"
                             [routerLink]="['/view-report', reporte.id]"
-                            class="h-10 px-5 bg-blue-700 text-white font-bold text-sm shadow-md hover:bg-blue-800 transition-colors">
+                            class="h-10 px-5 bg-sky-700 text-white font-bold text-sm shadow-md hover:bg-sky-600 transition-colors">
                             Ver detalle
                           </button>
                         </div>
@@ -426,7 +417,7 @@
                   <button
                     type="button"
                     routerLink="/dashboard/reporter"
-                    class="h-11 px-5 bg-blue-700 text-white font-bold shadow-md hover:bg-blue-800 transition-colors flex items-center gap-2">
+                    class="h-11 px-5 bg-sky-700 text-white font-bold shadow-md hover:bg-sky-600 transition-colors flex items-center gap-2">
                     Ver todos mis reportes
                     <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </button>
@@ -442,7 +433,7 @@
 
               @if (usuario.casosAceptadosRecientes.length === 0) {
                 <div class="py-12 text-center flex flex-col items-center">
-                  <div class="w-16 h-16 bg-emerald-50 text-emerald-700 border border-emerald-100 grid place-items-center mb-4">
+                  <div class="w-16 h-16 bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center mb-4">
                     <span class="material-symbols-outlined text-4xl">volunteer_activism</span>
                   </div>
 
@@ -457,14 +448,14 @@
                   <button
                     type="button"
                     routerLink="/volunteer"
-                    class="mt-5 h-11 px-5 bg-emerald-600 text-white font-bold shadow-md hover:bg-emerald-700 transition-colors">
+                    class="mt-5 h-11 px-5 bg-blue-700 text-white font-bold shadow-md hover:bg-blue-800 transition-colors">
                     Explorar casos activos
                   </button>
                 </div>
               } @else {
                 <div class="grid grid-cols-1 gap-4">
                   @for (caso of usuario.casosAceptadosRecientes; track caso.id) {
-                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-emerald-200 transition-colors">
+                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-blue-200 transition-colors">
 
                       <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto]">
 
@@ -475,7 +466,7 @@
                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
 
                           <div class="absolute top-3 left-3">
-                            <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 border border-emerald-100 px-2.5 py-1 text-xs font-bold shadow-sm">
+                            <span class="inline-flex items-center gap-1.5 bg-white text-blue-700 border border-blue-100 px-2.5 py-1 text-xs font-bold shadow-sm">
                               <span class="material-symbols-outlined text-[15px]">volunteer_activism</span>
                               Aceptado
                             </span>
@@ -484,7 +475,7 @@
 
                         <div class="p-5 flex flex-col justify-center">
                           <div class="flex flex-wrap items-center gap-2 mb-3">
-                            <span class="text-xs font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-100 px-2.5 py-1">
+                            <span class="text-xs font-bold uppercase bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1">
                               Caso aceptado
                             </span>
 
@@ -506,7 +497,7 @@
                           </p>
 
                           <p class="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[16px] text-emerald-700">location_on</span>
+                            <span class="material-symbols-outlined text-[16px] text-blue-700">location_on</span>
                             {{ caso.lugar }}
                           </p>
                         </div>
@@ -514,8 +505,8 @@
                         <div class="p-5 flex md:items-center md:justify-center border-t md:border-t-0 md:border-l border-slate-100">
                           <button
                             type="button"
-                            [routerLink]="['/details-case-accepted', caso.id]"
-                            class="h-10 px-5 bg-emerald-600 text-white font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors">
+                            [routerLink]="['/details-case-accepted', caso.folio]"
+                            class="h-10 px-5 bg-blue-700 text-white font-bold text-sm shadow-md hover:bg-blue-800 transition-colors">
                             Ver misión
                           </button>
                         </div>
@@ -530,7 +521,7 @@
                   <button
                     type="button"
                     routerLink="/accepted-cases"
-                    class="h-11 px-5 border border-emerald-600 text-emerald-700 font-bold shadow-md hover:bg-emerald-50 transition-colors">
+                    class="h-11 px-5 border border-blue-700 text-blue-700 font-bold shadow-md hover:bg-blue-50 transition-colors">
                     Ver todos los aceptados
                   </button>
                 </div>
@@ -545,29 +536,29 @@
 
               @if (usuario.seguimientosRecientes.length === 0) {
                 <div class="py-12 text-center flex flex-col items-center">
-                  <div class="w-16 h-16 bg-violet-50 text-violet-700 border border-violet-100 grid place-items-center mb-4">
-                    <span class="material-symbols-outlined text-4xl">timeline</span>
+                  <div class="w-16 h-16 bg-emerald-50 text-emerald-700 border border-emerald-100 grid place-items-center mb-4">
+                    <span class="material-symbols-outlined text-4xl">verified</span>
                   </div>
 
                   <h3 class="font-bold text-slate-900">
-                    Aún no tienes seguimientos recientes
+                    Aún no tienes casos resueltos
                   </h3>
 
                   <p class="text-sm text-slate-500 mt-2 max-w-md">
-                    Cuando actualices un caso o registres avances, aparecerán aquí tus últimos seguimientos.
+                    Cuando cierres un rescate con evidencia, aparecerá aquí como caso resuelto.
                   </p>
 
                   <button
                     type="button"
                     routerLink="/accepted-cases"
-                    class="mt-5 h-11 px-5 bg-violet-600 text-white font-bold shadow-md hover:bg-violet-700 transition-colors">
+                    class="mt-5 h-11 px-5 bg-emerald-600 text-white font-bold shadow-md hover:bg-emerald-700 transition-colors">
                     Ver mis casos
                   </button>
                 </div>
               } @else {
                 <div class="grid grid-cols-1 gap-4">
                   @for (seguimiento of usuario.seguimientosRecientes; track seguimiento.id) {
-                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-violet-200 transition-colors">
+                    <article class="group border border-slate-200 bg-white shadow-md overflow-hidden hover:border-emerald-200 transition-colors">
 
                       <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto]">
 
@@ -578,17 +569,17 @@
                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
 
                           <div class="absolute top-3 left-3">
-                            <span class="inline-flex items-center gap-1.5 bg-white text-violet-700 border border-violet-100 px-2.5 py-1 text-xs font-bold shadow-sm">
-                              <span class="material-symbols-outlined text-[15px]">timeline</span>
-                              Seguimiento
+                            <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 border border-emerald-100 px-2.5 py-1 text-xs font-bold shadow-sm">
+                              <span class="material-symbols-outlined text-[15px]">verified</span>
+                              Resuelto
                             </span>
                           </div>
                         </div>
 
                         <div class="p-5 flex flex-col justify-center">
                           <div class="flex flex-wrap items-center gap-2 mb-3">
-                            <span class="text-xs font-bold uppercase bg-violet-50 text-violet-700 border border-violet-100 px-2.5 py-1">
-                              Seguimiento
+                            <span class="text-xs font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-100 px-2.5 py-1">
+                              Resuelto
                             </span>
 
                             <span class="text-xs font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1">
@@ -609,7 +600,7 @@
                           </p>
 
                           <p class="text-xs text-slate-500 mt-3 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[16px] text-violet-700">location_on</span>
+                            <span class="material-symbols-outlined text-[16px] text-emerald-700">location_on</span>
                             {{ seguimiento.lugar }}
                           </p>
                         </div>
@@ -617,9 +608,9 @@
                         <div class="p-5 flex md:items-center md:justify-center border-t md:border-t-0 md:border-l border-slate-100">
                           <button
                             type="button"
-                            [routerLink]="['/progress-case', seguimiento.id]"
-                            class="h-10 px-5 bg-violet-600 text-white font-bold text-sm shadow-md hover:bg-violet-700 transition-colors">
-                            Ver avance
+                            [routerLink]="['/cronology-case', seguimiento.folio]"
+                            class="h-10 px-5 bg-emerald-600 text-white font-bold text-sm shadow-md hover:bg-emerald-700 transition-colors">
+                            Ver expediente
                           </button>
                         </div>
 
@@ -638,7 +629,9 @@
       </main>
     }
 
-    <app-footer-web class="relative z-20 mt-auto"></app-footer-web>
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
 
   </div>
 </ion-content>

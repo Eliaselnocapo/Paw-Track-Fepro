@@ -6,8 +6,9 @@ import { IonContent } from '@ionic/angular/standalone';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
-import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
+import { ReportService, IncidenciaResponse, EntradaHistorial } from '../../../../core/services/report.service';
 import { environment } from 'src/environments/environment';
+declare let L: any;
 
 @Component({
   selector: 'app-view-follow-up',
@@ -24,6 +25,7 @@ import { environment } from 'src/environments/environment';
 })
 export class ViewFollowUpPage implements OnInit {
 
+  private mapaFinal: any = null;
   incidencia: IncidenciaResponse | null = null;
   seguimiento: any = null;   // respuesta de seguimientoPorFolio (estado, rescatista, etc.)
 
@@ -32,6 +34,7 @@ export class ViewFollowUpPage implements OnInit {
 
   pasos = ['En camino', 'En sitio', 'Rescatado'];
   pasoExpandido: number | null = null;
+  historial: EntradaHistorial[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -47,34 +50,39 @@ export class ViewFollowUpPage implements OnInit {
   // Carga: incidencia (ficha) + seguimiento (estado)
   // ─────────────────────────────────────────
 
-  cargar(): void {
-    const folio = this.route.snapshot.paramMap.get('folio');
+cargar(): void {
+  const folio = this.route.snapshot.paramMap.get('folio');
 
-    if (!folio) {
-      this.errorCarga = 'No se encontró el folio del caso.';
-      this.cargando = false;
-      return;
-    }
-
-    this.cargando = true;
-    this.errorCarga = null;
-
-    this.reportService.obtenerReportePorFolio(folio).subscribe({
-      next: (inc) => {
-        this.incidencia = inc;
-
-        // Seguimiento público (estado, si tiene rescatista). Si falla, no rompe.
-        this.reportService.seguimientoPorFolio(folio).subscribe({
-          next: (seg) => { this.seguimiento = seg; this.cargando = false; },
-          error: () => { this.cargando = false; },
-        });
-      },
-      error: () => {
-        this.errorCarga = 'No se pudo cargar el seguimiento del caso.';
-        this.cargando = false;
-      },
-    });
+  if (!folio) {
+    this.errorCarga = 'No se encontró el folio del caso.';
+    this.cargando = false;
+    return;
   }
+
+  this.cargando = true;
+  this.errorCarga = null;
+
+  this.reportService.obtenerReportePorFolio(folio).subscribe({
+    next: (inc) => {
+      this.incidencia = inc;
+
+      this.reportService.seguimientoPorFolio(folio).subscribe({
+        next: (seg) => { this.seguimiento = seg; this.cargando = false; },
+        error: () => { this.cargando = false; },
+      });
+    },
+    error: () => {
+      this.errorCarga = 'No se pudo cargar el seguimiento del caso.';
+      this.cargando = false;
+    },
+  });
+
+  // Historial de avances del voluntario (endpoint público)
+  this.reportService.seguimientoHistorialPorFolio(folio).subscribe({
+    next: (resp) => { this.historial = resp.historial || []; this.initMapaFinal(); },
+    error: () => { this.historial = []; },
+  });
+}
 
   // ─────────────────────────────────────────
   // Estado del caso
@@ -82,6 +90,13 @@ export class ViewFollowUpPage implements OnInit {
 
   get estado(): string {
     return this.incidencia?.estado || 'PENDIENTE';
+  }
+  get estadoIcono(): string {
+    switch (this.estado) {
+      case 'CERRADO':      return 'verified';
+      case 'ATENDIENDOSE': return 'directions_car';
+      default:             return 'hourglass_top';
+    }
   }
 
   get estadoLegible(): string {
@@ -109,10 +124,53 @@ export class ViewFollowUpPage implements OnInit {
     return this.incidencia?.rescatista_info?.nombre || 'Un voluntario';
   }
 
+  get lineaTiempo(): { estado: string; timestamp: string; nota?: string; esInicio?: boolean }[] {
+    const items: { estado: string; timestamp: string; nota?: string; esInicio?: boolean }[] = [];
+
+    // Primer punto: reporte creado
+    const creado = (this.seguimiento as any)?.created_at || (this.incidencia as any)?.created_at;
+    if (creado) {
+      items.push({ estado: 'Reporte creado', timestamp: creado, esInicio: true });
+    }
+
+    // Avances del voluntario
+    for (const h of this.historial) {
+      items.push({ estado: this.estadoLegibleHist(h.estado), timestamp: h.timestamp, nota: h.nota });
+    }
+    return items;
+  }
+
+  estadoLegibleHist(estado: string): string {
+    switch (estado) {
+      case 'EN_CAMINO':  return 'Voluntario en camino';
+      case 'EN_SITIO':   return 'Voluntario en sitio';
+      case 'COMPLETADO': return 'Rescate completado';
+      case 'CANCELADO':  return 'Rescate cancelado';
+      default:           return estado;
+    }
+  }
+
+
+  get estaCerrado(): boolean {
+    return this.estado === 'CERRADO';
+  }
+
+  // Ubicacion final del rescate (de la entrada COMPLETADO del historial)
+  get ubicacionFinal(): { lat: number; lng: number } | null {
+    const cierre = this.historial.find(h => h.estado === 'COMPLETADO');
+    const ubi = (cierre as any)?.ubicacion_cierre;
+    if (ubi && ubi.lat != null && ubi.lng != null) {
+      return { lat: ubi.lat, lng: ubi.lng };
+    }
+    return null;
+  }
+
+  verCronologia(): void {
+    this.router.navigate(['/cronology-case', this.incidencia?.folio]);
+  }
   // ─────────────────────────────────────────
   // Progreso (según estado de la incidencia)
   // ─────────────────────────────────────────
-
   get pasoActualIndex(): number {
     if (this.estado === 'CERRADO') return 2;
     if (this.estado === 'ATENDIENDOSE') return 1;
@@ -136,7 +194,7 @@ export class ViewFollowUpPage implements OnInit {
   // ─────────────────────────────────────────
 
   get evaluacionItems(): { label: string; valor: string }[] {
-    const raw: string = this.incidencia?.caracteristicas?.trim() || '';
+    const raw: string = this.incidencia?.ficha_voluntario?.trim() || '';
     if (!raw) return [];
     return raw.split('|')
       .map(p => p.trim())
@@ -149,7 +207,7 @@ export class ViewFollowUpPage implements OnInit {
   }
 
   get notasClinicas(): string {
-    const raw: string = this.incidencia?.caracteristicas || '';
+    const raw: string = this.incidencia?.ficha_voluntario || '';
     const parte = raw.split('|').map(p => p.trim()).find(p => p.toLowerCase().startsWith('notas clínicas'));
     return parte ? parte.split(':').slice(1).join(':').trim() : '';
   }
@@ -180,5 +238,34 @@ export class ViewFollowUpPage implements OnInit {
 
   volver(): void {
     this.router.navigate(['/dashboard/reporter']);
+  }
+
+  private initMapaFinal(): void {
+    const ubi = this.ubicacionFinal;
+    if (this.mapaFinal || !ubi) return;
+
+    setTimeout(() => {
+      const el = document.getElementById('mapa-final');
+      if (!el || !ubi) return;
+
+      this.mapaFinal = L.map('mapa-final', {
+        zoomControl: true,
+        attributionControl: false,
+      }).setView([ubi.lat, ubi.lng], 15);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        maxZoom: 19,
+      }).addTo(this.mapaFinal);
+
+      const icono = L.divIcon({
+        className: 'pin-final',
+        html: '<div class="pin-final-inner"><span class="material-symbols-outlined">pets</span></div>',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+      });
+
+      L.marker([ubi.lat, ubi.lng], { icon: icono }).addTo(this.mapaFinal);
+    }, 150);
   }
 }

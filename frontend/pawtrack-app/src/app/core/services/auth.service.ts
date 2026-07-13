@@ -10,6 +10,9 @@ export interface Usuario {
   first_name: string;
   last_name: string;
   roles: string[];
+  foto_perfil?: string | null;
+  telefono?: string | null;
+  ubicacion?: string | null;
 }
 
 export interface AuthResponse {
@@ -22,7 +25,7 @@ export interface AuthResponse {
 export class AuthService {
   private readonly API = `${environment.apiUrl}/auth`;
 
-  private userSubject = new BehaviorSubject<Usuario | null>(null);
+  private userSubject = new BehaviorSubject<Usuario | null>(this.leerUsuarioGuardado());
   private activeRoleSubject = new BehaviorSubject<string>('');
 
   user$ = this.userSubject.asObservable();
@@ -37,7 +40,7 @@ export class AuthService {
         tap((res) => {
           localStorage.setItem('pawtrack_access', res.access);
           localStorage.setItem('pawtrack_refresh', res.refresh);
-          this.userSubject.next(res.user);
+          this.setCurrentUser(res.user);
         })
       );
   }
@@ -56,7 +59,7 @@ export class AuthService {
         tap((res) => {
           localStorage.setItem('pawtrack_access', res.access);
           localStorage.setItem('pawtrack_refresh', res.refresh);
-          this.userSubject.next(res.user);
+          this.setCurrentUser(res.user);
         })
       );
   }
@@ -67,7 +70,7 @@ export class AuthService {
     localStorage.removeItem('pawtrack_access');
     localStorage.removeItem('pawtrack_refresh');
 
-    this.userSubject.next(null);
+    this.limpiarUsuario();
     this.activeRoleSubject.next('');
 
     this.router.navigate(['/home']);
@@ -96,7 +99,24 @@ export class AuthService {
         { roles: ['REPORTERO', 'RESCATISTA'] }
       )
       .pipe(
-        tap((usuarioActualizado) => this.userSubject.next(usuarioActualizado))
+        tap((usuarioActualizado) => this.setCurrentUser(usuarioActualizado))
       );
+  }
+  /** El usuario vive en localStorage para sobrevivir a un refresh de la página. */
+  private leerUsuarioGuardado(): Usuario | null {
+    const raw = localStorage.getItem('pawtrack_user');
+    if (!raw) return null;
+    try { return JSON.parse(raw) as Usuario; } catch { return null; }
+  }
+
+  /** Guarda/actualiza el usuario en sesión (tras login o editar perfil). */
+  setCurrentUser(usuario: Usuario): void {
+    localStorage.setItem('pawtrack_user', JSON.stringify(usuario));
+    this.userSubject.next(usuario);
+  }
+
+  private limpiarUsuario(): void {
+    localStorage.removeItem('pawtrack_user');
+    this.userSubject.next(null);
   }
 }
