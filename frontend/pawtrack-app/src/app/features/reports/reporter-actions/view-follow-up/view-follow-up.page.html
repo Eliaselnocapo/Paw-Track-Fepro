@@ -5,15 +5,19 @@
 
     <!-- FONDO DECORATIVO -->
     <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-      <div class="absolute left-[-150px] top-[100px] w-[440px] h-[440px] bg-blue-100/70 rounded-full"></div>
-      <div class="absolute right-[-130px] top-[340px] w-[380px] h-[380px] bg-emerald-100/60 rounded-full"></div>
-      <div class="absolute right-[14%] top-[160px] w-[80px] h-[80px] bg-amber-100/70 rotate-45"></div>
-      <div class="absolute left-[9%] bottom-[150px] w-[170px] h-[170px] bg-teal-100/55 rotate-[12deg]"></div>
-      <div class="absolute right-[30%] top-[36%] w-5 h-5 bg-emerald-300/60 rotate-45"></div>
-      <div class="absolute left-[24%] bottom-[26%] w-4 h-4 bg-blue-300/60 -rotate-12"></div>
-      <div class="absolute right-[8%] bottom-[30%] w-[120px] h-[120px] rounded-full border-[9px] border-blue-200/35"></div>
-      <div class="absolute top-[22%] left-[10%] w-[150px] h-[12px] bg-emerald-100/70"></div>
-      <div class="absolute top-[26%] left-[13%] w-[110px] h-[12px] bg-teal-100/70"></div>
+      <div class="absolute left-[-150px] top-[120px] w-[440px] h-[440px] bg-blue-100/60 rounded-full"></div>
+      <div class="absolute right-[-130px] top-[340px] w-[380px] h-[380px] bg-emerald-100/55 rounded-full"></div>
+      <div class="absolute left-[9%] bottom-[130px] w-[170px] h-[170px] bg-teal-100/50 rotate-[12deg]"></div>
+      <div class="absolute top-[17%] left-[5%]">
+        <span class="absolute w-4 h-4 rounded-full bg-blue-300/60" style="top:0; left:0;"></span>
+        <span class="absolute w-2.5 h-2.5 rounded-full bg-cyan-300/60" style="top:16px; left:22px;"></span>
+        <span class="absolute w-5 h-5 rounded-full bg-indigo-300/50" style="top:34px; left:6px;"></span>
+      </div>
+      <div class="absolute top-[52%] right-[6%]">
+        <span class="absolute w-3 h-3 rounded-full bg-emerald-300/60" style="top:0; left:12px;"></span>
+        <span class="absolute w-5 h-5 rounded-full bg-teal-300/50" style="top:16px; left:0;"></span>
+        <span class="absolute w-2.5 h-2.5 rounded-full bg-emerald-400/60" style="top:40px; left:24px;"></span>
+      </div>
     </div>
 
     @if (cargando) {
@@ -24,224 +28,354 @@
       <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
         <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
         <p class="text-slate-600 text-center">{{ errorCarga }}</p>
-        <button type="button" (click)="volver()" class="h-11 px-5 rounded bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md">
+        <button type="button" (click)="volver()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md">
           Volver al dashboard
         </button>
       </main>
     } @else if (incidencia) {
 
-      <main class="flex-1 w-full max-w-[1120px] mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10">
+      <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10">
 
         <!-- VOLVER -->
-        <button type="button" (click)="volver()" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
-          <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        <button type="button" (click)="volver()"
+          class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold shadow-sm hover:bg-slate-50 hover:border-blue-300 hover:text-blue-700 transition-all active:scale-95">
+          <span class="material-symbols-outlined text-[19px]">arrow_back</span>
           Volver a mis reportes
         </button>
 
-        <!-- HERO con overlay -->
-        <section class="relative overflow-hidden rounded-lg border border-slate-300 shadow-md mb-8 bg-slate-900">
-          <div class="relative min-h-[280px] md:min-h-[320px]">
-            <img [src]="imagenUrl(incidencia.imagen)" [alt]="titulo" class="absolute inset-0 w-full h-full object-cover opacity-70">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/40 to-slate-900/20"></div>
-
-            <div class="relative z-10 min-h-[280px] md:min-h-[320px] flex flex-col justify-end p-6 md:p-8">
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-white/15 backdrop-blur-sm text-white text-xs font-bold uppercase mb-4 w-fit border border-white/20">
-                <span class="material-symbols-outlined text-[17px]">visibility</span>
-                Seguimiento del caso
+        <!-- BANNER RESCATADO (solo si cerrado) -->
+        @if (estaCerrado) {
+          <div class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md">
+            <span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[130px] opacity-15 pointer-events-none">verified</span>
+            <div class="relative z-10 p-6 flex flex-col md:flex-row md:items-center gap-4 md:justify-between">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-white/20 grid place-items-center shrink-0">
+                  <span class="material-symbols-outlined text-[26px]">celebration</span>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg">Este caso fue resuelto con éxito</h3>
+                  <p class="text-sm text-emerald-50 mt-0.5">El animal fue rescatado y puesto a salvo. Gracias por reportar.</p>
+                </div>
               </div>
+              <button type="button" (click)="verCronologia()"
+                class="h-12 px-6 bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Ver cronología completa
+              </button>
+            </div>
+          </div>
+        }
 
-              <h1 class="text-3xl md:text-4xl font-bold text-white leading-tight drop-shadow mb-3">{{ titulo }}</h1>
+        <!-- ===================== HEADER RASTREO CON FOTO ===================== -->
+        <section class="bg-white border border-slate-300 shadow-md overflow-hidden mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-3">
+            <div class="md:col-span-2 relative overflow-hidden min-h-[280px] flex">
+              <img [src]="imagenUrl(incidencia.imagen)" [alt]="titulo" class="absolute inset-0 w-full h-full object-cover">
+              <div class="absolute inset-0 bg-slate-950/40"></div>
+              <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/55 to-slate-900/30"></div>
 
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold border shadow-sm" [ngClass]="estadoClase">
-                  <span class="material-symbols-outlined text-[16px]">flag</span>
+              <div class="relative z-10 p-6 md:p-8 flex flex-col justify-center">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/90 text-blue-700 border border-white/70 text-[11px] font-bold uppercase tracking-wide mb-3 w-fit shadow-sm">
+                  <span class="material-symbols-outlined text-[14px]">visibility</span>
+                  Seguimiento del caso
+                </div>
+                <h1 class="text-2xl md:text-4xl font-bold text-white leading-tight drop-shadow-sm">{{ titulo }}</h1>
+                <p class="text-sm text-white/80 font-semibold flex items-center gap-1.5 mt-2">
+                  <span class="material-symbols-outlined text-[16px]">confirmation_number</span>{{ incidencia.folio }}
+                </p>
+                <p class="text-sm text-white/90 leading-relaxed mt-4 max-w-lg line-clamp-3 drop-shadow-sm">{{ notasReportante }}</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-white/90 text-slate-700 border border-white/80 shadow-sm">
+                    <span class="material-symbols-outlined text-[15px]">pets</span>{{ especie }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-white/90 text-slate-700 border border-white/80 shadow-sm">
+                    <span class="material-symbols-outlined text-[15px]">straighten</span>{{ tamano }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-white/90 text-slate-700 border border-white/80 shadow-sm">
+                    <span class="material-symbols-outlined text-[15px]">healing</span>{{ condicion }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- estado semaforo -->
+            <div class="md:col-span-1 p-6 md:p-8 flex flex-col items-center justify-center text-center gap-3"
+              [ngClass]="{ 'bg-emerald-50': estado === 'CERRADO', 'bg-amber-50': estado === 'ATENDIENDOSE', 'bg-slate-50': estado === 'PENDIENTE' }">
+              <div class="w-16 h-16 rounded-full grid place-items-center shadow-sm"
+                [ngClass]="{ 'bg-emerald-500 text-white': estado === 'CERRADO', 'bg-amber-500 text-white': estado === 'ATENDIENDOSE', 'bg-slate-300 text-slate-600': estado === 'PENDIENTE' }">
+                <span class="material-symbols-outlined text-[34px]">{{ estadoIcono }}</span>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Estado actual</p>
+                <p class="text-xl font-bold"
+                  [ngClass]="{ 'text-emerald-700': estado === 'CERRADO', 'text-amber-700': estado === 'ATENDIENDOSE', 'text-slate-600': estado === 'PENDIENTE' }">
                   {{ estadoLegible }}
-                </span>
-                <span class="inline-flex items-center gap-1.5 bg-white/90 text-slate-700 border border-white/40 px-3 py-1 rounded text-xs font-bold shadow-sm">
-                  <span class="material-symbols-outlined text-[16px]">confirmation_number</span>
-                  {{ incidencia.folio }}
-                </span>
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- BANNER ¿QUIÉN LO ATIENDE? -->
-        @if (tieneRescatista) {
-          <section class="relative overflow-hidden mb-8 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md p-6">
-            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-15 pointer-events-none">volunteer_activism</span>
-            <div class="relative z-10 flex items-start gap-4">
-              <div class="w-11 h-11 rounded bg-white/20 grid place-items-center shrink-0">
-                <span class="material-symbols-outlined">volunteer_activism</span>
-              </div>
-              <div>
-                <h3 class="font-bold text-lg">Tu caso está siendo atendido</h3>
-                <p class="text-sm text-emerald-50 mt-1 leading-relaxed">
-                  <span class="font-bold">{{ rescatistaNombre }}</span> tomó este caso y está trabajando en el rescate. Sigue su avance abajo.
-                </p>
-              </div>
-            </div>
-          </section>
-        } @else {
-          <section class="mb-8 rounded-lg bg-white border border-blue-100 shadow-sm p-6 flex items-start gap-4">
-            <div class="w-11 h-11 rounded bg-blue-50 text-blue-700 grid place-items-center shrink-0">
-              <span class="material-symbols-outlined">hourglass_top</span>
-            </div>
-            <div>
-              <h3 class="font-bold text-slate-800 text-lg">Esperando a un voluntario</h3>
-              <p class="text-sm text-slate-600 mt-1 leading-relaxed">
-                Tu reporte está activo. En cuanto un voluntario lo tome, verás aquí su avance en tiempo real.
-              </p>
-            </div>
-          </section>
-        }
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-
-          <!-- COLUMNA PRINCIPAL -->
-          <section class="lg:col-span-7 flex flex-col gap-6">
-
-            <!-- PROGRESO -->
-            <article class="bg-white border border-slate-300 rounded-lg shadow-md overflow-hidden">
-              <div class="p-6 border-b border-slate-100 flex items-center gap-3">
-                <div class="w-10 h-10 rounded bg-blue-100 text-blue-700 grid place-items-center shrink-0">
-                  <span class="material-symbols-outlined">timeline</span>
+        <!-- BANNER QUIEN LO ATIENDE (solo si NO cerrado) -->
+        @if (!estaCerrado) {
+          @if (tieneRescatista) {
+            <section class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md p-6">
+              <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-15 pointer-events-none">volunteer_activism</span>
+              <div class="relative z-10 flex items-start gap-4">
+                <div class="w-11 h-11 bg-white/20 grid place-items-center shrink-0">
+                  <span class="material-symbols-outlined">volunteer_activism</span>
                 </div>
                 <div>
-                  <p class="text-xs font-bold uppercase text-blue-600">En tiempo real</p>
-                  <h3 class="font-bold text-slate-900 text-lg">Progreso del rescate</h3>
-                </div>
-              </div>
-
-              <div class="p-5">
-                <div class="relative flex flex-col">
-                  <div class="absolute left-[27px] top-7 bottom-7 w-0.5 bg-slate-100"></div>
-
-                  @for (paso of pasos; track paso; let i = $index) {
-                    <div class="relative flex items-center gap-4 py-2">
-                      <div class="relative z-10 w-11 h-11 rounded-full grid place-items-center shrink-0 shadow-sm transition-all"
-                        [ngClass]="{
-                          'bg-emerald-500 text-white': esPasoCompletado(i),
-                          'bg-blue-600 text-white ring-4 ring-blue-100': esPasoActivo(i),
-                          'bg-slate-100 text-slate-400': !esPasoCompletado(i) && !esPasoActivo(i)
-                        }">
-                        <span class="material-symbols-outlined text-[22px]">{{ esPasoCompletado(i) ? 'check' : iconoPaso(i) }}</span>
-                      </div>
-                      <div>
-                        <p class="font-bold text-sm"
-                          [ngClass]="esPasoActivo(i) || esPasoCompletado(i) ? 'text-slate-800' : 'text-slate-400'">
-                          {{ paso }}
-                        </p>
-                        @if (esPasoActivo(i)) {
-                          <p class="text-xs text-blue-600 font-semibold mt-0.5">En curso</p>
-                        } @else if (esPasoCompletado(i)) {
-                          <p class="text-xs text-emerald-600 font-semibold mt-0.5">Completado</p>
-                        }
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            </article>
-
-            <!-- EVALUACIÓN DEL VOLUNTARIO -->
-            @if (evaluacionItems.length > 0 || notasClinicas) {
-              <article class="bg-white border border-slate-300 rounded-lg shadow-md p-6">
-                <div class="flex items-center gap-3 mb-5">
-                  <div class="w-10 h-10 rounded bg-emerald-100 text-emerald-700 grid place-items-center shrink-0">
-                    <span class="material-symbols-outlined">stethoscope</span>
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold uppercase text-emerald-600">Añadido por el rescatista</p>
-                    <h2 class="text-lg font-bold text-slate-900">Evaluación del voluntario</h2>
-                  </div>
-                </div>
-
-                @if (evaluacionItems.length > 0) {
-                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-                    @for (item of evaluacionItems; track item.label) {
-                      <div class="rounded-lg border border-emerald-100 bg-emerald-50 p-3.5">
-                        <p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{{ item.label }}</p>
-                        <p class="text-sm font-bold text-slate-800 mt-1">{{ item.valor }}</p>
-                      </div>
-                    }
-                  </div>
-                }
-
-                @if (notasClinicas) {
-                  <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1.5 flex items-center gap-1">
-                      <span class="material-symbols-outlined text-[15px]">clinical_notes</span>
-                      Notas clínicas
-                    </p>
-                    <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
-                  </div>
-                }
-              </article>
-            }
-
-          </section>
-
-          <!-- ASIDE: lo que TÚ reportaste -->
-          <aside class="lg:col-span-5 flex flex-col gap-6">
-
-            <article class="bg-white border border-slate-300 rounded-lg shadow-md p-6 lg:sticky lg:top-24">
-              <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 rounded bg-blue-100 text-blue-700 grid place-items-center shrink-0">
-                  <span class="material-symbols-outlined">description</span>
-                </div>
-                <div>
-                  <p class="text-xs font-bold uppercase text-blue-600">Tu reporte original</p>
-                  <h2 class="text-lg font-bold text-slate-900">Lo que reportaste</h2>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
-                  <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Especie</p>
-                  <p class="text-sm font-bold text-slate-800 mt-1">{{ especie | titlecase }}</p>
-                </div>
-                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
-                  <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Tamaño</p>
-                  <p class="text-sm font-bold text-slate-800 mt-1">{{ tamano | titlecase }}</p>
-                </div>
-                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
-                  <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Condición</p>
-                  <p class="text-sm font-bold text-slate-800 mt-1">{{ condicion }}</p>
-                </div>
-                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3.5">
-                  <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Edad</p>
-                  <p class="text-sm font-bold text-slate-800 mt-1">{{ edad }}</p>
-                </div>
-              </div>
-
-              <div class="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
-                <p class="text-[11px] font-bold uppercase tracking-wide text-blue-600 mb-1.5">Tus notas originales</p>
-                <p class="text-sm text-slate-700 leading-relaxed">{{ notasReportante }}</p>
-              </div>
-            </article>
-
-            <!-- AVISO -->
-            <div class="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg p-6">
-              <span class="material-symbols-outlined absolute -right-3 -bottom-3 text-[100px] opacity-15 pointer-events-none">lock</span>
-              <div class="relative z-10 flex gap-3 items-start">
-                <span class="material-symbols-outlined mt-0.5">info</span>
-                <div>
-                  <h3 class="font-bold mb-1">Vista de solo seguimiento</h3>
-                  <p class="text-sm text-blue-50 leading-relaxed">
-                    Como un voluntario ya tomó tu caso, la edición pasó a él. Aquí ves cómo avanza el rescate.
+                  <h3 class="font-bold text-lg">Tu caso esta siendo atendido</h3>
+                  <p class="text-sm text-emerald-50 mt-1 leading-relaxed">
+                    <span class="font-bold">{{ rescatistaNombre }}</span> tomo este caso y esta trabajando en el rescate.
                   </p>
                 </div>
               </div>
-            </div>
+            </section>
+          } @else {
+            <section class="mb-8 bg-white border border-blue-100 shadow-sm p-6 flex items-start gap-4">
+              <div class="w-11 h-11 bg-blue-50 text-blue-700 grid place-items-center shrink-0">
+                <span class="material-symbols-outlined">hourglass_top</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800 text-lg">Esperando a un voluntario</h3>
+                <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+                  Tu reporte esta activo. En cuanto un voluntario lo tome, veras aqui su avance.
+                </p>
+              </div>
+            </section>
+          }
+        }
 
+        <!-- ===================== CUERPO 2 COLUMNAS ===================== -->
+        <!-- BANNER RESUMEN -->
+        <div class="bg-white border border-slate-300 shadow-md mb-8 grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100">
+          <div class="p-5">
+            <p class="text-[11px] font-bold uppercase text-slate-400">Estado</p>
+            <p class="text-sm font-bold mt-1"
+              [ngClass]="{ 'text-emerald-700': estado === 'CERRADO', 'text-amber-700': estado === 'ATENDIENDOSE', 'text-slate-600': estado === 'PENDIENTE' }">
+              {{ estadoLegible }}
+            </p>
+          </div>
+          <div class="p-5">
+            <p class="text-[11px] font-bold uppercase text-slate-400">Folio</p>
+            <p class="text-sm font-bold text-slate-800 mt-1">{{ incidencia.folio }}</p>
+          </div>
+          <div class="p-5">
+            <p class="text-[11px] font-bold uppercase text-slate-400">Animal</p>
+            <p class="text-sm font-bold text-slate-800 mt-1">{{ especie }}</p>
+          </div>
+          <div class="p-5">
+            <p class="text-[11px] font-bold uppercase text-slate-400">Avances</p>
+            <p class="text-sm font-bold text-slate-800 mt-1">{{ lineaTiempo.length }}</p>
+          </div>
+        </div>
+
+        <!-- GRID 2x2 ADAPTABLE (7/5) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+
+          <!-- ===== FILA 1 ===== -->
+
+          <!-- Izq: Mensajes -->
+          <article class="lg:col-span-7 bg-white border border-slate-300 shadow-md overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+              <div class="w-12 h-12 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined">forum</span>
+              </div>
+              <div>
+                <p class="text-xs font-bold uppercase text-blue-600">Novedades del rescate</p>
+                <h2 class="text-xl md:text-2xl font-bold text-slate-900">Mensajes del voluntario</h2>
+              </div>
+            </div>
+            <div class="p-6">
+              @if (lineaTiempo.length > 0) {
+                <div class="relative pl-7 flex flex-col gap-6">
+                  <div class="absolute left-[10px] top-2 bottom-2 w-px bg-slate-200"></div>
+                  @for (item of lineaTiempo; track $index) {
+                    <div class="relative">
+                      <div class="absolute -left-7 top-1 w-5 h-5 rounded-full border-4 border-white shadow"
+                        [ngClass]="item.esInicio ? 'bg-slate-400' : 'bg-blue-600'"></div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-bold text-slate-900">{{ item.estado }}</span>
+                        <span class="text-xs text-slate-400">{{ item.timestamp | date:'dd MMM, HH:mm' }}</span>
+                      </div>
+                      @if (item.nota) {
+                        <p class="text-sm text-slate-600 mt-1.5 bg-slate-50 border border-slate-100 p-3">{{ item.nota }}</p>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="flex flex-col items-center text-center py-8">
+                  <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">chat_bubble</span>
+                  <h3 class="font-bold text-slate-700">Aún no hay novedades</h3>
+                  <p class="text-sm text-slate-500 mt-1 max-w-sm">Cuando el voluntario registre avances, aparecerán aquí.</p>
+                </div>
+              }
+            </div>
+          </article>
+
+          <!-- Der: Mapa (si cerrado) / si no, Tu reporte sube aqui -->
+          @if (ubicacionFinal) {
+            <article class="lg:col-span-5 bg-white border border-emerald-300 shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-100 bg-emerald-50 flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-600 text-white grid place-items-center shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">where_to_vote</span>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-emerald-600">Destino del rescate</p>
+                  <h3 class="font-bold text-slate-800">Ubicación final del animal</h3>
+                </div>
+              </div>
+              <div class="p-5">
+                <div id="mapa-final" class="w-full h-56 border border-slate-200 mb-3 bg-slate-100"></div>
+                <div class="flex items-center gap-2 border border-emerald-100 bg-emerald-50 p-3">
+                  <span class="material-symbols-outlined text-[18px] text-emerald-600">pin_drop</span>
+                  <p class="text-sm font-semibold text-slate-700">
+                    {{ ubicacionFinal.lat | number:'1.5-5' }}, {{ ubicacionFinal.lng | number:'1.5-5' }}
+                  </p>
+                </div>
+              </div>
+            </article>
+          } @else {
+            <!-- Sin mapa: aqui va Tu reporte para no dejar hueco -->
+            <article class="lg:col-span-5 bg-white border border-slate-300 shadow-md p-6">
+              <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+                <div class="w-11 h-11 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined text-[20px]">description</span>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-blue-600">Tu reporte original</p>
+                  <h3 class="text-lg font-bold text-slate-900">Lo que reportaste</h3>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-[11px] font-bold uppercase text-slate-500">Especie</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1">{{ especie }}</p>
+                </div>
+                <div class="border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-[11px] font-bold uppercase text-slate-500">Tamano</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1">{{ tamano }}</p>
+                </div>
+                <div class="border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-[11px] font-bold uppercase text-slate-500">Condicion</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1">{{ condicion }}</p>
+                </div>
+                <div class="border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-[11px] font-bold uppercase text-slate-500">Edad</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1">{{ edad }}</p>
+                </div>
+              </div>
+              <div class="border border-blue-100 bg-blue-50/60 p-4">
+                <p class="text-[11px] font-bold uppercase text-blue-600 mb-1.5">Tus notas originales</p>
+                <p class="text-sm text-slate-700 leading-relaxed">{{ notasReportante }}</p>
+              </div>
+            </article>
+          }
+
+          <!-- ===== FILA 2 ===== -->
+
+          <!-- Izq: Evaluacion del voluntario -->
+          <article class="lg:col-span-7 bg-white border border-slate-300 shadow-md p-6 md:p-8">
+            <div class="flex items-center gap-4 pb-5 mb-6 border-b border-slate-100">
+              <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined">stethoscope</span>
+              </div>
+              <div>
+                <p class="text-xs font-bold uppercase text-emerald-600">Anadido por el rescatista</p>
+                <h2 class="text-xl md:text-2xl font-bold text-slate-900">Evaluacion del voluntario</h2>
+              </div>
+            </div>
+            @if (evaluacionItems.length > 0 || notasClinicas) {
+              @if (evaluacionItems.length > 0) {
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+                  @for (item of evaluacionItems; track item.label) {
+                    <div class="border border-emerald-100 bg-emerald-50 p-3.5">
+                      <p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{{ item.label }}</p>
+                      <p class="text-sm font-bold text-slate-800 mt-1">{{ item.valor }}</p>
+                    </div>
+                  }
+                </div>
+              }
+              @if (notasClinicas) {
+                <div class="border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1.5 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px]">clinical_notes</span>Notas clinicas
+                  </p>
+                  <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
+                </div>
+              }
+            } @else {
+              <div class="flex flex-col items-center text-center py-6">
+                <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">pending</span>
+                <p class="text-sm text-slate-500">El voluntario aún no registra la evaluación del animal.</p>
+              </div>
+            }
+          </article>
+
+          <!-- Der: Tu reporte (si hay mapa arriba) / Aviso -->
+          <aside class="lg:col-span-5 flex flex-col gap-6">
+            @if (ubicacionFinal) {
+              <!-- Tu reporte (porque el mapa ocupo la fila 1) -->
+              <article class="bg-white border border-slate-300 shadow-md p-6">
+                <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+                  <div class="w-11 h-11 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">description</span>
+                  </div>
+                  <div>
+                    <p class="text-[11px] font-bold uppercase text-blue-600">Tu reporte original</p>
+                    <h3 class="text-lg font-bold text-slate-900">Lo que reportaste</h3>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <div class="border border-slate-200 bg-slate-50 p-3">
+                    <p class="text-[11px] font-bold uppercase text-slate-500">Especie</p>
+                    <p class="text-sm font-bold text-slate-800 mt-1">{{ especie }}</p>
+                  </div>
+                  <div class="border border-slate-200 bg-slate-50 p-3">
+                    <p class="text-[11px] font-bold uppercase text-slate-500">Tamano</p>
+                    <p class="text-sm font-bold text-slate-800 mt-1">{{ tamano }}</p>
+                  </div>
+                  <div class="border border-slate-200 bg-slate-50 p-3">
+                    <p class="text-[11px] font-bold uppercase text-slate-500">Condicion</p>
+                    <p class="text-sm font-bold text-slate-800 mt-1">{{ condicion }}</p>
+                  </div>
+                  <div class="border border-slate-200 bg-slate-50 p-3">
+                    <p class="text-[11px] font-bold uppercase text-slate-500">Edad</p>
+                    <p class="text-sm font-bold text-slate-800 mt-1">{{ edad }}</p>
+                  </div>
+                </div>
+                <div class="border border-blue-100 bg-blue-50/60 p-4">
+                  <p class="text-[11px] font-bold uppercase text-blue-600 mb-1.5">Tus notas originales</p>
+                  <p class="text-sm text-slate-700 leading-relaxed">{{ notasReportante }}</p>
+                </div>
+              </article>
+            }
+
+            @if (!estaCerrado) {
+              <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg p-6">
+                <span class="material-symbols-outlined absolute -right-3 -bottom-3 text-[100px] opacity-15 pointer-events-none">lock</span>
+                <div class="relative z-10 flex gap-3 items-start">
+                  <span class="material-symbols-outlined mt-0.5">info</span>
+                  <div>
+                    <h3 class="font-bold mb-1">Vista de solo seguimiento</h3>
+                    <p class="text-sm text-blue-50 leading-relaxed">
+                      Como un voluntario ya tomo tu caso, la edicion paso a el. Aqui ves como avanza el rescate.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            }
           </aside>
 
         </div>
+
       </main>
     }
 
-    <footer class="relative z-20 bg-white mt-auto">
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
       <app-footer-web></app-footer-web>
     </footer>
 

@@ -120,4 +120,13 @@ export const routes: Routes = [
   path: 'view-follow-up/:folio',
   loadComponent: () => import('./features/reports/reporter-actions/view-follow-up/view-follow-up.page').then(m => m.ViewFollowUpPage)
   },
+  {
+  path: 'rescue-complete/:folio',
+  loadComponent: () => import('./features/reports/volunteer-actions/rescue-complete/rescue-complete.page').then(m => m.RescueCompletePage)
+  },
+  {
+  path: 'edit-profile',
+  loadComponent: () =>
+    import('./features/profile/edit-profile/edit-profile.page').then(m => m.EditProfilePage),
+  }
 ];

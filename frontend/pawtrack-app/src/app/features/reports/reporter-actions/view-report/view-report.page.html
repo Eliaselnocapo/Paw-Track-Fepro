@@ -130,13 +130,35 @@
             <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <article class="bg-white border border-slate-200 shadow-md p-5">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Animal</p>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 mb-4">
                   <div class="w-12 h-12 bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
                     <span class="material-symbols-outlined text-[30px]">pets</span>
                   </div>
                   <div>
                     <p class="text-lg font-bold text-slate-900 capitalize">{{ reporte.tipo_animal || 'Sin especificar' }}</p>
                     <p class="text-sm text-slate-500 capitalize">Tamaño {{ reporte.tamano_animal || '—' }}</p>
+                  </div>
+                </div>
+
+                <!-- Color y raza -->
+                <div class="flex flex-col gap-2.5 pt-4 border-t border-slate-100">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold uppercase text-slate-400 flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[15px]">palette</span>
+                      Color
+                    </span>
+                    <span class="text-sm font-semibold text-slate-800 text-right capitalize">
+                      {{ reporte.color_animal?.trim() || 'No especificado' }}
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold uppercase text-slate-400 flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[15px]">sell</span>
+                      Raza
+                    </span>
+                    <span class="text-sm font-semibold text-slate-800 text-right capitalize">
+                      {{ reporte.raza_animal?.trim() || 'No identificada' }}
+                    </span>
                   </div>
                 </div>
               </article>
@@ -151,7 +173,56 @@
                     <p class="text-lg font-bold text-red-600 uppercase">
                       {{ reporte.condicion_animal || 'Condición original no especificada' }}
                     </p>
-                    <div class="text-sm text-slate-600 leading-relaxed mt-2 whitespace-pre-line bg-slate-50 p-3 border border-slate-100 rounded-sm">
+
+                    <!-- Como reacciono: aviso de seguridad para el rescatista -->
+                    @if (reporte.agresividad_animal?.trim()) {
+                      <div class="mt-3 flex items-start gap-2 p-3 border"
+                        [ngClass]="{
+                          'bg-red-50 border-red-200':         reporte.agresividad_animal === 'agresivo',
+                          'bg-amber-50 border-amber-200':     reporte.agresividad_animal === 'asustadizo',
+                          'bg-emerald-50 border-emerald-200': reporte.agresividad_animal === 'docil',
+                          'bg-slate-50 border-slate-200':     reporte.agresividad_animal === 'no_evaluable'
+                        }">
+                        <span class="material-symbols-outlined text-[20px] shrink-0"
+                          [ngClass]="{
+                            'text-red-600':     reporte.agresividad_animal === 'agresivo',
+                            'text-amber-600':   reporte.agresividad_animal === 'asustadizo',
+                            'text-emerald-600': reporte.agresividad_animal === 'docil',
+                            'text-slate-500':   reporte.agresividad_animal === 'no_evaluable'
+                          }">
+                          {{ reporte.agresividad_animal === 'agresivo' ? 'warning'
+                             : reporte.agresividad_animal === 'asustadizo' ? 'directions_run'
+                             : reporte.agresividad_animal === 'docil' ? 'volunteer_activism' : 'help' }}
+                        </span>
+                        <div>
+                          <p class="text-sm font-bold"
+                            [ngClass]="{
+                              'text-red-800':     reporte.agresividad_animal === 'agresivo',
+                              'text-amber-800':   reporte.agresividad_animal === 'asustadizo',
+                              'text-emerald-800': reporte.agresividad_animal === 'docil',
+                              'text-slate-700':   reporte.agresividad_animal === 'no_evaluable'
+                            }">
+                            {{ reporte.agresividad_animal === 'agresivo' ? 'Gruñó o intentó morder'
+                               : reporte.agresividad_animal === 'asustadizo' ? 'Se alejó o huyó'
+                               : reporte.agresividad_animal === 'docil' ? 'Se dejó acercar' : 'No se pudo evaluar' }}
+                          </p>
+                          <p class="text-xs mt-0.5"
+                            [ngClass]="{
+                              'text-red-700':     reporte.agresividad_animal === 'agresivo',
+                              'text-amber-700':   reporte.agresividad_animal === 'asustadizo',
+                              'text-emerald-700': reporte.agresividad_animal === 'docil',
+                              'text-slate-500':   reporte.agresividad_animal === 'no_evaluable'
+                            }">
+                            {{ reporte.agresividad_animal === 'agresivo' ? 'Acércate con equipo de contención.'
+                               : reporte.agresividad_animal === 'asustadizo' ? 'Evita movimientos bruscos al acercarte.'
+                               : reporte.agresividad_animal === 'docil' ? 'No mostró rechazo al contacto.'
+                               : 'El reportante lo vio de lejos.' }}
+                          </p>
+                        </div>
+                      </div>
+                    }
+
+                    <div class="text-sm text-slate-600 leading-relaxed mt-3 whitespace-pre-line bg-slate-50 p-3 border border-slate-100 rounded-sm">
                       {{ reporte.caracteristicas || reporte.notas_animal || 'Sin observaciones de seguimiento adicionales.' }}
                     </div>
                   </div>
@@ -212,8 +283,16 @@
                 <div id="mapa-reporte-web" class="w-full h-full z-10"></div>
               </div>
               <div class="p-5">
-                <p class="text-sm font-bold text-slate-900">Lat {{ reporte.lat_out | number:'1.4-4' }}, Lng {{ reporte.lng_out | number:'1.4-4' }}</p>
-                <p class="text-xs text-slate-500 mt-1">Coordenadas GPS registradas en el reporte.</p>
+                <p class="text-sm font-bold text-slate-900 flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-red-500 mt-0.5">pin_drop</span>
+                  <span>
+                    {{ reporte.direccion?.trim()
+                        || ((reporte.lat_out | number:'1.5-5') + ', ' + (reporte.lng_out | number:'1.5-5')) }}
+                  </span>
+                </p>
+                <p class="text-xs text-slate-400 mt-1.5 font-mono">
+                  {{ reporte.lat_out | number:'1.6-6' }}, {{ reporte.lng_out | number:'1.6-6' }}
+                </p>
               </div>
             </section>
 
@@ -264,6 +343,8 @@
       </main>
     }
 
-    <app-footer-web></app-footer-web>
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
   </div>
 </ion-content>

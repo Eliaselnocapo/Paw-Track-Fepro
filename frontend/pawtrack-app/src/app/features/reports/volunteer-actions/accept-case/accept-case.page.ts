@@ -59,6 +59,9 @@ export class AcceptCasePage implements OnInit {
 
   confirmando = false;
   errorConfirmacion: string | null = null;
+  errorEsDefinitivo = false;
+  modalErrorAbierto = false;
+  
 
   constructor(
     private route:         ActivatedRoute,
@@ -138,11 +141,17 @@ export class AcceptCasePage implements OnInit {
         this.confirmando = false;
         this.navegarAExito();
       },
-      error: () => {
+      error: (err) => {
         this.confirmando = false;
-        this.errorConfirmacion = 'No se pudo aceptar el caso. Intenta de nuevo.';
+        this.errorConfirmacion = this.mensajeError(err);
+        this.errorEsDefinitivo = [400, 403, 404, 409].includes(err?.status);
+        this.modalErrorAbierto = true;
       },
     });
+    
+  }
+  cerrarModalError(): void {
+    this.modalErrorAbierto = false;
   }
 
   private navegarAExito(): void {
@@ -153,6 +162,32 @@ export class AcceptCasePage implements OnInit {
       },
     });
   }
+  /**
+   * Traduce el error del back a algo que el voluntario entienda.
+   * Contrato de AceptarRescateView:
+   *   403 → no tiene rol RESCATISTA
+   *   404 → folio inexistente
+   *   400 → la incidencia ya no está PENDIENTE
+   *   409 → otro rescatista la tomó primero (condición de carrera)
+   */
+  private mensajeError(err: any): string {
+    switch (err?.status) {
+      case 401:
+        return 'Tu sesión expiró. Vuelve a iniciar sesión para aceptar el caso.';
+      case 403:
+        return 'Tu cuenta no tiene el rol de rescatista, así que no puede tomar misiones. Actívalo desde tu perfil.';
+      case 404:
+        return 'Este caso ya no existe. Es posible que el reportante lo haya eliminado.';
+      case 400:
+        return 'Este caso ya no está disponible: alguien más lo está atendiendo.';
+      case 409:
+        return 'Otro voluntario tomó este caso antes que tú. Busca otro en la lista de casos disponibles.';
+      case 0:
+        return 'No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.';
+      default:
+        return err?.error?.detail || 'No se pudo aceptar el caso. Intenta de nuevo.';
+    }
+  }
 
   cancelar(): void {
     this.router.navigate(
@@ -161,7 +196,7 @@ export class AcceptCasePage implements OnInit {
   }
 
   volverCasos(): void {
-    this.router.navigate(['/volunteer']);
+    this.router.navigate(['/dashboard/volunteer']);
   }
 
   // ─────────────────────────────────────────
@@ -174,9 +209,10 @@ export class AcceptCasePage implements OnInit {
       folio:            i.folio || `RPT-${i.id}`,
       titulo:           this.obtenerTitulo(i),
       descripcion:      i.notas_animal?.trim() || 'Sin notas adicionales registradas por el reportante.',
-      ubicacion:        i.lat_out != null && i.lng_out != null
-                          ? `Ubicación registrada: ${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
-                          : 'Ubicación no disponible',
+      ubicacion:        i.direccion?.trim()
+                                || (i.lat_out != null && i.lng_out != null
+                                      ? `${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
+                                      : 'Ubicación no disponible'),
       tiempo:           this.tiempoRelativo(i.created_at),
       tamano:           i.tamano_animal    || 'No especificado',
       condicion:        i.condicion_animal || 'No especificada',

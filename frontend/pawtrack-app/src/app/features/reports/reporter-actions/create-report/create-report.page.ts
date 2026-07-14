@@ -6,6 +6,7 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
+import { IonContent } from '@ionic/angular/standalone';
 
 declare let L: any;
 
@@ -18,6 +19,7 @@ declare let L: any;
     DecimalPipe,
     FormsModule,
     RouterLink,
+    IonContent,
     NavbarWebComponent,
     FooterWebComponent
   ],
@@ -28,6 +30,9 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   pasoActual: number = 1;
 
   tipoAnimal: string = '';
+  colorAnimal: string = '';
+  razaAnimal: string = '';
+  agresividadAnimal: string = '';
   tamanoAproximado: string = '';
   condicionesVisibles: string[] = [];
   condicionesTexto: string = 'Ninguna';
@@ -119,32 +124,43 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     this.lngActual = lng;
   }
 
-  // === GESTIÓN DE UBICACIÓN (NOMINATIM / OPENSTREETMAP) ===
+// === GESTIÓN DE UBICACIÓN (NOMINATIM / OPENSTREETMAP) ===
   buscarDireccion(direccion: string) {
     if (!direccion || direccion.trim().length < 3) return;
-
+    
     this.cargandoDireccion = true;
     const query = encodeURIComponent(direccion + ', Puebla');
-    
+
+    // /search devuelve un ARRAY con lat/lon, pero NO trae el objeto 'address'
+    // desglosado (ese solo viene de /reverse). Por eso tomamos las coordenadas
+    // y dejamos que obtenerDireccionCompleta() arme la direccion formateada.
     fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`)
       .then(response => response.json())
-      .then(data => {
-        this.cargandoDireccion = false;
-        if (data && data.length > 0) {
-          const lat = parseFloat(data[0].lat);
-          const lng = parseFloat(data[0].lon);
-          
-          this.direccionActual = data[0].display_name.split(',')[0] || direccion;
-          this.ciudadActual = 'Puebla, México'; 
-          
-          this.actualizarCoordenadas(lat, lng);
-          if (this.markerInteractive) {
-            const newLatLng = new L.LatLng(lat, lng);
-            this.markerInteractive.setLatLng(newLatLng);
-            this.mapInteractive.setView(newLatLng, 16);
-          }
+      .then(async (data) => {
+        if (!Array.isArray(data) || data.length === 0) {
+          this.cargandoDireccion = false;
           this.cdr.detectChanges();
+          return;
         }
+
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+
+        this.latActual = lat;
+        this.lngActual = lng;
+
+      // Movemos el mapa y el pin al punto encontrado
+        if (this.mapInteractive && this.markerInteractive) {
+          this.mapInteractive.setView([lat, lng], 17);
+          this.markerInteractive.setLatLng([lat, lng]);
+        }
+
+        // La direccion formateada, siempre por la misma via
+        this.direccionActual = await this.reportService.obtenerDireccionCompleta(lat, lng);
+        this.ciudadActual = data[0].display_name?.split(',').slice(-3).join(',').trim() || 'Puebla, México';
+
+        this.cargandoDireccion = false;
+        this.cdr.detectChanges();
       })
       .catch(() => {
         this.cargandoDireccion = false;
@@ -154,29 +170,13 @@ export class CreateReportPage implements OnInit, AfterViewInit {
 
   obtenerDireccionDesdeCoordenadas(lat: number, lng: number) {
     this.cargandoDireccion = true;
-    
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
-      .then(response => response.json())
-      .then(data => {
+
+    // Usamos el metodo del service (formato completo: calle, colonia, CP,
+    // ciudad, estado, pais) en vez de armar la direccion a mano aqui.
+    this.reportService.obtenerDireccionCompleta(lat, lng)
+      .then(dir => {
+        this.direccionActual = dir;
         this.cargandoDireccion = false;
-        if (data && data.address) {
-          const road = data.address.road || '';
-          const houseNumber = data.address.house_number ? ` #${data.address.house_number}` : '';
-          const suburb = data.address.suburb || '';
-          
-          if (road) {
-            this.direccionActual = `${road}${houseNumber}${suburb ? ', ' + suburb : ''}`;
-          } else {
-            this.direccionActual = data.display_name ? data.display_name.split(',')[0] : 'Ubicación exacta';
-          }
-          
-          this.ciudadActual = data.address.city || data.address.town || data.address.state || 'Puebla, México';
-        }
-        this.cdr.detectChanges();
-      })
-      .catch(() => {
-        this.cargandoDireccion = false;
-        this.direccionActual = 'Ubicación ajustada en el mapa';
         this.cdr.detectChanges();
       });
   }
@@ -222,13 +222,15 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       if (this.pasoActual === 3) this.initInteractiveMap();
     }
   }
+  
 
   guardarBaseDatosLocal() {
     this.guardarEnBaseDeDatos();
   }
-
+  seleccionarColor(color: string) { this.colorAnimal = color; }
   seleccionarTipo(tipo: string) { this.tipoAnimal = tipo; }
   seleccionarTamano(tamano: string) { this.tamanoAproximado = tamano; }
+  seleccionarAgresividad(valor: string) { this.agresividadAnimal = valor; }
   
   toggleCondicion(condicion: string) {
     const index = this.condicionesVisibles.indexOf(condicion);
@@ -363,6 +365,10 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       notas_animal:      this.notasAdicionales,
       latitud:           this.latActual,
       longitud:          this.lngActual,
+      direccion:         this.direccionActual,   // ← AGREGA ESTA LÍNEA
+      color_animal:      this.colorAnimal     || undefined,
+      raza_animal:       this.razaAnimal.trim()  || undefined,
+      agresividad_animal: this.agresividadAnimal  || undefined,
       imagen:            this.archivosSeleccionados[0]?.archivoFisico,
       nombre_contacto:   this.nombreUsuario   || undefined,
       telefono_contacto: this.telefonoUsuario || undefined,

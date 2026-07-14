@@ -13,7 +13,8 @@ import { environment } from 'src/environments/environment';
 // Tipos
 // ─────────────────────────────────────────
 
-type EstadoRescate = 'Aceptado' | 'En camino' | 'En sitio' | 'Rescatado';
+type EstadoRescate = 'Aceptado' | 'En camino' | 'En sitio' | 'Rescatado' | 'Cancelado';
+type FiltroEstado  = EstadoRescate | 'Todos';
 
 interface ItemProtocolo {
   titulo: string;
@@ -42,16 +43,18 @@ interface CasoAceptado {
   raw: RescateResponse;
 }
 
-// ─────────────────────────────────────────
-// Orden de prioridad para el caso enfocado
-// en el aside (En sitio > En camino > Aceptado)
-// ─────────────────────────────────────────
+// Orden de prioridad para el caso enfocado en el aside.
+// Los terminados nunca se enfocan, pero los dejamos al final por completitud.
 const ORDEN_PRIORIDAD_FOCO: Record<EstadoRescate, number> = {
   'En sitio':  0,
   'En camino': 1,
   Aceptado:    2,
   Rescatado:   3,
+  Cancelado:   4,
 };
+
+// Los filtros que se pintan en la barra, en orden.
+const FILTROS: FiltroEstado[] = ['Todos', 'Aceptado', 'En camino', 'En sitio', 'Rescatado', 'Cancelado'];
 
 @Component({
   selector: 'app-accepted-cases',
@@ -72,8 +75,11 @@ export class AcceptedCasesPage implements OnInit {
   casos: CasoAceptado[] = [];
   cargando = true;
   errorCarga: string | null = null;
+  ubicacionUsuario = 'Zona Metropolitana, CDMX'; // TODO: traer de geolocalización o perfil del usuario
 
-  filtroEstado: EstadoRescate | 'Todos' = 'Todos';
+  filtros = FILTROS;
+  filtroEstado: FiltroEstado = 'Todos';
+
   paginaActualCasos = 1;
   casosPorPagina = 5;
 
@@ -127,7 +133,7 @@ export class AcceptedCasesPage implements OnInit {
         this.cargando = false;
       },
       error: () => {
-        this.errorCarga = 'No se pudieron cargar tus casos aceptados.';
+        this.errorCarga = 'No se pudieron cargar tus misiones.';
         this.cargando = false;
       },
     });
@@ -138,10 +144,10 @@ export class AcceptedCasesPage implements OnInit {
   }
 
   // ─────────────────────────────────────────
-  // Mapeo de IncidenciaResponse → CasoAceptado
+  // Mapeo de RescateResponse → CasoAceptado
   // ─────────────────────────────────────────
 
-private mapearCaso(r: RescateResponse): CasoAceptado {
+  private mapearCaso(r: RescateResponse): CasoAceptado {
     const i = r.incidencia;
     const score = i.urgency_score ?? 0;
 
@@ -151,9 +157,10 @@ private mapearCaso(r: RescateResponse): CasoAceptado {
       folio:           i.folio ?? `RPT-${i.id}`,
       titulo:          i.nombre_caso?.trim() || `${i.tipo_animal ?? 'Animal'} en incidencia`,
       descripcion:     (i['notas_animal'] as string)?.trim() || 'Sin descripción.',
-      ubicacion:       i.lat_out != null && i.lng_out != null
-                         ? `Ubicación registrada: ${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
-                         : 'Ubicación no disponible',
+      ubicacion:       (i['direccion'] as string)?.trim()
+                         || (i.lat_out != null && i.lng_out != null
+                               ? `${i.lat_out.toFixed(5)}, ${i.lng_out.toFixed(5)}`
+                               : 'Ubicación no disponible'),
       tiempo:          this.tiempoRelativo(r.fecha_aceptacion),
       prioridad:       score >= 80 ? 'Urgente' : score >= 40 ? 'Alta' : 'Moderada',
       fotoUrl:         this.imagenUrl(i.imagen),
@@ -170,12 +177,46 @@ private mapearCaso(r: RescateResponse): CasoAceptado {
   }
 
   // ─────────────────────────────────────────
-  // Caso enfocado para el aside
+  // Clasificación de estados
+  // ─────────────────────────────────────────
+
+  // Un caso terminado (rescatado o cancelado) ya no se puede trabajar:
+  // solo se consulta su expediente.
+  esTerminado(caso: CasoAceptado): boolean {
+    return caso.estadoRescate === 'Rescatado' || caso.estadoRescate === 'Cancelado';
+  }
+
+  get casosActivos(): CasoAceptado[] {
+    return this.casos.filter(c => !this.esTerminado(c));
+  }
+
+  get totalActivos(): number    { return this.casosActivos.length; }
+  get totalCompletados(): number { return this.casos.filter(c => c.estadoRescate === 'Rescatado').length; }
+  get totalCancelados(): number  { return this.casos.filter(c => c.estadoRescate === 'Cancelado').length; }
+
+  get casosUrgentes(): number {
+    return this.casosActivos.filter(c => c.prioridad === 'Urgente').length;
+  }
+
+  // Cuántos casos hay por filtro (para el contadorcito de cada botón)
+  conteoFiltro(filtro: FiltroEstado): number {
+    if (filtro === 'Todos') return this.totalActivos;
+    return this.casos.filter(c => c.estadoRescate === filtro).length;
+  }
+
+  seleccionarFiltro(filtro: FiltroEstado): void {
+    this.filtroEstado = filtro;
+    this.paginaActualCasos = 1;
+  }
+
+  // ─────────────────────────────────────────
+  // Caso enfocado para el aside (solo activos)
   // ─────────────────────────────────────────
 
   get casoEnfocado(): CasoAceptado | undefined {
-    if (this.casos.length === 0) return undefined;
-    return [...this.casos].sort(
+    const activos = this.casosActivos;
+    if (activos.length === 0) return undefined;
+    return [...activos].sort(
       (a, b) => ORDEN_PRIORIDAD_FOCO[a.estadoRescate] - ORDEN_PRIORIDAD_FOCO[b.estadoRescate]
     )[0];
   }
@@ -190,35 +231,19 @@ private mapearCaso(r: RescateResponse): CasoAceptado {
         return { titulo: 'Confirmar traslado', descripcion: 'El animal está estable y listo para ser trasladado al refugio asignado.' };
       case 'Rescatado':
         return { titulo: 'Caso cerrado', descripcion: 'Esta misión ya fue completada exitosamente.' };
+      case 'Cancelado':
+        return { titulo: 'Caso liberado', descripcion: 'Cancelaste esta misión. El caso volvió a estar disponible para otro voluntario.' };
     }
-  }
-
-  // ─────────────────────────────────────────
-  // Métricas del header
-  // ─────────────────────────────────────────
-
-  get casosCompletadosHoy(): number {
-    return 0;
-  }
-
-  get casosUrgentes(): number {
-    return this.casos.filter(c => c.prioridad === 'Urgente').length;
-  }
-
-  get tiempoEnCampo(): string {
-    return '—';
-  }
-
-  get protocoloCompletado(): number {
-    return this.protocolo.filter(p => p.completado).length;
   }
 
   // ─────────────────────────────────────────
   // Filtrado y paginación
   // ─────────────────────────────────────────
 
+  // "Todos" muestra solo las misiones activas. Las resueltas y las canceladas
+  // viven en su propio filtro para no ensuciar el trabajo en curso.
   get casosPorVista(): CasoAceptado[] {
-    if (this.filtroEstado === 'Todos') return this.casos;
+    if (this.filtroEstado === 'Todos') return this.casosActivos;
     return this.casos.filter(c => c.estadoRescate === this.filtroEstado);
   }
 
@@ -248,20 +273,52 @@ private mapearCaso(r: RescateResponse): CasoAceptado {
   }
 
   // ─────────────────────────────────────────
+  // Estado vacío contextual
+  // ─────────────────────────────────────────
+
+  get vacioTitulo(): string {
+    switch (this.filtroEstado) {
+      case 'Rescatado': return 'Aún no tienes misiones resueltas';
+      case 'Cancelado': return 'No has cancelado ninguna misión';
+      case 'Todos':     return 'Sin misiones activas';
+      default:          return `Ninguna misión en "${this.filtroEstado}"`;
+    }
+  }
+
+  get vacioTexto(): string {
+    switch (this.filtroEstado) {
+      case 'Rescatado': return 'Cuando cierres un rescate con evidencia, aparecerá aquí.';
+      case 'Cancelado': return 'Los casos que liberes quedarán registrados en este filtro.';
+      case 'Todos':     return 'Cuando aceptes una misión, aparecerá aquí con su seguimiento.';
+      default:          return 'Prueba con otro filtro para ver tus demás misiones.';
+    }
+  }
+
+  // Solo ofrecemos "ver casos disponibles" cuando de verdad no hay trabajo.
+  get vacioMuestraCta(): boolean {
+    return this.filtroEstado === 'Todos';
+  }
+
+  // ─────────────────────────────────────────
   // Navegación
   // ─────────────────────────────────────────
 
-verProgreso(caso: CasoAceptado): void {
-  this.router.navigate(['/progress-case', caso.folio]);
-}
+  verProgreso(caso: CasoAceptado): void {
+    this.router.navigate(['/progress-case', caso.folio]);
+  }
 
-actualizarCaso(caso: CasoAceptado): void {
-  this.router.navigate(['/update-case/:folio/update', caso.folio]);
-}
+  actualizarCaso(caso: CasoAceptado): void {
+    this.router.navigate(['/update-case', caso.folio]);
+  }
 
-verDetalles(caso: CasoAceptado): void {
-  this.router.navigate(['/details-case-accepted', caso.folio]); //DE MOMENTO EL CRONOLOGÍA VA A IR A DETALLES DEL CASO PERO ESO VA A CAMBIAR 
-}
+  verDetalles(caso: CasoAceptado): void {
+    this.router.navigate(['/details-case-accepted', caso.folio]);
+  }
+
+  // Para casos ya terminados: la cronología completa del expediente.
+  verExpediente(caso: CasoAceptado): void {
+    this.router.navigate(['/cronology-case', caso.folio]);
+  }
 
   // ─────────────────────────────────────────
   // Utilidades
@@ -272,31 +329,15 @@ verDetalles(caso: CasoAceptado): void {
     return imagen.startsWith('http') ? imagen : `${environment.apiUrl}${imagen}`;
   }
 
-  // NOTA: las claves son los estados REALES del back.
-  // - Incidencia: PENDIENTE / ATENDIENDOSE / CERRADO
-  // - Rescate (cuando exista el endpoint): EN_CAMINO / COMPLETADO / CANCELADO
-  getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      PENDIENTE:    'Pendiente',
-      ATENDIENDOSE: 'En atención',
-      CERRADO:      'Cerrado',
-      EN_CAMINO:    'Rescatista en camino',
-      COMPLETADO:   'Completado',
-      CANCELADO:    'Cancelado',
-    };
-    return labels[status] || status;
-  }
-
-  getStatusClass(status: string): string {
-    const classes: Record<string, string> = {
-      PENDIENTE:    'bg-slate-100 text-slate-600 border-slate-200',
-      ATENDIENDOSE: 'bg-amber-100 text-amber-700 border-amber-200',
-      CERRADO:      'bg-emerald-100 text-emerald-700 border-emerald-200',
-      EN_CAMINO:    'bg-amber-100 text-amber-700 border-amber-200',
-      COMPLETADO:   'bg-emerald-100 text-emerald-700 border-emerald-200',
-      CANCELADO:    'bg-red-100 text-red-700 border-red-200',
-    };
-    return classes[status] || 'bg-slate-100 text-slate-600 border-slate-200';
+  // Ícono del badge según el estado del rescate
+  iconoEstado(estado: EstadoRescate): string {
+    switch (estado) {
+      case 'En camino': return 'directions_car';
+      case 'En sitio':  return 'location_on';
+      case 'Rescatado': return 'check_circle';
+      case 'Cancelado': return 'cancel';
+      default:          return 'assignment_turned_in';
+    }
   }
 
   private tiempoRelativo(fecha: string | null | undefined): string {
@@ -311,16 +352,13 @@ verDetalles(caso: CasoAceptado): void {
     return `Hace ${dias} día${dias === 1 ? '' : 's'}`;
   }
 
-  // Con Opción A solo llegan incidencias en ATENDIENDOSE (o CERRADO).
-  // Cuando exista /rescates/mis-rescates/, reescribir esto para mapear el
-  // estado del RESCATE (EN_CAMINO / COMPLETADO / CANCELADO) y así distinguir
-  // 'En camino', 'En sitio', 'Rescatado', etc.
   private inferirEstadoRescate(estado: string): EstadoRescate {
-      switch (estado) {
-        case 'EN_CAMINO':  return 'En camino';
-        case 'EN_SITIO':   return 'En sitio';
-        case 'COMPLETADO': return 'Rescatado';
-        default:           return 'Aceptado';
-      }
+    switch (estado) {
+      case 'EN_CAMINO':  return 'En camino';
+      case 'EN_SITIO':   return 'En sitio';
+      case 'COMPLETADO': return 'Rescatado';
+      case 'CANCELADO':  return 'Cancelado';
+      default:           return 'Aceptado';
     }
+  }
 }

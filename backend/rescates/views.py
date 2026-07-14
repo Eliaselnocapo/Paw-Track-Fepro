@@ -51,11 +51,33 @@ class AceptarRescateView(APIView):
         # de toda la vista, solo revertir hasta aquí para poder lanzar CaseAlreadyTaken.
         try:
             with transaction.atomic():
-                rescate = Rescate.objects.create(
+                # Rescate.incidencia es un OneToOneField: un rescate CANCELADO sigue
+                # ocupando la relación aunque el caso ya esté libre. Sin esto, un caso
+                # cancelado nunca podría volver a aceptarse (IntegrityError -> 409).
+                rescate_previo = Rescate.objects.filter(
                     incidencia=incidencia,
-                    rescatista=user,
-                    estado='EN_CAMINO'
-                )
+                    estado='CANCELADO',
+                ).first()
+
+                if rescate_previo:
+                    # El caso fue liberado: lo reasignamos al nuevo rescatista.
+                    rescate_previo.rescatista = user
+                    rescate_previo.estado = 'EN_CAMINO'
+                    rescate_previo.fecha_aceptacion = timezone.now()
+                    rescate_previo.fecha_cierre = None
+                    rescate_previo.historial.append({
+                        "estado": "EN_CAMINO",
+                        "timestamp": timezone.now().isoformat(),
+                        "nota": "Caso retomado tras una cancelación previa.",
+                    })
+                    rescate_previo.save()
+                    rescate = rescate_previo
+                else:
+                    rescate = Rescate.objects.create(
+                        incidencia=incidencia,
+                        rescatista=user,
+                        estado='EN_CAMINO'
+                    )
         except IntegrityError:
             # Si el OneToOneField de la DB detecta que ya existe, lanza IntegrityError
             raise CaseAlreadyTaken()

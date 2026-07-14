@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -64,7 +64,8 @@ export class ReporterPage implements OnInit {
 
   constructor(
     private reportService: ReportService,
-    private localReportCache: LocalReportCacheService
+    private localReportCache: LocalReportCacheService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -225,10 +226,11 @@ private cargarMisReportesDeCuenta(): void {
   }
 
   private obtenerDireccionReporte(incidencia: IncidenciaResponse): string {
-    if (incidencia.lat_out != null && incidencia.lng_out != null) {
-      return `Ubicación registrada: ${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out.toFixed(5)}`;
+    const dir = (incidencia as any).direccion?.trim();
+    if (dir) return dir; 
+    if (incidencia.lat_out != null && incidencia.lng_out != null){
+      return `${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out?.toFixed(5)}`;
     }
-
     return 'Ubicación no disponible';
   }
 
@@ -278,7 +280,7 @@ private cargarMisReportesDeCuenta(): void {
       VALIDANDO: 'Validando',
       ASIGNADO: 'Asignado',
       EN_CAMINO: 'Rescatista en camino',
-      CERRADO: 'Cerrado',
+      CERRADO: 'Rescatado',
       COMPLETADO: 'Completado'
     };
 
@@ -293,7 +295,7 @@ private cargarMisReportesDeCuenta(): void {
       EN_PROCESO: 'bg-blue-100 text-blue-700 border-blue-200',
       ASIGNADO: 'bg-blue-100 text-blue-700 border-blue-200',
       EN_CAMINO: 'bg-blue-100 text-blue-700 border-blue-200',
-      CERRADO: 'bg-slate-100 text-slate-600 border-slate-200',
+      CERRADO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       COMPLETADO: 'bg-slate-100 text-slate-600 border-slate-200'
     };
 
@@ -348,5 +350,16 @@ private cargarMisReportesDeCuenta(): void {
     if (score >= 40) return 'bg-amber-100 text-amber-700 border-amber-200';
 
     return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+  }
+
+  verReporte(reporte: ReporterReport): void{
+    if (reporte.status === 'CERRADO') {
+      this.router.navigate(['/cronology-case', reporte.folio]);
+    } else {
+      this.router.navigate(['/view-follow-up', reporte.folio]);
+    }
+  }
+  esCerrado(reporte: ReporterReport): boolean {
+    return reporte.status === 'CERRADO';
   }
 }
