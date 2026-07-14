@@ -24,9 +24,9 @@ def radio_dinamico(incidencia) -> float:
     documentado en SYSTEM_CONTRACT.md ("Alternativa: pHash"): perro <2h→300m,
     2-6h→800m, >6h→2000m; gato ×0.5 en cada umbral. Disponible como utilidad
     — NO se usa como default de filtrar_candidatos_geograficos() todavía:
-    check_duplicados corre una sola vez, en el momento exacto en que se crea
-    la Incidencia (señal post_save), así que su propia edad siempre es ~0h
-    en ese punto. Aplicado tal cual reduciría el radio de búsqueda de 10km
+    el chequeo de duplicados corre ahora en bd.views.IncidenciaViewSet.
+    verificar_duplicado, ANTES de que la Incidencia exista (paso 4 del
+    wizard de reporte, sin `created_at` todavía). Aplicado tal cual reduciría el radio de búsqueda de 10km
     (default actual) a 300m/150m — una regresión real de cuántos duplicados
     se detectan, no solo un ajuste fino. Requiere decidir con el equipo
     (¿aplicar la edad del candidato en vez de la del reporte nuevo?, ¿correr
@@ -72,17 +72,23 @@ def filtrar_candidatos_geograficos(incidencia, radio_metros=None):
 def filtrar_por_estructura(candidatos_qs, animal):
     """
     Etapa 2: descarta por tipo (obligatorio, nunca cruza especie) y, solo
-    cuando ambos lados reportan el dato, por raza/tamaño. Son campos de
-    texto libre capturados por el reportante, así que un valor vacío no
-    descarta — solo se excluye ante un choque explícito entre dos valores
-    conocidos.
+    cuando ambos lados reportan el dato, por tamaño. `tamano` es un valor de
+    catálogo fijo elegido por botones en el wizard de reporte (cachorro,
+    adulto, pequeño, mediano, grande — ver create-report.page.html), así que
+    comparar exacto no descarta variabilidad humana real: no hay forma de
+    "escribirlo mal".
+
+    `raza` es texto libre y deliberadamente NO se filtra aquí — ver
+    decision-tecnica-filtro-raza.md. Un typo de una letra ("shibu inu" vs
+    "shiba inu") bastaba para que el candidato nunca llegara a VisionService
+    aunque fuera la misma fotografía. Raza participa como señal continua en
+    RankingService.calcular_score_final (score_estruc), nunca como corte
+    binario.
     """
     candidatos_qs = candidatos_qs.filter(animal__tipo__iexact=animal.tipo)
 
     if animal.tamano:
         candidatos_qs = candidatos_qs.filter(Q(animal__tamano__iexact=animal.tamano) | Q(animal__tamano=''))
-    if animal.raza:
-        candidatos_qs = candidatos_qs.filter(Q(animal__raza__iexact=animal.raza) | Q(animal__raza=''))
 
     return candidatos_qs
 

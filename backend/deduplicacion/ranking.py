@@ -5,6 +5,17 @@ from deduplicacion.filtros import radio_dinamico
 
 logger = logging.getLogger(__name__)
 
+def _similitud(a: str, b: str) -> float:
+    """Similitud difflib (stdlib, sin infraestructura nueva) entre dos
+    textos libres, normalizada 0..1. 0.0 si cualquiera de los dos lados no
+    reportó el dato — un campo opcional vacío no debe leerse como "coincide"
+    con otro vacío, solo como "no hay señal"."""
+    a, b = (a or "").strip().lower(), (b or "").strip().lower()
+    if not a or not b:
+        return 0.0
+    return difflib.SequenceMatcher(None, a, b).ratio()
+
+
 class RankingService:
     UMBRAL_FUSION = float(os.environ.get('DEDUP_UMBRAL_FUSION', 0.75))
     UMBRAL_REVISION = float(os.environ.get('DEDUP_UMBRAL_REVISION', 0.55))
@@ -25,6 +36,24 @@ class RankingService:
             
             distancia_m = cand.distancia_m.m
 
+            # Score Estructurado — tres señales a partes iguales:
+            # - tamano: catálogo fijo elegido por botones en el wizard de
+            #   reporte (cachorro/adulto/pequeño/mediano/grande, ver
+            #   create-report.page.html) — no hay typos posibles en un valor
+            #   de catálogo, así que comparación exacta case-insensitive
+            #   sigue siendo correcta (igual que el __iexact de filtros.py).
+            # - color y raza: texto libre capturado por percepción subjetiva
+            #   del reportante ("shibu inu" vs "shiba inu" — ver
+            #   decision-tecnica-filtro-raza.md). Nunca se filtran duro
+            #   (deduplicacion/filtros.py ya no excluye por raza), y aquí
+            #   participan como similitud continua, no como igualdad exacta:
+            #   un typo penaliza un poco, no anula el score.
+            cand_tamano = (cand.animal.tamano or '').strip().lower()
+            nueva_tamano = (nueva.animal.tamano or '').strip().lower()
+            score_estruc = (1/3) if cand_tamano == nueva_tamano else 0.0
+            score_estruc += (1/3) * _similitud(cand.animal.color, nueva.animal.color)
+            score_estruc += (1/3) * _similitud(cand.animal.raza, nueva.animal.raza)
+
             # Calculamos el radio ideal usando la función de tu equipo basada en 
             # la especie y la antigüedad del reporte candidato
             radio_scoring = radio_dinamico(cand)
@@ -32,13 +61,10 @@ class RankingService:
             # Normalizamos el score
             score_geo = max(0.0, 1.0 - (distancia_m / radio_scoring))
 
-            
-            # --- TEXTO ---
-            texto_cand = (cand.caracteristicas or "").strip().lower()
-            score_texto = (
-                difflib.SequenceMatcher(None, texto_cand, texto_nueva).ratio()
-                if texto_cand and texto_nueva else 0.0
-            )
+            # Score Texto — similitud real (difflib, stdlib) en vez de
+            # igualdad exacta de string, que casi nunca da 1.0 entre dos
+            # reportes independientes aunque describan lo mismo.
+            score_texto = _similitud(cand.caracteristicas, nueva.caracteristicas)
 
             # --- VISUAL (ONNX) ---
             score_foto = similitud_visual.get(str(cand.id), 0.0)

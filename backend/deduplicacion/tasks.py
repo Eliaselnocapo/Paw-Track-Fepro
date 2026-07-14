@@ -5,88 +5,59 @@ from celery import shared_task
 from bd.models import Incidencia
 from deduplicacion.filtros import candidatos_por_metadatos
 from deduplicacion.ranking import RankingService
-from deduplicacion.services import VisionService, fusionar
-from notificaciones.services import (
-    broadcast_duplicate_detected,
-    broadcast_new_report,
-    broadcast_revision_requerida,
-)
+from deduplicacion.services import VisionService
 
 logger = logging.getLogger(__name__)
 
 
-# Fix P0-4: Forzamos la tarea a una cola dedicada ('dedup') para evitar colisiones 
-# al escribir en el índice HNSW.
+# Fix P0-4/P0-2 (Manuel, S4/S5): cola dedicada 'dedup' + lock real en
+# VisionService.aprender_embedding() protegen la escritura del índice HNSW
+# compartido — esta es ahora la ÚNICA task que lo muta.
 @shared_task(queue='dedup')
-def check_duplicados(incidencia_id):
-    logger.info("check_duplicados iniciado para incidencia %s", incidencia_id)
+def aprender_incidencia(incidencia_id):
+    """
+    Aprende el embedding de una incidencia nueva en el índice HNSW, para que
+    futuros chequeos de verificar_duplicado() la encuentren como candidato.
+    De paso, calcula y guarda coincidencias_visuales_ids — la lista de
+    incidencias visualmente parecidas ya rankeadas — para que
+    IncidenciaSerializer.get_coincidencias_visuales() la lea directo sin
+    volver a invocar la IA en cada GET (Fix P0-5, Manuel).
 
+    La detección/confirmación de duplicados en sí ya NO corre aquí de forma
+    async: se movió a bd.views.IncidenciaViewSet.verificar_duplicado, que
+    corre de forma síncrona en el paso 4 del wizard de reporte (ANTES de
+    guardar nada), para que el reportante pueda confirmar o descartar el
+    candidato en el momento — ver decision-tecnica-filtro-raza.md. Esta task
+    solo hace la mitad "aprendizaje + índice de similares" del pipeline
+    viejo (check_duplicados, eliminado).
+    """
     try:
-        nueva_incidencia = Incidencia.objects.get(id=incidencia_id)
+        incidencia = Incidencia.objects.get(id=incidencia_id)
     except Incidencia.DoesNotExist:
-        logger.warning("check_duplicados: incidencia %s no encontrada", incidencia_id)
+        logger.warning("aprender_incidencia: incidencia %s no encontrada", incidencia_id)
         return "Incidencia no encontrada"
 
-    if not nueva_incidencia.imagen:
-        broadcast_new_report(nueva_incidencia)
-        return "Sin imagen, omitiendo deduplicación"
+    if not incidencia.imagen or not incidencia.animal:
+        return "Sin imagen o sin animal, nada que aprender."
 
-    especie = nueva_incidencia.animal.tipo
+    especie = incidencia.animal.tipo
     vision_ai = VisionService()
 
-    # Usamos _get_embedding directo del servicio.
     try:
-        emb = vision_ai._get_embedding(nueva_incidencia.imagen.path, especie)
+        emb = vision_ai._get_embedding(incidencia.imagen.path, especie)
     except ValueError as e:
-        logger.error("Deduplicación abortada: %s", e)
+        logger.error("aprender_incidencia: %s", e)
         return "Especie no soportada para IA"
 
-    # Filtros baratos (geo + estructura)
-    candidatos = [c for c in candidatos_por_metadatos(nueva_incidencia) if c.imagen]
+    # Candidatos existentes (solo lectura) — antes de aprender, para no
+    # compararnos contra nuestro propio embedding recién insertado.
+    candidatos = [c for c in candidatos_por_metadatos(incidencia) if c.imagen]
+    if candidatos:
+        candidatos_ids = [c.id for c in candidatos]
+        similitud_visual = vision_ai.buscar_similares(emb, especie, candidatos_ids)
+        resultados = RankingService.calcular_score_final(candidatos, similitud_visual, incidencia)
+        incidencia.coincidencias_visuales_ids = [r["incidencia"].id for r in resultados]
+        incidencia.save(update_fields=['coincidencias_visuales_ids'])
 
-    if not candidatos:
-        # Pasamos el embedding ya calculado
-        vision_ai.aprender_embedding(emb, especie, nueva_incidencia.id)
-        broadcast_new_report(nueva_incidencia)
-        return "No se encontraron candidatos tras el filtro geográfico y de especie."
-
-    # Inferencia IA (Solo lectura)
-    candidatos_ids = [c.id for c in candidatos]
-    # Pasamos el embedding ya calculado
-    similitud_visual = vision_ai.buscar_similares(emb, especie, candidatos_ids)
-
-    # Pasamos el embedding ya calculado
-    vision_ai.aprender_embedding(emb, especie, nueva_incidencia.id)
-
-    #  Ranking final
-    resultados = RankingService.calcular_score_final(candidatos, similitud_visual, nueva_incidencia)
-
-    if not resultados:
-        broadcast_new_report(nueva_incidencia)
-        return "Sin resultados de ranking."
-
-    # Fix P0-5: Guardamos los resultados ordenados en la BD para que el 
-    # serializer los lea de aquí y no bloquee las peticiones GET.
-    nueva_incidencia.coincidencias_visuales_ids = [r["incidencia"].id for r in resultados]
-    nueva_incidencia.save(update_fields=['coincidencias_visuales_ids'])
-
-    mejor = resultados[0]
-    mejor_candidato, score_final = mejor["incidencia"], mejor["score"]
-    logger.info(
-        "check_duplicados: mejor candidato para %s es %s (score_final=%.3f)",
-        incidencia_id, mejor_candidato.id, score_final,
-    )
-
-    if score_final >= RankingService.UMBRAL_FUSION:
-        fusionar(original=mejor_candidato, duplicado=nueva_incidencia)
-        broadcast_duplicate_detected(nueva_incidencia, mejor_candidato)
-        return f"Fusionado con incidencia {mejor_candidato.id} (score_final={score_final:.2f})"
-
-    if score_final >= RankingService.UMBRAL_REVISION:
-        nueva_incidencia.estado = 'EN_REVISION'
-        nueva_incidencia.save(update_fields=['estado'])
-        broadcast_revision_requerida(nueva_incidencia, mejor_candidato)
-        return f"En revisión, posible duplicado de {mejor_candidato.id} (score_final={score_final:.2f})"
-
-    broadcast_new_report(nueva_incidencia)
-    return f"Caso nuevo independiente (mejor score_final={score_final:.2f})"
+    vision_ai.aprender_embedding(emb, especie, incidencia.id)
+    return f"Incidencia {incidencia_id} aprendida en el índice."

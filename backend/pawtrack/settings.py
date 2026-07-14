@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rescates',
     'notificaciones',
     'deduplicacion',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -107,6 +108,20 @@ USE_TZ = True
 # Static files
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Cache (Redis) — usado por deduplicacion.services.VisionService.aprender_embedding()
+# para el lock real (cache.lock()) que protege la escritura del índice HNSW
+# compartido. LocMemCache (el default de Django) no implementa .lock(), así
+# que hace falta un backend real aquí, no solo para Celery/Channels.
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('DJANGO_CACHE_URL', 'redis://redis:6379/2'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    },
+}
 
 # ASGI / Channels
 ASGI_APPLICATION = 'pawtrack.asgi.application'

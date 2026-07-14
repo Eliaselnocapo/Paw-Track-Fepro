@@ -51,9 +51,9 @@ class RankingScoreEstrucTests(TestCase):
     def setUp(self):
         self.punto = Point(-98.2062, 19.0414, srid=4326)
 
-    def test_score_estruc_suma_completo_cuando_color_y_tamano_coinciden(self):
-        animal_a = Animal.objects.create(nombre="A", tipo="PERRO", tamano="mediano", color="cafe")
-        animal_b = Animal.objects.create(nombre="B", tipo="PERRO", tamano="mediano", color="cafe")
+    def test_score_estruc_suma_completo_cuando_color_raza_y_tamano_coinciden(self):
+        animal_a = Animal.objects.create(nombre="A", tipo="PERRO", tamano="mediano", color="cafe", raza="shiba inu")
+        animal_b = Animal.objects.create(nombre="B", tipo="PERRO", tamano="mediano", color="cafe", raza="shiba inu")
         nueva = Incidencia.objects.create(
             tipo_incidencia="EXTRAVIADO", estado="PENDIENTE", animal=animal_a, ubicacion=self.punto,
         )
@@ -66,7 +66,7 @@ class RankingScoreEstrucTests(TestCase):
         esperado_min = 0.20 * 1.0 + 0.40 * 1.0  # sin texto confiable: w_estruc=0.40
         self.assertAlmostEqual(resultados[0]['score'], esperado_min, places=4)
 
-    def test_score_estruc_es_case_insensitive(self):
+    def test_score_estruc_tamano_es_case_insensitive(self):
         """Regresión: filtros.py ya matchea tamano con __iexact — ranking.py
         debe ser consistente, si no un duplicado real pierde puntos solo por
         capitalización distinta entre dos reportes."""
@@ -80,9 +80,34 @@ class RankingScoreEstrucTests(TestCase):
         )
         candidatos = list(filtrar_candidatos_geograficos(nueva))
         resultados = RankingService.calcular_score_final(candidatos, {}, nueva)
-        # geo=1.0, estruc: tamano coincide (case-insensitive) = 0.5, color vacío en ambos = 0.5 → estruc=1.0
-        esperado = 0.20 * 1.0 + 0.40 * 1.0
+        # geo=1.0, estruc: solo tamano coincide (case-insensitive) = 1/3;
+        # color y raza vacíos en ambos lados no suman (ver _similitud) → estruc=1/3
+        esperado = 0.20 * 1.0 + 0.40 * (1 / 3)
         self.assertAlmostEqual(resultados[0]['score'], esperado, places=4)
+
+    def test_score_estruc_raza_con_typo_penaliza_pero_no_anula(self):
+        """Caso real que motivó decision-tecnica-filtro-raza.md: dos reportes
+        del mismo perro, uno escribe "shiba inu" y otro "shibu inu". Antes
+        (__iexact duro) el candidato ni siquiera llegaba a este punto. Ahora
+        debe rankear por encima de un candidato con raza completamente
+        distinta, sin caer a 0 por el typo."""
+        animal_nueva = Animal.objects.create(nombre="A", tipo="PERRO", tamano="mediano", color="cafe", raza="shiba inu")
+        animal_typo = Animal.objects.create(nombre="B", tipo="PERRO", tamano="mediano", color="cafe", raza="shibu inu")
+        animal_distinto = Animal.objects.create(nombre="C", tipo="PERRO", tamano="mediano", color="cafe", raza="labrador")
+        nueva = Incidencia.objects.create(
+            tipo_incidencia="EXTRAVIADO", estado="PENDIENTE", animal=animal_nueva, ubicacion=self.punto,
+        )
+        candidato_typo = Incidencia.objects.create(
+            tipo_incidencia="EXTRAVIADO", estado="PENDIENTE", animal=animal_typo, ubicacion=self.punto,
+        )
+        candidato_distinto = Incidencia.objects.create(
+            tipo_incidencia="EXTRAVIADO", estado="PENDIENTE", animal=animal_distinto, ubicacion=self.punto,
+        )
+        candidatos = list(filtrar_candidatos_geograficos(nueva))
+        resultados = RankingService.calcular_score_final(candidatos, {}, nueva)
+        scores = {r["incidencia"].id: r["score"] for r in resultados}
+
+        self.assertGreater(scores[candidato_typo.id], scores[candidato_distinto.id])
 
 
 class RankingScoreTextoTests(TestCase):
