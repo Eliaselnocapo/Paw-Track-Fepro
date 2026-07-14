@@ -1,16 +1,13 @@
 import difflib
 import os
+import logging
+from deduplicacion.filtros import radio_dinamico
 
+logger = logging.getLogger(__name__)
 
 class RankingService:
-    # Umbrales sobre score_final (0-1). Estimación razonada inicial — ajustar
-    # con el feedback loop cuando los rescatistas confirmen/rechacen duplicados
-    # sugeridos (ver SYSTEM_CONTRACT.md > Algoritmo: Deduplicación, paso 7).
     UMBRAL_FUSION = float(os.environ.get('DEDUP_UMBRAL_FUSION', 0.75))
     UMBRAL_REVISION = float(os.environ.get('DEDUP_UMBRAL_REVISION', 0.55))
-
-    # Radio de referencia (metros) para normalizar score_geo a 0-1. Debe ir
-    # de la mano con DEDUP_RADIO_METROS en deduplicacion/filtros.py.
     RADIO_REFERENCIA_M = float(os.environ.get('DEDUP_RADIO_METROS', 10000))
 
     @staticmethod
@@ -18,63 +15,85 @@ class RankingService:
         resultados = []
 
         # 1. ¿Qué tan confiable es el texto?
-        # Usamos 0 si es None, para evitar errores de .split()
-        texto = nueva.caracteristicas or ""
-        longitud_texto = len(texto.split())
-        es_texto_confiable = longitud_texto > 10
-
-        # 2. Definir pesos base dinámicos
-        if es_texto_confiable:
-            w_geo, w_estruc, w_foto, w_texto = 0.20, 0.35, 0.30, 0.15
-        else:
-            w_geo, w_estruc, w_foto, w_texto = 0.20, 0.40, 0.40, 0.0
+        texto_nueva = (nueva.caracteristicas or "").strip().lower()
+        es_texto_confiable = len(texto_nueva.split()) > 10
 
         for cand in candidatos:
-            # Score Geográfico — usa la distancia en metros anotada por
-            # deduplicacion.filtros (Distance de PostGIS). cand.ubicacion es
-            # SRID 4326 (grados), así que GEOSGeometry.distance() aquí daría
-            # grados, no metros, y el score no discriminaría por cercanía real.
-            # Si no viene anotado es que quien llamó a esta función no pasó
-            # por filtrar_candidatos_geograficos() — mejor tronar fuerte que
-            # dar un score silenciosamente corrupto en grados-como-metros.
+            # --- GEO ---
             if not hasattr(cand, 'distancia_m'):
-                raise ValueError(
-                    "calcular_score_final requiere candidatos anotados con distancia_m — "
-                    "usa deduplicacion.filtros.filtrar_candidatos_geograficos()."
-                )
+                raise ValueError("calcular_score_final requiere candidatos anotados con distancia_m.")
+            
             distancia_m = cand.distancia_m.m
-            score_geo = max(0, 1 - (distancia_m / RankingService.RADIO_REFERENCIA_M))
 
-            # Score Estructurado — case-insensitive, igual que el __iexact
-            # que ya usa filtros.py para el mismo campo (tamano); si no,
-            # dos reportes del mismo animal con distinta capitalización
-            # pasan el filtro pero pierden puntos aquí sin motivo real.
-            score_estruc = 0.0
-            cand_color = (cand.animal.color or '').strip().lower()
-            nueva_color = (nueva.animal.color or '').strip().lower()
-            if cand_color == nueva_color: score_estruc += 0.5
-            cand_tamano = (cand.animal.tamano or '').strip().lower()
-            nueva_tamano = (nueva.animal.tamano or '').strip().lower()
-            if cand_tamano == nueva_tamano: score_estruc += 0.5
+            # Calculamos el radio ideal usando la función de tu equipo basada en 
+            # la especie y la antigüedad del reporte candidato
+            radio_scoring = radio_dinamico(cand)
 
-            # Score Foto (Normalizamos el dict de similitud que devuelve la IA)
-            score_foto = similitud_visual.get(str(cand.id), 0.0)
+            # Normalizamos el score
+            score_geo = max(0.0, 1.0 - (distancia_m / radio_scoring))
 
-            # Score Texto — similitud real (difflib, stdlib) en vez de
-            # igualdad exacta de string, que casi nunca da 1.0 entre dos
-            # reportes independientes aunque describan lo mismo.
+            
+            # --- TEXTO ---
             texto_cand = (cand.caracteristicas or "").strip().lower()
-            texto_nueva = (nueva.caracteristicas or "").strip().lower()
             score_texto = (
                 difflib.SequenceMatcher(None, texto_cand, texto_nueva).ratio()
                 if texto_cand and texto_nueva else 0.0
             )
 
-            # 4. Ponderación Final
-            score_final = (score_geo * w_geo) + \
-                          (score_estruc * w_estruc) + \
-                          (score_foto * w_foto) + \
-                          (score_texto * w_texto)
+            # --- VISUAL (ONNX) ---
+            score_foto = similitud_visual.get(str(cand.id), 0.0)
+
+            # --- ESTRUCTURA (METADATOS EXPANDIDOS) ---
+            # Leemos directamente de la relación cand.animal y nueva.animal
+            campos_meta = ['tipo', 'tamano', 'salud', 'edad_estimada', 'color', 'raza', 'agresividad']
+            coincidencias = 0
+            total_validos = 0
+
+            for campo in campos_meta:
+                val_nuevo = getattr(nueva.animal, campo, '') or ''
+                val_cand = getattr(cand.animal, campo, '') or ''
+
+                val_nuevo = str(val_nuevo).strip().lower()
+                val_cand = str(val_cand).strip().lower()
+                
+                # Solo evaluamos si ambos reportes llenaron el campo
+                if val_nuevo and val_cand:
+                    total_validos += 1
+                    if val_nuevo == val_cand:
+                        coincidencias += 1
+                        
+            score_meta = (coincidencias / total_validos) if total_validos > 0 else 0.0
+
+            # --- DISTRIBUCIÓN DE PESOS ---
+            if es_texto_confiable:
+                w_geo, w_meta, w_foto, w_texto = 0.15, 0.20, 0.45, 0.20
+            else:
+                # Mayoría absoluta a la foto
+                w_geo, w_meta, w_foto, w_texto = 0.15, 0.40, 0.45, 0.0
+
+            # --- HARD GATING (La magia antimanchas) ---
+            # Si la similitud en su propia categoría es menor al 50%, se anula (0.0)
+            val_foto  = score_foto  if score_foto  >= 0.50 else 0.0
+            val_meta  = score_meta  if score_meta  >= 0.50 else 0.0
+            val_geo   = score_geo   if score_geo   >= 0.50 else 0.0
+            val_texto = score_texto if score_texto >= 0.50 else 0.0
+
+            # --- CÁLCULO FINAL ---
+            score_final = (val_geo * w_geo) + (val_meta * w_meta) + (val_foto * w_foto) + (val_texto * w_texto)
+
+            contrib_geo = val_geo * w_geo
+            contrib_meta = val_meta * w_meta
+            contrib_foto = val_foto * w_foto
+            contrib_texto = val_texto * w_texto
+
+            logger.info(
+                f"\n[DEDUPLICACIÓN] Evaluando nueva={nueva.id} vs candidata={cand.id} | SCORE: {score_final:.3f}\n"
+                f"  -> GEO:   Raw={score_geo:.2f} | Gate={val_geo:.2f} | Peso={w_geo:.2f} | Contribuyó: {contrib_geo:.3f}\n"
+                f"  -> META:  Raw={score_meta:.2f} | Gate={val_meta:.2f} | Peso={w_meta:.2f} | Contribuyó: {contrib_meta:.3f}\n"
+                f"  -> FOTO:  Raw={score_foto:.2f} | Gate={val_foto:.2f} | Peso={w_foto:.2f} | Contribuyó: {contrib_foto:.3f}\n"
+                f"  -> TEXTO: Raw={score_texto:.2f} | Gate={val_texto:.2f} | Peso={w_texto:.2f} | Contribuyó: {contrib_texto:.3f}"
+            )
+
 
             resultados.append({
                 "incidencia": cand,
