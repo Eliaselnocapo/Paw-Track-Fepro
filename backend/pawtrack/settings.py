@@ -7,6 +7,7 @@ from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DEDUP_MODELS_DIR = os.environ.get('DEDUP_MODELS_DIR', os.path.join(BASE_DIR, 'deduplicacion', 'ml_models'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-4_wjky+xcs*sn#jxg^n2r2^m5shnxq@%2^11puiy#2al36)4nw'
@@ -106,6 +107,20 @@ USE_TZ = True
 # Static files
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Cache (Redis) — usado por deduplicacion.services.VisionService.aprender_embedding()
+# para el lock real (cache.lock()) que protege la escritura del índice HNSW
+# compartido. LocMemCache (el default de Django) no implementa .lock(), así
+# que hace falta un backend real aquí, no solo para Celery/Channels.
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('DJANGO_CACHE_URL', 'redis://redis:6379/2'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    },
+}
 
 # ASGI / Channels
 ASGI_APPLICATION = 'pawtrack.asgi.application'

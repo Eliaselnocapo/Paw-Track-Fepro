@@ -247,7 +247,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         + ranking ponderado) que antes corría async por Celery después de
         crear el reporte, pero aquí:
           - no persiste nada (ni Incidencia ni Animal),
-          - no muta el índice HNSW (solo lectura, get_similarity_scores),
+          - no muta el índice HNSW (solo lectura, buscar_similares),
           - regresa el mejor candidato (si supera UMBRAL_REVISION) para que
             el front le pregunte al reportante "¿es este tu caso?" antes de
             que exista un registro nuevo.
@@ -286,8 +286,13 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             return Response({'candidato': None})
 
         vision_ai = VisionService()
+        try:
+            emb = vision_ai._get_embedding(imagen, tipo)
+        except ValueError:
+            return Response({'candidato': None})  # especie no soportada para IA visual
+
         candidatos_ids = [c.id for c in candidatos]
-        similitud_visual = vision_ai.get_similarity_scores(imagen, tipo, candidatos_ids)
+        similitud_visual = vision_ai.buscar_similares(emb, tipo, candidatos_ids)
 
         resultados = RankingService.calcular_score_final(candidatos, similitud_visual, incidencia_temp)
         if not resultados or resultados[0]['score'] < RankingService.UMBRAL_REVISION:

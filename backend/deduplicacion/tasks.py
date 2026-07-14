@@ -3,24 +3,33 @@ import logging
 from celery import shared_task
 
 from bd.models import Incidencia
+from deduplicacion.filtros import candidatos_por_metadatos
+from deduplicacion.ranking import RankingService
 from deduplicacion.services import VisionService
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task
+# Fix P0-4/P0-2 (Manuel, S4/S5): cola dedicada 'dedup' + lock real en
+# VisionService.aprender_embedding() protegen la escritura del índice HNSW
+# compartido — esta es ahora la ÚNICA task que lo muta.
+@shared_task(queue='dedup')
 def aprender_incidencia(incidencia_id):
     """
     Aprende el embedding de una incidencia nueva en el índice HNSW, para que
-    futuros reportes puedan encontrarla como candidato a duplicado.
+    futuros chequeos de verificar_duplicado() la encuentren como candidato.
+    De paso, calcula y guarda coincidencias_visuales_ids — la lista de
+    incidencias visualmente parecidas ya rankeadas — para que
+    IncidenciaSerializer.get_coincidencias_visuales() la lea directo sin
+    volver a invocar la IA en cada GET (Fix P0-5, Manuel).
 
-    La detección de duplicados ya NO corre aquí de forma async después de
-    crear el reporte: se movió a bd.views.IncidenciaViewSet.verificar_duplicado,
-    que corre de forma síncrona en el paso 4 del wizard de reporte (ANTES de
+    La detección/confirmación de duplicados en sí ya NO corre aquí de forma
+    async: se movió a bd.views.IncidenciaViewSet.verificar_duplicado, que
+    corre de forma síncrona en el paso 4 del wizard de reporte (ANTES de
     guardar nada), para que el reportante pueda confirmar o descartar el
-    candidato en el momento. Esta task solo hace la mitad "aprendizaje" del
-    pipeline viejo — sigue siendo async porque no bloquea nada que el
-    reportante esté esperando.
+    candidato en el momento — ver decision-tecnica-filtro-raza.md. Esta task
+    solo hace la mitad "aprendizaje + índice de similares" del pipeline
+    viejo (check_duplicados, eliminado).
     """
     try:
         incidencia = Incidencia.objects.get(id=incidencia_id)
@@ -31,5 +40,24 @@ def aprender_incidencia(incidencia_id):
     if not incidencia.imagen or not incidencia.animal:
         return "Sin imagen o sin animal, nada que aprender."
 
-    VisionService().aprender(incidencia.imagen.path, incidencia.animal.tipo, incidencia.id)
+    especie = incidencia.animal.tipo
+    vision_ai = VisionService()
+
+    try:
+        emb = vision_ai._get_embedding(incidencia.imagen.path, especie)
+    except ValueError as e:
+        logger.error("aprender_incidencia: %s", e)
+        return "Especie no soportada para IA"
+
+    # Candidatos existentes (solo lectura) — antes de aprender, para no
+    # compararnos contra nuestro propio embedding recién insertado.
+    candidatos = [c for c in candidatos_por_metadatos(incidencia) if c.imagen]
+    if candidatos:
+        candidatos_ids = [c.id for c in candidatos]
+        similitud_visual = vision_ai.buscar_similares(emb, especie, candidatos_ids)
+        resultados = RankingService.calcular_score_final(candidatos, similitud_visual, incidencia)
+        incidencia.coincidencias_visuales_ids = [r["incidencia"].id for r in resultados]
+        incidencia.save(update_fields=['coincidencias_visuales_ids'])
+
+    vision_ai.aprender_embedding(emb, especie, incidencia.id)
     return f"Incidencia {incidencia_id} aprendida en el índice."

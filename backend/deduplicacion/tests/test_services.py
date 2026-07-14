@@ -1,43 +1,107 @@
-import io
-
+import os
+import shutil
+import glob
+import json
+import numpy as np
 from django.test import TestCase
-from PIL import Image
-
+from django.conf import settings
 from deduplicacion.services import VisionService
+from unittest.mock import patch
+
+class VisionServiceTestCase(TestCase):
+    def setUp(self):
+        VisionService._instance = None
+
+        real_models_dir = os.path.join(settings.BASE_DIR, 'deduplicacion', 'ml_models')
+        self.test_models_dir = os.path.join(settings.BASE_DIR, 'deduplicacion', 'ml_models_test')
+
+        if os.path.exists(self.test_models_dir):
+            shutil.rmtree(self.test_models_dir)
+
+        shutil.copytree(real_models_dir, self.test_models_dir)
+
+        settings.DEDUP_MODELS_DIR = self.test_models_dir
+
+        self.vision_service = VisionService()
+
+        _, index, _, _, _ = self.vision_service._index_para('PERRO')
+        dim_real = index.dim
+
+        self.emb_base = np.random.rand(dim_real).astype(np.float32)
+        self.emb_clon = self.emb_base.copy()
+        self.emb_distinto = np.random.rand(dim_real).astype(np.float32)
+
+    def tearDown(self):
+
+        VisionService._instance = None
+
+        # Limpiar la basura
+        if os.path.exists(self.test_models_dir):
+            shutil.rmtree(self.test_models_dir)
+
+    def test_especie_no_soportada(self):
+        """Valida la regresión #4: Especie no soportada lanza error"""
+        with self.assertRaises(ValueError):
+            self.vision_service.aprender_embedding(self.emb_base, 'DRAGON', 99)
+
+        with self.assertRaises(ValueError):
+            self.vision_service.buscar_similares(self.emb_base, 'DRAGON', [99])
+
+    def test_aprender_y_buscar_similares(self):
+        """Valida que aprender() guarde y buscar_similares() encuentre (regresión #3)"""
+        from django.core.cache import cache
+        from unittest.mock import MagicMock
+
+        cache.lock = MagicMock()
 
 
-def _fake_imagen_bytes():
-    buffer = io.BytesIO()
-    Image.new("RGB", (32, 32), color=(120, 80, 40)).save(buffer, format="JPEG")
-    buffer.seek(0)
-    return buffer
+        _, index, _, _, _ = self.vision_service._index_para('PERRO')
+        conteo_inicial = index.get_current_count()
 
+        # Usamos IDs altísimos para no sobreescribir los datos reales copiados
+        id_base = 999910
+        id_distinto = 999911
 
-class GetSimilarityScoresIndiceCorruptoTests(TestCase):
-    """Regresión: el índice HNSW de perros trae entradas de entrenamiento/seed
-    con ids no numéricos (ej. slugs de dataset como
-    "69709-robby-kleiner-schwarzer-diaman"), y get_similarity_scores tronaba
-    con ValueError al intentar int(db_id) sobre esas entradas — bloqueaba
-    CUALQUIER creación/listado de incidencias de perro con imagen, no solo
-    el chequeo de duplicados. No es parte del trabajo de deduplicación de
-    esta sesión, pero se encontró y arregló al probar el flujo end-to-end."""
+        self.vision_service.aprender_embedding(self.emb_base, 'PERRO', id_base)
+        self.vision_service.aprender_embedding(self.emb_distinto, 'PERRO', id_distinto)
 
-    def test_ignora_labels_no_numericos_sin_tronar(self):
-        vision = VisionService()
-        if vision.dog_index.get_current_count() == 0:
-            self.skipTest("Índice de perros vacío en este ambiente — nada que forzar.")
+        self.assertEqual(index.get_current_count(), conteo_inicial + 2)
 
-        # Forzamos una entrada no numérica en el mapping (singleton
-        # compartido: se restaura al terminar para no afectar otros tests),
-        # igual que la que ya trae el índice real de perros en este
-        # ambiente de desarrollo.
-        valor_original = vision.dog_map.get(0)
-        vision.dog_map[0] = "69709-robby-kleiner-schwarzer-diaman"
+        scores = self.vision_service.buscar_similares(self.emb_clon, 'PERRO', candidatos_ids=[id_base, id_distinto])
+
+        str_base = str(id_base)
+        str_distinto = str(id_distinto)
+
+        self.assertIn(str_base, scores)
+        self.assertIn(str_distinto, scores)
+        self.assertTrue(scores[str_base] > scores[str_distinto], "El clon debe tener mayor score con su base")
+        self.assertAlmostEqual(scores[str_base], 1.0, places=4)
+
+    def test_buscar_similares_ignora_ids_no_numericos_sin_tronar(self):
+        """Regresión: el índice HNSW de perros puede traer entradas de
+        entrenamiento/seed con ids no numéricos (ej. slugs de dataset como
+        "69709-robby-kleiner-schwarzer-diaman") mezcladas con incidencias
+        reales. Esto ya rompía GET /api/incidencias/ (listado) y cualquier
+        serialización con coincidencias_visuales antes de que buscar_similares
+        reemplazara a get_similarity_scores — no es exclusivo del chequeo de
+        duplicados. buscar_similares() debe ignorar esas entradas (try/except
+        al parsear cada id de mapping), nunca tronar con ValueError."""
+        _, index, mapping, _, _ = self.vision_service._index_para('PERRO')
+
+        id_valido = 999920
+        self.vision_service.aprender_embedding(self.emb_base, 'PERRO', id_valido)
+
+        # Forzamos una entrada no numérica junto a la válida, igual que las
+        # que ya trae el índice real de perros en este ambiente de desarrollo.
+        label_extra = index.get_current_count()
+        index.add_items([self.emb_distinto], [label_extra])
+        mapping[label_extra] = "69709-robby-kleiner-schwarzer-diaman"
+
         try:
-            scores = vision.get_similarity_scores(_fake_imagen_bytes(), "perro", [1, 2, 3])
+            scores = self.vision_service.buscar_similares(
+                self.emb_clon, 'PERRO', candidatos_ids=[id_valido]
+            )
         except ValueError:
-            self.fail("get_similarity_scores no debe tronar con ids no numéricos en el índice")
-        finally:
-            vision.dog_map[0] = valor_original
+            self.fail("buscar_similares no debe tronar con ids no numéricos en el índice")
 
-        self.assertIsInstance(scores, dict)
+        self.assertIn(str(id_valido), scores)

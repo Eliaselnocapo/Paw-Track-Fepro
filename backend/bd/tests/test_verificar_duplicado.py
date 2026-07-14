@@ -63,7 +63,7 @@ class VerificarDuplicadoTests(APITestCase):
     def test_score_alto_regresa_el_candidato(self):
         with mock.patch("deduplicacion.services.VisionService") as MockVision:
             instancia = MockVision.return_value
-            instancia.get_similarity_scores.return_value = {str(self.existente.id): 1.0}
+            instancia.buscar_similares.return_value = {str(self.existente.id): 1.0}
 
             response = self.client.post(self._url(), {
                 'tipo_animal': 'PERRO', 'tamano_animal': 'mediano',
@@ -71,7 +71,7 @@ class VerificarDuplicadoTests(APITestCase):
                 'latitud': '19.0414', 'longitud': '-98.2062',
                 'imagen': _fake_imagen(),
             }, format='multipart')
-            instancia.aprender.assert_not_called()  # solo lectura, nunca muta el índice
+            instancia.aprender_embedding.assert_not_called()  # solo lectura, nunca muta el índice
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         candidato = response.data['candidato']
@@ -83,7 +83,7 @@ class VerificarDuplicadoTests(APITestCase):
         antes = Incidencia.objects.count()
         with mock.patch("deduplicacion.services.VisionService") as MockVision:
             instancia = MockVision.return_value
-            instancia.get_similarity_scores.return_value = {str(self.existente.id): 1.0}
+            instancia.buscar_similares.return_value = {str(self.existente.id): 1.0}
             self.client.post(self._url(), {
                 'tipo_animal': 'PERRO', 'latitud': '19.0414', 'longitud': '-98.2062',
                 'imagen': _fake_imagen(),
