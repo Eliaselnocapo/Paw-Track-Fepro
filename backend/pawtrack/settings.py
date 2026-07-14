@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rescates',
     'notificaciones',
     'deduplicacion',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
