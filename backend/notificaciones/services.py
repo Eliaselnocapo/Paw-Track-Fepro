@@ -60,17 +60,6 @@ def broadcast_duplicate_detected(incidencia, original):
     })
 
 
-def broadcast_revision_requerida(incidencia, candidato):
-    if not incidencia.usuario_reporta_id:
-        return
-    notify_user(incidencia.usuario_reporta_id, {
-        "type": "revision_requerida",
-        "tipo": "revision_requerida",
-        "id": incidencia.id,
-        "folio": incidencia.folio,
-        "posible_duplicado_de": candidato.id,
-        "posible_duplicado_de_folio": candidato.folio,
-    })
 
 
 def broadcast_rescate_update(rescate_id: int, event: dict):

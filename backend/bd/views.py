@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed, ValidationError, NotFound
 from django.contrib.auth import authenticate
+from django.contrib.gis.geos import Point
 from django.utils import timezone
 import os
 
@@ -184,8 +185,125 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        nueva_incidencia = serializer.instance
+
+        candidata_fusionada = self._resolver_duplicado_en_creacion(request, data, nueva_incidencia)
+
+        from notificaciones.services import broadcast_duplicate_detected, broadcast_new_report
+        if candidata_fusionada is not None:
+            broadcast_duplicate_detected(nueva_incidencia, candidata_fusionada)
+        else:
+            broadcast_new_report(nueva_incidencia)
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def _resolver_duplicado_en_creacion(self, request, data, nueva_incidencia):
+        """Si el paso 4 del wizard ya le preguntó al reportante por un
+        candidato a duplicado (ver verificar_duplicado más abajo) y este
+        envía la decisión junto con el resto del formulario, aquí se aplica:
+        fusiona si confirmó, o solo deja constancia en SugerenciaDuplicado si
+        rechazó. La decisión ya la tomó el humano antes de llegar aquí — este
+        método nunca decide solo. Devuelve la Incidencia candidata si se
+        fusionó, o None si no (sin candidato, folio inválido, o rechazado).
+        """
+        folio_candidato = data.get('duplicado_candidato_folio')
+        if not folio_candidato:
+            return None
+
+        candidata = Incidencia.objects.filter(folio=folio_candidato).exclude(id=nueva_incidencia.id).first()
+        if not candidata:
+            return None  # folio inválido/ya no existe: se ignora, el reporte queda como caso independiente
+
+        from deduplicacion.models import SugerenciaDuplicado
+        from deduplicacion.services import fusionar
+
+        confirmado = str(data.get('duplicado_confirmado', '')).strip().lower() in ('true', '1')
+        try:
+            score = float(data.get('duplicado_score', 0) or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+
+        SugerenciaDuplicado.objects.create(
+            incidencia_nueva=nueva_incidencia,
+            incidencia_candidata=candidata,
+            score=score,
+            estado='CONFIRMADA' if confirmado else 'RECHAZADA',
+            resuelto_at=timezone.now(),
+            resuelto_por=request.user if request.user.is_authenticated else None,
+        )
+
+        if confirmado:
+            fusionar(original=candidata, duplicado=nueva_incidencia)
+            return candidata
+        return None
+
+    @action(detail=False, methods=['post'], url_path='verificar-duplicado', permission_classes=[AllowAny])
+    def verificar_duplicado(self, request):
+        """
+        Chequeo SÍNCRONO de posibles duplicados, pensado para correr en el
+        paso 4 del wizard de reporte — ANTES de crear ninguna Incidencia.
+        Reusa exactamente el mismo pipeline (filtros geo/estructura + visión
+        + ranking ponderado) que antes corría async por Celery después de
+        crear el reporte, pero aquí:
+          - no persiste nada (ni Incidencia ni Animal),
+          - no muta el índice HNSW (solo lectura, get_similarity_scores),
+          - regresa el mejor candidato (si supera UMBRAL_REVISION) para que
+            el front le pregunte al reportante "¿es este tu caso?" antes de
+            que exista un registro nuevo.
+
+        Si el reportante confirma, el folio del candidato viaja de vuelta en
+        el POST de creación (`duplicado_candidato_folio` +
+        `duplicado_confirmado`) — ver create()/_resolver_duplicado_en_creacion.
+        """
+        from deduplicacion.filtros import candidatos_por_metadatos
+        from deduplicacion.ranking import RankingService
+        from deduplicacion.services import VisionService
+
+        imagen = request.FILES.get('imagen')
+        tipo = (request.data.get('tipo_animal') or '').strip()
+        lat = request.data.get('latitud')
+        lng = request.data.get('longitud')
+
+        if not imagen or not tipo or lat is None or lng is None:
+            return Response({'candidato': None})
+
+        try:
+            lat, lng = float(lat), float(lng)
+        except (TypeError, ValueError):
+            raise ValidationError("latitud/longitud inválidas.")
+
+        animal_temp = Animal(
+            tipo=tipo,
+            tamano=(request.data.get('tamano_animal') or '').strip(),
+            color=(request.data.get('color_animal') or '').strip(),
+            raza=(request.data.get('raza_animal') or '').strip(),
+        )
+        incidencia_temp = Incidencia(animal=animal_temp, ubicacion=Point(lng, lat, srid=4326), caracteristicas='')
+
+        candidatos = [c for c in candidatos_por_metadatos(incidencia_temp) if c.imagen]
+        if not candidatos:
+            return Response({'candidato': None})
+
+        vision_ai = VisionService()
+        candidatos_ids = [c.id for c in candidatos]
+        similitud_visual = vision_ai.get_similarity_scores(imagen, tipo, candidatos_ids)
+
+        resultados = RankingService.calcular_score_final(candidatos, similitud_visual, incidencia_temp)
+        if not resultados or resultados[0]['score'] < RankingService.UMBRAL_REVISION:
+            return Response({'candidato': None})
+
+        mejor = resultados[0]
+        candidata = mejor['incidencia']
+        return Response({
+            'candidato': {
+                'score': mejor['score'],
+                'folio': candidata.folio,
+                'tipo_animal': candidata.animal.tipo if candidata.animal else None,
+                'imagen': request.build_absolute_uri(candidata.imagen.url) if candidata.imagen else None,
+                'created_at': candidata.created_at,
+            }
+        })
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -349,7 +467,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             inc = Incidencia.objects.select_related('animal', 'rescatista_asignado').get(folio=folio)
         except Incidencia.DoesNotExist:
             raise NotFound("Reporte no encontrado.")
-                
+
         return Response({
                 'folio': inc.folio,
                 'estado': inc.estado,
@@ -358,4 +476,4 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
                 'created_at': inc.created_at,
                 'rescatista_asignado': inc.rescatista_asignado is not None,
                 'tipo_animal': inc.animal.tipo if inc.animal else None,
-                })    
+                })

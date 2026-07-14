@@ -62,6 +62,3 @@ class NotifConsumer(AsyncJsonWebsocketConsumer):
 
     async def duplicate_detected(self, event):
         await self.send_json({k: v for k, v in event.items() if k != "type"})
-
-    async def revision_requerida(self, event):
-        await self.send_json({k: v for k, v in event.items() if k != "type"})

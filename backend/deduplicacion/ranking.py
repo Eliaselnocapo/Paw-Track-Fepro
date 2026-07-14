@@ -2,6 +2,17 @@ import difflib
 import os
 
 
+def _similitud(a: str, b: str) -> float:
+    """Similitud difflib (stdlib, sin infraestructura nueva) entre dos
+    textos libres, normalizada 0..1. 0.0 si cualquiera de los dos lados no
+    reportó el dato — un campo opcional vacío no debe leerse como "coincide"
+    con otro vacío, solo como "no hay señal"."""
+    a, b = (a or "").strip().lower(), (b or "").strip().lower()
+    if not a or not b:
+        return 0.0
+    return difflib.SequenceMatcher(None, a, b).ratio()
+
+
 class RankingService:
     # Umbrales sobre score_final (0-1). Estimación razonada inicial — ajustar
     # con el feedback loop cuando los rescatistas confirmen/rechacen duplicados
@@ -45,17 +56,23 @@ class RankingService:
             distancia_m = cand.distancia_m.m
             score_geo = max(0, 1 - (distancia_m / RankingService.RADIO_REFERENCIA_M))
 
-            # Score Estructurado — case-insensitive, igual que el __iexact
-            # que ya usa filtros.py para el mismo campo (tamano); si no,
-            # dos reportes del mismo animal con distinta capitalización
-            # pasan el filtro pero pierden puntos aquí sin motivo real.
-            score_estruc = 0.0
-            cand_color = (cand.animal.color or '').strip().lower()
-            nueva_color = (nueva.animal.color or '').strip().lower()
-            if cand_color == nueva_color: score_estruc += 0.5
+            # Score Estructurado — tres señales a partes iguales:
+            # - tamano: catálogo fijo elegido por botones en el wizard de
+            #   reporte (cachorro/adulto/pequeño/mediano/grande, ver
+            #   create-report.page.html) — no hay typos posibles en un valor
+            #   de catálogo, así que comparación exacta case-insensitive
+            #   sigue siendo correcta (igual que el __iexact de filtros.py).
+            # - color y raza: texto libre capturado por percepción subjetiva
+            #   del reportante ("shibu inu" vs "shiba inu" — ver
+            #   decision-tecnica-filtro-raza.md). Nunca se filtran duro
+            #   (deduplicacion/filtros.py ya no excluye por raza), y aquí
+            #   participan como similitud continua, no como igualdad exacta:
+            #   un typo penaliza un poco, no anula el score.
             cand_tamano = (cand.animal.tamano or '').strip().lower()
             nueva_tamano = (nueva.animal.tamano or '').strip().lower()
-            if cand_tamano == nueva_tamano: score_estruc += 0.5
+            score_estruc = (1/3) if cand_tamano == nueva_tamano else 0.0
+            score_estruc += (1/3) * _similitud(cand.animal.color, nueva.animal.color)
+            score_estruc += (1/3) * _similitud(cand.animal.raza, nueva.animal.raza)
 
             # Score Foto (Normalizamos el dict de similitud que devuelve la IA)
             score_foto = similitud_visual.get(str(cand.id), 0.0)
@@ -63,12 +80,7 @@ class RankingService:
             # Score Texto — similitud real (difflib, stdlib) en vez de
             # igualdad exacta de string, que casi nunca da 1.0 entre dos
             # reportes independientes aunque describan lo mismo.
-            texto_cand = (cand.caracteristicas or "").strip().lower()
-            texto_nueva = (nueva.caracteristicas or "").strip().lower()
-            score_texto = (
-                difflib.SequenceMatcher(None, texto_cand, texto_nueva).ratio()
-                if texto_cand and texto_nueva else 0.0
-            )
+            score_texto = _similitud(cand.caracteristicas, nueva.caracteristicas)
 
             # 4. Ponderación Final
             score_final = (score_geo * w_geo) + \

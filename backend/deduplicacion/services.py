@@ -143,6 +143,12 @@ class VisionService:
         scores = {}
         for i, label in enumerate(labels[0]):
             db_id = mapping[label]
+            # El índice puede traer entradas de entrenamiento/seed que no
+            # corresponden a ninguna Incidencia real (ids no numéricos, ej.
+            # slugs de dataset) — nunca van a matchear candidatos_ids, así
+            # que se ignoran en vez de tronar con ValueError.
+            if not str(db_id).isdigit():
+                continue
             if int(db_id) in candidatos_ids:
                 distancia = distances[0][i]
                 scores[str(db_id)] = 1 / (1 + distancia)
@@ -153,7 +159,10 @@ class VisionService:
 def fusionar(original, duplicado):
     """
     Marca `duplicado` como CERRADO (es el reporte nuevo que resultó ser el
-    mismo caso) y confirma `original` con un boost de urgencia. Ver
+    mismo caso), confirma `original` con un boost de urgencia, y enriquece
+    los datos de `original.animal` con lo que haya capturado `duplicado` y
+    el original no tenga (más gente reportando el mismo animal suele traer
+    mejores datos con el tiempo, no solo confirmación). Ver
     SYSTEM_CONTRACT.md > Algoritmo: Deduplicación.
     """
     duplicado.estado = 'CERRADO'
@@ -162,4 +171,29 @@ def fusionar(original, duplicado):
     original.urgency_score = (original.urgency_score or 0) + 10
     original.save(update_fields=['urgency_score'])
 
+    _enriquecer_animal(original.animal, duplicado.animal)
+
     logger.info("Deduplicación: incidencia %s fusionada como duplicado de %s.", duplicado.id, original.id)
+
+
+def _enriquecer_animal(animal_original, animal_duplicado):
+    """Copia a `animal_original` los campos que tiene vacíos y que
+    `animal_duplicado` sí trae. Nunca sobreescribe un dato que el original
+    ya tenía — un reporte nuevo puede estar equivocado, así que solo llena
+    huecos, no reemplaza confirmaciones previas."""
+    if animal_original is None or animal_duplicado is None:
+        return
+
+    campos = ['color', 'tamano', 'raza', 'agresividad', 'salud', 'otros', 'edad_estimada', 'peso_estimado']
+    actualizados = []
+    for campo in campos:
+        valor_original = (getattr(animal_original, campo, '') or '').strip()
+        valor_nuevo = (getattr(animal_duplicado, campo, '') or '').strip()
+        if not valor_original and valor_nuevo:
+            setattr(animal_original, campo, valor_nuevo)
+            actualizados.append(campo)
+
+    if actualizados:
+        animal_original.save(update_fields=actualizados)
+        logger.info("Deduplicación: animal %s enriquecido con campos %s desde incidencia duplicada.",
+                    animal_original.id, actualizados)
