@@ -167,44 +167,44 @@ class VisionService:
 
         return scores
 
-def fusionar(original, duplicado):
+BOOST_URGENCIA_POR_DUPLICADO = float(os.environ.get('DEDUP_BOOST_URGENCIA', 5))
+
+
+def descartar_duplicado(original, duplicado):
     """
-    Marca `duplicado` como CERRADO (es el reporte nuevo que resultó ser el
-    mismo caso), confirma `original` con un boost de urgencia, y enriquece
-    los datos de `original.animal` con lo que haya capturado `duplicado` y
-    el original no tenga (más gente reportando el mismo animal suele traer
-    mejores datos con el tiempo, no solo confirmación). Ver
+    Borra por completo `duplicado` (la Incidencia recién creada que el
+    reportante confirmó que es el mismo caso que uno ya existente), junto
+    con su Animal y la imagen que se haya subido — no tiene caso guardarla
+    ni como caso cerrado. No se migran datos hacia `original.animal` (ver
+    nota de fusionar() en versiones previas: mezclar datos de un reporte
+    que puede estar mal capturado generaba problemas). Lo único que se
+    ajusta en `original` es un boost chico y con tope en urgency_score:
+    que más gente reporte el mismo animal es una señal real de que más
+    gente lo está viendo/le importa, así que suma un poco — pero SIEMPRE
+    con `min(100, ...)`, nunca sin tope (ver bug real: un boost sin tope
+    aquí hacía que el front mostrara "105%", "125%", etc.). Ver
     SYSTEM_CONTRACT.md > Algoritmo: Deduplicación.
     """
-    duplicado.estado = 'CERRADO'
-    duplicado.save(update_fields=['estado'])
+    animal = duplicado.animal
+    imagen = duplicado.imagen
+    duplicado_id = duplicado.id
 
-    original.urgency_score = (original.urgency_score or 0) + 10
+    duplicado.delete()
+
+    if imagen:
+        imagen.delete(save=False)
+
+    urgencia_anterior = original.urgency_score or 0
+    original.urgency_score = min(100.0, urgencia_anterior + BOOST_URGENCIA_POR_DUPLICADO)
     original.save(update_fields=['urgency_score'])
 
-    _enriquecer_animal(original.animal, duplicado.animal)
+    if original.ubicacion and original.urgency_score != urgencia_anterior:
+        from notificaciones.services import broadcast_urgency_update
+        from core.zona import compute_zona_key
+        zona_key = compute_zona_key(original.ubicacion.y, original.ubicacion.x)
+        broadcast_urgency_update(original.id, zona_key, original.urgency_score)
 
-    logger.info("Deduplicación: incidencia %s fusionada como duplicado de %s.", duplicado.id, original.id)
+    if animal is not None and not animal.incidencias.exists():
+        animal.delete()
 
-
-def _enriquecer_animal(animal_original, animal_duplicado):
-    """Copia a `animal_original` los campos que tiene vacíos y que
-    `animal_duplicado` sí trae. Nunca sobreescribe un dato que el original
-    ya tenía — un reporte nuevo puede estar equivocado, así que solo llena
-    huecos, no reemplaza confirmaciones previas."""
-    if animal_original is None or animal_duplicado is None:
-        return
-
-    campos = ['color', 'tamano', 'raza', 'agresividad', 'salud', 'otros', 'edad_estimada', 'peso_estimado']
-    actualizados = []
-    for campo in campos:
-        valor_original = (getattr(animal_original, campo, '') or '').strip()
-        valor_nuevo = (getattr(animal_duplicado, campo, '') or '').strip()
-        if not valor_original and valor_nuevo:
-            setattr(animal_original, campo, valor_nuevo)
-            actualizados.append(campo)
-
-    if actualizados:
-        animal_original.save(update_fields=actualizados)
-        logger.info("Deduplicación: animal %s enriquecido con campos %s desde incidencia duplicada.",
-                    animal_original.id, actualizados)
+    logger.info("Deduplicación: incidencia %s borrada (confirmada como duplicado).", duplicado_id)
