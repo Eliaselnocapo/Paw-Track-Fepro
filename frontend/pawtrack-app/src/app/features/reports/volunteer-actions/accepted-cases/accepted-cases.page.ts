@@ -35,6 +35,9 @@ interface CasoAceptado {
   especie: string;
   tamano: string;
   condicion: string;
+  color: string;
+  raza: string;
+  agresividad: string;
   score: number;
   contactoNombre: string;
   contactoTelefono: string;
@@ -167,6 +170,9 @@ export class AcceptedCasesPage implements OnInit {
       especie:         i.tipo_animal ?? 'Desconocido',
       tamano:          (i['tamano_animal'] as string) ?? 'No especificado',
       condicion:       (i['condicion_animal'] as string) ?? 'No especificada',
+      color:           (i['color_animal'] as string) ?? '',
+      raza:            (i['raza_animal'] as string) ?? '',
+      agresividad:     (i['agresividad_animal'] as string) ?? '',
       score,
       contactoNombre:  i.nombre_contacto ?? 'Anónimo',
       contactoTelefono: i.telefono_contacto ?? 'No disponible',
@@ -184,6 +190,25 @@ export class AcceptedCasesPage implements OnInit {
   // solo se consulta su expediente.
   esTerminado(caso: CasoAceptado): boolean {
     return caso.estadoRescate === 'Rescatado' || caso.estadoRescate === 'Cancelado';
+  }
+  /** Chip de advertencia segun como reacciono el animal. */
+  chipAgresividad(caso: CasoAceptado): { texto: string; icono: string; clase: string } | null {
+    switch (caso.agresividad) {
+      case 'agresivo':
+        return { texto: 'Agresivo', icono: 'warning',
+                clase: 'bg-red-50 text-red-700 border-red-300' };
+      case 'asustadizo':
+        return { texto: 'Asustadizo', icono: 'directions_run',
+                clase: 'bg-amber-50 text-amber-700 border-amber-200' };
+      case 'docil':
+        return { texto: 'Docil', icono: 'volunteer_activism',
+                clase: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+      case 'no_evaluable':
+        return { texto: 'Sin evaluar', icono: 'help',
+                clase: 'bg-slate-100 text-slate-600 border-slate-200' };
+      default:
+        return null;
+    }
   }
 
   get casosActivos(): CasoAceptado[] {

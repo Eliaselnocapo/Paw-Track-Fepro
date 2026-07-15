@@ -219,7 +219,7 @@
                       }
                     </div>
 
-                    <!-- Chips informativos con color -->
+                  <!-- Chips informativos con color -->
                     <div class="flex flex-wrap gap-2">
                       <span class="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 font-semibold flex items-center gap-1 rounded">
                         <span class="material-symbols-outlined text-[13px]">pets</span>
@@ -229,6 +229,29 @@
                         <span class="material-symbols-outlined text-[13px]">straighten</span>
                         {{ caso.tamano }}
                       </span>
+
+                      @if (caso.color) {
+                        <span class="text-xs px-2.5 py-1 bg-slate-50 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded capitalize">
+                          <span class="material-symbols-outlined text-[13px]">palette</span>
+                          {{ caso.color }}
+                        </span>
+                      }
+
+                      @if (caso.raza) {
+                        <span class="text-xs px-2.5 py-1 bg-slate-50 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded capitalize">
+                          <span class="material-symbols-outlined text-[13px]">sell</span>
+                          {{ caso.raza }}
+                        </span>
+                      }
+
+                      <!-- Advertencia: como reacciono el animal -->
+                      @if (chipAgresividad(caso); as chip) {
+                        <span class="text-xs px-2.5 py-1 border font-bold flex items-center gap-1 rounded" [ngClass]="chip.clase">
+                          <span class="material-symbols-outlined text-[13px]">{{ chip.icono }}</span>
+                          {{ chip.texto }}
+                        </span>
+                      }
+
                       <span class="text-xs px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded">
                         <span class="material-symbols-outlined text-[13px]">tag</span>
                         {{ caso.folio }}

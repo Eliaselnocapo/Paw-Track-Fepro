@@ -78,6 +78,7 @@ cargarCasos(): void {
       console.log('CASOS PARA VOLUNTARIO:', resp);
 
       const incidencias: IncidenciaResponse[] = Array.isArray(resp)
+      
         ? resp
         : Array.isArray(resp.results)
           ? resp.results
@@ -120,7 +121,7 @@ cargarCasos(): void {
       condicion: incidencia.condicion_animal || 'No especificada',
       contactoNombre: incidencia.nombre_contacto || 'Contacto no registrado',
       contactoTelefono: incidencia.telefono_contacto || 'Teléfono no registrado',
-      score: incidencia.urgency_score || 0,
+      score: Math.round(incidencia.urgency_score || 0),
       prioridad: this.obtenerPrioridad(incidencia.urgency_score || 0),
       especie: this.obtenerEspecie(incidencia.tipo_animal),
       fotoUrl: this.imagenUrl(incidencia.imagen),

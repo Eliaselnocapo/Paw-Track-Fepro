@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
+import { HttpClient } from '@angular/common/http';
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
@@ -62,10 +62,16 @@ export class ReporterPage implements OnInit {
 
   modoActual: 'cuenta' | 'invitado' = 'invitado';
 
+  selectedFile: File | null = null;
+  fileName: string = '';
+  isUploadingPdf: boolean = false;
+  extractedData: any = null;
+
   constructor(
     private reportService: ReportService,
     private localReportCache: LocalReportCacheService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient // <-- SOLO AGREGA ESTA LÍNEA AQUÍ
   ) {}
 
   ngOnInit(): void {
@@ -74,6 +80,46 @@ export class ReporterPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.cargarReportes();
+  }
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      this.selectedFile = file;
+      this.fileName = file.name;
+      this.extractedData = null; 
+    } else {
+      alert('Por favor, selecciona un archivo PDF válido.');
+      this.selectedFile = null;
+      this.fileName = '';
+    }
+  }
+
+  uploadPdf() {
+    if (!this.selectedFile) return;
+
+    this.isUploadingPdf = true;
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+
+    const API_URL = `${environment.apiUrl}/api/procesar-pdf-externo/`; 
+
+    this.http.post(API_URL, formData).subscribe({
+      next: (response: any) => {
+        this.isUploadingPdf = false;
+        this.extractedData = response;
+      },
+      error: (err) => {
+        this.isUploadingPdf = false;
+        console.error('Error al procesar el PDF en el servidor', err);
+        alert('Hubo un problema al procesar el archivo. Revisa la consola para más detalles.');
+      }
+    });
+  }
+
+  continuarConReporteLleno() {
+    this.router.navigate(['/reports/create-report'], {
+      state: { datosAutocompletar: this.extractedData }
+    });
   }
   get totalPaginasReportes(): number {
   return Math.ceil(this.reports.length / this.reportesPorPagina);
@@ -202,7 +248,7 @@ private cargarMisReportesDeCuenta(): void {
       updatedAt: this.obtenerTiempoActualizado(incidencia.created_at, incidencia.updated_at),
       animalType: incidencia.tipo_animal || 'otro',
       imageUrl: this.imagenUrl(incidencia.imagen),
-      urgencyScore: incidencia.urgency_score || 0,
+      urgencyScore: Math.round(incidencia.urgency_score || 0),
       eta: undefined,
 
       tamanoAnimal: incidencia.tamano_animal || 'No especificado',

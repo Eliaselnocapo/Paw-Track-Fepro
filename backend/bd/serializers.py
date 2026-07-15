@@ -81,9 +81,6 @@ class CustomRegisterSerializer(RegisterSerializer):
             raise serializers.ValidationError(
                 f"Roles inválidos: {invalidos}. Válidos: {Usuario.ROLES_VALIDOS}"
             )
-        # Ya no hay selector de rol en el registro: todo usuario nuevo es
-        # REPORTERO + RESCATISTA. PATROCINADOR sigue siendo opt-in explícito
-        # porque es un flujo de aprobación aparte, no parte de este par.
         roles = ['REPORTERO', 'RESCATISTA']
         if 'PATROCINADOR' in value:
             roles.append('PATROCINADOR')
@@ -135,6 +132,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     longitud = serializers.FloatField(write_only=True)
     lat_out  = serializers.SerializerMethodField(read_only=True)
     lng_out  = serializers.SerializerMethodField(read_only=True)
+    coincidencias_visuales = serializers.SerializerMethodField()
 
     # Campos del animal, aplanados en la incidencia (evita un segundo request
     # desde el front). Son ESCRIBIBLES: el voluntario los llena desde
@@ -152,7 +150,6 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     raza_animal        = serializers.CharField(source='animal.raza',         required=False, allow_blank=True, default='')
     agresividad_animal = serializers.CharField(source='animal.agresividad',  required=False, allow_blank=True, default='')
 
-    # Quién tomó el caso: nombre y email del rescatista asignado
     rescatista_info  = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -170,6 +167,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
             'caracteristicas', 'ficha_voluntario', 'estado', 'tipo_incidencia', 'recompensa',
             'urgency_score', 'trust_score', 'created_at', 'updated_at', 'folio',
+            'coincidencias_visuales',
         )
         extra_kwargs = {
             'usuario_reporta':     {'required': False, 'allow_null': True},
@@ -207,6 +205,11 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
             "email":  u.email,
         }
+    
+    def get_coincidencias_visuales(self, obj):
+        # Fix P0-5: Retorna directamente la lista persistida desde la BD.
+        # Cero llamadas a IA bloqueando la petición del cliente y total aislamiento de módulos.
+        return obj.coincidencias_visuales_ids
 
     # Los campos declarados con source='animal.x' llegan a validated_data
     # agrupados bajo la llave 'animal'. Pero 'animal' TAMBIEN es la FK, que

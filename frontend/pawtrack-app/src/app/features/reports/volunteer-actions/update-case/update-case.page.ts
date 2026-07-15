@@ -40,6 +40,8 @@ export class UpdateCasePage implements OnInit {
     esterilizado: '',    // si | no | desconocido
     salud: '',           // estable | delicado | critico
     temperamento: '',    // docil | asustadizo | agresivo | no_evaluable
+    color: '',
+    raza: '',
     notas: '',
   };
 
@@ -127,6 +129,12 @@ export class UpdateCasePage implements OnInit {
 
     this.ficha.peso  = (i['peso_estimado'] as string) || '';
     this.ficha.edad  = (i['edad_estimada'] as string) || '';
+
+    // Color, raza y temperamento ya tienen columna propia: el voluntario
+    // confirma o corrige lo que capturo el reportante.
+    this.ficha.color        = (i['color_animal'] as string) || '';
+    this.ficha.raza         = (i['raza_animal'] as string) || '';
+    this.ficha.temperamento = (i['agresividad_animal'] as string) || '';
   }
 
   // ─────────────────────────────────────────
@@ -141,18 +149,20 @@ export class UpdateCasePage implements OnInit {
     this.fichaOk = false;
     this.errorFicha = null;
 
-    // Los campos sin columna propia se guardan concatenados en "ficha_voluntario".
+  // Los campos sin columna propia se guardan concatenados en "ficha_voluntario".
     const extras: string[] = [];
     if (this.ficha.sexo)         extras.push(`Sexo: ${this.etiqueta('sexo', this.ficha.sexo)}`);
     if (this.ficha.esterilizado) extras.push(`Esterilizado: ${this.etiqueta('esterilizado', this.ficha.esterilizado)}`);
     if (this.ficha.salud)        extras.push(`Salud: ${this.etiqueta('salud', this.ficha.salud)}`);
-    if (this.ficha.temperamento) extras.push(`Temperamento: ${this.etiqueta('temperamento', this.ficha.temperamento)}`);
     if (this.ficha.notas.trim()) extras.push(`Notas clínicas: ${this.ficha.notas.trim()}`);
 
     this.reportService.actualizarReporte(incidenciaId, {
-      peso_estimado:    this.ficha.peso || undefined,
-      edad_estimada:    this.ficha.edad || undefined,
-      ficha_voluntario: extras.length ? extras.join(' | ') : undefined,
+      peso_estimado:      this.ficha.peso || undefined,
+      edad_estimada:      this.ficha.edad || undefined,
+      color_animal:       this.ficha.color.trim() || undefined,
+      raza_animal:        this.ficha.raza.trim()  || undefined,
+      agresividad_animal: this.ficha.temperamento || undefined,
+      ficha_voluntario:   extras.length ? extras.join(' | ') : undefined,
     }).subscribe({
       next: () => {
         this.guardandoFicha = false;
@@ -172,7 +182,7 @@ export class UpdateCasePage implements OnInit {
   get especie(): string { return this.rescate?.incidencia?.tipo_animal || 'No especificado'; }
   get tamano(): string { return this.rescate?.incidencia?.['tamano_animal'] || 'No especificado'; }
   get condicion(): string { return this.rescate?.incidencia?.['condicion_animal'] || 'No especificada'; }
-  get score(): number { return this.rescate?.incidencia?.urgency_score ?? 0; }
+  get score(): number { return Math.round(this.rescate?.incidencia?.urgency_score ?? 0); }
   get contactoNombre(): string { return this.rescate?.incidencia?.nombre_contacto || 'No registrado'; }
   get contactoTelefono(): string { return this.rescate?.incidencia?.telefono_contacto || 'No registrado'; }
   get historial(): EntradaHistorial[] { return this.rescate?.historial ?? []; }

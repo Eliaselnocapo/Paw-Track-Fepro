@@ -183,7 +183,7 @@ private initMapa(): void {
       condicion: incidencia.condicion_animal || 'No especificada',
       contactoNombre: incidencia.nombre_contacto || 'Contacto no registrado',
       contactoTelefono: incidencia.telefono_contacto || 'Teléfono no registrado',
-      score: incidencia.urgency_score || 0,
+      score: Math.round(incidencia.urgency_score || 0),
       prioridad: this.obtenerPrioridad(incidencia.urgency_score || 0),
       especie: this.obtenerEspecie(incidencia.tipo_animal),
       fotoUrl: this.imagenUrl(incidencia.imagen),
@@ -291,5 +291,58 @@ private initMapa(): void {
   get estadoLegible(): string {
     if (!this.caso?.estado) return 'Pendiente';
     return this.caso.estado.replace(/_/g, ' ').toLowerCase();
+  }
+  // ── Campos nuevos del animal ──────────────
+
+  get color(): string | null {
+    return this.caso?.raw?.color_animal?.trim() || null;
+  }
+
+  get raza(): string | null {
+    return this.caso?.raw?.raza_animal?.trim() || null;
+  }
+
+  get agresividad(): string | null {
+    return this.caso?.raw?.agresividad_animal?.trim() || null;
+  }
+
+  /** Como reacciono el animal al ver al reportante: informacion de seguridad. */
+  get avisoAgresividad(): { titulo: string; detalle: string; icono: string; clase: string; claseTexto: string } | null {
+    switch (this.agresividad) {
+      case 'agresivo':
+        return {
+          titulo: 'Gruñó o intentó morder',
+          detalle: 'No te acerques sin equipo de contención. Considera pedir apoyo de otro voluntario.',
+          icono: 'warning',
+          clase: 'border-red-300 bg-red-50',
+          claseTexto: 'text-red-800',
+        };
+      case 'asustadizo':
+        return {
+          titulo: 'Se alejó o huyó',
+          detalle: 'Está asustado. Acércate despacio, sin movimientos bruscos ni ruidos fuertes.',
+          icono: 'directions_run',
+          clase: 'border-amber-300 bg-amber-50',
+          claseTexto: 'text-amber-800',
+        };
+      case 'docil':
+        return {
+          titulo: 'Se dejó acercar',
+          detalle: 'El reportante pudo aproximarse sin problema. Aun así, mantén precaución.',
+          icono: 'volunteer_activism',
+          clase: 'border-emerald-300 bg-emerald-50',
+          claseTexto: 'text-emerald-800',
+        };
+      case 'no_evaluable':
+        return {
+          titulo: 'No se pudo evaluar',
+          detalle: 'El reportante lo vio de lejos. Asume precaución máxima al acercarte.',
+          icono: 'help',
+          clase: 'border-slate-300 bg-slate-50',
+          claseTexto: 'text-slate-700',
+        };
+      default:
+        return null;
+    }
   }
 }

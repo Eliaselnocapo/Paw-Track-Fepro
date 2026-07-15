@@ -88,6 +88,31 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
 .alertas-lista::-webkit-scrollbar { width: 6px; }
 .alertas-lista::-webkit-scrollbar-thumb { background: #d6e0f0; }
 
+/* ===== Genéricos usados por el HTML actual (hero + tarjetas-alertas) ===== */
+.container { width: 100%; }
+
+.hero {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid #f1f5fb;
+}
+.hero .title {
+  font-size: 19px; font-weight: 800; color: #0f1f3d;
+  margin: 0; letter-spacing: -0.01em;
+}
+.hero .subtitle {
+  font-size: 13px; color: #64748b; margin: 6px 0 0; line-height: 1.5;
+}
+
+.tarjetas-alertas {
+  flex: 1; overflow-y: auto; max-height: 574px;
+}
+.tarjetas-alertas .container {
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.tarjetas-alertas::-webkit-scrollbar { width: 6px; }
+.tarjetas-alertas::-webkit-scrollbar-thumb { background: #d6e0f0; }
+
 .alerta-estado {
   display: flex; align-items: center; gap: 14px;
   padding: 20px; background: #f8fafd; border: 1px solid #eef2f9;
@@ -167,6 +192,31 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   grid-area: estadisticas;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
 }
+
+.estadisticas .texto {
+  grid-column: 1 / -1;
+}
+.estadisticas .texto .title {
+  font-size: 26px; font-weight: 800; color: #0f1f3d;
+  margin: 0; letter-spacing: -0.02em;
+}
+.estadisticas .texto .subtitle {
+  font-size: 14px; color: #64748b; margin: 6px 0 0;
+}
+
+.animales-salvados,
+.voluntarios-activos {
+  @extend %card-soft;
+  padding: 24px 26px;
+  display: flex; flex-direction: column; justify-content: center;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.animales-salvados:hover,
+.voluntarios-activos:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(16, 42, 92, 0.10);
+}
+
 .stat-box {
   @extend %card-soft;
   padding: 24px 26px;
@@ -228,7 +278,154 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
       "alertas-recientes"
       "estadisticas";
   }
-  #mapa-casos { min-height: 440px; }
-  .alertas-lista { max-height: none; }
-  .estadisticas { grid-template-columns: 1fr; }
+
+  .mapa-general,
+  #mapa-casos {
+    min-height: 420px;
+  }
+
+  .alertas-recientes {
+    min-height: 320px;
+  }
+
+  .estadisticas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .estadisticas .texto {
+    grid-column: 1 / -1;
+  }
+
+  .page-shell::before {
+    width: 480px;
+    height: 480px;
+    top: 120px;
+    left: -220px;
+  }
+
+  .page-shell::after {
+    width: 440px;
+    height: 440px;
+    top: 520px;
+    right: -220px;
+  }
+}
+
+/* Responsive móvil */
+@media (max-width: 640px) {
+  .page-content {
+    padding: 20px 14px 36px;
+  }
+
+  .layout-dashboard {
+    gap: 18px;
+  }
+
+  .mapa-general,
+  #mapa-casos {
+    min-height: 360px;
+  }
+
+  .estadisticas {
+    grid-template-columns: 1fr;
+  }
+
+  .estadisticas > section {
+    min-height: 120px;
+  }
+
+  .estadisticas .texto .title {
+    font-size: 1.5rem;
+  }
+
+  .stat-number {
+    font-size: 1.7rem;
+  }
+
+  .page-shell::before {
+    width: 340px;
+    height: 340px;
+    top: 100px;
+    left: -180px;
+  }
+
+  .page-shell::after {
+    width: 320px;
+    height: 320px;
+    top: 560px;
+    right: -180px;
+  }
+}
+
+/* Tarjetas de alertas con imagen */
+.alerta-card-con-imagen {
+  display: flex;
+  flex-direction: column;   /* imagen arriba, texto abajo */
+  align-items: stretch;     /* que ocupen todo el ancho */
+  padding: 0;
+  overflow: hidden;
+}
+
+.alerta-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.alerta-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Placeholder cuando el backend manda imagen: null */
+.alerta-img-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  place-items: center;
+
+  background: linear-gradient(135deg, #dbeafe 0%, #ecfeff 100%);
+  color: #0058be;
+
+  font-size: 2.4rem;
+}
+
+.alerta-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+
+  padding: 5px 9px;
+  border-radius: 999px;
+
+  background: rgba(0, 88, 190, 0.92);
+  color: #ffffff;
+
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.alerta-info {
+  padding: 14px;
+}
+
+.alerta-folio {
+  margin-top: 8px !important;
+  font-size: 0.76rem !important;
+  color: #94a3b8 !important;
+}
+
+.mapa-general {
+  scroll-margin-top: 90px;
+}
+
+.alerta-card[role="button"] {
+  cursor: pointer;
 }

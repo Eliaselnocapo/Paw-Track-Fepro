@@ -31,6 +31,17 @@ export interface ReportePayload {
   imagen?: File;
   nombre_contacto?: string;
   telefono_contacto?: string;
+  /** Folio del candidato que verificarDuplicado() encontró en el paso 4 del
+   * wizard, si el reportante ya respondió la pregunta "¿es el mismo caso?"
+   * antes de enviar. Ver ReportService.verificarDuplicado(). */
+  duplicado_candidato_folio?: string;
+  /** true si el reportante confirmó que es el mismo caso (el back fusiona
+   * de inmediato), false si dijo que es distinto (queda como registro de
+   * auditoría, el reporte se crea como caso independiente). */
+  duplicado_confirmado?: boolean;
+  /** Score que regresó verificarDuplicado() para ese candidato, solo para
+   * el registro de auditoría (SugerenciaDuplicado) del lado del back. */
+  duplicado_score?: number;
 }
 
 /** Info del rescatista asignado que devuelve el serializer cuando el caso ya fue tomado. */
@@ -44,6 +55,40 @@ export interface SeguimientoHistorial {
   folio: string;
   estado: string;
   historial: EntradaHistorial[];
+}
+
+/**
+ * Candidato a duplicado que verificarDuplicado() encontró para los datos que
+ * el reportante lleva capturados hasta el paso 4 del wizard (imagen +
+ * tipo/tamaño/color/raza + ubicación). No hay Incidencia nueva creada
+ * todavía en este punto — es el "otro" reporte ya existente que se parece.
+ */
+export interface CandidatoDuplicado {
+  score: number;
+  folio: string | null;
+  tipo_animal: string | null;
+  imagen: string | null;
+  created_at: string;
+}
+
+export interface VerificarDuplicadoPayload {
+  tipo_animal: string;
+  tamano_animal?: string;
+  color_animal?: string;
+  raza_animal?: string;
+  latitud: number;
+  longitud: number;
+  imagen: File;
+}
+
+export interface SeguimientoResponse {
+  folio: string;
+  estado: string;
+  tipo_incidencia: string;
+  urgency_score: number;
+  created_at: string;
+  rescatista_asignado: boolean;
+  tipo_animal: string | null;
 }
 
 export interface IncidenciaResponse {
@@ -210,7 +255,36 @@ export class ReportService {
     if (payload.nombre_contacto)    form.append('nombre_contacto',    payload.nombre_contacto);
     if (payload.telefono_contacto)  form.append('telefono_contacto',  payload.telefono_contacto);
 
+    if (payload.duplicado_candidato_folio) form.append('duplicado_candidato_folio', payload.duplicado_candidato_folio);
+    if (payload.duplicado_confirmado != null) form.append('duplicado_confirmado', String(payload.duplicado_confirmado));
+    if (payload.duplicado_score != null) form.append('duplicado_score', String(payload.duplicado_score));
+
     return this.http.post<IncidenciaResponse>(this.apiUrl, form);
+  }
+
+  /**
+   * Chequeo síncrono de posibles duplicados — pensado para llamarse en el
+   * paso 4 del wizard de reporte (revisión final), ANTES de crear nada.
+   * Manda la imagen + los metadatos ya capturados hasta ese punto y regresa
+   * el candidato más parecido si supera el umbral del back, o
+   * `{ candidato: null }` si no hay nada parecido cerca.
+   *
+   * Si el usuario confirma que es el mismo caso, el folio + score del
+   * candidato se reenvían dentro de crearReporte() (campos
+   * `duplicado_candidato_folio`/`duplicado_confirmado`/`duplicado_score`)
+   * para que el back fusione en el mismo request que crea el reporte.
+   */
+  verificarDuplicado(payload: VerificarDuplicadoPayload): Observable<{ candidato: CandidatoDuplicado | null }> {
+    const form = new FormData();
+    form.append('tipo_animal', payload.tipo_animal);
+    if (payload.tamano_animal) form.append('tamano_animal', payload.tamano_animal);
+    if (payload.color_animal)  form.append('color_animal',  payload.color_animal);
+    if (payload.raza_animal)   form.append('raza_animal',   payload.raza_animal);
+    form.append('latitud',  String(payload.latitud));
+    form.append('longitud', String(payload.longitud));
+    form.append('imagen', payload.imagen, payload.imagen.name);
+
+    return this.http.post<{ candidato: CandidatoDuplicado | null }>(`${this.apiUrl}verificar-duplicado/`, form);
   }
 
   /**
@@ -251,8 +325,8 @@ export class ReportService {
    * caso fue tomado (ya no puede editarlo, solo seguirlo).
    * Devuelve estado, tipo, urgency_score, created_at y si ya tiene rescatista.
    */
-  seguimientoPorFolio(folio: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}seguimiento/${folio}/`);
+  seguimientoPorFolio(folio: string): Observable<SeguimientoResponse> {
+    return this.http.get<SeguimientoResponse>(`${this.apiUrl}seguimiento/${folio}/`);
   }
 
   /**

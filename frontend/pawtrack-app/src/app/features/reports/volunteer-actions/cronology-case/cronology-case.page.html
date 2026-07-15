@@ -288,43 +288,88 @@
             </section>
 
             <!-- FICHA CLINICA (baja de la derecha para llenar este espacio) -->
+<!-- FICHA CLINICA -->
             <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-emerald-600 text-[20px]">stethoscope</span>
                 <h3 class="font-bold text-slate-800">Ficha clinica del animal</h3>
               </div>
-              <div class="p-5">
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-400">Peso</p>
-                    <p class="text-sm font-bold text-slate-800 mt-0.5">{{ peso }}</p>
-                  </div>
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-400">Edad</p>
-                    <p class="text-sm font-bold text-slate-800 mt-0.5">{{ edad | titlecase }}</p>
-                  </div>
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-400">Especie</p>
-                    <p class="text-sm font-bold text-slate-800 mt-0.5">{{ especie | titlecase }}</p>
-                  </div>
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-400">Tamano</p>
-                    <p class="text-sm font-bold text-slate-800 mt-0.5">{{ tamano | titlecase }}</p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2">
+
+                <!-- LO QUE DIJO EL REPORTANTE -->
+                <div class="p-5 md:border-r border-slate-200">
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-blue-600 mb-4 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">person</span>
+                    Lo que reporto el reportante
+                  </p>
+
+                  <div class="flex flex-col gap-3">
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Especie</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize">{{ especie }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Tamano</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize">{{ tamano }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Condicion</span>
+                      <span class="text-sm font-bold text-slate-800 text-right">{{ condicion }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Color</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize text-right break-words">{{ color }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                      <span class="text-xs font-bold uppercase text-slate-400">Raza</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize text-right break-words">{{ raza }}</span>
+                    </div>
                   </div>
                 </div>
 
-                @if (fichaVoluntario.length > 0) {
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- LO QUE EVALUO EL VOLUNTARIO -->
+                <div class="p-5 border-t md:border-t-0 border-slate-200 bg-emerald-50/30">
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-600 mb-4 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">medical_information</span>
+                    Lo que evaluo el voluntario
+                  </p>
+
+                  <div class="flex flex-col gap-3">
+                    <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Peso</span>
+                      <span class="text-sm font-bold text-slate-800">{{ peso }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Edad</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize">{{ edad }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Temperamento</span>
+                      <span class="inline-flex items-center gap-1.5 text-sm font-bold"
+                        [ngClass]="{
+                          'text-red-700': agresividad === 'agresivo',
+                          'text-amber-700': agresividad === 'asustadizo',
+                          'text-emerald-700': agresividad === 'docil',
+                          'text-slate-500': !agresividad || agresividad === 'no_evaluable'
+                        }">
+                        {{ etiquetaTemperamento }}
+                      </span>
+                    </div>
+
                     @for (dato of fichaVoluntario; track $index) {
-                      <div class="border border-slate-200 px-3 py-2.5">
-                        <p class="text-[10px] font-bold uppercase text-slate-400">{{ dato.etiqueta }}</p>
-                        <p class="text-sm font-semibold text-slate-800 mt-0.5 break-words">{{ dato.valor }}</p>
+                      <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100 last:border-0 last:pb-0">
+                        <span class="text-xs font-bold uppercase text-slate-400 shrink-0">{{ dato.etiqueta }}</span>
+                        <span class="text-sm font-bold text-slate-800 text-right break-words">{{ dato.valor }}</span>
                       </div>
                     }
+
+                    @if (fichaVoluntario.length === 0) {
+                      <p class="text-sm text-slate-400">Aun no registro la ficha completa.</p>
+                    }
                   </div>
-                } @else {
-                  <p class="text-sm text-slate-400">El voluntario no registro ficha clinica.</p>
-                }
+                </div>
+
               </div>
             </section>
 

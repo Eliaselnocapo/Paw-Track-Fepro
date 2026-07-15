@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
-import { ReportService } from '../../../../core/services/report.service';
+import { ReportService, CandidatoDuplicado } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 import { IonContent } from '@ionic/angular/standalone';
 
@@ -55,6 +55,11 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   folioGenerado: string | null = null;
   enviando = false;
   errorEnvio: string | null = null;
+
+  // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
+  verificandoDuplicado = false;
+  candidatoDuplicado: CandidatoDuplicado | null = null;
+  duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
 
   // Instancias de Leaflet
   private mapInteractive: any;
@@ -207,9 +212,123 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       this.pasoActual++;
 
       if (this.pasoActual === 3) this.initInteractiveMap();
-      if (this.pasoActual === 4) this.initPreviewMap();
+      if (this.pasoActual === 4) { this.initPreviewMap(); this.verificarDuplicado(); }
       if (this.pasoActual === 5) this.guardarBaseDatosLocal(); // Corregido el nombre aquí
     }
+  }
+
+  /**
+   * Dispara la consulta de verificar-duplicado al back con lo capturado
+   * hasta ahora (imagen + tipo/tamaño/color/raza + ubicación). Devuelve
+   * `null` si no hay ni imagen ni especie (nada que comparar) — en ese caso
+   * el llamador debe tratarlo como "sin candidato" directamente. Factoreado
+   * porque tanto la entrada al paso 4 como el re-chequeo antes de enviar
+   * (ver intentarEnviar()) necesitan la misma consulta, con manejo distinto
+   * de la respuesta.
+   */
+  private _consultarDuplicado() {
+    const imagen = this.archivosSeleccionados[0]?.archivoFisico;
+    if (!imagen || !this.tipoAnimal) return null;
+
+    return this.reportService.verificarDuplicado({
+      tipo_animal: this.tipoAnimal,
+      tamano_animal: this.tamanoAproximado || undefined,
+      color_animal: this.colorAnimal || undefined,
+      raza_animal: this.razaAnimal.trim() || undefined,
+      latitud: this.latActual,
+      longitud: this.lngActual,
+      imagen,
+    });
+  }
+
+  /**
+   * Chequeo síncrono de posible duplicado — corre automáticamente al llegar
+   * al paso 4 (revisión final). Si el back encuentra un candidato parecido,
+   * se le pregunta al reportante aquí mismo, ANTES de crear el reporte —
+   * ver decision-tecnica-filtro-raza.md.
+   */
+  verificarDuplicado(): void {
+    const request$ = this._consultarDuplicado();
+    if (!request$) return;
+
+    this.verificandoDuplicado = true;
+    this.candidatoDuplicado = null;
+    this.duplicadoConfirmado = null;
+
+    request$.subscribe({
+      next: (res) => {
+        this.verificandoDuplicado = false;
+        this.candidatoDuplicado = res.candidato;
+      },
+      error: () => {
+        // Falla silenciosa a propósito: si el chequeo no responde, no
+        // queremos bloquear al reportante de enviar su reporte por esto.
+        this.verificandoDuplicado = false;
+        this.candidatoDuplicado = null;
+      },
+    });
+  }
+
+  /**
+   * Se llama al hacer clic en "Enviar reporte" (en vez de siguientePaso()
+   * directo). Antes de avanzar, vuelve a chequear duplicados: si algo
+   * cambió desde que se entró al paso 4 (otro reportante creó un caso
+   * parecido mientras este seguía en revisión), se le pregunta aquí en vez
+   * de dejarlo pasar. Reduce la ventana de carrera casi al tamaño que tenía
+   * el chequeo async viejo (solo latencia de Celery, no lo que el
+   * reportante se tarde en revisar el paso 4) — ver
+   * Resumen_Motor_Deduplicacion_Parte2.md.
+   */
+  intentarEnviar(): void {
+    if (this.verificandoDuplicado) return;
+
+    const request$ = this._consultarDuplicado();
+    if (!request$) { this.siguientePaso(); return; }
+
+    this.verificandoDuplicado = true;
+
+    request$.subscribe({
+      next: (res) => {
+        this.verificandoDuplicado = false;
+        const candidato = res.candidato;
+        const esElMismoQueYaSeRespondio =
+          candidato && this.candidatoDuplicado && candidato.folio === this.candidatoDuplicado.folio;
+
+        if (candidato && !esElMismoQueYaSeRespondio) {
+          // Candidato nuevo (o distinto) desde el último chequeo: hay que
+          // preguntar de nuevo antes de dejar avanzar.
+          this.candidatoDuplicado = candidato;
+          this.duplicadoConfirmado = null;
+          return;
+        }
+
+        if (!candidato) {
+          this.candidatoDuplicado = null;
+          this.duplicadoConfirmado = null;
+        }
+        // Si es el mismo candidato que ya se respondió, se respeta esa respuesta.
+
+        this.siguientePaso();
+      },
+      error: () => {
+        // Falla en silencio: no bloquea el envío por un problema del chequeo.
+        this.verificandoDuplicado = false;
+        this.siguientePaso();
+      },
+    });
+  }
+
+  marcarComoMismoCaso(): void {
+    this.duplicadoConfirmado = true;
+  }
+
+  marcarComoDistinto(): void {
+    this.duplicadoConfirmado = false;
+  }
+
+  /** true mientras haya un candidato mostrado y el reportante no haya respondido — bloquea el envío. */
+  get faltaResponderDuplicado(): boolean {
+    return !!this.candidatoDuplicado && this.duplicadoConfirmado === null;
   }
 
   regresarPaso() {
@@ -372,6 +491,9 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       imagen:            this.archivosSeleccionados[0]?.archivoFisico,
       nombre_contacto:   this.nombreUsuario   || undefined,
       telefono_contacto: this.telefonoUsuario || undefined,
+      duplicado_candidato_folio: this.candidatoDuplicado?.folio ?? undefined,
+      duplicado_confirmado:      this.duplicadoConfirmado ?? undefined,
+      duplicado_score:           this.candidatoDuplicado?.score,
     }).subscribe({
     next: (res) => {
       console.log('REPORTE CREADO:', res);

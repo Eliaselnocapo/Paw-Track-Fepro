@@ -220,6 +220,36 @@ cargar(): void {
     const i = this.incidencia;
     return i?.nombre_caso?.trim() || `${i?.tipo_animal ?? 'Animal'} en incidencia`;
   }
+  get color(): string {
+    return this.incidencia?.color_animal?.trim() || 'No especificado';
+  }
+
+  get raza(): string {
+    return this.incidencia?.raza_animal?.trim() || 'No identificada';
+  }
+
+  get agresividad(): string | null {
+    return this.incidencia?.agresividad_animal?.trim() || null;
+  }
+
+  get etiquetaAgresividad(): string {
+    switch (this.agresividad) {
+      case 'docil':        return 'Se dejó acercar';
+      case 'asustadizo':   return 'Se alejó o huyó';
+      case 'agresivo':     return 'Gruñó o intentó morder';
+      case 'no_evaluable': return 'No pudo acercarse';
+      default:             return 'Sin evaluar';
+    }
+  }
+
+  get claseAgresividad(): string {
+    switch (this.agresividad) {
+      case 'agresivo':   return 'border-red-200 bg-red-50 text-red-700';
+      case 'asustadizo': return 'border-amber-200 bg-amber-50 text-amber-700';
+      case 'docil':      return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      default:           return 'border-slate-200 bg-slate-50 text-slate-500';
+    }
+  }
 
   get especie(): string { return this.incidencia?.tipo_animal || 'No especificado'; }
   get tamano(): string { return this.incidencia?.tamano_animal || 'No especificado'; }
