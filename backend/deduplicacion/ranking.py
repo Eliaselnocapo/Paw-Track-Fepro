@@ -97,7 +97,13 @@ class RankingService:
             # igual que foto/meta/texto la volvía binaria (todo lo que cae
             # fuera de la mitad del radio puntúa 0 por igual, sin importar si
             # son 200m o 9km) y le quitaba a distancia_m su poder de discriminar.
-            val_foto  = score_foto  if score_foto  >= 0.50 else 0.0
+            especie_animal = nueva.animal.tipo.upper()
+            umbral_foto = 0.75 if especie_animal == 'PERRO' else 0.40
+
+            if score_foto < umbral_foto:
+                val_foto = 0.0
+            else:
+                val_foto = score_foto
             val_meta  = score_meta  if score_meta  >= 0.50 else 0.0
             val_geo   = score_geo
             val_texto = score_texto if score_texto >= 0.50 else 0.0

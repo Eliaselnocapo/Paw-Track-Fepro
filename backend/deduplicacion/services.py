@@ -53,7 +53,7 @@ class VisionService:
 
         
         self.dog_session = ort.InferenceSession(
-            os.path.join(base_dir, 'dog_embedding_model_v5.onnx'), 
+            os.path.join(base_dir, 'dog_embedding_model_osnet_v5.onnx'), 
             providers=['CPUExecutionProvider']
         )
         self.cat_session = ort.InferenceSession(
