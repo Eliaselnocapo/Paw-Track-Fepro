@@ -162,6 +162,57 @@ private initMapa(): void {
   get peso(): string {
     return this.rescate?.incidencia?.['peso_estimado'] || 'No especificado';
   }
+  get color(): string {
+    return (this.rescate?.incidencia?.['color_animal'] as string)?.trim() || 'No especificado';
+  }
+
+  get raza(): string {
+    return (this.rescate?.incidencia?.['raza_animal'] as string)?.trim() || 'No identificada';
+  }
+
+  get agresividad(): string | null {
+    return (this.rescate?.incidencia?.['agresividad_animal'] as string)?.trim() || null;
+  }
+
+  /** Como reacciona el animal: informacion de seguridad para el voluntario. */
+  get avisoAgresividad(): { titulo: string; detalle: string; icono: string; clase: string; claseTexto: string } | null {
+    switch (this.agresividad) {
+      case 'agresivo':
+        return {
+          titulo: 'Agresivo',
+          detalle: 'Gruñe o intenta morder. No te acerques sin equipo de contención.',
+          icono: 'warning',
+          clase: 'border-red-300 bg-red-50',
+          claseTexto: 'text-red-800',
+        };
+      case 'asustadizo':
+        return {
+          titulo: 'Asustadizo',
+          detalle: 'Huye del contacto. Acércate despacio, sin movimientos bruscos ni ruidos.',
+          icono: 'directions_run',
+          clase: 'border-amber-300 bg-amber-50',
+          claseTexto: 'text-amber-800',
+        };
+      case 'docil':
+        return {
+          titulo: 'Dócil',
+          detalle: 'Se deja acercar. Aun así, mantén precaución al manipularlo.',
+          icono: 'volunteer_activism',
+          clase: 'border-emerald-300 bg-emerald-50',
+          claseTexto: 'text-emerald-800',
+        };
+      case 'no_evaluable':
+        return {
+          titulo: 'Sin evaluar',
+          detalle: 'Nadie ha podido acercarse lo suficiente. Asume precaución máxima.',
+          icono: 'help',
+          clase: 'border-slate-300 bg-slate-50',
+          claseTexto: 'text-slate-700',
+        };
+      default:
+        return null;
+    }
+  }
 
   get contactoNombre(): string {
     return this.rescate?.incidencia?.nombre_contacto || 'Contacto no registrado';
@@ -187,7 +238,7 @@ private initMapa(): void {
   get score(): number {
     return this.rescate?.incidencia?.urgency_score ?? 0;
   }
-
+  
   get prioridad(): 'Urgente' | 'Alta' | 'Moderada' {
     if (this.score >= 80) return 'Urgente';
     if (this.score >= 40) return 'Alta';

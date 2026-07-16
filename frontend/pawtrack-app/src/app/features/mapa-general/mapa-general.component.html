@@ -28,6 +28,39 @@
           </div>
         </section>
 
+        <!-- FILTROS -->
+        <section class="alertas-filtros">
+          <button
+            type="button"
+            class="filtro-pill rounded-lg"
+            [class.filtro-pill-activo]="filtro === 'pendientes'"
+            (click)="seleccionarFiltro('pendientes')"
+          >
+            Pendientes
+            <span class="filtro-conteo">{{ conteoFiltro('pendientes') }}</span>
+          </button>
+
+          <button
+            type="button"
+            class="filtro-pill rounded-lg"
+            [class.filtro-pill-activo]="filtro === 'aceptados'"
+            (click)="seleccionarFiltro('aceptados')"
+          >
+            Aceptados
+            <span class="filtro-conteo">{{ conteoFiltro('aceptados') }}</span>
+          </button>
+
+          <button
+            type="button"
+            class="filtro-pill rounded-lg"
+            [class.filtro-pill-activo]="filtro === 'todos'"
+            (click)="seleccionarFiltro('todos')"
+          >
+            Todos
+            <span class="filtro-conteo">{{ conteoFiltro('todos') }}</span>
+          </button>
+        </section>
+
         <section class="tarjetas-alertas">
           <div class="container">
 
@@ -131,7 +164,7 @@
             }
 
         </div>
-      </aside>
+      </section>
 
       </section>
 
@@ -160,7 +193,7 @@
               Casos activos
             </p>
           </div>
-        </div>
+        </section>
 
         <section class="voluntarios-activos">
           <div class="container">
@@ -172,7 +205,7 @@
               Voluntarios activos
             </p>
           </div>
-        </div>
+        </section>
 
         <div class="stat-box">
           <div class="stat-icon-box sib-amber">
@@ -192,6 +225,7 @@
 
   <!-- MODAL MÓVIL DEL CASO -->
   <ion-modal
+  #modalCaso
   class="modal-caso-animal"
   [isOpen]="modalCasoAbierto"
   [backdropDismiss]="true"
@@ -201,84 +235,67 @@
 
       @if (casoSeleccionado; as caso) {
 
-        <ion-header>
-          <ion-toolbar>
+        <article class="detalle-caso">
 
-            <ion-title>
-              Animal reportado
-            </ion-title>
+          <!-- IMAGEN A TODO ANCHO CON CIERRE FLOTANTE -->
+          <div class="detalle-caso__imagen-contenedor">
 
-            <ion-buttons slot="end">
-              <ion-button
-                aria-label="Cerrar"
-                (click)="cerrarModalCaso()"
-              >
-                <ion-icon
-                  slot="icon-only"
-                  name="close-outline"
-                ></ion-icon>
-              </ion-button>
-            </ion-buttons>
-
-          </ion-toolbar>
-        </ion-header>
-
-        <ion-content class="ion-padding">
-          <article class="detalle-caso">
-
-            <!-- IMAGEN -->
-            <div class="detalle-caso__imagen-contenedor">
-
-              @if (caso.imagen) {
-                <img
-                  class="detalle-caso__imagen"
-                  [src]="obtenerUrlImagen(caso.imagen)"
-                  [alt]="obtenerTituloCaso(caso)"
-                />
-              } @else {
-                <div class="detalle-caso__placeholder">
-                  🐾
-                </div>
-              }
-
-              <span class="detalle-caso__badge">
-                {{
-                  caso.tipo_incidencia
-                    | sentenceCase
-                }}
-              </span>
-
-            </div>
-
-            <!-- ENCABEZADO -->
-            <div class="detalle-caso__encabezado">
-
-              <div class="detalle-caso__titulo">
-
-                <p class="detalle-caso__tipo">
-                  {{
-                    caso.tipo_animal
-                      | sentenceCase
-                  }}
-                </p>
-
-                <h2>
-                  {{
-                    obtenerTituloCaso(caso)
-                      | sentenceCase
-                  }}
-                </h2>
-
+            @if (caso.imagen) {
+              <img
+                class="detalle-caso__imagen"
+                [src]="obtenerUrlImagen(caso.imagen)"
+                [alt]="obtenerTituloCaso(caso)"
+              />
+            } @else {
+              <div class="detalle-caso__placeholder">
+                🐾
               </div>
+            }
 
-              <ion-chip color="warning">
+            <button
+              type="button"
+              class="detalle-caso__cerrar"
+              aria-label="Cerrar"
+              (click)="cerrarModalCaso()"
+            >
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+            <span class="detalle-caso__badge">
+              {{
+                caso.tipo_incidencia
+                  | sentenceCase
+              }}
+            </span>
+
+            <div class="detalle-caso__degradado"></div>
+
+            <div class="detalle-caso__titulo-flotante">
+              <p class="detalle-caso__tipo">
                 {{
-                  caso.estado
+                  caso.tipo_animal
                     | sentenceCase
                 }}
-              </ion-chip>
+              </p>
 
+              <h2>
+                {{
+                  obtenerTituloCaso(caso)
+                    | sentenceCase
+                }}
+              </h2>
             </div>
+
+          </div>
+
+          <ion-content class="ion-padding detalle-caso__scroll">
+
+            <ion-chip color="warning" class="detalle-caso__chip-estado">
+              {{
+                caso.estado
+                  | sentenceCase
+              }}
+            </ion-chip>
 
             <!-- DESCRIPCIÓN -->
             <section class="detalle-caso__seccion">
@@ -445,14 +462,23 @@
 
             <ion-button
               expand="block"
-              class="detalle-caso__boton"
+              class="detalle-caso__boton detalle-caso__boton-primario"
+              (click)="irADetalleCaso(caso.folio)"
+            >
+              Ver ficha del caso
+            </ion-button>
+
+            <ion-button
+              expand="block"
+              fill="outline"
+              class="detalle-caso__boton detalle-caso__boton-secundario"
               (click)="cerrarModalCaso()"
             >
               Cerrar
             </ion-button>
 
-          </article>
-        </ion-content>
+          </ion-content>
+        </article>
 
       }
 

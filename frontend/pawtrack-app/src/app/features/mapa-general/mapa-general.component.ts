@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 import {
   HttpClient,
@@ -17,17 +18,13 @@ import {
 
 import {
   IonButton,
-  IonButtons,
   IonChip,
   IonContent,
-  IonHeader,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
-  IonModal,
-  IonTitle,
-  IonToolbar
+  IonModal
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -109,10 +106,6 @@ interface IncidenciaMapa {
 
     IonContent,
     IonModal,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
     IonButton,
     IonIcon,
     IonChip,
@@ -140,17 +133,82 @@ export class MapaGeneralComponent
   private readonly apiIncidenciasUrl =
     `${environment.apiUrl}/incidencias/`;
 
-  casosActivos: IncidenciaMapa[] = [];
+  todosLosCasos: IncidenciaMapa[] = [];
+
+  filtro: 'pendientes' | 'aceptados' | 'todos' = 'pendientes';
 
   cargandoCasos = false;
   errorCasos = '';
 
+  @ViewChild('modalCaso')
+  private modalCaso!: IonModal;
+
   casoSeleccionado: IncidenciaMapa | null = null;
   modalCasoAbierto = false;
 
+  /**
+   * Lista que realmente se pinta en el mapa y en "Alertas recientes",
+   * derivada de todosLosCasos según el filtro activo. Los casos
+   * terminados (CERRADO/COMPLETADO/CANCELADO) nunca se muestran aquí,
+   * sin importar el filtro — el mapa general es para trabajo activo.
+   */
+  get casosActivos(): IncidenciaMapa[] {
+    const terminados = ['CERRADO', 'COMPLETADO', 'CANCELADO'];
+
+    return this.todosLosCasos.filter((caso) => {
+      if (terminados.includes(caso.estado)) {
+        return false;
+      }
+
+      if (caso.lat_out === null || caso.lng_out === null) {
+        return false;
+      }
+
+      if (this.filtro === 'pendientes') {
+        return caso.rescatista_asignado == null;
+      }
+
+      if (this.filtro === 'aceptados') {
+        return caso.rescatista_asignado != null;
+      }
+
+      return true; // 'todos'
+    });
+  }
+
+  seleccionarFiltro(filtro: 'pendientes' | 'aceptados' | 'todos'): void {
+    if (this.filtro === filtro) {
+      return;
+    }
+
+    this.filtro = filtro;
+    this.pintarCasosActivos();
+  }
+
+  conteoFiltro(filtro: 'pendientes' | 'aceptados' | 'todos'): number {
+    const terminados = ['CERRADO', 'COMPLETADO', 'CANCELADO'];
+    const base = this.todosLosCasos.filter(
+      (caso) =>
+        !terminados.includes(caso.estado) &&
+        caso.lat_out !== null &&
+        caso.lng_out !== null
+    );
+
+    if (filtro === 'pendientes') {
+      return base.filter((c) => c.rescatista_asignado == null).length;
+    }
+
+    if (filtro === 'aceptados') {
+      return base.filter((c) => c.rescatista_asignado != null).length;
+    }
+
+    return base.length;
+  }
+
   constructor(
     private http: HttpClient,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private router: Router
   ) {
     addIcons({
       closeOutline,
@@ -223,17 +281,42 @@ export class MapaGeneralComponent
     );
 
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
-        attribution:
-          '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20
+        attribution: '&copy; OpenStreetMap contributors'
       }
     ).addTo(this.mapaCasos);
 
     this.capaMarcadores = L.layerGroup()
       .addTo(this.mapaCasos);
+
+    /*
+     * Delegación de eventos: UN solo listener permanente en el
+     * contenedor del mapa, en vez de uno por cada apertura de popup.
+     * Así no importa cuántas veces Leaflet destruya/recree el popup
+     * al abrirlo y cerrarlo — el listener nunca se pierde ni se duplica.
+     */
+    contenedorMapa.addEventListener('click', (event) => {
+      const boton = (event.target as HTMLElement)?.closest<HTMLElement>(
+        '.popup-cta'
+      );
+
+      if (!boton) {
+        return;
+      }
+
+      const folio = boton.dataset['folio'];
+
+      if (!folio) {
+        return;
+      }
+
+      boton.blur();
+
+      this.ngZone.run(() => {
+        this.irADetalleCaso(folio);
+      });
+    });
 
     this.cargarCasosActivos();
 
@@ -257,13 +340,7 @@ export class MapaGeneralComponent
             respuesta
           );
 
-          this.casosActivos =
-            (respuesta.results || []).filter(
-              (caso) =>
-                caso.estado !== 'RESUELTO' &&
-                caso.lat_out !== null &&
-                caso.lng_out !== null
-            );
+          this.todosLosCasos = respuesta.results || [];
 
           this.pintarCasosActivos();
           this.cargandoCasos = false;
@@ -456,6 +533,19 @@ export class MapaGeneralComponent
     ).matches;
   }
 
+  async irADetalleCaso(folio: string): Promise<void> {
+    // Esperamos a que el modal termine su animación de cierre de
+    // verdad (dismiss()) antes de navegar — si solo cambiamos la
+    // bandera y navegamos al toque, la navegación interrumpe la
+    // animación y el overlay se queda huérfano, sin poder cerrarse.
+    if (this.modalCasoAbierto) {
+      await this.modalCaso?.dismiss();
+    }
+
+    this.casoSeleccionado = null;
+    this.router.navigate(['/details-case', folio]);
+  }
+
   abrirModalCaso(caso: IncidenciaMapa): void {
     this.casoSeleccionado = caso;
     this.modalCasoAbierto = true;
@@ -544,6 +634,10 @@ export class MapaGeneralComponent
           <p class="popup-folio">
             Folio: ${folio}
           </p>
+
+          <button type="button" class="popup-cta" data-folio="${folio}">
+            Ver ficha del caso
+          </button>
         </div>
       </div>
     `;

@@ -1,8 +1,23 @@
 <ion-content [fullscreen]="true">
   <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden">
 
+<!-- FONDO DECORATIVO — MOVIL -->
+<!-- En movil las tarjetas ocupan todo el ancho: las figuras solo se ven si
+     sangran por los bordes laterales. Nada en el centro. -->
+<div class="md:hidden absolute inset-0 pointer-events-none z-0 overflow-hidden">
+  <div class="absolute top-[70px] right-[-90px] w-[220px] h-[220px] rounded-full bg-violet-200/50"></div>
+  <div class="absolute top-[24%] left-[-80px] w-[190px] h-[190px] bg-sky-200/50 rotate-[10deg]"></div>
+  <div class="absolute top-[46%] right-[-70px] w-[180px] h-[180px] rounded-full bg-emerald-200/45"></div>
+  <div class="absolute top-[68%] left-[-90px] w-[210px] h-[210px] bg-rose-200/40 -rotate-6"></div>
+  <div class="absolute bottom-[3%] right-[-80px] w-[200px] h-[200px] rounded-full bg-cyan-200/45"></div>
+
+  <div class="absolute top-[36%] left-[6px] w-5 h-5 bg-amber-300/55 rotate-12"></div>
+  <div class="absolute top-[58%] right-[8px] w-4 h-4 rounded-full bg-indigo-300/55"></div>
+  <div class="absolute top-[80%] left-[10px] w-6 h-6 bg-teal-300/45 -rotate-12"></div>
+</div>
+
 <!-- FONDO DECORATIVO CON CUADRADOS PASTEL VISIBLES -->
-<div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+<div class="hidden md:block absolute inset-0 pointer-events-none z-0 overflow-hidden">
 
   <!-- CUADRADO SUPERIOR IZQUIERDO MÁS GRANDE -->
   <div class="absolute top-[-70px] left-[-70px] w-[260px] h-[260px] bg-pink-200/80 rotate-12 shadow-[0_12px_30px_rgba(244,114,182,0.1)]"></div>
@@ -48,14 +63,36 @@
 
 </div>
 
+    <!-- ========== FONDO DECORATIVO — MOVIL ========== -->
+    <div class="md:hidden absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute top-[70px] right-[-90px] w-[220px] h-[220px] rounded-full bg-violet-200/40"></div>
+      <div class="absolute top-[24%] left-[-80px] w-[190px] h-[190px] bg-sky-200/40 rotate-[10deg]"></div>
+      <div class="absolute top-[46%] right-[-70px] w-[180px] h-[180px] rounded-full bg-emerald-200/40"></div>
+      <div class="absolute top-[68%] left-[-90px] w-[210px] h-[210px] bg-rose-200/30 -rotate-6"></div>
+      <div class="absolute bottom-[3%] right-[-80px] w-[200px] h-[200px] rounded-full bg-cyan-200/40"></div>
+
+      <div class="absolute top-[36%] left-[6px] w-5 h-5 bg-amber-300/50 rotate-12"></div>
+      <div class="absolute top-[58%] right-[8px] w-4 h-4 rounded-full bg-indigo-300/50"></div>
+      <div class="absolute top-[80%] left-[10px] w-6 h-6 bg-teal-300/40 -rotate-12"></div>
+    </div>
+
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
-    <main class="relative z-10 w-full max-w-6xl mx-auto px-6 pt-8 pb-12">
+    <main class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-4 md:pt-8 pb-12 flex flex-col">
+
+      <!-- VOLVER: barra fija en movil (el pulgar no alcanza la esquina superior) -->
+      <div class="md:hidden sticky top-0 -mx-6 px-4 py-3 bg-white/95 backdrop-blur border-b border-slate-200 z-30 mb-4 flex items-center gap-3">
+        <button type="button" (click)="cancelar()"
+          class="w-10 h-10 rounded-lg grid place-items-center text-slate-700 active:bg-slate-100 active:scale-95 transition-all -ml-2">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <span class="font-bold text-slate-900 truncate">Aceptar caso</span>
+      </div>
 
       <button
         type="button"
         (click)="cancelar()"
-        class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+        class="hidden md:inline-flex mb-5 items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
         <span class="material-symbols-outlined text-[20px]">arrow_back</span>
         Volver al detalle
       </button>
@@ -89,7 +126,7 @@
   <div class="grid grid-cols-1 lg:grid-cols-12">
 
     <!-- LADO IZQUIERDO CON IMAGEN -->
-    <div class="lg:col-span-8 relative overflow-hidden min-h-[320px] md:min-h-[360px]">
+    <div class="lg:col-span-8 relative overflow-hidden min-h-[200px] md:min-h-[360px]">
       <!-- IMAGEN DE FONDO SOLO IZQUIERDA -->
       <div class="absolute inset-0 pointer-events-none">
         <img
@@ -234,7 +271,7 @@
   </div>
 </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
 
           <!-- RESUMEN IZQUIERDO -->
           <aside class="lg:col-span-4 flex flex-col gap-6">
@@ -313,6 +350,16 @@
                   <p class="text-xs font-bold text-red-600 mb-1">Urgencia</p>
                   <p class="font-bold text-red-800">{{ caso.score }}/100</p>
                 </div>
+
+                <div class="rounded border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-xs font-bold text-slate-500 mb-1">Color</p>
+                  <p class="font-bold text-slate-900 capitalize">{{ color ?? 'No especificado' }}</p>
+                </div>
+
+                <div class="rounded border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-xs font-bold text-slate-500 mb-1">Raza</p>
+                  <p class="font-bold text-slate-900 capitalize">{{ raza ?? 'No identificada' }}</p>
+                </div>
               </div>
             </article>
 
@@ -320,6 +367,21 @@
 
           <!-- ACTA PRINCIPAL -->
           <section class="lg:col-span-8 flex flex-col gap-6">
+          <!-- AVISO DE SEGURIDAD: como reacciono el animal -->
+            @if (avisoAgresividad; as aviso) {
+              <article class="bg-white border border-slate-300 rounded shadow-md p-5 flex items-start gap-4 animate-fade-in-up">
+                <div class="w-11 h-11 rounded grid place-items-center shrink-0" [ngClass]="aviso.clase">
+                  <span class="material-symbols-outlined text-[22px]" [ngClass]="aviso.claseTexto">{{ aviso.icono }}</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
+                    Cómo reaccionó al ver al reportante
+                  </p>
+                  <p class="text-base font-bold" [ngClass]="aviso.claseTexto">{{ aviso.titulo }}</p>
+                  <p class="text-sm mt-1 leading-relaxed text-slate-600">{{ aviso.detalle }}</p>
+                </div>
+              </article>
+            }
 
             <!-- COMPROMISO -->
             <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
@@ -525,7 +587,7 @@
                   <button
                     type="button"
                     (click)="cancelar()"
-                    class="h-11 px-5 rounded border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
+                    class="h-11 px-5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
                     Cancelar
                   </button>
 
@@ -533,9 +595,9 @@
                     type="button"
                     (click)="confirmarAceptacion()"
                     [disabled]="!puedeConfirmar || confirmando"
-                    class="h-11 px-6 rounded font-bold text-sm transition-all flex items-center justify-center gap-2"
+                    class="h-11 px-6 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2"
                     [ngClass]="puedeConfirmar && !confirmando
-                      ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/25 active:scale-95'
+                      ? 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-md shadow-blue-600/25 active:scale-95'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'">
 
                     @if (confirmando) {
@@ -543,7 +605,7 @@
                       Confirmando...
                     } @else {
                       <span class="material-symbols-outlined text-[19px]">verified</span>
-                      Confirmar y tomar misión
+                      Tomar misión
                     }
 
                   </button>
@@ -591,17 +653,17 @@
           <div class="p-6 pt-0 flex flex-col sm:flex-row sm:justify-end gap-3">
             @if (errorEsDefinitivo) {
               <button type="button" (click)="volverCasos()"
-                class="h-12 px-6 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-700/25 transition-all active:scale-95 flex items-center justify-center gap-2">
+                class="h-12 px-6 rounded-lg bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-bold text-sm shadow-md shadow-blue-700/25 transition-all active:scale-95 flex items-center justify-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">search</span>
                 Ver otros casos disponibles
               </button>
             } @else {
               <button type="button" (click)="cerrarModalError()"
-                class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
+                class="h-12 px-6 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
                 Cerrar
               </button>
               <button type="button" (click)="cerrarModalError(); confirmarAceptacion()"
-                class="h-12 px-6 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-700/25 transition-all active:scale-95">
+                class="h-12 px-6 rounded-lg bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-bold text-sm shadow-md shadow-blue-700/25 transition-all active:scale-95">
                 Reintentar
               </button>
             }

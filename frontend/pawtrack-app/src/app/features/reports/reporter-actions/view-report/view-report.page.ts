@@ -50,6 +50,9 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.reportService.obtenerReportePorFolio(folio).subscribe({
       next: (data) => {
+        if (data && data.urgency_score) {
+          data.urgency_score = Math.round(data.urgency_score);
+        }
         this.reporte = data;
         this.cargando = false;
 

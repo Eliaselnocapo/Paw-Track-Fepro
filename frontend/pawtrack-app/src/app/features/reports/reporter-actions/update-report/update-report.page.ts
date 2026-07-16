@@ -31,6 +31,9 @@ interface EditReportViewModel {
   caracteristicas: string;
   edadEstimada: string;
   pesoEstimado: string;
+  colorAnimal: string;
+  razaAnimal: string;
+  agresividadAnimal: string;
   lat: number | null;
   lng: number | null;
   ubicacionTexto: string;
@@ -90,6 +93,9 @@ export class UpdateReportPage implements OnInit, AfterViewInit {
     caracteristicas: '',
     edadEstimada: '',
     pesoEstimado: '',
+    colorAnimal: '',
+    razaAnimal: '',
+    agresividadAnimal: '',
     lat: null,
     lng: null,
     ubicacionTexto: '',
@@ -138,6 +144,9 @@ export class UpdateReportPage implements OnInit, AfterViewInit {
 
     this.reporte.tipoAnimal = this.normalizarTipoAnimal(data.tipo_animal);
     this.reporte.tamanoAnimal = this.normalizarTamano(data.tamano_animal);
+    this.reporte.colorAnimal = data.color_animal ?? '';
+    this.reporte.razaAnimal = data.raza_animal ?? '';
+    this.reporte.agresividadAnimal = data.agresividad_animal ?? '';
 
     this.reporte.notasAnimal = data.notas_animal ?? '';
     this.reporte.caracteristicas = data.caracteristicas ?? '';
@@ -544,6 +553,26 @@ descripcionValida(): boolean {
       this.reporteOriginal.telefonoContacto,
       this.reporte.telefonoContacto
     );
+    this.agregarCambio(
+      cambios,
+      'Color',
+      this.reporteOriginal.colorAnimal,
+      this.reporte.colorAnimal
+    );
+
+    this.agregarCambio(
+      cambios,
+      'Raza',
+      this.reporteOriginal.razaAnimal,
+      this.reporte.razaAnimal
+    );
+
+    this.agregarCambio(
+      cambios,
+      'Reacción del animal',
+      this.etiquetaAgresividad(this.reporteOriginal.agresividadAnimal),
+      this.etiquetaAgresividad(this.reporte.agresividadAnimal)
+    );
 
     if (this.imagenNueva) {
       cambios.push({
@@ -552,6 +581,7 @@ descripcionValida(): boolean {
         ahora: this.imagenNueva.name,
       });
     }
+    
 
     return cambios;
   }
@@ -670,6 +700,9 @@ descripcionValida(): boolean {
       caracteristicas: this.reporte.caracteristicas.trim(),
       edad_estimada: String(this.reporte.edadEstimada ?? ''),
       peso_estimado: String(this.reporte.pesoEstimado ?? ''),
+      color_animal: this.reporte.colorAnimal.trim(),
+      raza_animal: this.reporte.razaAnimal.trim(),
+      agresividad_animal: this.reporte.agresividadAnimal,
 
       latitud: this.reporte.lat,
       longitud: this.reporte.lng,
@@ -720,5 +753,17 @@ descripcionValida(): boolean {
 
   volverDashboard(): void {
     this.router.navigate(['/dashboard/reporter']);
+  }
+  seleccionarAgresividad(valor: string): void {
+    this.reporte.agresividadAnimal = valor;
+  }
+  private etiquetaAgresividad(valor: string): string {
+    switch (valor) {
+      case 'docil':        return 'Se dejó acercar';
+      case 'asustadizo':   return 'Se alejó o huyó';
+      case 'agresivo':     return 'Gruñó o intentó morder';
+      case 'no_evaluable': return 'No pude acercarme';
+      default:             return 'Sin especificar';
+    }
   }
 }

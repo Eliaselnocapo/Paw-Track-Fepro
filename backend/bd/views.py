@@ -1,3 +1,6 @@
+import re
+import pdfplumber
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -10,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed, ValidationError, NotFound
 from django.contrib.auth import authenticate
+from django.contrib.gis.geos import Point
 from django.utils import timezone
 import os
 
@@ -21,7 +25,6 @@ from notificaciones.services import notify_user
 
 from .models import Usuario, Animal, Incidencia
 from .serializers import UsuarioSerializer, AnimalSerializer, IncidenciaSerializer, EditarPerfilSerializer
-
 
 def _jwt_response(user):
     """Genera el response estándar {access, refresh, user} con simplejwt."""
@@ -102,12 +105,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         usuario = self.get_object()
             
         if usuario.id != request.user.id:
-             raise PermissionDenied("No puedes modificar roles de otro usuario.")
-                           
+             raise PermissionDenied("No puedes modificar roles de otro usuario.", code='not_owner')
+
         nuevos = request.data.get('roles', [])
-            
+
         if 'PATROCINADOR' in nuevos and not request.user.is_staff:
-                    raise PermissionDenied("El rol PATROCINADOR requiere verificación.")
+                    raise PermissionDenied("El rol PATROCINADOR requiere verificación.", code='role_requires_approval')
                             
         roles_actuales = usuario.roles or []
         for rol in nuevos:
@@ -139,6 +142,67 @@ class AnimalViewSet(viewsets.ModelViewSet):
     serializer_class = AnimalSerializer
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class ProcesarCartelPDFView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = (MultiPartParser, FormParser)
+
+    # Palabras que razonablemente aparecen en un cartel de mascota perdida/
+    # encontrada. Si el texto no toca NINGUNA de estas, casi seguro es un
+    # documento sin relación (horario de clases, factura, tarea, etc.).
+    PALABRAS_CLAVE_CARTEL = [
+        'mascota', 'perro', 'perrito', 'gato', 'gatito', 'animal',
+        'perdido', 'perdida', 'extraviado', 'extraviada',
+        'encontrado', 'encontrada', 'callejero', 'callejera',
+        'rescate', 'recompensa', 'adopcion', 'adopción',
+        'paw track', 'pawtrack',
+    ]
+
+    def post(self, request, *args, **kwargs):
+        pdf_file = request.FILES.get('file')
+        if not pdf_file:
+            return Response({"error": "No hay archivo"}, status=status.HTTP_400_BAD_REQUEST)
+        texto_extraido = ""
+        try:
+            with pdfplumber.open(pdf_file) as pdf:
+                for page in pdf.pages:
+                    text = page.extract_text()
+                    if text:
+                        texto_extraido += text + "\n"
+        except Exception:
+            return Response({"error": "No se pudo leer el PDF."}, status=status.HTTP_400_BAD_REQUEST)
+        if not texto_extraido.strip():
+            return Response(
+                {"error": "El PDF no tiene texto legible."},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+        texto_limpio = " ".join(texto_extraido.split())
+        texto_lower = texto_limpio.lower()
+
+        folio_match = re.search(r'\b[A-Z]{2,4}-[A-Z]{2,4}-\d{4,6}\b', texto_limpio)
+
+        # Un cartel real de PawTrack SIEMPRE trae folio (lo imprime CartelPdf).
+        # Si no hay folio, exigimos al menos una palabra clave relacionada a
+        # mascotas para aceptar el documento — así rechazamos horarios,
+        # tareas, facturas, o cualquier PDF que no tenga nada que ver.
+        es_relevante = bool(folio_match) or any(
+            palabra in texto_lower for palabra in self.PALABRAS_CLAVE_CARTEL
+        )
+
+        if not es_relevante:
+            return Response(
+                {"error": "Este PDF no parece ser un cartel de mascota. Sube el cartel que generó PawTrack u otro relacionado a un reporte."},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+
+        telefono_match = re.search(r'\b\d{10}\b', texto_limpio)
+
+        return Response({
+            "descripcion_bruta": texto_limpio,
+            "telefono_contacto": telefono_match.group(0) if telefono_match else "",
+            "folio_detectado": folio_match.group(0) if folio_match else None,
+        }, status=status.HTTP_200_OK)
 
 
 class IncidenciaViewSet(viewsets.ModelViewSet):
@@ -185,8 +249,130 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        nueva_incidencia = serializer.instance
+
+        candidata_fusionada = self._resolver_duplicado_en_creacion(request, data, nueva_incidencia)
+
+        from notificaciones.services import broadcast_duplicate_detected, broadcast_new_report
+        if candidata_fusionada is not None:
+            broadcast_duplicate_detected(nueva_incidencia, candidata_fusionada)
+        else:
+            broadcast_new_report(nueva_incidencia)
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def _resolver_duplicado_en_creacion(self, request, data, nueva_incidencia):
+        """Si el paso 4 del wizard ya le preguntó al reportante por un
+        candidato a duplicado (ver verificar_duplicado más abajo) y este
+        envía la decisión junto con el resto del formulario, aquí se aplica:
+        fusiona si confirmó, o solo deja constancia en SugerenciaDuplicado si
+        rechazó. La decisión ya la tomó el humano antes de llegar aquí — este
+        método nunca decide solo. Devuelve la Incidencia candidata si se
+        fusionó, o None si no (sin candidato, folio inválido, o rechazado).
+        """
+        folio_candidato = data.get('duplicado_candidato_folio')
+        if not folio_candidato:
+            return None
+
+        candidata = Incidencia.objects.filter(folio=folio_candidato).exclude(id=nueva_incidencia.id).first()
+        if not candidata:
+            return None  # folio inválido/ya no existe: se ignora, el reporte queda como caso independiente
+
+        from deduplicacion.models import SugerenciaDuplicado
+        from deduplicacion.services import fusionar
+
+        confirmado = str(data.get('duplicado_confirmado', '')).strip().lower() in ('true', '1')
+        try:
+            score = float(data.get('duplicado_score', 0) or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+
+        SugerenciaDuplicado.objects.create(
+            incidencia_nueva=nueva_incidencia,
+            incidencia_candidata=candidata,
+            score=score,
+            estado='CONFIRMADA' if confirmado else 'RECHAZADA',
+            resuelto_at=timezone.now(),
+            resuelto_por=request.user if request.user.is_authenticated else None,
+        )
+
+        if confirmado:
+            fusionar(original=candidata, duplicado=nueva_incidencia)
+            return candidata
+        return None
+
+    @action(detail=False, methods=['post'], url_path='verificar-duplicado', permission_classes=[AllowAny])
+    def verificar_duplicado(self, request):
+        """
+        Chequeo SÍNCRONO de posibles duplicados, pensado para correr en el
+        paso 4 del wizard de reporte — ANTES de crear ninguna Incidencia.
+        Reusa exactamente el mismo pipeline (filtros geo/estructura + visión
+        + ranking ponderado) que antes corría async por Celery después de
+        crear el reporte, pero aquí:
+          - no persiste nada (ni Incidencia ni Animal),
+          - no muta el índice HNSW (solo lectura, buscar_similares),
+          - regresa el mejor candidato (si supera UMBRAL_REVISION) para que
+            el front le pregunte al reportante "¿es este tu caso?" antes de
+            que exista un registro nuevo.
+
+        Si el reportante confirma, el folio del candidato viaja de vuelta en
+        el POST de creación (`duplicado_candidato_folio` +
+        `duplicado_confirmado`) — ver create()/_resolver_duplicado_en_creacion.
+        """
+        from deduplicacion.filtros import candidatos_por_metadatos
+        from deduplicacion.ranking import RankingService
+        from deduplicacion.services import VisionService
+
+        imagen = request.FILES.get('imagen')
+        tipo = (request.data.get('tipo_animal') or '').strip()
+        lat = request.data.get('latitud')
+        lng = request.data.get('longitud')
+
+        if not imagen or not tipo or lat is None or lng is None:
+            return Response({'candidato': None})
+
+        try:
+            lat, lng = float(lat), float(lng)
+        except (TypeError, ValueError):
+            raise ValidationError("latitud/longitud inválidas.")
+
+        animal_temp = Animal(
+            tipo=tipo,
+            tamano=(request.data.get('tamano_animal') or '').strip(),
+            color=(request.data.get('color_animal') or '').strip(),
+            raza=(request.data.get('raza_animal') or '').strip(),
+        )
+        incidencia_temp = Incidencia(animal=animal_temp, ubicacion=Point(lng, lat, srid=4326), caracteristicas='')
+
+        candidatos = [c for c in candidatos_por_metadatos(incidencia_temp) if c.imagen]
+        if not candidatos:
+            return Response({'candidato': None})
+
+        vision_ai = VisionService()
+        try:
+            emb = vision_ai._get_embedding(imagen, tipo)
+        except ValueError:
+            return Response({'candidato': None})  # especie no soportada para IA visual
+
+        candidatos_ids = [c.id for c in candidatos]
+        similitud_visual = vision_ai.buscar_similares(emb, tipo, candidatos_ids)
+
+        resultados = RankingService.calcular_score_final(candidatos, similitud_visual, incidencia_temp)
+        if not resultados or resultados[0]['score'] < RankingService.UMBRAL_REVISION:
+            return Response({'candidato': None})
+
+        mejor = resultados[0]
+        candidata = mejor['incidencia']
+        return Response({
+            'candidato': {
+                'score': mejor['score'],
+                'folio': candidata.folio,
+                'tipo_animal': candidata.animal.tipo if candidata.animal else None,
+                'imagen': request.build_absolute_uri(candidata.imagen.url) if candidata.imagen else None,
+                'created_at': candidata.created_at,
+            }
+        })
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -284,6 +470,46 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['post'], url_path='reclamar', permission_classes=[IsAuthenticated])
+    def reclamar(self, request):
+        """
+        Asocia a la cuenta del usuario logueado un reporte que se creó como
+        invitado (usuario_reporta=None), a partir del folio detectado en el
+        cartel PDF que subió (ProcesarCartelPDFView). No crea nada nuevo:
+        solo reclama el reporte existente.
+        """
+        folio = (request.data.get('folio') or '').strip()
+        if not folio:
+            return Response(
+                {"error": "Falta el folio."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            incidencia = Incidencia.objects.get(folio=folio)
+        except Incidencia.DoesNotExist:
+            return Response(
+                {"error": f"No existe ningún reporte con el folio {folio}."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if incidencia.usuario_reporta_id is not None:
+            if incidencia.usuario_reporta_id == request.user.id:
+                # Ya es suyo, no hay nada que hacer — no es un error.
+                serializer = self.get_serializer(incidencia)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(
+                {"error": "Este reporte ya pertenece a otra cuenta."},
+                status=status.HTTP_409_CONFLICT
+            )
+
+        incidencia.usuario_reporta = request.user
+        incidencia.save(update_fields=['usuario_reporta'])
+
+        serializer = self.get_serializer(incidencia)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['post'], url_path=r'(?P<folio>[^/.]+)/cancelar', permission_classes=[IsAuthenticated])
     def cancelar(self, request, folio=None):
         """El reportante cancela su propio reporte ("falsa alarma / ya se
@@ -350,7 +576,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             inc = Incidencia.objects.select_related('animal', 'rescatista_asignado').get(folio=folio)
         except Incidencia.DoesNotExist:
             raise NotFound("Reporte no encontrado.")
-                
+
         return Response({
                 'folio': inc.folio,
                 'estado': inc.estado,
@@ -359,4 +585,4 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
                 'created_at': inc.created_at,
                 'rescatista_asignado': inc.rescatista_asignado is not None,
                 'tipo_animal': inc.animal.tipo if inc.animal else None,
-                })    
+                })

@@ -24,7 +24,7 @@
 
         @if (isLoggedIn) {
           <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Apoyo</a>
-          <a routerLink="/impacto" routerLinkActive="nav-active" class="nav-link">Impacto</a>
+          <a routerLink="/app-coming-soon" routerLinkActive="nav-active" class="nav-link">Impacto</a>
         } @else {
           <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Asistir</a>
         }
@@ -70,7 +70,7 @@
 
       <!-- Boton escritorio rojo -->
       <button
-        class="hidden md:flex bg-red-600 text-white px-4 py-2.5 rounded text-sm font-bold hover:bg-red-700 transition-colors items-center gap-2 shadow-md shadow-red-900/20 active:scale-95"
+        class="hidden md:flex bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-red-700 transition-colors items-center gap-2 shadow-md shadow-red-900/20 active:scale-95"
         routerLink="/reports/create-report">
         <span class="material-symbols-outlined text-[18px]">e911_emergency</span>
         Reportar emergencia

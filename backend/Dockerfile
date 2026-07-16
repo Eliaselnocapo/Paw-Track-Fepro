@@ -1,4 +1,4 @@
-# imagen oficial de Python ligera
+# Imagen oficial de Python ligera
 FROM python:3.11-slim
 
 # Configurar variables de entorno para que Python no escriba archivos .pyc ni buffer de salida
@@ -7,9 +7,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-#  Instalar dependencias del sistema necesarias para compilar ciertas librerías de Postgres
+# Instalar dependencias del sistema (Postgres, GDAL y C++ para compilar hnswlib)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    g++ \
+    python3-dev \
     libpq-dev \
     gdal-bin \
     libgdal-dev \

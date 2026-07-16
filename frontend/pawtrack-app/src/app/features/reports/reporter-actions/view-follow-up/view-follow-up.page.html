@@ -173,74 +173,119 @@
         </div>
 
         <!-- GRID 2x2 ADAPTABLE (7/5) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
 
-          <!-- ===== FILA 1 ===== -->
+          <!-- Izq: Mensajes + Evaluación, DOS tarjetas separadas con espacio entre ellas -->
+          <div class="lg:col-span-7 flex flex-col gap-6">
 
-          <!-- Izq: Mensajes -->
-          <article class="lg:col-span-7 bg-white border border-slate-300 shadow-md overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex items-center gap-4">
-              <div class="w-12 h-12 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
-                <span class="material-symbols-outlined">forum</span>
+            <!-- Mensajes del voluntario -->
+            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined">forum</span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold uppercase text-blue-600">Novedades del rescate</p>
+                  <h2 class="text-xl md:text-2xl font-bold text-slate-900">Mensajes del voluntario</h2>
+                </div>
               </div>
-              <div>
-                <p class="text-xs font-bold uppercase text-blue-600">Novedades del rescate</p>
-                <h2 class="text-xl md:text-2xl font-bold text-slate-900">Mensajes del voluntario</h2>
-              </div>
-            </div>
-            <div class="p-6">
-              @if (lineaTiempo.length > 0) {
-                <div class="relative pl-7 flex flex-col gap-6">
-                  <div class="absolute left-[10px] top-2 bottom-2 w-px bg-slate-200"></div>
-                  @for (item of lineaTiempo; track $index) {
-                    <div class="relative">
-                      <div class="absolute -left-7 top-1 w-5 h-5 rounded-full border-4 border-white shadow"
-                        [ngClass]="item.esInicio ? 'bg-slate-400' : 'bg-blue-600'"></div>
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-sm font-bold text-slate-900">{{ item.estado }}</span>
-                        <span class="text-xs text-slate-400">{{ item.timestamp | date:'dd MMM, HH:mm' }}</span>
+              <div class="p-6">
+                @if (lineaTiempo.length > 0) {
+                  <div class="relative pl-7 flex flex-col gap-6">
+                    <div class="absolute left-[10px] top-2 bottom-2 w-px bg-slate-200"></div>
+                    @for (item of lineaTiempo; track $index) {
+                      <div class="relative">
+                        <div class="absolute -left-7 top-1 w-5 h-5 rounded-full border-4 border-white shadow"
+                          [ngClass]="item.esInicio ? 'bg-slate-400' : 'bg-blue-600'"></div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <span class="text-sm font-bold text-slate-900">{{ item.estado }}</span>
+                          <span class="text-xs text-slate-400">{{ item.timestamp | date:'dd MMM, HH:mm' }}</span>
+                        </div>
+                        @if (item.nota) {
+                          <p class="text-sm text-slate-600 mt-1.5 bg-slate-50 border border-slate-100 p-3">{{ item.nota }}</p>
+                        }
                       </div>
-                      @if (item.nota) {
-                        <p class="text-sm text-slate-600 mt-1.5 bg-slate-50 border border-slate-100 p-3">{{ item.nota }}</p>
+                    }
+                  </div>
+                } @else {
+                  <div class="flex flex-col items-center text-center py-8">
+                    <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">chat_bubble</span>
+                    <h3 class="font-bold text-slate-700">Aún no hay novedades</h3>
+                    <p class="text-sm text-slate-500 mt-1 max-w-sm">Cuando el voluntario registre avances, aparecerán aquí.</p>
+                  </div>
+                }
+              </div>
+            </article>
+
+            <!-- Evaluación del voluntario -->
+            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined">stethoscope</span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold uppercase text-emerald-600">Anadido por el rescatista</p>
+                  <h2 class="text-xl md:text-2xl font-bold text-slate-900">Evaluacion del voluntario</h2>
+                </div>
+              </div>
+              <div class="p-6">
+                @if (evaluacionItems.length > 0 || notasClinicas) {
+                  @if (evaluacionItems.length > 0) {
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+                      @for (item of evaluacionItems; track item.label) {
+                        <div class="border border-emerald-100 bg-emerald-50 p-3.5">
+                          <p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{{ item.label }}</p>
+                          <p class="text-sm font-bold text-slate-800 mt-1">{{ item.valor }}</p>
+                        </div>
                       }
                     </div>
                   }
-                </div>
-              } @else {
-                <div class="flex flex-col items-center text-center py-8">
-                  <span class="material-symbols-outlined text-5xl text-slate-300 mb-3">chat_bubble</span>
-                  <h3 class="font-bold text-slate-700">Aún no hay novedades</h3>
-                  <p class="text-sm text-slate-500 mt-1 max-w-sm">Cuando el voluntario registre avances, aparecerán aquí.</p>
-                </div>
-              }
-            </div>
-          </article>
-
-          <!-- Der: Mapa (si cerrado) / si no, Tu reporte sube aqui -->
-          @if (ubicacionFinal) {
-            <article class="lg:col-span-5 bg-white border border-emerald-300 shadow-md overflow-hidden">
-              <div class="p-5 border-b border-slate-100 bg-emerald-50 flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-600 text-white grid place-items-center shrink-0">
-                  <span class="material-symbols-outlined text-[20px]">where_to_vote</span>
-                </div>
-                <div>
-                  <p class="text-[11px] font-bold uppercase text-emerald-600">Destino del rescate</p>
-                  <h3 class="font-bold text-slate-800">Ubicación final del animal</h3>
-                </div>
-              </div>
-              <div class="p-5">
-                <div id="mapa-final" class="w-full h-56 border border-slate-200 mb-3 bg-slate-100"></div>
-                <div class="flex items-center gap-2 border border-emerald-100 bg-emerald-50 p-3">
-                  <span class="material-symbols-outlined text-[18px] text-emerald-600">pin_drop</span>
-                  <p class="text-sm font-semibold text-slate-700">
-                    {{ ubicacionFinal.lat | number:'1.5-5' }}, {{ ubicacionFinal.lng | number:'1.5-5' }}
-                  </p>
-                </div>
+                  @if (notasClinicas) {
+                    <div class="border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px]">clinical_notes</span>Notas clinicas
+                      </p>
+                      <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
+                    </div>
+                  }
+                } @else {
+                  <div class="flex flex-col items-center text-center py-6">
+                    <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">pending</span>
+                    <p class="text-sm text-slate-500">El voluntario aún no registra la evaluación del animal.</p>
+                  </div>
+                }
               </div>
             </article>
-          } @else {
-            <!-- Sin mapa: aqui va Tu reporte para no dejar hueco -->
-            <article class="lg:col-span-5 bg-white border border-slate-300 shadow-md p-6">
+
+          </div>
+
+          <!-- Der: Mapa (si cerrado) + Tu reporte + Aviso -->
+          <aside class="lg:col-span-5 flex flex-col gap-6">
+
+            @if (ubicacionFinal) {
+              <article class="bg-white border border-emerald-300 shadow-md overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-emerald-50 flex items-center gap-3">
+                  <div class="w-10 h-10 bg-emerald-600 text-white grid place-items-center shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">where_to_vote</span>
+                  </div>
+                  <div>
+                    <p class="text-[11px] font-bold uppercase text-emerald-600">Destino del rescate</p>
+                    <h3 class="font-bold text-slate-800">Ubicación final del animal</h3>
+                  </div>
+                </div>
+                <div class="p-5">
+                  <div id="mapa-final" class="w-full h-56 border border-slate-200 mb-3 bg-slate-100"></div>
+                  <div class="flex items-center gap-2 border border-emerald-100 bg-emerald-50 p-3">
+                    <span class="material-symbols-outlined text-[18px] text-emerald-600">pin_drop</span>
+                    <p class="text-sm font-semibold text-slate-700">
+                      {{ ubicacionFinal.lat | number:'1.5-5' }}, {{ ubicacionFinal.lng | number:'1.5-5' }}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            }
+
+            <article class="bg-white border border-slate-300 shadow-md p-6">
               <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
                 <div class="w-11 h-11 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
                   <span class="material-symbols-outlined text-[20px]">description</span>
@@ -250,14 +295,15 @@
                   <h3 class="text-lg font-bold text-slate-900">Lo que reportaste</h3>
                 </div>
               </div>
+
               <div class="grid grid-cols-2 gap-3 mb-4">
                 <div class="border border-slate-200 bg-slate-50 p-3">
                   <p class="text-[11px] font-bold uppercase text-slate-500">Especie</p>
-                  <p class="text-sm font-bold text-slate-800 mt-1">{{ especie }}</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1 capitalize">{{ especie }}</p>
                 </div>
                 <div class="border border-slate-200 bg-slate-50 p-3">
                   <p class="text-[11px] font-bold uppercase text-slate-500">Tamano</p>
-                  <p class="text-sm font-bold text-slate-800 mt-1">{{ tamano }}</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1 capitalize">{{ tamano }}</p>
                 </div>
                 <div class="border border-slate-200 bg-slate-50 p-3">
                   <p class="text-[11px] font-bold uppercase text-slate-500">Condicion</p>
@@ -265,95 +311,31 @@
                 </div>
                 <div class="border border-slate-200 bg-slate-50 p-3">
                   <p class="text-[11px] font-bold uppercase text-slate-500">Edad</p>
-                  <p class="text-sm font-bold text-slate-800 mt-1">{{ edad }}</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1 capitalize">{{ edad }}</p>
+                </div>
+                <div class="border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-[11px] font-bold uppercase text-slate-500">Color</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1 capitalize">{{ color }}</p>
+                </div>
+                <div class="border border-slate-200 bg-slate-50 p-3">
+                  <p class="text-[11px] font-bold uppercase text-slate-500">Raza</p>
+                  <p class="text-sm font-bold text-slate-800 mt-1 capitalize">{{ raza }}</p>
+                </div>
+
+                <!-- Como reacciono: ocupa las dos columnas -->
+                <div class="col-span-2 border p-3" [ngClass]="claseAgresividad">
+                  <p class="text-[11px] font-bold uppercase opacity-80">Como reacciono al verte</p>
+                  <p class="text-sm font-bold mt-1">{{ etiquetaAgresividad }}</p>
                 </div>
               </div>
+
               <div class="border border-blue-100 bg-blue-50/60 p-4">
                 <p class="text-[11px] font-bold uppercase text-blue-600 mb-1.5">Tus notas originales</p>
                 <p class="text-sm text-slate-700 leading-relaxed">{{ notasReportante }}</p>
               </div>
             </article>
-          }
 
-          <!-- ===== FILA 2 ===== -->
-
-          <!-- Izq: Evaluacion del voluntario -->
-          <article class="lg:col-span-7 bg-white border border-slate-300 shadow-md p-6 md:p-8">
-            <div class="flex items-center gap-4 pb-5 mb-6 border-b border-slate-100">
-              <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
-                <span class="material-symbols-outlined">stethoscope</span>
-              </div>
-              <div>
-                <p class="text-xs font-bold uppercase text-emerald-600">Anadido por el rescatista</p>
-                <h2 class="text-xl md:text-2xl font-bold text-slate-900">Evaluacion del voluntario</h2>
-              </div>
-            </div>
-            @if (evaluacionItems.length > 0 || notasClinicas) {
-              @if (evaluacionItems.length > 0) {
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-                  @for (item of evaluacionItems; track item.label) {
-                    <div class="border border-emerald-100 bg-emerald-50 p-3.5">
-                      <p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{{ item.label }}</p>
-                      <p class="text-sm font-bold text-slate-800 mt-1">{{ item.valor }}</p>
-                    </div>
-                  }
-                </div>
-              }
-              @if (notasClinicas) {
-                <div class="border border-slate-200 bg-slate-50 p-4">
-                  <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1.5 flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[15px]">clinical_notes</span>Notas clinicas
-                  </p>
-                  <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
-                </div>
-              }
-            } @else {
-              <div class="flex flex-col items-center text-center py-6">
-                <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">pending</span>
-                <p class="text-sm text-slate-500">El voluntario aún no registra la evaluación del animal.</p>
-              </div>
-            }
-          </article>
-
-          <!-- Der: Tu reporte (si hay mapa arriba) / Aviso -->
-          <aside class="lg:col-span-5 flex flex-col gap-6">
-            @if (ubicacionFinal) {
-              <!-- Tu reporte (porque el mapa ocupo la fila 1) -->
-              <article class="bg-white border border-slate-300 shadow-md p-6">
-                <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
-                  <div class="w-11 h-11 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
-                    <span class="material-symbols-outlined text-[20px]">description</span>
-                  </div>
-                  <div>
-                    <p class="text-[11px] font-bold uppercase text-blue-600">Tu reporte original</p>
-                    <h3 class="text-lg font-bold text-slate-900">Lo que reportaste</h3>
-                  </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-500">Especie</p>
-                    <p class="text-sm font-bold text-slate-800 mt-1">{{ especie }}</p>
-                  </div>
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-500">Tamano</p>
-                    <p class="text-sm font-bold text-slate-800 mt-1">{{ tamano }}</p>
-                  </div>
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-500">Condicion</p>
-                    <p class="text-sm font-bold text-slate-800 mt-1">{{ condicion }}</p>
-                  </div>
-                  <div class="border border-slate-200 bg-slate-50 p-3">
-                    <p class="text-[11px] font-bold uppercase text-slate-500">Edad</p>
-                    <p class="text-sm font-bold text-slate-800 mt-1">{{ edad }}</p>
-                  </div>
-                </div>
-                <div class="border border-blue-100 bg-blue-50/60 p-4">
-                  <p class="text-[11px] font-bold uppercase text-blue-600 mb-1.5">Tus notas originales</p>
-                  <p class="text-sm text-slate-700 leading-relaxed">{{ notasReportante }}</p>
-                </div>
-              </article>
-            }
-
+            <!-- Aviso de solo lectura -->
             @if (!estaCerrado) {
               <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg p-6">
                 <span class="material-symbols-outlined absolute -right-3 -bottom-3 text-[100px] opacity-15 pointer-events-none">lock</span>
@@ -368,6 +350,7 @@
                 </div>
               </div>
             }
+
           </aside>
 
         </div>

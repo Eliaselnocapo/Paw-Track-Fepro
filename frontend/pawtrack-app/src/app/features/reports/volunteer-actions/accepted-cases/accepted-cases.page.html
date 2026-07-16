@@ -44,7 +44,7 @@
     <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-12">
 
       <!-- HEADER -->
-      <header class="bg-white border border-slate-300 shadow-md mb-8 overflow-hidden">
+      <header class="bg-white border border-slate-300 shadow-md mb-8 overflow-hidden rounded">
         <div class="flex flex-col md:flex-row md:items-stretch">
 
           <div class="flex-1 px-8 py-7 flex flex-col justify-center gap-2.5 border-b md:border-b-0 md:border-r border-slate-100">
@@ -60,22 +60,21 @@
               quedan guardadas en sus filtros.
             </p>
             <div class="flex flex-wrap items-center gap-2 mt-2">
-              <span class="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded">
                 Sistema activo
               </span>
-              <span class="text-[11px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1.5 flex items-center gap-1">
+              <span class="text-[11px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1.5 flex items-center gap-1 rounded">
                 <span class="material-symbols-outlined text-[13px]">location_on</span>
                 {{ ubicacionUsuario }}
               </span>
-              <span class="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 flex items-center gap-1">
+              <span class="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 flex items-center gap-1 rounded">
                 <span class="material-symbols-outlined text-[13px]">folder_open</span>
                 {{ totalActivos }} activa{{ totalActivos === 1 ? '' : 's' }}
               </span>
             </div>
           </div>
 
-          <div class="flex flex-col justify-center px-8 py-7 gap-3.5 min-w-[240px] bg-slate-50/50">
+          <div class="flex flex-col justify-center px-8 py-7 gap-3.5 min-w-[240px] bg-slate-50/50 rounded">
             <div class="flex items-center justify-between gap-4">
               <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resueltas</span>
               <span class="text-2xl font-bold text-emerald-600">{{ totalCompletados }}</span>
@@ -100,7 +99,7 @@
       </header>
 
       <!-- BARRA DE FILTROS POR ESTADO + HISTORIAL -->
-      <div class="bg-white p-4 shadow-md border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div class="bg-white p-4 shadow-md border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 rounded">
         <div class="flex flex-wrap items-center gap-2">
           @for (estado of filtros; track estado) {
             <button type="button"
@@ -118,7 +117,7 @@
         </div>
         <button type="button"
           routerLink="/reports-history"
-          class="text-sm font-bold text-slate-600 bg-slate-50 border border-slate-200 px-4 py-2 hover:bg-slate-100 transition-colors flex items-center gap-1.5 shrink-0">
+          class="text-sm font-bold text-slate-600 bg-slate-50 border rounded border-slate-200 px-4 py-2 hover:bg-slate-100 transition-colors flex items-center gap-1.5 shrink-0">
           <span class="material-symbols-outlined text-[16px]">history</span>
           Ver historial
         </button>
@@ -153,7 +152,7 @@
                 <div class="flex flex-col sm:flex-row p-4 gap-5">
 
                   <!-- Foto con margen (bordes rectos) -->
-                  <div class="relative w-full sm:w-64 h-52 sm:h-56 shrink-0 overflow-hidden">
+                  <div class="relative w-full sm:w-64 h-52 sm:h-56 shrink-0 overflow-hidden rounded">
                     <img
                       [src]="caso.fotoUrl"
                       [alt]="caso.titulo"
@@ -219,7 +218,7 @@
                       }
                     </div>
 
-                    <!-- Chips informativos con color -->
+                  <!-- Chips informativos con color -->
                     <div class="flex flex-wrap gap-2">
                       <span class="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 font-semibold flex items-center gap-1 rounded">
                         <span class="material-symbols-outlined text-[13px]">pets</span>
@@ -229,6 +228,29 @@
                         <span class="material-symbols-outlined text-[13px]">straighten</span>
                         {{ caso.tamano }}
                       </span>
+
+                      @if (caso.color) {
+                        <span class="text-xs px-2.5 py-1 bg-slate-50 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded capitalize">
+                          <span class="material-symbols-outlined text-[13px]">palette</span>
+                          {{ caso.color }}
+                        </span>
+                      }
+
+                      @if (caso.raza) {
+                        <span class="text-xs px-2.5 py-1 bg-slate-50 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded capitalize">
+                          <span class="material-symbols-outlined text-[13px]">sell</span>
+                          {{ caso.raza }}
+                        </span>
+                      }
+
+                      <!-- Advertencia: como reacciono el animal -->
+                      @if (chipAgresividad(caso); as chip) {
+                        <span class="text-xs px-2.5 py-1 border font-bold flex items-center gap-1 rounded" [ngClass]="chip.clase">
+                          <span class="material-symbols-outlined text-[13px]">{{ chip.icono }}</span>
+                          {{ chip.texto }}
+                        </span>
+                      }
+
                       <span class="text-xs px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded">
                         <span class="material-symbols-outlined text-[13px]">tag</span>
                         {{ caso.folio }}
@@ -338,13 +360,13 @@
                 <button type="button"
                   (click)="cambiarPaginaCasos(paginaActualCasos - 1)"
                   [disabled]="paginaActualCasos === 1"
-                  class="h-10 px-4 border border-slate-300 bg-white text-slate-700 font-bold text-sm shadow-sm hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  class="h-10 px-4 border border-slate-300 bg-white text-slate-700 font-bold rounded-lg text-sm shadow-sm hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                   Anterior
                 </button>
                 @for (pagina of paginasCasos; track pagina) {
                   <button type="button"
                     (click)="cambiarPaginaCasos(pagina)"
-                    class="h-10 w-10 font-bold text-sm transition-colors"
+                    class="h-10 w-10 font-bold text-sm transition-colors rounded"
                     [ngClass]="paginaActualCasos === pagina
                       ? 'bg-blue-700 text-white shadow-md shadow-blue-700/25'
                       : 'bg-white text-slate-700 border border-slate-300 hover:bg-blue-50'">
@@ -354,7 +376,7 @@
                 <button type="button"
                   (click)="cambiarPaginaCasos(paginaActualCasos + 1)"
                   [disabled]="paginaActualCasos === totalPaginasCasos"
-                  class="h-10 px-4 border border-slate-300 bg-white text-slate-700 font-bold text-sm shadow-sm hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  class="h-10 px-4 border border-slate-300 bg-white text-slate-700 rounded-lg font-bold text-sm shadow-sm hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                   Siguiente
                 </button>
               </div>
@@ -369,7 +391,7 @@
           @if (casoEnfocado) {
 
             <!-- Próxima acción -->
-            <section class="bg-white shadow-md border border-slate-300 overflow-hidden">
+            <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                 <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2">
                   <span class="material-symbols-outlined text-blue-600 text-[20px]">flag</span>
@@ -386,14 +408,14 @@
                 <button
                   type="button"
                   (click)="actualizarCaso(casoEnfocado)"
-                  class="w-full bg-blue-700 text-white font-bold text-sm py-3 hover:bg-blue-800 shadow-md shadow-blue-700/25 transition-all active:scale-95 rounded">
+                  class="w-full bg-blue-700 text-white font-bold text-sm py-3 rounded-lg hover:bg-blue-800 shadow-md shadow-blue-700/25 transition-all active:scale-95 rounded">
                   Marcar como hecho
                 </button>
               </div>
             </section>
 
             <!-- Protocolo del turno (informativo, no interactivo) -->
-            <section class="bg-white shadow-md border border-slate-300 overflow-hidden">
+            <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                 <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2">
                   <span class="material-symbols-outlined text-emerald-600 text-[20px]">checklist</span>
@@ -406,7 +428,7 @@
               <div class="p-4 flex flex-col gap-3">
                 @for (item of protocolo; track $index) {
                   <div class="flex items-start gap-3">
-                    <div class="w-7 h-7 shrink-0 bg-emerald-50 border border-emerald-200 grid place-items-center mt-0.5">
+                    <div class="w-6 h-6 shrink-0 bg-emerald-50 border border-emerald-200 grid place-items-center mt-0.5 rounded-full">
                       <span class="material-symbols-outlined text-emerald-600 text-[16px]">check_circle</span>
                     </div>
                     <div>
@@ -421,7 +443,7 @@
           }
 
           <!-- Soporte operativo -->
-          <div class="bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-900/20 p-6 relative overflow-hidden">
+          <div class="bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-900/20 p-6 relative overflow-hidden rounded">
             <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl opacity-20 transform -rotate-12 pointer-events-none">
               support_agent
             </span>
@@ -433,7 +455,7 @@
               <p class="text-sm text-blue-100 leading-relaxed mb-4">
                 Si un caso se sale de control o el animal está herido de gravedad, contacta a protección civil desde la Navbar.
               </p>
-              <button class="w-full bg-white/15 border border-white/30 text-white font-bold text-sm py-3 hover:bg-white/20 transition-colors flex items-center justify-center gap-2 active:scale-95">
+              <button class="w-full bg-white/15 border border-white/30 text-white font-bold text-sm py-3 hover:bg-white/20 transition-colors flex rounded-lg items-center justify-center gap-2 active:scale-95">
                 <span class="material-symbols-outlined text-[18px]">phone_in_talk</span>
                 Línea de emergencia
               </button>

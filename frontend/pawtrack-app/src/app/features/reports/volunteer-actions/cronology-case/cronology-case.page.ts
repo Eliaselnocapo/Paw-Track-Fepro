@@ -134,9 +134,49 @@ export class CronologyCasePage implements OnInit {
   get tamano(): string { return this.incidencia?.tamano_animal || 'No especificado'; }
   get condicion(): string { return this.incidencia?.condicion_animal || 'No especificada'; }
   get notasReportante(): string { return this.incidencia?.notas_animal?.trim() || 'Sin notas del reportante.'; }
-  get score(): number { return this.incidencia?.urgency_score ?? 0; }
+  get score(): number { return Math.round(this.incidencia?.urgency_score ?? 0); }
   get peso(): string { return this.incidencia?.peso_estimado?.trim() || 'No registrado'; }
   get edad(): string { return this.incidencia?.edad_estimada?.trim() || 'No registrada'; }
+  get color(): string { return this.incidencia?.color_animal?.trim() || 'No especificado'; }
+  get raza(): string  { return this.incidencia?.raza_animal?.trim()  || 'No identificada'; }
+
+  
+  get agresividad(): string | null {
+    // Columna propia (reportes nuevos)
+    const col = this.incidencia?.agresividad_animal?.trim();
+    if (col) return col;
+
+    // Reportes viejos: el temperamento vivia concatenado en ficha_voluntario
+    const texto = this.incidencia?.ficha_voluntario ?? '';
+    const match = texto.match(/Temperamento:\s*([^|]+)/i);
+    if (!match) return null;
+
+    const valor = match[1].trim().toLowerCase();
+    if (valor.startsWith('doc') || valor.startsWith('dóc')) return 'docil';
+    if (valor.startsWith('asu')) return 'asustadizo';
+    if (valor.startsWith('agr')) return 'agresivo';
+    return 'no_evaluable';
+  }
+
+  get etiquetaTemperamento(): string {
+    switch (this.agresividad) {
+      case 'docil':        return 'Dócil';
+      case 'asustadizo':   return 'Asustadizo';
+      case 'agresivo':     return 'Agresivo';
+      case 'no_evaluable': return 'Sin evaluar';
+      default:             return 'Sin registrar';
+    }
+  }
+
+  get claseTemperamento(): string {
+    switch (this.agresividad) {
+      case 'agresivo':   return 'border-red-200 bg-red-50 text-red-700';
+      case 'asustadizo': return 'border-amber-200 bg-amber-50 text-amber-700';
+      case 'docil':      return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      default:           return 'border-slate-200 bg-slate-50 text-slate-400';
+    }
+  }
+  
 
   get nivelUrgencia(): string {
     if (this.score >= 80) return 'Urgente';
@@ -152,7 +192,7 @@ export class CronologyCasePage implements OnInit {
   get rescatistaEmail(): string | null { return this.incidencia?.rescatista_info?.email?.trim() || null; }
 
   /** Ficha clinica que llenó el voluntario, separada en etiqueta/valor. */
-  get fichaVoluntario(): { etiqueta: string; valor: string }[] {
+get fichaVoluntario(): { etiqueta: string; valor: string }[] {
     const ficha = this.incidencia?.ficha_voluntario?.trim();
     if (!ficha) return [];
 
@@ -162,7 +202,10 @@ export class CronologyCasePage implements OnInit {
         etiqueta: (etiqueta || '').trim(),
         valor: resto.join(':').trim() || '—',
       };
-    });
+    })
+    // El temperamento ya tiene columna propia: lo quitamos del texto para
+    // no duplicarlo (los reportes viejos aun lo traen concatenado).
+    .filter(d => !/temperamento/i.test(d.etiqueta));
   }
 
   // ── Ubicaciones ───────────────────────────

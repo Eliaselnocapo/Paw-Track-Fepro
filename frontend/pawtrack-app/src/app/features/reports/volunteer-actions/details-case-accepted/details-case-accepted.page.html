@@ -197,7 +197,7 @@
                 <span class="material-symbols-outlined text-emerald-500 text-3xl">cruelty_free</span>
               </div>
 
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div class="rounded border border-slate-200 bg-slate-50 p-4">
                   <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Especie</p>
                   <p class="text-base font-bold text-slate-900">{{ especie | titlecase }}</p>
@@ -211,6 +211,14 @@
                   <p class="text-base font-bold text-amber-800">{{ condicion }}</p>
                 </div>
                 <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Color</p>
+                  <p class="text-base font-bold text-slate-900 capitalize">{{ color }}</p>
+                </div>
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Raza</p>
+                  <p class="text-base font-bold text-slate-900 capitalize">{{ raza }}</p>
+                </div>
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
                   <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Edad estimada</p>
                   <p class="text-base font-bold text-slate-900">{{ edad }}</p>
                 </div>
@@ -222,7 +230,40 @@
                   <p class="text-xs font-bold text-red-500 mb-1 uppercase">Urgencia</p>
                   <p class="text-base font-bold text-red-800">{{ score }}/100</p>
                 </div>
+
+                <!-- Temperamento: llena el hueco de la grid -->
+                @if (avisoAgresividad; as aviso) {
+                  <div class="rounded border p-4 flex flex-col justify-center" [ngClass]="aviso.clase">
+                    <p class="text-xs font-bold mb-1 uppercase flex items-center gap-1" [ngClass]="aviso.claseTexto">
+                      <span class="material-symbols-outlined text-[15px]">{{ aviso.icono }}</span>
+                      Temperamento
+                    </p>
+                    <p class="text-base font-bold" [ngClass]="aviso.claseTexto">{{ aviso.titulo }}</p>
+                  </div>
+                } @else {
+                  <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Temperamento</p>
+                    <p class="text-base font-bold text-slate-400">Sin evaluar</p>
+                  </div>
+                }
               </div>
+
+              <!-- Alerta grande: SOLO si hay riesgo real -->
+              @if (agresividad === 'agresivo' || agresividad === 'asustadizo') {
+                @if (avisoAgresividad; as aviso) {
+                  <div class="mt-4 border-2 p-5 flex items-start gap-4" [ngClass]="aviso.clase">
+                    <div class="w-12 h-12 grid place-items-center shrink-0 bg-white/70 border" [ngClass]="aviso.clase">
+                      <span class="material-symbols-outlined text-[26px]" [ngClass]="aviso.claseTexto">{{ aviso.icono }}</span>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-[11px] font-bold uppercase tracking-wider mb-0.5" [ngClass]="aviso.claseTexto">
+                        Precaución al acercarte
+                      </p>
+                      <p class="text-sm leading-relaxed" [ngClass]="aviso.claseTexto">{{ aviso.detalle }}</p>
+                    </div>
+                  </div>
+                }
+              }
             </article>
             <!-- EVALUACIÓN DEL VOLUNTARIO -->
             @if (evaluacionItems.length > 0 || notasClinicas) {

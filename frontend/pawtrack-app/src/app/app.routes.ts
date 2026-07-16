@@ -128,5 +128,10 @@ export const routes: Routes = [
   path: 'edit-profile',
   loadComponent: () =>
     import('./features/profile/edit-profile/edit-profile.page').then(m => m.EditProfilePage),
-  }
+  },
+  {
+  path: 'app-coming-soon',
+  loadComponent: () =>
+    import('./features/coming-soon/cooming-soon.page').then(m => m.ComingSoonPage),
+  },
 ];

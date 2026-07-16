@@ -254,7 +254,7 @@
                 <span class="material-symbols-outlined text-emerald-500 text-3xl">cruelty_free</span>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
                 <div class="rounded border border-slate-200 bg-slate-50 p-4">
                   <p class="text-xs font-bold text-slate-500 mb-2 uppercase">Especie</p>
@@ -274,7 +274,41 @@
                   <p class="text-xs text-amber-700 mt-1">Revisar antes de acercarse</p>
                 </div>
 
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-2 uppercase">Color</p>
+                  <p class="text-lg font-bold text-slate-900 capitalize">{{ color ?? 'No especificado' }}</p>
+                  <p class="text-xs text-slate-500 mt-1">Para identificarlo a distancia</p>
+                </div>
+
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-2 uppercase">Raza</p>
+                  <p class="text-lg font-bold text-slate-900 capitalize">{{ raza ?? 'No identificada' }}</p>
+                  <p class="text-xs text-slate-500 mt-1">Según el reportante</p>
+                </div>
+
+                <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-xs font-bold text-slate-500 mb-2 uppercase">Urgencia</p>
+                  <p class="text-lg font-bold text-slate-900">{{ caso.score }}/100</p>
+                  <p class="text-xs text-slate-500 mt-1">Calculada por el sistema</p>
+                </div>
+
               </div>
+
+              <!-- AVISO DE SEGURIDAD: como reacciono el animal -->
+              @if (avisoAgresividad; as aviso) {
+                <div class="mt-4 border-2 p-5 flex items-start gap-4" [ngClass]="aviso.clase">
+                  <div class="w-12 h-12 grid place-items-center shrink-0 bg-white/70 border" [ngClass]="aviso.clase">
+                    <span class="material-symbols-outlined text-[26px]" [ngClass]="aviso.claseTexto">{{ aviso.icono }}</span>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-[11px] font-bold uppercase tracking-wider mb-0.5" [ngClass]="aviso.claseTexto">
+                      Cómo reaccionó al ver al reportante
+                    </p>
+                    <p class="text-lg font-bold" [ngClass]="aviso.claseTexto">{{ aviso.titulo }}</p>
+                    <p class="text-sm mt-1 leading-relaxed" [ngClass]="aviso.claseTexto">{{ aviso.detalle }}</p>
+                  </div>
+                </div>
+              }
             </article>
 
             <!-- UBICACIÓN -->
@@ -357,7 +391,7 @@
                 <button
                   type="button"
                   (click)="aceptarMision()"
-                  class="w-full h-12 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                  class="w-full h-12 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
                   <span class="material-symbols-outlined text-[20px]">directions_run</span>
                   Continuar a aceptación
                 </button>
