@@ -35,13 +35,26 @@ export interface ReportePayload {
    * wizard, si el reportante ya respondió la pregunta "¿es el mismo caso?"
    * antes de enviar. Ver ReportService.verificarDuplicado(). */
   duplicado_candidato_folio?: string;
-  /** true si el reportante confirmó que es el mismo caso (el back fusiona
-   * de inmediato), false si dijo que es distinto (queda como registro de
-   * auditoría, el reporte se crea como caso independiente). */
+  /** true si el reportante confirmó que es el mismo caso (el back borra
+   * el reporte nuevo de inmediato, sin tocar el caso original — ver
+   * DuplicadoDescartadoResponse), false si dijo que es distinto (queda
+   * como registro de auditoría, el reporte se crea como caso independiente). */
   duplicado_confirmado?: boolean;
   /** Score que regresó verificarDuplicado() para ese candidato, solo para
    * el registro de auditoría (SugerenciaDuplicado) del lado del back. */
   duplicado_score?: number;
+}
+
+/**
+ * Respuesta cuando el reportante confirmó en el paso 4 que era el mismo
+ * caso: el back borra el reporte nuevo por completo (ver
+ * deduplicacion.services.descartar_duplicado) y no crea ninguna
+ * Incidencia — no hay folio de seguimiento propio, solo el del caso
+ * existente al que ya se atendió.
+ */
+export interface DuplicadoDescartadoResponse {
+  duplicado_descartado: true;
+  folio_existente: string;
 }
 
 /** Info del rescatista asignado que devuelve el serializer cuando el caso ya fue tomado. */
@@ -236,7 +249,7 @@ export class ReportService {
    * Usa FormData para enviar imagen + datos de texto en un solo request multipart.
    * El back lo crea en estado PENDIENTE por defecto.
    */
-  crearReporte(payload: ReportePayload): Observable<IncidenciaResponse> {
+  crearReporte(payload: ReportePayload): Observable<IncidenciaResponse | DuplicadoDescartadoResponse> {
     const form = new FormData();
 
     form.append('nombre_caso',      payload.nombre_caso);
@@ -259,7 +272,7 @@ export class ReportService {
     if (payload.duplicado_confirmado != null) form.append('duplicado_confirmado', String(payload.duplicado_confirmado));
     if (payload.duplicado_score != null) form.append('duplicado_score', String(payload.duplicado_score));
 
-    return this.http.post<IncidenciaResponse>(this.apiUrl, form);
+    return this.http.post<IncidenciaResponse | DuplicadoDescartadoResponse>(this.apiUrl, form);
   }
 
   /**
@@ -272,7 +285,8 @@ export class ReportService {
    * Si el usuario confirma que es el mismo caso, el folio + score del
    * candidato se reenvían dentro de crearReporte() (campos
    * `duplicado_candidato_folio`/`duplicado_confirmado`/`duplicado_score`)
-   * para que el back fusione en el mismo request que crea el reporte.
+   * para que el back borre el reporte nuevo en el mismo request en vez de
+   * crearlo (ver DuplicadoDescartadoResponse).
    */
   verificarDuplicado(payload: VerificarDuplicadoPayload): Observable<{ candidato: CandidatoDuplicado | null }> {
     const form = new FormData();

@@ -4,18 +4,18 @@ from django.db import models
 
 class SugerenciaDuplicado(models.Model):
     """
-    Registro de auditoría de una decisión de deduplicación tomada por el
-    reportante DURANTE la creación del reporte (paso 4 del wizard, ver
-    bd.views.IncidenciaViewSet.verificar_duplicado y .create()). El chequeo
-    corre de forma síncrona ANTES de guardar nada: si el sistema encuentra
-    un candidato, se le pregunta al reportante ahí mismo, y esta fila se crea
-    ya resuelta (CONFIRMADA o RECHAZADA) en el mismo request que crea la
-    Incidencia — nunca queda en PENDIENTE esperando una acción posterior.
-    Sirve como historial para calibrar UMBRAL_REVISION más adelante (¿cuántas
-    sugerencias se confirman vs. se rechazan?), no como cola de trabajo.
-    Ver decision-tecnica-filtro-raza.md, punto 6: la fusión nunca la decide
-    el sistema solo, la decide el humano — aquí solo se deja constancia de
-    lo que decidió.
+    Registro de auditoría de una decisión de deduplicación RECHAZADA tomada
+    por el reportante DURANTE la creación del reporte (paso 4 del wizard,
+    ver bd.views.IncidenciaViewSet.verificar_duplicado y .create()). Si el
+    reportante confirma que es el mismo caso, la Incidencia nueva se borra
+    de inmediato (ver deduplicacion.services.descartar_duplicado) — no
+    queda una Incidencia a la cual apuntar, así que ese caso nunca genera
+    fila aquí (CONFIRMADA ya no se usa, se deja en ESTADO_CHOICES por si se
+    retoma el historial de confirmaciones más adelante). Solo el rechazo
+    deja constancia, para que el reporte quede como caso independiente sin
+    perder de vista que el sistema sugirió (y el humano descartó) un
+    candidato. Ver decision-tecnica-filtro-raza.md, punto 6: la decisión
+    nunca la toma el sistema solo, la toma el humano.
     """
     ESTADO_CHOICES = [
         ('PENDIENTE', 'Pendiente de confirmación'),

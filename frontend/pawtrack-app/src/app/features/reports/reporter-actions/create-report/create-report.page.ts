@@ -6,7 +6,7 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, CandidatoDuplicado } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonModal } from '@ionic/angular/standalone';
 
 declare let L: any;
 
@@ -20,6 +20,7 @@ declare let L: any;
     FormsModule,
     RouterLink,
     IonContent,
+    IonModal,
     NavbarWebComponent,
     FooterWebComponent
   ],
@@ -55,6 +56,12 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   folioGenerado: string | null = null;
   enviando = false;
   errorEnvio: string | null = null;
+  // true cuando se confirmó que era el mismo caso y el back borró el
+  // reporte nuevo (ver ReportService.crearReporte) — se muestra la misma
+  // pantalla de confirmación, sin folio propio, en vez de la ventana de
+  // "es el mismo caso ¿si o no?".
+  duplicadoDescartado = false;
+  folioExistente: string | null = null;
 
   // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
   verificandoDuplicado = false;
@@ -497,9 +504,18 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     }).subscribe({
     next: (res) => {
       console.log('REPORTE CREADO:', res);
+      this.enviando = false;
+
+      if ('duplicado_descartado' in res) {
+        // Confirmado como el mismo caso: el back ya borró el reporte nuevo,
+        // no hay folio propio que generar.
+        this.duplicadoDescartado = true;
+        this.folioExistente = res.folio_existente;
+        this.destroyPreviewMap();
+        return;
+      }
 
       this.folioGenerado = res.folio ?? `#${res.id}`;
-      this.enviando = false;
 
       const haySesion = !!localStorage.getItem('pawtrack_access');
 

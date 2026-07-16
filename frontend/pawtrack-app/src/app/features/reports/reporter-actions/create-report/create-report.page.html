@@ -825,50 +825,18 @@
                       <span class="material-symbols-outlined text-blue-600 animate-spin text-[20px]">progress_activity</span>
                       <p class="text-sm text-slate-600">Verificando si ya existe un reporte parecido cerca...</p>
                     </div>
-                  } @else if (candidatoDuplicado) {
+                  } @else if (candidatoDuplicado && duplicadoConfirmado !== null) {
                     <div class="bg-white shadow-md border-2 border-amber-300 overflow-hidden">
                       <div class="px-5 py-3 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
                         <span class="material-symbols-outlined text-amber-600 text-[20px]">help</span>
                         <h3 class="font-bold text-sm text-slate-900">¿Es este el mismo caso?</h3>
                       </div>
                       <div class="p-5">
-                        <p class="text-xs text-slate-600 leading-relaxed mb-4">
-                          Encontramos un reporte parecido cerca de esta ubicación. Ayúdanos a confirmar
-                          si es el mismo animal antes de enviar tu reporte.
-                        </p>
-                        <div class="flex gap-3 mb-4">
-                          <img [src]="candidatoDuplicado.imagen || 'assets/images/report-placeholder.jpg'" alt="Reporte similar"
-                            class="w-20 h-20 object-cover border border-slate-200 shrink-0">
-                          <div class="flex flex-col justify-center gap-1">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 w-fit">
-                              <span class="material-symbols-outlined text-[14px]">confirmation_number</span>{{ candidatoDuplicado.folio }}
-                            </span>
-                            @if (candidatoDuplicado.tipo_animal) {
-                              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 w-fit">
-                                <span class="material-symbols-outlined text-[14px]">pets</span>{{ candidatoDuplicado.tipo_animal }}
-                              </span>
-                            }
-                          </div>
-                        </div>
-
-                        @if (duplicadoConfirmado === null) {
-                          <div class="flex flex-wrap gap-3">
-                            <button type="button" (click)="marcarComoMismoCaso()"
-                              class="h-11 px-5 bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
-                              <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                              Sí, es el mismo caso
-                            </button>
-                            <button type="button" (click)="marcarComoDistinto()"
-                              class="h-11 px-5 bg-white border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
-                              <span class="material-symbols-outlined text-[18px]">cancel</span>
-                              No, son distintos
-                            </button>
-                          </div>
-                        } @else if (duplicadoConfirmado) {
+                        @if (duplicadoConfirmado) {
                           <div class="flex items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 p-3">
                             <p class="text-sm text-emerald-800 font-semibold flex items-center gap-2">
                               <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                              Marcado como el mismo caso — se fusionará al enviar.
+                              Marcado como el mismo caso — no se creará un reporte nuevo al enviar.
                             </p>
                             <button type="button" (click)="marcarComoDistinto()" class="text-xs font-bold text-slate-500 hover:text-slate-700 underline shrink-0">Cambiar</button>
                           </div>
@@ -884,6 +852,54 @@
                       </div>
                     </div>
                   }
+
+                  <!-- Ventana de alerta: interrumpe el paso 4 hasta que el reportante
+                       responda si es el mismo caso o no — no se puede cerrar sin
+                       contestar (backdropDismiss="false"). -->
+                  <ion-modal [isOpen]="!!candidatoDuplicado && duplicadoConfirmado === null" [backdropDismiss]="false">
+                    <ng-template>
+                      <ion-content class="ion-padding">
+                        <div class="px-1 py-2">
+                          <div class="flex items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined text-amber-600 text-[24px]">help</span>
+                            <h3 class="font-bold text-base text-slate-900">¿Es este el mismo caso?</h3>
+                          </div>
+                          <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                            Encontramos un reporte parecido cerca de esta ubicación. Ayúdanos a confirmar
+                            si es el mismo animal antes de enviar tu reporte.
+                          </p>
+                          @if (candidatoDuplicado) {
+                            <div class="flex gap-3 mb-5">
+                              <img [src]="candidatoDuplicado.imagen || 'assets/images/report-placeholder.jpg'" alt="Reporte similar"
+                                class="w-20 h-20 object-cover border border-slate-200 shrink-0">
+                              <div class="flex flex-col justify-center gap-1">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 w-fit">
+                                  <span class="material-symbols-outlined text-[14px]">confirmation_number</span>{{ candidatoDuplicado.folio }}
+                                </span>
+                                @if (candidatoDuplicado.tipo_animal) {
+                                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 w-fit">
+                                    <span class="material-symbols-outlined text-[14px]">pets</span>{{ candidatoDuplicado.tipo_animal }}
+                                  </span>
+                                }
+                              </div>
+                            </div>
+                          }
+                          <div class="flex flex-wrap gap-3">
+                            <button type="button" (click)="marcarComoMismoCaso()"
+                              class="h-11 px-5 bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
+                              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                              Sí, es el mismo caso
+                            </button>
+                            <button type="button" (click)="marcarComoDistinto()"
+                              class="h-11 px-5 bg-white border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                              <span class="material-symbols-outlined text-[18px]">cancel</span>
+                              No, son distintos
+                            </button>
+                          </div>
+                        </div>
+                      </ion-content>
+                    </ng-template>
+                  </ion-modal>
 
                   <!-- Enviar -->
                   <div class="bg-white shadow-md border-2 border-grayoverflow-hidden">
@@ -960,16 +976,31 @@
             <div class="w-24 h-24 bg-white grid place-items-center mb-6 shadow-xl text-emerald-600 animate-bounce">
               <span class="material-symbols-outlined text-[48px]">check</span>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-3">Reporte enviado</h1>
-            <p class="text-base text-emerald-50 leading-relaxed">
-              Ya notificamos a los rescatistas cercanos. Tu accion hoy puede salvar una vida.
-            </p>
+            @if (duplicadoDescartado) {
+              <h1 class="text-3xl font-bold text-white mb-3">Gracias por confirmar</h1>
+              <p class="text-base text-emerald-50 leading-relaxed">
+                Ya le estamos dando seguimiento a este caso, no hacía falta un reporte nuevo.
+              </p>
+            } @else {
+              <h1 class="text-3xl font-bold text-white mb-3">Reporte enviado</h1>
+              <p class="text-base text-emerald-50 leading-relaxed">
+                Ya notificamos a los rescatistas cercanos. Tu accion hoy puede salvar una vida.
+              </p>
+            }
           </div>
         </div>
 
         <div class="w-full md:w-7/12 p-8 md:p-10 flex flex-col justify-between bg-white">
           <div class="flex flex-col gap-6">
 
+            @if (duplicadoDescartado) {
+              <div class="border border-blue-200 bg-blue-50 p-5">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Folio del caso existente
+                </p>
+                <p class="text-2xl text-blue-700 font-bold font-mono tracking-wider">{{ folioExistente }}</p>
+              </div>
+            } @else {
             <div class="border border-blue-200 bg-blue-50 p-5" [class.animate-pulse]="enviando">
               <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 Folio de seguimiento
@@ -997,6 +1028,7 @@
                 </div>
               }
             </div>
+            }
 
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-slate-50 p-4 border border-slate-200">
@@ -1020,6 +1052,7 @@
               </div>
             </div>
 
+            @if (!duplicadoDescartado) {
             <div>
               <h3 class="text-base font-bold text-slate-900 mb-4">Que sigue?</h3>
               <div class="flex flex-col relative before:absolute before:inset-0 before:ml-3.5 before:h-full before:w-0.5 before:bg-slate-200 pl-10">
@@ -1036,6 +1069,7 @@
                 }
               </div>
             </div>
+            }
           </div>
 
           <div class="flex gap-4 mt-8 pt-6 border-t border-slate-200">
