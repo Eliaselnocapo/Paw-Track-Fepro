@@ -100,7 +100,7 @@ class RankingService:
             # --- HARD GATING (La magia antimanchas) ---
             # Si la similitud en su propia categoría es menor al 50%, se anula (0.0)
             val_foto  = score_foto  if score_foto  >= 0.50 else 0.0
-            val_meta  = score_meta  if score_meta  >= 0.50 else 0.0
+            val_meta  = score_meta  
             val_geo   = score_geo   if score_geo   >= 0.50 else 0.0
             val_texto = score_texto if score_texto >= 0.50 else 0.0
 
