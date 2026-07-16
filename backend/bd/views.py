@@ -1,3 +1,6 @@
+import re
+import pdfplumber
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -139,6 +142,67 @@ class AnimalViewSet(viewsets.ModelViewSet):
     serializer_class = AnimalSerializer
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
+class ProcesarCartelPDFView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = (MultiPartParser, FormParser)
+
+    # Palabras que razonablemente aparecen en un cartel de mascota perdida/
+    # encontrada. Si el texto no toca NINGUNA de estas, casi seguro es un
+    # documento sin relación (horario de clases, factura, tarea, etc.).
+    PALABRAS_CLAVE_CARTEL = [
+        'mascota', 'perro', 'perrito', 'gato', 'gatito', 'animal',
+        'perdido', 'perdida', 'extraviado', 'extraviada',
+        'encontrado', 'encontrada', 'callejero', 'callejera',
+        'rescate', 'recompensa', 'adopcion', 'adopción',
+        'paw track', 'pawtrack',
+    ]
+
+    def post(self, request, *args, **kwargs):
+        pdf_file = request.FILES.get('file')
+        if not pdf_file:
+            return Response({"error": "No hay archivo"}, status=status.HTTP_400_BAD_REQUEST)
+        texto_extraido = ""
+        try:
+            with pdfplumber.open(pdf_file) as pdf:
+                for page in pdf.pages:
+                    text = page.extract_text()
+                    if text:
+                        texto_extraido += text + "\n"
+        except Exception:
+            return Response({"error": "No se pudo leer el PDF."}, status=status.HTTP_400_BAD_REQUEST)
+        if not texto_extraido.strip():
+            return Response(
+                {"error": "El PDF no tiene texto legible."},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+        texto_limpio = " ".join(texto_extraido.split())
+        texto_lower = texto_limpio.lower()
+
+        folio_match = re.search(r'\b[A-Z]{2,4}-[A-Z]{2,4}-\d{4,6}\b', texto_limpio)
+
+        # Un cartel real de PawTrack SIEMPRE trae folio (lo imprime CartelPdf).
+        # Si no hay folio, exigimos al menos una palabra clave relacionada a
+        # mascotas para aceptar el documento — así rechazamos horarios,
+        # tareas, facturas, o cualquier PDF que no tenga nada que ver.
+        es_relevante = bool(folio_match) or any(
+            palabra in texto_lower for palabra in self.PALABRAS_CLAVE_CARTEL
+        )
+
+        if not es_relevante:
+            return Response(
+                {"error": "Este PDF no parece ser un cartel de mascota. Sube el cartel que generó PawTrack u otro relacionado a un reporte."},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+
+        telefono_match = re.search(r'\b\d{10}\b', texto_limpio)
+
+        return Response({
+            "descripcion_bruta": texto_limpio,
+            "telefono_contacto": telefono_match.group(0) if telefono_match else "",
+            "folio_detectado": folio_match.group(0) if folio_match else None,
+        }, status=status.HTTP_200_OK)
 
 
 class IncidenciaViewSet(viewsets.ModelViewSet):
@@ -405,6 +469,46 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         qs = Incidencia.objects.filter(usuario_reporta=request.user).order_by('-id')
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='reclamar', permission_classes=[IsAuthenticated])
+    def reclamar(self, request):
+        """
+        Asocia a la cuenta del usuario logueado un reporte que se creó como
+        invitado (usuario_reporta=None), a partir del folio detectado en el
+        cartel PDF que subió (ProcesarCartelPDFView). No crea nada nuevo:
+        solo reclama el reporte existente.
+        """
+        folio = (request.data.get('folio') or '').strip()
+        if not folio:
+            return Response(
+                {"error": "Falta el folio."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            incidencia = Incidencia.objects.get(folio=folio)
+        except Incidencia.DoesNotExist:
+            return Response(
+                {"error": f"No existe ningún reporte con el folio {folio}."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if incidencia.usuario_reporta_id is not None:
+            if incidencia.usuario_reporta_id == request.user.id:
+                # Ya es suyo, no hay nada que hacer — no es un error.
+                serializer = self.get_serializer(incidencia)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(
+                {"error": "Este reporte ya pertenece a otra cuenta."},
+                status=status.HTTP_409_CONFLICT
+            )
+
+        incidencia.usuario_reporta = request.user
+        incidencia.save(update_fields=['usuario_reporta'])
+
+        serializer = self.get_serializer(incidencia)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path=r'(?P<folio>[^/.]+)/cancelar', permission_classes=[IsAuthenticated])
     def cancelar(self, request, folio=None):

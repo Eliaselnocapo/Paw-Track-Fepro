@@ -1,12 +1,13 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, CandidatoDuplicado } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
-import { IonContent } from '@ionic/angular/standalone';
+import { CartelPdf } from '../../../../core/services/cartel-pdf';
+import { IonContent, IonModal } from '@ionic/angular/standalone';
 
 declare let L: any;
 
@@ -20,6 +21,7 @@ declare let L: any;
     FormsModule,
     RouterLink,
     IonContent,
+    IonModal,
     NavbarWebComponent,
     FooterWebComponent
   ],
@@ -60,6 +62,10 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   verificandoDuplicado = false;
   candidatoDuplicado: CandidatoDuplicado | null = null;
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
+  duplicadoDescartado = false;
+  folioExistente: string | null = null;
+  
+  descargandoCartelManual = false;
 
   // Instancias de Leaflet
   private mapInteractive: any;
@@ -73,9 +79,32 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     { id: 3, texto: 'El animal es trasladado a una veterinaria o refugio asociado.' }
   ];
 
-  constructor(private cdr: ChangeDetectorRef, private reportService: ReportService, private localReportCache: LocalReportCacheService,) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private reportService: ReportService,
+    private localReportCache: LocalReportCacheService,
+    private cartelPdf: CartelPdf,
+    private router: Router
+  ) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    const state = this.router.getCurrentNavigation()?.extras.state
+      ?? history.state;
+
+    const datos = state?.['datosAutocompletar'];
+
+    if (datos) {
+      if (datos.telefono_contacto) {
+        this.telefonoUsuario = datos.telefono_contacto;
+      }
+
+      if (datos.descripcion_bruta) {
+        // El PDF solo trae texto plano, lo mandamos a notas adicionales
+        // recortado al límite que ya valida descripcionValida() (250 caracteres).
+        this.notasAdicionales = datos.descripcion_bruta.slice(0, 250);
+      }
+    }
+  }
 
   ngAfterViewInit() {}
 
@@ -184,6 +213,36 @@ export class CreateReportPage implements OnInit, AfterViewInit {
         this.cargandoDireccion = false;
         this.cdr.detectChanges();
       });
+  }
+
+  async descargarCartelManualmente(): Promise<void> {
+    if (!this.folioGenerado || this.descargandoCartelManual) {
+      return;
+    }
+
+    this.descargandoCartelManual = true;
+
+    try {
+      await this.cartelPdf.descargarCartel({
+        folio: this.folioGenerado,
+        imagen: this.archivosSeleccionados[0]?.archivoFisico ?? null,
+        nombreCaso: this.nombreCaso.trim() || undefined,
+        tipoAnimal: this.tipoAnimal.trim() || undefined,
+        tamanoAnimal: this.tamanoAproximado.trim() || undefined,
+        condicionAnimal: this.condicionesTexto.trim() || undefined,
+        direccion:
+          [this.direccionActual, this.ciudadActual]
+            .filter((v): v is string => typeof v === 'string' && v.trim() !== '')
+            .join(', ') || undefined,
+        notasAnimal: this.notasAdicionales.trim() || undefined,
+        nombreContacto: this.nombreUsuario.trim() || undefined,
+        telefonoContacto: this.telefonoUsuario.trim() || undefined,
+      });
+    } catch (error) {
+      console.error('No se pudo descargar el cartel:', error);
+    } finally {
+      this.descargandoCartelManual = false;
+    }
   }
 
   // === MÉTODOS DESTRUCTORES DE MAPA (EVITA PANTALLA GRIS) ===
@@ -428,6 +487,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     return tieneLetras && noEsLetraRepetida;
   }
 
+  
+
   nombreContactoValido(): boolean {
     const nombre = this.nombreUsuario.trim();
 
@@ -495,25 +556,109 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       duplicado_confirmado:      this.duplicadoConfirmado ?? undefined,
       duplicado_score:           this.candidatoDuplicado?.score,
     }).subscribe({
-    next: (res) => {
-      console.log('REPORTE CREADO:', res);
+      next: async (res) => {
+        console.log('REPORTE CREADO:', res);
+        this.enviando = false;
 
-      this.folioGenerado = res.folio ?? `#${res.id}`;
-      this.enviando = false;
+        if ('duplicado_descartado' in res) {
+          // Confirmado como el mismo caso: el back ya borró el reporte nuevo,
+          // no hay folio propio que generar ni cartel que descargar.
+          this.duplicadoDescartado = true;
+          this.folioExistente = res.folio_existente;
+          this.destroyPreviewMap();
+          return;
+        }
 
-      const haySesion = !!localStorage.getItem('pawtrack_access');
+        this.folioGenerado = res.folio ?? `#${res.id}`;
 
-      if (!haySesion && res.folio) {
-        this.localReportCache.guardarFolio(res.folio);
+        const haySesion = !!localStorage.getItem('pawtrack_access');
 
-        console.log(
-          'FOLIOS DE INVITADO DESPUÉS DE CREAR:',
-          this.localReportCache.obtenerFolios()
-        );
-      }
+        /*
+         * Si el usuario es invitado, se guarda el folio
+         * y se genera el cartel automáticamente.
+         */
+        if (!haySesion && res.folio) {
+          this.localReportCache.guardarFolio(res.folio);
 
-      this.destroyPreviewMap();
-    },
+          console.log(
+            'FOLIOS DE INVITADO DESPUÉS DE CREAR:',
+            this.localReportCache.obtenerFolios()
+          );
+
+          try {
+            await this.cartelPdf.descargarCartel({
+              folio: res.folio,
+
+              imagen:
+                this.archivosSeleccionados[0]?.archivoFisico ??
+                res.imagen ??
+                null,
+
+              nombreCaso:
+                this.nombreCaso.trim() ||
+                res.nombre_caso?.trim() ||
+                undefined,
+
+              tipoAnimal:
+                this.tipoAnimal.trim() ||
+                res.tipo_animal?.trim() ||
+                undefined,
+
+              tamanoAnimal:
+                this.tamanoAproximado.trim() ||
+                res.tamano_animal?.trim() ||
+                undefined,
+
+              condicionAnimal:
+                this.condicionesTexto.trim() ||
+                res.condicion_animal?.trim() ||
+                undefined,
+
+              direccion:
+                [this.direccionActual, this.ciudadActual]
+                  .filter(
+                    (valor): valor is string =>
+                      typeof valor === 'string' && valor.trim() !== ''
+                  )
+                  .join(', ') || undefined,
+
+              caracteristicas:
+                res.caracteristicas?.trim() || undefined,
+
+              notasAnimal:
+                this.notasAdicionales.trim() ||
+                res.notas_animal?.trim() ||
+                undefined,
+
+              nombreContacto:
+                this.nombreUsuario.trim() ||
+                res.nombre_contacto?.trim() ||
+                undefined,
+
+              telefonoContacto:
+                this.telefonoUsuario.trim() ||
+                res.telefono_contacto?.trim() ||
+                undefined,
+
+              tipoIncidencia:
+                res.tipo_incidencia?.trim() || undefined,
+
+              fechaReporte: res.created_at || undefined
+            });
+          } catch (errorCartel) {
+            /*
+             * El reporte ya se creó correctamente.
+             * Este error corresponde únicamente al PDF.
+             */
+            console.error(
+              'El reporte fue creado, pero no se pudo generar el cartel:',
+              errorCartel
+            );
+          }
+        }
+
+        this.destroyPreviewMap();
+      },
       error: () => {
         this.errorEnvio = 'No se pudo enviar el reporte. Intenta de nuevo.';
         this.enviando   = false;

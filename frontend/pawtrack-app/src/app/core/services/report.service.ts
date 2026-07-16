@@ -126,6 +126,18 @@ export interface IncidenciaResponse {
   ficha_voluntario?: string;
 }
 
+/**
+ * Respuesta cuando el reportante confirma en el paso 4 que el candidato
+ * de verificar-duplicado/ es el mismo caso: el back BORRA el reporte
+ * nuevo (no lo fusiona/cierra) y regresa esto en vez de una
+ * IncidenciaResponse — no hay id/folio propios porque nunca se llegó
+ * a crear una Incidencia nueva.
+ */
+export interface DuplicadoDescartadoResponse {
+  duplicado_descartado: true;
+  folio_existente: string;
+}
+
 export interface ActualizarReportePayload {
   nombre_caso?:      string;
   tipo_animal?:      string;
@@ -236,7 +248,7 @@ export class ReportService {
    * Usa FormData para enviar imagen + datos de texto en un solo request multipart.
    * El back lo crea en estado PENDIENTE por defecto.
    */
-  crearReporte(payload: ReportePayload): Observable<IncidenciaResponse> {
+  crearReporte(payload: ReportePayload): Observable<IncidenciaResponse | DuplicadoDescartadoResponse> {
     const form = new FormData();
 
     form.append('nombre_caso',      payload.nombre_caso);
@@ -259,7 +271,7 @@ export class ReportService {
     if (payload.duplicado_confirmado != null) form.append('duplicado_confirmado', String(payload.duplicado_confirmado));
     if (payload.duplicado_score != null) form.append('duplicado_score', String(payload.duplicado_score));
 
-    return this.http.post<IncidenciaResponse>(this.apiUrl, form);
+    return this.http.post<IncidenciaResponse | DuplicadoDescartadoResponse>(this.apiUrl, form);
   }
 
   /**
@@ -319,6 +331,12 @@ export class ReportService {
     return this.http.get<IncidenciaResponse>(`${this.apiUrl}folio/${folio}/`);
   }
 
+  reclamarReporte(folio: string): Observable<IncidenciaResponse> {
+    return this.http.post<IncidenciaResponse>(
+      `${environment.apiUrl}/incidencias/reclamar/`,
+      { folio }
+    );
+  }
   /**
    * Seguimiento público de un reporte por folio (AllowAny).
    * Pensado para la pantalla "ver seguimiento" del reportante una vez que su

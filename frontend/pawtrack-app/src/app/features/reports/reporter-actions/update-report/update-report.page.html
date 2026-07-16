@@ -36,7 +36,7 @@
       <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-10 relative z-10">
 
         <!-- HERO -->
-        <section class="relative overflow-hidden bg-white border border-slate-300 shadow-md mb-8">
+        <section class="relative overflow-hidden bg-white border border-slate-300 shadow-md mb-8 rounded">
 
           <!-- FIGURAS DECORATIVAS DEL HERO -->
           <div class="absolute inset-0 pointer-events-none overflow-hidden">
@@ -49,7 +49,7 @@
 
             <!-- IZQUIERDA -->
             <div class="lg:col-span-8 p-6 md:p-10">
-              <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase mb-5">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase mb-5 rounded">
                 <span class="material-symbols-outlined text-[17px]">edit_note</span>
                 Edición del reporte
               </div>
@@ -78,7 +78,7 @@
 
             <!-- DERECHA -->
             <div class="lg:col-span-4 relative overflow-hidden border-t  p-6 md:p-8 flex items-center">
-              <div class="relative z-10 bg-white border border-blue-200 shadow-md p-5 w-full">
+              <div class="relative z-10 bg-white border border-blue-200 shadow-md p-5 w-full rounded">
                 <div class="flex items-start gap-3">
                   <div class="w-11 h-11 bg-blue-600 text-white grid place-items-center shrink-0">
                     <span class="material-symbols-outlined text-[22px]">edit_note</span>
@@ -114,7 +114,7 @@
           <div class="lg:col-span-8 flex flex-col gap-6">
 
             <!-- DATOS PRINCIPALES -->
-            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
               <div class="flex items-start justify-between gap-4 mb-6">
                 <div>
                   <h2 class="text-xl font-bold text-slate-900">Datos principales</h2>
@@ -156,7 +156,7 @@
             </section>
 
             <!-- TIPO DE ANIMAL -->
-            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
               <h2 class="text-xl font-bold text-slate-900 mb-2">Tipo de animal</h2>
               <p class="text-sm text-slate-500 mb-6">
                 Selecciona la especie reportada.
@@ -215,7 +215,7 @@
 
             <!-- TAMAÑO -->
             <section
-              class="bg-white border border-slate-300 shadow-md p-6 md:p-8"
+              class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded"
               [class.opacity-60]="!reporte.tipoAnimal"
             >
               <div class="flex justify-between items-center mb-5">
@@ -456,7 +456,7 @@
             </section>
 
             <!-- CONDICIÓN -->
-            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
               <h2 class="text-xl font-bold text-slate-900 mb-2">Condición visible</h2>
               <p class="text-sm text-slate-500 mb-6">
                 Marca las condiciones base del reporte.
@@ -544,7 +544,7 @@
             </section>
 
             <!-- NOTAS -->
-            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
               <h2 class="text-xl font-bold text-slate-900 mb-2">Notas del reporte</h2>
               <p class="text-sm text-slate-500 mb-4">
                 Edita la descripción original del caso.
@@ -569,7 +569,7 @@
             </section>
 
             <!-- CONTACTO -->
-            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
               <h2 class="text-xl font-bold text-slate-900 mb-2">Datos de contacto</h2>
               <p class="text-sm text-slate-500 mb-5">
                 Actualiza la información para que los rescatistas puedan contactarte.
@@ -627,7 +627,7 @@
             </section>
 
             <!-- UBICACIÓN -->
-            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
+            <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
               <h2 class="text-xl font-bold text-slate-900 mb-2">Ubicación del reporte</h2>
 
               <p class="text-sm text-slate-500 mb-5">
@@ -651,7 +651,7 @@
                   <button
                     type="button"
                     (click)="buscarDireccion(searchInputUpdate.value)"
-                    class="h-12 px-5 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md"
+                    class="h-12 px-5 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md rounded-lg"
                   >
                     Buscar
                   </button>
@@ -687,7 +687,7 @@
           <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
 
             <!-- CAMBIOS QUE SE GUARDARÁN -->
-            <section class="relative overflow-hidden bg-white border border-slate-300 shadow-md p-6">
+            <section class="relative overflow-hidden bg-white border border-slate-300 shadow-md p-6 rounded">
 
               <div class="absolute inset-0 pointer-events-none overflow-hidden">
                 <div class="absolute top-20 right-8 w-8 h-8 rounded-full bg-cyan-200/80"></div>
@@ -763,7 +763,7 @@
             </section>
 
             <!-- DIFERENCIA IMPORTANTE -->
-            <section class="relative overflow-hidden bg-blue-700 text-white shadow-md p-6">
+            <section class="relative overflow-hidden bg-blue-700 text-white shadow-md p-6 rounded">
               <div class="relative z-10 flex items-start gap-3">
                 <div class="w-10 h-10 bg-white/20 grid place-items-center shrink-0">
                   <span class="material-symbols-outlined text-white text-[22px]">info</span>
@@ -782,7 +782,7 @@
             </section>
 
             <!-- ACCIONES -->
-            <section class="bg-white border border-slate-300 shadow-md p-6">
+            <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
               @if (error && !cargando) {
                 <p class="text-red-600 text-sm mb-4">{{ error }}</p>
               }
@@ -791,7 +791,7 @@
                 type="button"
                 (click)="guardarCambios()"
                 [disabled]="guardando || !hayCambios || !formularioValido()"
-                class="w-full h-12 bg-blue-700 text-white font-bold  hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                class="w-full h-12 bg-blue-700 text-white font-bold  hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
               >
                 @if (guardando) {
                   <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
@@ -803,7 +803,7 @@
               <button
                 type="button"
                 (click)="irASeguimiento()"
-                class="w-full h-12 mt-3 border border-blue-700 text-blue-700 font-bold hover:bg-blue-50 transition-colors d"
+                class="w-full h-12 mt-3 border border-blue-700 text-blue-700 font-bold hover:bg-blue-50 transition-colors rounded-lg"
               >
                 Agregar seguimiento
               </button>
@@ -811,7 +811,7 @@
               <button
                 type="button"
                 (click)="irADetalle()"
-                class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors"
+                class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors rounded-lg"
               >
                 Ver detalle
               </button>
@@ -819,7 +819,7 @@
               <button
                 type="button"
                 (click)="volverDashboard()"
-                class="w-full h-12 mt-3 text-slate-500 font-bold hover:text-slate-700 transition-colors"
+                class="w-full h-12 mt-3 text-slate-500 font-bold hover:text-slate-700 transition-colors rounded-lg"
               >
                 Volver al dashboard
               </button>

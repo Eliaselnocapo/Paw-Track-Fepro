@@ -15,7 +15,7 @@
     <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 pt-8 pb-16 relative z-10">
 
       <!-- ============ HERO ============ -->
-      <section class="border border-slate-300 shadow-md overflow-hidden mb-6 bg-white">
+      <section class="border border-slate-300 shadow-md overflow-hidden mb-6 bg-white rounded">
         <div class="relative overflow-hidden bg-gradient-to-r from-blue-100 via-indigo-100 to-blue-200 border-b border-slate-200 px-6 md:px-10 py-8">
           <span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[140px] text-blue-300/40 pointer-events-none select-none">pets</span>
 
@@ -32,7 +32,7 @@
         </div>
 
         <!-- ============ STEPPER ============ -->
-        <div class="px-6 md:px-10 py-6 bg-white border-t border-slate-100">
+        <div class="px-6 md:px-10 py-6 bg-white border-t border-slate-100 rounded">
           <div class="flex items-center">
 
             <!-- Paso 1 -->
@@ -114,7 +114,7 @@
         <div class="w-full md:w-1/3 flex flex-col gap-6 md:sticky md:top-6 self-start">
 
           @if (pasoActual === 1) {
-            <div class="bg-white shadow-md border border-slate-300">
+            <div class="bg-white shadow-md border border-slate-300 ">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-700 text-white grid place-items-center shrink-0 shadow-sm">
                   <span class="material-symbols-outlined text-[20px]">photo_camera</span>
@@ -224,9 +224,9 @@
 
           <!-- ---------- PASO 1: EVIDENCIA ---------- -->
           @if (pasoActual === 1) {
-            <div class="bg-white p-6 md:p-8 shadow-md border border-slate-300">
+            <div class="bg-white p-6 md:p-8 shadow-md border border-slate-300 rounded">
 
-<div class="w-full border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-6 py-14 cursor-pointer transition-colors duration-200 hover:border-blue-600 hover:bg-blue-50/40">
+              <div class="w-full border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-6 py-14 cursor-pointer transition-colors duration-200 hover:border-blue-600 hover:bg-blue-50/40">
                 <div class="w-16 h-16 bg-blue-100 grid place-items-center mb-4">
                   <span class="material-symbols-outlined text-[32px] text-blue-700" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
                 </div>
@@ -238,13 +238,13 @@
 
                 <div class="flex flex-col sm:flex-row gap-3">
                   <button (click)="inputCamara.click()"
-                    class="h-11 px-6 bg-blue-700 text-white font-bold text-sm rounded-2xl hover:bg-blue-800 transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                    class="h-11 px-6 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">photo_camera</span>
                     Tomar foto
                   </button>
 
                   <button (click)="inputGaleria.click()"
-                    class="h-11 px-6 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-2xl hover:bg-slate-50 transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                    class="h-11 px-6 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-lg hover:bg-slate-50 transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">photo_library</span>
                     Subir archivo
                   </button>
@@ -258,14 +258,14 @@
                   </h4>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @for (archivo of archivosSeleccionados; track archivo) {
-                      <div class="relative group overflow-hidden shadow-sm border border-slate-300 aspect-video bg-slate-100">
+                      <div class="relative group overflow-hidden shadow-sm border border-slate-300 aspect-video bg-slate-100 rounded">
                         <img [src]="archivo.preview" alt="Evidencia" class="w-full h-full object-cover"/>
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button (click)="eliminarArchivo(archivo)" class="w-11 h-11 bg-red-600 text-white grid place-items-center hover:bg-red-700 transition-colors shadow-lg">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
+                          <button (click)="eliminarArchivo(archivo)" class="w-11 h-11 bg-red-600 text-white grid place-items-center hover:bg-red-700 rounded-lg transition-colors shadow-lg">
                             <span class="material-symbols-outlined">delete</span>
                           </button>
                         </div>
-                        <div class="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 text-[10px] font-semibold text-slate-800 flex items-center gap-1 max-w-[85%]">
+                        <div class="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 text-[10px] font-semibold rounded text-slate-800 flex items-center gap-1 max-w-[85%]">
                           <span class="material-symbols-outlined text-[14px] shrink-0">image</span>
                           <span class="truncate">{{ archivo.nombre }}</span>
                         </div>
@@ -284,9 +284,8 @@
 
               <div class="flex justify-end mt-8 border-t border-slate-200 pt-6">
                 <button (click)="siguientePaso()" [disabled]="archivosSeleccionados.length === 0"
-                  class="h-12 px-8 bg-blue-700 text-white font-bold text-sm hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 active:scale-95">
+                  class="h-12 px-8 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 active:scale-95">
                   Continuar
-                  <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                 </button>
               </div>
             </div>
@@ -294,7 +293,7 @@
 
           <!-- ---------- PASO 2: DETALLES DEL ANIMAL ---------- -->
           @if (pasoActual === 2) {
-            <div class="w-full bg-white p-6 md:p-8 shadow-md border border-slate-300 flex flex-col gap-8">
+            <div class="w-full bg-white p-6 md:p-8 shadow-md border border-slate-300 flex flex-col gap-8 rounded">
 
               <section>
                 <label class="block text-sm font-bold text-slate-900 mb-2">Nombre del caso</label>
@@ -302,7 +301,7 @@
                   type="text"
                   [(ngModel)]="nombreCaso"
                   maxlength="60"
-                  class="w-full h-12 border bg-slate-50 px-4 text-sm text-slate-900 outline-none transition-all focus:bg-white focus:ring-2"
+                  class="w-full h-12 border bg-slate-50 px-4 text-sm text-slate-900 outline-none transition-all focus:bg-white focus:ring-2 rounded"
                   [ngClass]="{
                     'border-red-400 focus:border-red-500 focus:ring-red-100': nombreCaso && !nombreCasoValido(),
                     'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !nombreCaso || nombreCasoValido()
@@ -327,16 +326,16 @@
                 <h2 class="text-base font-bold text-slate-900 mb-4">Que tipo de animal es?</h2>
                 <div class="grid grid-cols-2 gap-4">
 
-                  <button (click)="seleccionarTipo('perro')" class="relative flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'perro', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'perro'}">
+                  <button (click)="seleccionarTipo('perro')" class="relative flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'perro', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'perro'}">
                     <img src="assets/icon/corgi.png" alt="Perro" class="w-14 h-14 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tipoAnimal === 'perro', 'opacity-50 grayscale': tipoAnimal !== 'perro'}">
                     <span class="font-bold text-sm" [ngClass]="{'text-blue-800': tipoAnimal === 'perro', 'text-slate-700': tipoAnimal !== 'perro'}">Perro</span>
-                    @if(tipoAnimal === 'perro') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                    @if(tipoAnimal === 'perro') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                   </button>
 
-                  <button (click)="seleccionarTipo('gato')" class="relative flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'gato', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'gato'}">
+                  <button (click)="seleccionarTipo('gato')" class="relative flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'gato', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'gato'}">
                     <img src="assets/icon/exotic-shorthair.png" alt="Gato" class="w-14 h-14 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tipoAnimal === 'gato', 'opacity-50 grayscale': tipoAnimal !== 'gato'}">
                     <span class="font-bold text-sm" [ngClass]="{'text-blue-800': tipoAnimal === 'gato', 'text-slate-700': tipoAnimal !== 'gato'}">Gato</span>
-                    @if(tipoAnimal === 'gato') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                    @if(tipoAnimal === 'gato') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                   </button>
 
                 </div>
@@ -354,7 +353,7 @@
 
                 @if (tipoAnimal === 'gato') {
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-in">
-                    <button (click)="seleccionarTamano('cachorro')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'cachorro', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'cachorro'}">
+                    <button (click)="seleccionarTamano('cachorro')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'cachorro', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'cachorro'}">
                       <img src="assets/icon/cat.png" alt="Cachorro" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'cachorro', 'opacity-50 grayscale': tamanoAproximado !== 'cachorro'}">
                       <div>
                         <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'cachorro', 'text-slate-700': tamanoAproximado !== 'cachorro'}">Cachorro</span>
@@ -362,7 +361,7 @@
                       </div>
                     </button>
 
-                    <button (click)="seleccionarTamano('adulto')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'adulto', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'adulto'}">
+                    <button (click)="seleccionarTamano('adulto')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'adulto', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'adulto'}">
                       <img src="assets/icon/cat_adult.png" alt="Adulto" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'adulto', 'opacity-50 grayscale': tamanoAproximado !== 'adulto'}">
                       <div>
                         <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'adulto', 'text-slate-700': tamanoAproximado !== 'adulto'}">Adulto</span>
@@ -372,7 +371,7 @@
                   </div>
                 } @else {
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fade-in">
-                    <button (click)="seleccionarTamano('pequeño')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'pequeño', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'pequeño'}">
+                    <button (click)="seleccionarTamano('pequeño')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'pequeño', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'pequeño'}">
                       <img src="assets/icon/small_dog.png" alt="Pequeño" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'pequeño', 'opacity-50 grayscale': tamanoAproximado !== 'pequeño'}">
                       <div>
                         <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'pequeño', 'text-slate-700': tamanoAproximado !== 'pequeño'}">Pequeno</span>
@@ -380,7 +379,7 @@
                       </div>
                     </button>
 
-                    <button (click)="seleccionarTamano('mediano')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'mediano', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'mediano'}">
+                    <button (click)="seleccionarTamano('mediano')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'mediano', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'mediano'}">
                       <img src="assets/icon/medium_dog.png" alt="Mediano" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'mediano', 'opacity-50 grayscale': tamanoAproximado !== 'mediano'}">
                       <div>
                         <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'mediano', 'text-slate-700': tamanoAproximado !== 'mediano'}">Mediano</span>
@@ -388,7 +387,7 @@
                       </div>
                     </button>
 
-                    <button (click)="seleccionarTamano('grande')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'grande', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'grande'}">
+                    <button (click)="seleccionarTamano('grande')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'grande', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'grande'}">
                       <img src="assets/icon/big_dog.png" alt="Grande" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'grande', 'opacity-50 grayscale': tamanoAproximado !== 'grande'}">
                       <div>
                         <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'grande', 'text-slate-700': tamanoAproximado !== 'grande'}">Grande</span>
@@ -412,7 +411,7 @@
                       type="text"
                       [(ngModel)]="colorAnimal"
                       maxlength="50"
-                      class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all"
+                      class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
                       placeholder="Ej. Negro con manchas blancas"
                     >
                     <p class="mt-2 text-xs text-slate-500">Como se ve a simple vista.</p>
@@ -426,7 +425,7 @@
                       type="text"
                       [(ngModel)]="razaAnimal"
                       maxlength="50"
-                      class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all"
+                      class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
                       placeholder="Ej. Labrador, mestizo..."
                     >
                     <p class="mt-2 text-xs text-slate-500">Si no logras identificarla, dejala vacia o escribe "Desconozco".</p>
@@ -445,7 +444,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
                   <button type="button" (click)="seleccionarAgresividad('docil')"
-                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
                     [ngClass]="agresividadAnimal === 'docil'
                       ? 'border-emerald-500 bg-emerald-50/60'
                       : 'border-slate-200 bg-white hover:border-slate-300'">
@@ -460,7 +459,7 @@
                   </button>
 
                   <button type="button" (click)="seleccionarAgresividad('asustadizo')"
-                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
                     [ngClass]="agresividadAnimal === 'asustadizo'
                       ? 'border-amber-500 bg-amber-50/60'
                       : 'border-slate-200 bg-white hover:border-slate-300'">
@@ -475,7 +474,7 @@
                   </button>
 
                   <button type="button" (click)="seleccionarAgresividad('agresivo')"
-                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
                     [ngClass]="agresividadAnimal === 'agresivo'
                       ? 'border-red-500 bg-red-50/60'
                       : 'border-slate-200 bg-white hover:border-slate-300'">
@@ -490,7 +489,7 @@
                   </button>
 
                   <button type="button" (click)="seleccionarAgresividad('no_evaluable')"
-                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
                     [ngClass]="agresividadAnimal === 'no_evaluable'
                       ? 'border-slate-500 bg-slate-100'
                       : 'border-slate-200 bg-white hover:border-slate-300'">
@@ -512,37 +511,37 @@
                   <button
                     (click)="toggleCondicion('herido')"
                     [disabled]="condicionBloqueada('herido')"
-                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed rounded"
                     [ngClass]="{'border-red-500 bg-red-50/50': tieneCondicion('herido'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('herido')}"
                   >
                     <img src="assets/icon/medicine.png" alt="Herido" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('herido'), 'opacity-50 grayscale': !tieneCondicion('herido')}">
                     <span class="font-bold text-sm mb-1" [ngClass]="{'text-red-700': tieneCondicion('herido'), 'text-slate-700': !tieneCondicion('herido')}">Herido</span>
                     <span class="text-xs font-medium leading-snug" [ngClass]="{'text-red-600/80': tieneCondicion('herido'), 'text-slate-500': !tieneCondicion('herido')}">Signos de dolor o sangrado.</span>
-                    @if(tieneCondicion('herido')) { <div class="absolute top-3 right-3 w-5 h-5 bg-red-500 grid place-items-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                    @if(tieneCondicion('herido')) { <div class="absolute top-3 right-3 w-5 h-5 bg-red-500 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                   </button>
 
                   <button
                     (click)="toggleCondicion('callejero')"
                     [disabled]="condicionBloqueada('callejero')"
-                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed rounded"
                     [ngClass]="{'border-amber-500 bg-amber-50/50': tieneCondicion('callejero'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('callejero')}"
                   >
                     <img src="assets/icon/street.png" alt="Callejero" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('callejero'), 'opacity-50 grayscale': !tieneCondicion('callejero') }">
                     <span class="font-bold text-sm mb-1" [ngClass]="{'text-amber-700': tieneCondicion('callejero'), 'text-slate-700': !tieneCondicion('callejero')}">Callejero</span>
                     <span class="text-xs font-medium leading-snug" [ngClass]="{'text-amber-600/80': tieneCondicion('callejero'), 'text-slate-500': !tieneCondicion('callejero')}">Deambula sin dueno aparente.</span>
-                    @if(tieneCondicion('callejero')) { <div class="absolute top-3 right-3 w-5 h-5 bg-amber-500 grid place-items-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                    @if(tieneCondicion('callejero')) { <div class="absolute top-3 right-3 w-5 h-5 bg-amber-500 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                   </button>
 
                   <button
                     (click)="toggleCondicion('extraviado')"
                     [disabled]="condicionBloqueada('extraviado')"
-                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed rounded"
                     [ngClass]="{'border-blue-600 bg-blue-50/50': tieneCondicion('extraviado'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('extraviado')}"
                   >
                     <img src="assets/icon/search.png" alt="Extraviado" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('extraviado'), 'opacity-50 grayscale': !tieneCondicion('extraviado')}">
                     <span class="font-bold text-sm mb-1" [ngClass]="{'text-blue-700': tieneCondicion('extraviado'), 'text-slate-700': !tieneCondicion('extraviado')}">Extraviado</span>
                     <span class="text-xs font-medium leading-snug" [ngClass]="{'text-blue-600/80': tieneCondicion('extraviado'), 'text-slate-500': !tieneCondicion('extraviado')}">Perdido o desorientado.</span>
-                    @if(tieneCondicion('extraviado')) { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                    @if(tieneCondicion('extraviado')) { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
                   </button>
                 </div>
               </section>
@@ -553,7 +552,7 @@
                 </label>
                 <textarea
                   [(ngModel)]="notasAdicionales"
-                  class="w-full border bg-slate-50 p-4 text-sm font-medium text-slate-800 focus:bg-white focus:ring-2 transition-all resize-y placeholder:text-slate-400 outline-none"
+                  class="w-full border bg-slate-50 p-4 text-sm font-medium text-slate-800 focus:bg-white focus:ring-2 transition-all resize-y placeholder:text-slate-400 outline-none rounded"
                   [ngClass]="{
                     'border-red-400 focus:border-red-500 focus:ring-red-100': notasAdicionales && !descripcionValida(),
                     'border-slate-300 focus:border-blue-600 focus:ring-blue-100': !notasAdicionales || descripcionValida()
@@ -570,16 +569,15 @@
               </section>
 
               <div class="flex justify-between items-center border-t border-slate-100 pt-6">
-                <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 text-sm">
+                <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 text-sm rounded-lg">
                   <span class="material-symbols-outlined text-[18px]">arrow_back</span> Atras
                 </button>
                 <button
                   (click)="siguientePaso()"
                   [disabled]="!nombreCasoValido() || !tipoAnimal || !tamanoAproximado || condicionesVisibles.length === 0 || !descripcionValida()"
-                  class="h-12 px-8 bg-blue-700 text-white font-bold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-700/25 flex items-center gap-2 text-sm active:scale-95"
+                  class="h-12 px-8 bg-blue-700 text-white font-bold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-700/25 flex items-center gap-2 text-sm active:scale-95 rounded-lg"
                 >
                   Siguiente paso
-                  <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                 </button>
               </div>
             </div>
@@ -587,7 +585,7 @@
 
           <!-- ---------- PASO 3: UBICACION ---------- -->
           @if (pasoActual === 3) {
-            <div class="w-full flex flex-col gap-6 bg-white p-4 md:p-8 shadow-md border border-slate-300">
+            <div class="w-full flex flex-col gap-6 bg-white p-4 md:p-8 shadow-md border border-slate-300 rounded">
 
               <div class="w-full relative overflow-hidden shadow-sm border border-slate-300 h-[400px] md:h-[500px] bg-[#e5e3df]">
                 <div id="mapa-interactivo" class="absolute inset-0 w-full h-full z-10 cursor-move"></div>
@@ -602,15 +600,15 @@
                       <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
                       <input #searchInputWeb (keyup.enter)="buscarDireccion(searchInputWeb.value)" class="w-full h-12 pl-10 pr-4 bg-slate-50 border border-slate-300 text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Ej. Paseo de la Reforma 222" type="text">
                     </div>
-                    <button type="button" (click)="buscarDireccion(searchInputWeb.value)" class="mt-1 h-11 bg-blue-700 text-white text-sm font-bold hover:bg-blue-800 transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                    <button type="button" (click)="buscarDireccion(searchInputWeb.value)" class="mt-1 h-11 bg-blue-700 text-white text-sm font-bold hover:bg-blue-800 transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2 rounded-lg">
                       <span class="material-symbols-outlined text-[18px]">travel_explore</span>
                       Buscar ubicacion
                     </button>
                   </div>
 
-                  <div class="bg-blue-50 p-4 border border-blue-100 shadow-sm relative overflow-hidden transition-colors">
+                  <div class="bg-blue-50 p-4 border border-blue-100 shadow-sm relative overflow-hidden transition-colors rounded">
                     <div class="flex gap-3">
-                      <div class="mt-1 w-10 h-10 bg-blue-200 text-blue-700 grid place-items-center shrink-0 shadow-sm" [class.animate-pulse]="cargandoDireccion">
+                      <div class="mt-1 w-10 h-10 bg-blue-200 text-blue-700 grid place-items-center shrink-0 shadow-sm rounded-full" [class.animate-pulse]="cargandoDireccion">
                         <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
                           {{ cargandoDireccion ? 'hourglass_empty' : 'location_on' }}
                         </span>
@@ -630,7 +628,7 @@
                 </div>
 
                 <div class="md:col-span-5 flex flex-col gap-5 justify-between h-full">
-                  <div class="bg-white p-4 flex items-start gap-3 border border-dashed border-slate-300">
+                  <div class="bg-white p-4 flex items-start gap-3 border border-dashed border-slate-300 rounded">
                     <div class="w-9 h-9 bg-blue-50 text-blue-700 grid place-items-center shrink-0">
                       <span class="material-symbols-outlined text-[18px]">touch_app</span>
                     </div>
@@ -640,10 +638,10 @@
                   </div>
 
                   <div class="flex justify-between items-center pt-4 md:pt-0 border-t border-slate-200 md:border-t-0 mt-auto">
-                    <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 text-sm">
+                    <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 text-sm rounded-lg">
                       <span class="material-symbols-outlined text-[18px]">arrow_back</span> Atras
                     </button>
-                    <button (click)="siguientePaso()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 flex items-center gap-2 text-sm active:scale-95">
+                    <button (click)="siguientePaso()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 flex items-center gap-2 text-sm active:scale-95 rounded-lg">
                       Confirmar <span class="material-symbols-outlined text-[18px]">check_circle</span>
                     </button>
                   </div>
@@ -655,15 +653,15 @@
 
           <!-- ---------- PASO 4: REVISION ---------- -->
           @if (pasoActual === 4) {
-            <div class="w-full flex flex-col gap-6">
+            <div class="w-full flex flex-col gap-6 rounded">
               <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
                 <div class="lg:col-span-7 flex flex-col gap-6">
 
                   <!-- Foto -->
-                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden relative">
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden relative rounded">
                     <div class="absolute top-4 right-4 z-10">
-                      <span class="bg-red-600 text-white px-3 py-1.5 text-xs font-bold flex items-center gap-1 shadow-md">
+                      <span class="bg-red-600 text-white px-3 py-1.5 text-xs font-bold flex items-center gap-1 shadow-md rounded-lg">
                         <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">warning</span>
                         ALTA PRIORIDAD
                       </span>
@@ -686,7 +684,7 @@
                   </section>
 
                   <!-- Descripcion del animal -->
-                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden">
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
                     <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                       <h2 class="font-bold text-slate-800 flex items-center gap-2">
                         <span class="material-symbols-outlined text-blue-700 text-[20px]" style="font-variation-settings: 'FILL' 1;">pets</span>
@@ -710,7 +708,7 @@
                         </div>
 
                         <div class="flex flex-col gap-1">
-                          <span class="text-xs font-bold text-slate-500 uppercase">Tamano estimado</span>
+                          <span class="text-xs font-bold text-slate-500 uppercase">Tamaño estimado</span>
                           <span class="text-base text-slate-900 font-semibold capitalize">{{ tamanoAproximado || 'No especificado' }}</span>
                         </div>
 
@@ -727,7 +725,7 @@
 
                         <div class="md:col-span-2 flex flex-col gap-1 mt-2">
                           <span class="text-xs font-bold text-slate-500 uppercase">Notas adicionales</span>
-                          <p class="text-sm text-slate-800 bg-slate-50 p-4 border border-slate-200 leading-relaxed">
+                          <p class="text-sm text-slate-800 bg-slate-50 p-4 border border-slate-200 leading-relaxed rounded">
                             {{ notasAdicionales || 'Sin notas adicionales proporcionadas.' }}
                           </p>
                         </div>
@@ -736,7 +734,7 @@
                   </section>
 
                   <!-- Contacto -->
-                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden">
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
                     <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                       <span class="material-symbols-outlined text-blue-700 text-[20px]">person</span>
                       <h2 class="font-bold text-slate-800">Datos de contacto</h2>
@@ -753,7 +751,7 @@
                           <input
                             type="text"
                             [(ngModel)]="nombreUsuario"
-                            class="h-12 border bg-slate-50 px-4 text-sm outline-none transition-all focus:bg-white focus:ring-2"
+                            class="h-12 border bg-slate-50 px-4 text-sm outline-none transition-all focus:bg-white focus:ring-2 rounded"
                             [ngClass]="{
                               'border-red-400 focus:border-red-500 focus:ring-red-100': nombreUsuario && !nombreContactoValido(),
                               'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !nombreUsuario || nombreContactoValido()
@@ -774,7 +772,7 @@
                             [(ngModel)]="telefonoUsuario"
                             maxlength="10"
                             inputmode="numeric"
-                            class="h-12 border bg-slate-50 px-4 text-sm outline-none transition-all focus:bg-white focus:ring-2"
+                            class="h-12 border bg-slate-50 px-4 text-sm outline-none transition-all focus:bg-white focus:ring-2 rounded"
                             [ngClass]="{
                               'border-red-400 focus:border-red-500 focus:ring-red-100': telefonoUsuario && !telefonoContactoValido(),
                               'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !telefonoUsuario || telefonoContactoValido()
@@ -795,7 +793,7 @@
                 <!-- ASIDE DE REVISION -->
                 <div class="lg:col-span-5 flex flex-col gap-6">
 
-                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden">
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
                     <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                       <h2 class="font-bold text-slate-800 flex items-center gap-2">
                         <span class="material-symbols-outlined text-blue-700 text-[20px]" style="font-variation-settings: 'FILL' 1;">location_on</span>
@@ -821,12 +819,12 @@
 
                   <!-- Chequeo de posible duplicado -->
                   @if (verificandoDuplicado) {
-                    <div class="bg-white shadow-md border border-slate-300 p-5 flex items-center gap-3">
+                    <div class="bg-white shadow-md border border-slate-300 p-5 flex items-center gap-3 rounded">
                       <span class="material-symbols-outlined text-blue-600 animate-spin text-[20px]">progress_activity</span>
                       <p class="text-sm text-slate-600">Verificando si ya existe un reporte parecido cerca...</p>
                     </div>
-                  } @else if (candidatoDuplicado) {
-                    <div class="bg-white shadow-md border-2 border-amber-300 overflow-hidden">
+                  } @else if (candidatoDuplicado && duplicadoConfirmado !== null) {
+                    <div class="bg-white shadow-md border-2 border-amber-300 overflow-hidden rounded">
                       <div class="px-5 py-3 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
                         <span class="material-symbols-outlined text-amber-600 text-[20px]">help</span>
                         <h3 class="font-bold text-sm text-slate-900">¿Es este el mismo caso?</h3>
@@ -885,9 +883,79 @@
                     </div>
                   }
 
+                  <!-- Ventana de alerta: interrumpe el paso 4 hasta que el reportante
+                       responda si es el mismo caso o no — no se puede cerrar sin
+                       contestar (backdropDismiss="false"). -->
+                  <ion-modal
+                    class="modal-duplicado"
+                    [isOpen]="!!candidatoDuplicado && duplicadoConfirmado === null"
+                    [backdropDismiss]="false"
+                    alignment="center"
+                    style="--width: 92vw; --max-width: 460px; --height: auto; --max-height: 90vh; --border-radius: 8px; --box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.35); --backdrop-opacity: 0.65;"
+                  >
+                    <ng-template>
+                      <div class="bg-white flex flex-col w-full h-full max-h-[90vh] overflow-hidden rounded-lg">
+
+                        <!-- Header -->
+                        <div class="px-4 sm:px-5 py-4 bg-amber-50 border-b-2 border-amber-300 flex items-center gap-3 shrink-0">
+                          <div class="w-10 h-10 bg-amber-500 text-white grid place-items-center shrink-0 shadow-sm rounded-sm">
+                            <span class="material-symbols-outlined text-[20px]">help</span>
+                          </div>
+                          <div>
+                            <p class="text-[11px] font-bold uppercase text-amber-700 tracking-wide">Posible duplicado</p>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">¿Es este el mismo caso?</h3>
+                          </div>
+                        </div>
+
+                        <!-- Contenido -->
+                        <div class="p-4 sm:p-5 overflow-y-auto">
+                          <p class="text-sm text-slate-600 leading-relaxed mb-5">
+                            Encontramos un reporte parecido cerca de esta ubicación. Ayúdanos a confirmar
+                            si es el mismo animal antes de enviar tu reporte.
+                          </p>
+
+                          @if (candidatoDuplicado) {
+                            <div class="flex gap-3 sm:gap-4 mb-5 bg-slate-50 border border-slate-200 p-3 rounded-md">
+                              <img [src]="candidatoDuplicado.imagen || 'assets/images/report-placeholder.jpg'" alt="Reporte similar"
+                                class="w-16 h-16 sm:w-20 sm:h-20 object-cover border border-slate-300 shrink-0 rounded-sm">
+                              <div class="flex flex-col justify-center gap-1.5">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-white text-slate-700 border border-slate-200 w-fit rounded-sm">
+                                  <span class="material-symbols-outlined text-[14px]">confirmation_number</span>{{ candidatoDuplicado.folio }}
+                                </span>
+                                @if (candidatoDuplicado.tipo_animal) {
+                                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-white text-slate-700 border border-slate-200 w-fit capitalize rounded-sm">
+                                    <span class="material-symbols-outlined text-[14px]">pets</span>{{ candidatoDuplicado.tipo_animal }}
+                                  </span>
+                                }
+                              </div>
+                            </div>
+                          }
+
+                  <!-- Botones Responsivos (Centrados y del tamaño correcto) -->
+                          <div class="flex flex-col-reverse sm:flex-row justify-center sm:justify-end items-center gap-3 mt-4 w-full">
+                            
+                            <button type="button" (click)="marcarComoDistinto()"
+                              class="w-auto min-w-[180px] h-11 px-5 bg-white border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2 active:scale-95 rounded-md">
+                              <span class="material-symbols-outlined text-[18px]">cancel</span>
+                              No, son distintos
+                            </button>
+                            
+                            <button type="button" (click)="marcarComoMismoCaso()"
+                              class="w-auto min-w-[180px] h-11 px-5 bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2 active:scale-95 rounded-md">
+                              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                              Sí, es el mismo caso
+                            </button>
+
+                          </div>
+                          
+                        </div>
+                      </div>
+                    </ng-template>
+                  </ion-modal>
+
                   <!-- Enviar -->
-                  <div class="bg-white shadow-md border-2 border-grayoverflow-hidden">
-                    <div class="px-5 py-3 bg-blue-700 text-white flex items-center gap-2">
+                  <div class="bg-white shadow-md border-2 border-grayoverflow-hidden rounded">
+                    <div class="px-5 py-3 bg-blue-700 text-white flex items-center gap-2 rounded-t">
                       <span class="material-symbols-outlined text-[20px]">send</span>
                       <h3 class="font-bold text-sm uppercase tracking-wide">Listo para enviar</h3>
                     </div>
@@ -901,7 +969,7 @@
                       <button
                         (click)="intentarEnviar()"
                         [disabled]="!nombreContactoValido() || !telefonoContactoValido() || !nombreCasoValido() || !descripcionValida() || verificandoDuplicado || faltaResponderDuplicado"
-                        class="w-full h-12 bg-red-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow-md shadow-red-600/25 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                        class="w-full h-12 bg-red-600 text-white font-bold text-sm flex items-center justify-center gap-2 rounded-lg hover:bg-red-700 transition-colors shadow-md shadow-red-600/25 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                       >
                         <span class="material-symbols-outlined text-[18px]">e911_emergency</span>
                         Enviar reporte
@@ -920,7 +988,7 @@
                     </div>
                   </div>
 
-                  <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5 text-sm border border-slate-300 bg-white">
+                  <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5 text-sm border border-slate-300 bg-white rounded-lg">
                     <span class="material-symbols-outlined text-[18px]">arrow_back</span> Volver al mapa
                   </button>
 
@@ -953,11 +1021,11 @@
     <div class="flex-grow w-full max-w-4xl mx-auto py-10 px-4 flex items-center justify-center relative z-10 animate-fade-in">
       <div class="w-full bg-white shadow-xl border border-slate-300 overflow-hidden flex flex-col md:flex-row">
 
-        <div class="w-full md:w-5/12 bg-gradient-to-br from-emerald-500 to-teal-600 flex flex-col items-center justify-center p-10 text-center relative overflow-hidden">
+        <div class="w-full md:w-5/12 bg-gradient-to-br from-emerald-500 to-teal-600 flex flex-col items-center justify-center p-10 text-center relative overflow-hidden rounded-r-none">
           <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-[160px] text-white/10 pointer-events-none">pets</span>
 
           <div class="relative z-10 flex flex-col items-center">
-            <div class="w-24 h-24 bg-white grid place-items-center mb-6 shadow-xl text-emerald-600 animate-bounce">
+            <div class="w-24 h-24 bg-white grid place-items-center mb-6 shadow-xl text-emerald-600 animate-bounce rounded-full">
               <span class="material-symbols-outlined text-[48px]">check</span>
             </div>
             <h1 class="text-3xl font-bold text-white mb-3">Reporte enviado</h1>
@@ -982,19 +1050,30 @@
               } @else {
                 <p class="text-2xl text-blue-700 font-bold font-mono tracking-wider">{{ folioGenerado }}</p>
 
-                <div class="mt-4 bg-white border border-blue-200 p-3">
-                  <p class="text-[11px] font-bold text-slate-500 uppercase mb-1">Enlace de seguimiento</p>
-                  <p class="text-sm font-semibold text-blue-700 break-all">{{ enlaceSeguimiento }}</p>
+                <!-- Separador visual -->
+                <div class="my-4 border-t border-blue-200/70"></div>
 
-                  <button
-                    type="button"
-                    (click)="copiarEnlaceSeguimiento()"
-                    class="mt-3 h-10 px-4 bg-blue-700 text-white text-sm font-bold hover:bg-blue-800 transition-colors active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <span class="material-symbols-outlined text-[18px]">content_copy</span>
-                    Copiar enlace
-                  </button>
-                </div>
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Cartel de difusión
+                </p>
+                <p class="text-xs text-slate-500 mb-3">
+                  Imprímelo o compártelo en redes para ayudar a que más gente vea el caso.
+                </p>
+
+                <button
+                  type="button"
+                  (click)="descargarCartelManualmente()"
+                  [disabled]="descargandoCartelManual"
+                  class="h-11 px-4 bg-blue-700 text-white text-sm font-bold hover:bg-blue-800 transition-colors active:scale-95 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 w-full"
+                >
+                  @if (descargandoCartelManual) {
+                    <span class="material-symbols-outlined animate-spin text-[18px]">autorenew</span>
+                    Generando...
+                  } @else {
+                    <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                    Descargar cartel
+                  }
+                </button>
               }
             </div>
 
@@ -1021,13 +1100,13 @@
             </div>
 
             <div>
-              <h3 class="text-base font-bold text-slate-900 mb-4">Que sigue?</h3>
+              <h3 class="text-base font-bold text-slate-900 mb-4">¿Qué sigue?</h3>
               <div class="flex flex-col relative before:absolute before:inset-0 before:ml-3.5 before:h-full before:w-0.5 before:bg-slate-200 pl-10">
                 @for (paso of proximosPasos; track paso.id; let first = $first) {
                   <div class="relative flex items-center mb-6 last:mb-0 group">
                     <div class="flex items-center justify-center w-7 h-7 rounded-full border-2 bg-white absolute -left-10"
                          [ngClass]="{'border-blue-700': first, 'border-slate-300': !first}">
-                      @if(first) { <div class="w-2.5 h-2.5 rounded-full bg-blue-700 animate-pulse"></div> }
+                      @if(first) { <div class="w-3 h-3 rounded-full bg-blue-700"></div> }
                     </div>
                     <p class="text-sm" [ngClass]="{'text-slate-900 font-bold': first, 'text-slate-600': !first}">
                       {{ paso.texto }}
@@ -1039,7 +1118,7 @@
           </div>
 
           <div class="flex gap-4 mt-8 pt-6 border-t border-slate-200">
-            <button routerLink="/dashboard/reporter" class="flex-1 bg-blue-700 text-white font-bold h-12 hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 shadow-md active:scale-95">
+            <button routerLink="/dashboard/reporter" class="flex-1 bg-blue-700 text-white font-bold h-12 hover:bg-blue-800 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md active:scale-95">
               <span class="material-symbols-outlined text-[18px]">dashboard</span>
               Ir al dashboard
             </button>

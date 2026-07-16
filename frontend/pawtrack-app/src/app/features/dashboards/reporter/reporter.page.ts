@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonModal } from '@ionic/angular/standalone';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
@@ -44,6 +44,7 @@ interface ReporterReport {
   imports: [
     CommonModule,
     IonContent,
+    IonModal,
     RouterLink,
     NavbarWebComponent,
     FooterWebComponent
@@ -67,6 +68,12 @@ export class ReporterPage implements OnInit {
   isUploadingPdf: boolean = false;
   extractedData: any = null;
 
+  resultadoPdf: 'nuevo' | 'existente' | 'error' | null = null;
+  modalResultadoAbierto = false;
+  reclamando = false;
+  errorReclamo: string | null = null;
+  errorPdf: string | null = null;
+
   constructor(
     private reportService: ReportService,
     private localReportCache: LocalReportCacheService,
@@ -81,14 +88,17 @@ export class ReporterPage implements OnInit {
   ionViewWillEnter(): void {
     this.cargarReportes();
   }
+
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
+    this.errorPdf = null;
+
     if (file && file.type === 'application/pdf') {
       this.selectedFile = file;
       this.fileName = file.name;
-      this.extractedData = null; 
+      this.extractedData = null;
     } else {
-      alert('Por favor, selecciona un archivo PDF válido.');
+      this.errorPdf = 'Selecciona un archivo PDF válido.';
       this.selectedFile = null;
       this.fileName = '';
     }
@@ -98,10 +108,11 @@ export class ReporterPage implements OnInit {
     if (!this.selectedFile) return;
 
     this.isUploadingPdf = true;
+    this.errorPdf = null;
+
     const formData = new FormData();
     formData.append('file', this.selectedFile);
-
-    const API_URL = `${environment.apiUrl}/api/procesar-pdf-externo/`; 
+    const API_URL = `${environment.apiUrl}/procesar-pdf-externo/`;
 
     this.http.post(API_URL, formData).subscribe({
       next: (response: any) => {
@@ -110,17 +121,71 @@ export class ReporterPage implements OnInit {
       },
       error: (err) => {
         this.isUploadingPdf = false;
-        console.error('Error al procesar el PDF en el servidor', err);
-        alert('Hubo un problema al procesar el archivo. Revisa la consola para más detalles.');
+        this.errorPdf =
+          err.status === 422 ? 'El PDF no tiene texto legible (¿es una imagen escaneada?).' :
+          err.status === 400 ? 'No se pudo leer este archivo.' :
+          'Hubo un problema al procesar el PDF. Intenta de nuevo.';
       }
     });
   }
 
-  continuarConReporteLleno() {
-    this.router.navigate(['/reports/create-report'], {
-      state: { datosAutocompletar: this.extractedData }
+
+  continuarConReporteLleno(): void {
+    const folio = this.extractedData?.folio_detectado;
+
+    if (!folio) {
+      this.router.navigate(['/reports/create-report'], {
+        state: { datosAutocompletar: this.extractedData }
+      });
+      return;
+    }
+
+    // Ya lo tienes vinculado — ni llamamos al back, evitamos el mensaje engañoso.
+    const yaLoTienes = this.reports.some(r => r.folio === folio);
+    if (yaLoTienes) {
+      this.resultadoPdf = 'existente';
+      this.modalResultadoAbierto = true;
+      this.selectedFile = null;
+      this.fileName = '';
+      this.extractedData = null;
+      return;
+    }
+
+    this.reclamando = true;
+    this.errorReclamo = null;
+
+    this.reportService.reclamarReporte(folio).subscribe({
+      next: () => {
+        this.reclamando = false;
+        this.selectedFile = null;
+        this.fileName = '';
+        this.extractedData = null;
+        this.resultadoPdf = 'nuevo';
+        this.modalResultadoAbierto = true;
+        this.cargarReportes();
+      },
+      error: (err) => {
+        this.reclamando = false;
+        this.resultadoPdf = 'error';
+        this.errorReclamo =
+          err.status === 404 ? 'No encontramos ningún reporte con ese folio.' :
+          err.status === 409 ? 'Ese reporte ya pertenece a otra cuenta.' :
+          'No se pudo asociar el reporte. Intenta de nuevo.';
+        this.modalResultadoAbierto = true;
+      }
     });
   }
+
+  cerrarModalResultado(): void {
+    this.modalResultadoAbierto = false;
+    // NO resetear resultadoPdf/errorReclamo aquí
+  }
+  
+  onModalDidDismiss(): void {
+    this.resultadoPdf = null;
+    this.errorReclamo = null;
+  }
+
   get totalPaginasReportes(): number {
   return Math.ceil(this.reports.length / this.reportesPorPagina);
   }

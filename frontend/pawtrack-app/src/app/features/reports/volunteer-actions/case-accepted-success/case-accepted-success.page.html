@@ -1,6 +1,21 @@
 <ion-content [fullscreen]="true">
   <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden">
 
+    <!-- CONFETI — mismo patrón que create-report, paleta ajustada a esta pantalla -->
+    <div class="fixed inset-0 pointer-events-none z-[999] overflow-hidden" id="confetti-container">
+      <div class="confetti-piece" style="left: 8%; animation-delay: 0s; background-color: #10b981;"></div>
+      <div class="confetti-piece" style="left: 20%; animation-delay: 0.4s; background-color: #3b82f6;"></div>
+      <div class="confetti-piece" style="left: 32%; animation-delay: 0.1s; background-color: #06b6d4;"></div>
+      <div class="confetti-piece" style="left: 45%; animation-delay: 0.6s; background-color: #10b981;"></div>
+      <div class="confetti-piece" style="left: 58%; animation-delay: 0.3s; background-color: #3b82f6;"></div>
+      <div class="confetti-piece" style="left: 70%; animation-delay: 0.8s; background-color: #14b8a6;"></div>
+      <div class="confetti-piece" style="left: 82%; animation-delay: 0.2s; background-color: #10b981;"></div>
+      <div class="confetti-piece" style="left: 92%; animation-delay: 0.5s; background-color: #06b6d4;"></div>
+      <div class="confetti-piece" style="left: 15%; animation-delay: 1.1s; background-color: #3b82f6;"></div>
+      <div class="confetti-piece" style="left: 63%; animation-delay: 0.9s; background-color: #14b8a6;"></div>
+      <div class="confetti-piece" style="left: 38%; animation-delay: 1.3s; background-color: #10b981;"></div>
+    </div>
+
     <!-- FONDO DECORATIVO — mismo estilo que accept-case para continuidad de flujo -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
       <div class="absolute top-[-70px] left-[-70px] w-[260px] h-[260px] bg-emerald-200/80 rotate-12"></div>
@@ -25,55 +40,87 @@
 
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
-    <main class="relative z-10 w-full max-w-3xl mx-auto px-6 pt-16 pb-12 flex flex-col items-center">
-
-      <!-- ICONO DE ÉXITO ANIMADO -->
-      <div class="w-24 h-24 rounded-full bg-emerald-600 flex items-center justify-center shadow-xl shadow-emerald-600/30 mb-8 animate-[bounceIn_0.5s_ease-out]">
-        <span class="material-symbols-outlined text-white text-[52px]">verified</span>
-      </div>
+    <main class="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12 flex flex-col items-center">
 
       <!-- TARJETA PRINCIPAL -->
-      <div class="w-full bg-white border border-slate-300 shadow-md rounded overflow-hidden mb-6">
+      <div class="w-full bg-white border border-slate-300 shadow-md rounded overflow-hidden">
 
-        <!-- Cabecera verde -->
-        <div class="bg-emerald-600 px-8 py-7 text-white text-center">
-          <p class="text-xs font-bold uppercase tracking-widest text-emerald-100 mb-2">
+        <!-- Cabecera verde, con el ícono de éxito integrado adentro -->
+        <div class="relative bg-emerald-600 px-6 sm:px-10 pt-10 sm:pt-12 pb-8 sm:pb-9 text-white text-center overflow-hidden">
+          <span class="material-symbols-outlined absolute -right-8 -bottom-8 text-[180px] text-white/10 pointer-events-none">pets</span>
+
+          <div class="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl mx-auto mb-4 sm:mb-5 animate-bounce">
+            <span class="material-symbols-outlined text-emerald-600 text-[32px] sm:text-[40px]">check</span>
+          </div>
+
+          <p class="relative z-10 text-xs sm:text-sm font-bold uppercase tracking-widest text-emerald-100 mb-2">
             Misión confirmada
           </p>
-          <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-2">
+          <h1 class="relative z-10 text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-3">
             ¡Caso aceptado!
           </h1>
-          <p class="text-emerald-100 text-sm font-medium">
+          <p class="relative z-10 text-emerald-100 text-sm sm:text-base font-medium">
             Tu compromiso ha quedado registrado. El animal te necesita.
           </p>
         </div>
 
-        <!-- Detalle del caso aceptado -->
-        <div class="px-8 py-6 border-b border-slate-100">
-          <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-emerald-600 text-[22px]">assignment_turned_in</span>
-            </div>
-            <div>
+        <!-- Foto + características del animal -->
+        @if (!cargandoCaso && caso) {
+          <div class="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100 flex gap-4 items-start">
+            <img
+              [src]="imagenUrl(caso.imagen)"
+              [alt]="titulo"
+              (error)="onImagenError()"
+              class="w-24 h-24 rounded-xl object-cover border border-slate-200 shrink-0"
+            />
+            <div class="flex-1 min-w-0">
               <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Caso asignado</p>
-              <p class="font-bold text-slate-900 text-base leading-tight">{{ titulo }}</p>
-              @if (folio) {
-                <p class="text-xs text-slate-400 font-semibold mt-1 flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[13px]">confirmation_number</span>
-                  Folio #{{ folio }}
-                </p>
-              }
+              <p class="font-bold text-slate-900 text-lg leading-tight mb-1">{{ titulo }}</p>
+              <p class="text-xs text-slate-400 font-semibold mb-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[13px]">confirmation_number</span>
+                Folio #{{ folio }}
+              </p>
+              <div class="flex flex-wrap gap-1.5">
+                @if (caso.tipo_animal) {
+                  <span class="px-2 py-0.5 bg-slate-100 rounded-full text-[11px] font-semibold text-slate-600 capitalize">{{ caso.tipo_animal }}</span>
+                }
+                @if (caso.tamano_animal) {
+                  <span class="px-2 py-0.5 bg-slate-100 rounded-full text-[11px] font-semibold text-slate-600 capitalize">{{ caso.tamano_animal }}</span>
+                }
+                @if (caso.condicion_animal) {
+                  <span class="px-2 py-0.5 bg-amber-50 rounded-full text-[11px] font-semibold text-amber-700 capitalize">{{ caso.condicion_animal }}</span>
+                }
+              </div>
             </div>
           </div>
-        </div>
+        } @else {
+          <!-- Fallback si aún carga o falló: la versión simple de antes -->
+          <div class="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-emerald-600 text-[22px]">assignment_turned_in</span>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Caso asignado</p>
+                <p class="font-bold text-slate-900 text-base leading-tight">{{ titulo }}</p>
+                @if (folio) {
+                  <p class="text-xs text-slate-400 font-semibold mt-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">confirmation_number</span>
+                    Folio #{{ folio }}
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        }
 
         <!-- Qué sigue -->
-        <div class="px-8 py-6 border-b border-slate-100">
+        <div class="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-100">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Qué sigue ahora</p>
           <div class="flex flex-col gap-3">
 
             <div class="flex items-start gap-3">
-              <div class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">1</div>
+              <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">1</div>
               <div>
                 <p class="text-sm font-bold text-slate-800">Revisa la ficha del caso</p>
                 <p class="text-xs text-slate-500 mt-0.5">Consulta ubicación, contacto y estado actual del animal.</p>
@@ -81,7 +128,7 @@
             </div>
 
             <div class="flex items-start gap-3">
-              <div class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">2</div>
+              <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">2</div>
               <div>
                 <p class="text-sm font-bold text-slate-800">Sal a campo cuando estés listo</p>
                 <p class="text-xs text-slate-500 mt-0.5">Desde "mis casos aceptados" puedes actualizar el estado en tiempo real.</p>
@@ -89,7 +136,7 @@
             </div>
 
             <div class="flex items-start gap-3">
-              <div class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">3</div>
+              <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">3</div>
               <div>
                 <p class="text-sm font-bold text-slate-800">Registra tus avances</p>
                 <p class="text-xs text-slate-500 mt-0.5">El reportante podrá ver el progreso. Cada actualización cuenta.</p>
@@ -100,7 +147,7 @@
         </div>
 
         <!-- Redirección automática -->
-        <div class="px-8 py-5 bg-slate-50 flex items-center justify-between gap-4">
+        <div class="px-5 sm:px-8 py-4 sm:py-5 bg-slate-50 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
           <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
             <span class="material-symbols-outlined text-[14px]">schedule</span>
             Redirigiendo a tus casos en
@@ -109,39 +156,39 @@
           <button
             type="button"
             (click)="irACasosAceptados()"
-            class="text-xs font-bold text-blue-700 hover:underline">
+            class="text-xs font-bold text-blue-700 hover:underline shrink-0">
             Ir ahora
           </button>
         </div>
 
-      </div>
+        <!-- Acciones, integradas dentro de la misma tarjeta -->
+        <div class="px-5 sm:px-6 py-5 sm:py-6 flex flex-col sm:flex-row gap-3">
 
-      <!-- Acciones -->
-      <div class="w-full flex flex-col sm:flex-row gap-3">
+          <button
+            type="button"
+            (click)="volverVolunteer()"
+            class="w-full sm:flex-1 h-11 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 font-bold text-sm hover:bg-slate-100 transition-colors flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">search</span>
+            Ver más casos
+          </button>
 
-        <button
-          type="button"
-          (click)="volverVolunteer()"
-          class="flex-1 h-11 rounded border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">search</span>
-          Ver más casos
-        </button>
+          <button
+            type="button"
+            (click)="verDetalleCaso()"
+            class="w-full sm:flex-1 h-11 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">visibility</span>
+            Ver ficha del caso
+          </button>
 
-        <button
-          type="button"
-          (click)="verDetalleCaso()"
-          class="flex-1 h-11 rounded border border-blue-200 bg-blue-50 text-blue-700 font-bold text-sm hover:bg-blue-100 transition-colors flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">visibility</span>
-          Ver ficha del caso
-        </button>
+          <button
+            type="button"
+            (click)="irACasosAceptados()"
+            class="w-full sm:flex-1 h-11 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 shadow-md shadow-emerald-600/25 transition-colors flex items-center justify-center gap-2 active:scale-95">
+            <span class="material-symbols-outlined text-[18px]">assignment_turned_in</span>
+            Mis casos aceptados
+          </button>
 
-        <button
-          type="button"
-          (click)="irACasosAceptados()"
-          class="flex-1 h-11 rounded bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 shadow-md shadow-emerald-600/25 transition-colors flex items-center justify-center gap-2 active:scale-95">
-          <span class="material-symbols-outlined text-[18px]">assignment_turned_in</span>
-          Mis casos aceptados
-        </button>
+        </div>
 
       </div>
 

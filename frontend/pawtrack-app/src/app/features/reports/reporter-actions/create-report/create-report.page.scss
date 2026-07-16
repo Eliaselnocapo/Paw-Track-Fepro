@@ -139,3 +139,15 @@ google-map {
     justify-content: center;
   }
 }
+.modal-duplicado {
+  --width: 460px;
+  --max-width: 92vw;
+}
+
+@media (max-width: 640px) {
+  .modal-duplicado {
+    --width: 100%;
+    --max-width: 100vw;
+    --border-radius: 0px;
+  }
+}

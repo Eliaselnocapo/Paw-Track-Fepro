@@ -587,7 +587,7 @@
                   <button
                     type="button"
                     (click)="cancelar()"
-                    class="h-11 px-5 rounded border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
+                    class="h-11 px-5 rounded-lg border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
                     Cancelar
                   </button>
 
@@ -595,7 +595,7 @@
                     type="button"
                     (click)="confirmarAceptacion()"
                     [disabled]="!puedeConfirmar || confirmando"
-                    class="h-11 px-6 rounded font-bold text-sm transition-all flex items-center justify-center gap-2 rounded-lg"
+                    class="h-11 px-6 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2"
                     [ngClass]="puedeConfirmar && !confirmando
                       ? 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-md shadow-blue-600/25 active:scale-95'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'">
@@ -605,7 +605,7 @@
                       Confirmando...
                     } @else {
                       <span class="material-symbols-outlined text-[19px]">verified</span>
-                      Confirmar y tomar misión
+                      Tomar misión
                     }
 
                   </button>

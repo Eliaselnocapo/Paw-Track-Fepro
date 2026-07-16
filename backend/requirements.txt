@@ -30,4 +30,4 @@ hnswlib==0.8.0
 torchvision==0.17.1
 Pillow==10.2.0
 
-django-redis>=5.4.0
+pdfplumber

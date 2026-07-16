@@ -1,0 +1,268 @@
+<ion-modal
+  class="modal-caso-animal"
+  [isOpen]="isOpen"
+  [backdropDismiss]="true"
+  (didDismiss)="solicitarCierre()"
+>
+  <ng-template>
+
+    @if (caso; as casoActual) {
+      <article class="modal-caso-card">
+
+        <!-- BOTÓN CERRAR -->
+        <button
+          type="button"
+          class="modal-caso-cerrar"
+          aria-label="Cerrar información del caso"
+          (click)="solicitarCierre()"
+        >
+          <ion-icon
+            name="close-outline"
+          ></ion-icon>
+        </button>
+
+        <!-- PORTADA -->
+        <div class="modal-caso-portada">
+
+          @if (casoActual.imagen) {
+            <img
+              class="modal-caso-imagen"
+              [src]="obtenerUrlImagen(casoActual.imagen)"
+              [alt]="obtenerTituloCaso(casoActual)"
+            />
+          } @else {
+            <div class="modal-caso-placeholder">
+              🐾
+            </div>
+          }
+
+          <div class="modal-caso-degradado"></div>
+
+          <span class="modal-caso-incidencia">
+            {{
+              formatearTexto(
+                casoActual.tipo_incidencia ||
+                'Reporte'
+              )
+            }}
+          </span>
+
+        </div>
+
+        <!-- CONTENIDO -->
+        <section class="modal-caso-body">
+
+          <div class="modal-caso-encabezado">
+
+            <div class="modal-caso-titulo">
+
+              <p class="modal-caso-tipo">
+                {{
+                  formatearTexto(
+                    casoActual.tipo_animal
+                  )
+                }}
+              </p>
+
+              <h2>
+                {{
+                  obtenerTituloCaso(
+                    casoActual
+                  )
+                }}
+              </h2>
+
+            </div>
+
+            <span
+              [class]="
+                'modal-caso-estado ' +
+                claseEstado(casoActual.estado)
+              "
+            >
+              {{
+                formatearTexto(
+                  casoActual.estado
+                )
+              }}
+            </span>
+
+          </div>
+
+          <p class="modal-caso-descripcion">
+            {{
+              obtenerDescripcion(
+                casoActual
+              )
+            }}
+          </p>
+
+          <!-- CONDICIÓN, TAMAÑO Y EDAD -->
+          <div class="modal-caso-chips">
+
+            <span class="modal-caso-chip">
+              <ion-icon
+                name="medkit-outline"
+              ></ion-icon>
+
+              {{
+                formatearTexto(
+                  casoActual.condicion_animal
+                )
+              }}
+            </span>
+
+            <span class="modal-caso-chip">
+              <ion-icon
+                name="resize-outline"
+              ></ion-icon>
+
+              {{
+                formatearTexto(
+                  casoActual.tamano_animal
+                )
+              }}
+            </span>
+
+            @if (casoActual.edad_estimada) {
+              <span class="modal-caso-chip">
+                <ion-icon
+                  name="calendar-outline"
+                ></ion-icon>
+
+                {{
+                  formatearTexto(
+                    casoActual.edad_estimada
+                  )
+                }}
+              </span>
+            }
+
+          </div>
+
+          <!-- DATOS PRINCIPALES -->
+          <div class="modal-caso-datos">
+
+            <div class="modal-caso-dato">
+
+              <div class="modal-caso-dato-icono">
+                <ion-icon
+                  name="paw-outline"
+                ></ion-icon>
+              </div>
+
+              <div class="modal-caso-dato-texto">
+                <span>
+                  Animal
+                </span>
+
+                <strong>
+                  {{
+                    formatearTexto(
+                      casoActual.tipo_animal
+                    )
+                  }}
+
+                  ·
+
+                  {{
+                    formatearTexto(
+                      casoActual.tamano_animal
+                    )
+                  }}
+                </strong>
+              </div>
+
+            </div>
+
+            <div class="modal-caso-dato">
+
+              <div class="modal-caso-dato-icono">
+                <ion-icon
+                  name="document-text-outline"
+                ></ion-icon>
+              </div>
+
+              <div class="modal-caso-dato-texto">
+                <span>
+                  Folio
+                </span>
+
+                <strong>
+                  {{
+                    casoActual.folio ||
+                    'Sin folio'
+                  }}
+                </strong>
+              </div>
+
+            </div>
+
+            @if (casoActual.peso_estimado) {
+              <div class="modal-caso-dato">
+
+                <div class="modal-caso-dato-icono">
+                  <ion-icon
+                    name="barbell-outline"
+                  ></ion-icon>
+                </div>
+
+                <div class="modal-caso-dato-texto">
+                  <span>
+                    Peso estimado
+                  </span>
+
+                  <strong>
+                    {{ casoActual.peso_estimado }}
+                  </strong>
+                </div>
+
+              </div>
+            }
+
+            @if (
+              casoActual.recompensa !== null &&
+              casoActual.recompensa > 0
+            ) {
+              <div class="modal-caso-dato">
+
+                <div class="modal-caso-dato-icono">
+                  <ion-icon
+                    name="cash-outline"
+                  ></ion-icon>
+                </div>
+
+                <div class="modal-caso-dato-texto">
+                  <span>
+                    Recompensa
+                  </span>
+
+                  <strong>
+                    {{
+                      formatearRecompensa(
+                        casoActual.recompensa
+                      )
+                    }}
+                  </strong>
+                </div>
+
+              </div>
+            }
+
+          </div>
+
+          <button
+            type="button"
+            class="modal-caso-boton"
+            (click)="solicitarCierre()"
+          >
+            Cerrar
+          </button>
+
+        </section>
+
+      </article>
+    }
+
+  </ng-template>
+</ion-modal>

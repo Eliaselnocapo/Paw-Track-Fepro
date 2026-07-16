@@ -175,8 +175,8 @@
         <!-- GRID 2x2 ADAPTABLE (7/5) -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
 
-          <!-- ============ COLUMNA IZQUIERDA ============ -->
-          <div class="lg:col-span-7 flex flex-col gap-6 md:gap-8">
+          <!-- Izq: Mensajes + Evaluación, DOS tarjetas separadas con espacio entre ellas -->
+          <div class="lg:col-span-7 flex flex-col gap-6">
 
             <!-- Mensajes del voluntario -->
             <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
@@ -217,9 +217,9 @@
               </div>
             </article>
 
-            <!-- Evaluacion del voluntario -->
-            <article class="bg-white border border-slate-300 shadow-md p-6 md:p-8">
-              <div class="flex items-center gap-4 pb-5 mb-6 border-b border-slate-100">
+            <!-- Evaluación del voluntario -->
+            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-6 border-b border-slate-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
                   <span class="material-symbols-outlined">stethoscope</span>
                 </div>
@@ -228,40 +228,40 @@
                   <h2 class="text-xl md:text-2xl font-bold text-slate-900">Evaluacion del voluntario</h2>
                 </div>
               </div>
-
-              @if (evaluacionItems.length > 0 || notasClinicas) {
-                @if (evaluacionItems.length > 0) {
-                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-                    @for (item of evaluacionItems; track item.label) {
-                      <div class="border border-emerald-100 bg-emerald-50 p-3.5">
-                        <p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{{ item.label }}</p>
-                        <p class="text-sm font-bold text-slate-800 mt-1">{{ item.valor }}</p>
-                      </div>
-                    }
+              <div class="p-6">
+                @if (evaluacionItems.length > 0 || notasClinicas) {
+                  @if (evaluacionItems.length > 0) {
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+                      @for (item of evaluacionItems; track item.label) {
+                        <div class="border border-emerald-100 bg-emerald-50 p-3.5">
+                          <p class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">{{ item.label }}</p>
+                          <p class="text-sm font-bold text-slate-800 mt-1">{{ item.valor }}</p>
+                        </div>
+                      }
+                    </div>
+                  }
+                  @if (notasClinicas) {
+                    <div class="border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px]">clinical_notes</span>Notas clinicas
+                      </p>
+                      <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
+                    </div>
+                  }
+                } @else {
+                  <div class="flex flex-col items-center text-center py-6">
+                    <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">pending</span>
+                    <p class="text-sm text-slate-500">El voluntario aún no registra la evaluación del animal.</p>
                   </div>
                 }
-                @if (notasClinicas) {
-                  <div class="border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1.5 flex items-center gap-1">
-                      <span class="material-symbols-outlined text-[15px]">clinical_notes</span>Notas clinicas
-                    </p>
-                    <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
-                  </div>
-                }
-              } @else {
-                <div class="flex flex-col items-center text-center py-6">
-                  <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">pending</span>
-                  <p class="text-sm text-slate-500">El voluntario aún no registra la evaluación del animal.</p>
-                </div>
-              }
+              </div>
             </article>
 
           </div>
 
-          <!-- ============ COLUMNA DERECHA ============ -->
-          <div class="lg:col-span-5 flex flex-col gap-6 md:gap-8">
+          <!-- Der: Mapa (si cerrado) + Tu reporte + Aviso -->
+          <aside class="lg:col-span-5 flex flex-col gap-6">
 
-            <!-- Mapa: solo si el caso ya cerro -->
             @if (ubicacionFinal) {
               <article class="bg-white border border-emerald-300 shadow-md overflow-hidden">
                 <div class="p-5 border-b border-slate-100 bg-emerald-50 flex items-center gap-3">
@@ -285,7 +285,6 @@
               </article>
             }
 
-            <!-- Lo que reportaste (una sola vez) -->
             <article class="bg-white border border-slate-300 shadow-md p-6">
               <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
                 <div class="w-11 h-11 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
@@ -352,7 +351,7 @@
               </div>
             }
 
-          </div>
+          </aside>
 
         </div>
 
