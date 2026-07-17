@@ -1,0 +1,492 @@
+:host {
+  display: contents;
+}
+
+/* =========================================================
+   CONTENEDOR IONIC
+   ========================================================= */
+
+ion-modal.modal-caso-animal {
+  --width: min(92vw, 430px);
+  --height: auto;
+
+  --border-radius: 24px;
+  --background: #ffffff;
+
+  --box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.38);
+}
+
+ion-modal.modal-caso-animal::part(content) {
+  max-height: 90vh;
+
+  overflow: hidden;
+
+  border-radius: 24px;
+  background: #ffffff;
+}
+
+ion-modal.modal-caso-animal::part(backdrop) {
+  background: #172033;
+  opacity: 0.72;
+}
+
+/* =========================================================
+   TARJETA PRINCIPAL
+   ========================================================= */
+
+.modal-caso-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  max-height: 90vh;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  font-family: 'Montserrat', sans-serif;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cad6e8 transparent;
+}
+
+.modal-caso-card::-webkit-scrollbar {
+  width: 5px;
+}
+
+.modal-caso-card::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cad6e8;
+}
+
+/* =========================================================
+   BOTÓN CERRAR
+   ========================================================= */
+
+.modal-caso-cerrar {
+  position: absolute;
+  z-index: 20;
+
+  top: 14px;
+  right: 14px;
+
+  display: grid;
+  place-items: center;
+
+  width: 40px;
+  height: 40px;
+
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+
+  background: rgba(15, 31, 61, 0.84);
+  color: #ffffff;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 5px 16px rgba(15, 31, 61, 0.28);
+}
+
+.modal-caso-cerrar ion-icon {
+  display: block;
+
+  color: #ffffff;
+
+  font-size: 24px;
+}
+
+/* =========================================================
+   PORTADA
+   ========================================================= */
+
+.modal-caso-portada {
+  position: relative;
+
+  flex: 0 0 220px;
+
+  width: 100%;
+  height: 220px;
+
+  overflow: hidden;
+
+  background: #e7eef9;
+}
+
+.modal-caso-imagen {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+}
+
+.modal-caso-placeholder {
+  display: grid;
+  place-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dbeafe 0%,
+      #ecfeff 100%
+    );
+
+  color: #0058be;
+
+  font-size: 4rem;
+}
+
+.modal-caso-degradado {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(15, 31, 61, 0.02) 35%,
+      rgba(15, 31, 61, 0.74) 100%
+    );
+
+  pointer-events: none;
+}
+
+.modal-caso-incidencia {
+  position: absolute;
+
+  left: 16px;
+  bottom: 16px;
+
+  max-width: calc(100% - 80px);
+
+  padding: 7px 12px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #e11d48;
+  color: #ffffff;
+
+  font-size: 0.7rem;
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CUERPO
+   ========================================================= */
+
+.modal-caso-body {
+  padding: 20px;
+
+  background: #ffffff;
+}
+
+.modal-caso-encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 14px;
+}
+
+.modal-caso-titulo {
+  min-width: 0;
+}
+
+.modal-caso-tipo {
+  margin: 0 0 5px;
+
+  color: #2e5bd8;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.modal-caso-titulo h2 {
+  margin: 0;
+
+  color: #0f1f3d;
+
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.15;
+
+  letter-spacing: -0.025em;
+}
+
+/* =========================================================
+   ESTADOS
+   ========================================================= */
+
+.modal-caso-estado {
+  flex-shrink: 0;
+
+  padding: 7px 11px;
+
+  border: 1px solid;
+  border-radius: 999px;
+
+  font-size: 0.63rem;
+  font-weight: 800;
+
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.estado-pendiente {
+  border-color: #fde68a;
+
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.estado-atendiendose {
+  border-color: #bfdbfe;
+
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.estado-resuelto {
+  border-color: #a7f3d0;
+
+  background: #ecfdf5;
+  color: #059669;
+}
+
+/* =========================================================
+   DESCRIPCIÓN
+   ========================================================= */
+
+.modal-caso-descripcion {
+  margin: 15px 0 0;
+
+  color: #526078;
+
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   CHIPS
+   ========================================================= */
+
+.modal-caso-chips {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 16px;
+}
+
+.modal-caso-chip {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 8px 12px;
+
+  border: 1px solid #dbe6f7;
+  border-radius: 999px;
+
+  background: #f5f8fd;
+  color: #334155;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.modal-caso-chip ion-icon {
+  flex-shrink: 0;
+
+  color: #2e5bd8;
+
+  font-size: 16px;
+}
+
+/* =========================================================
+   DATOS
+   ========================================================= */
+
+.modal-caso-datos {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.modal-caso-dato {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  min-width: 0;
+  padding: 12px;
+
+  border: 1px solid #e5ebf5;
+  border-radius: 13px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 3px 10px rgba(15, 31, 61, 0.04);
+}
+
+.modal-caso-dato-icono {
+  display: grid;
+  flex: 0 0 38px;
+  place-items: center;
+
+  width: 38px;
+  height: 38px;
+
+  border-radius: 11px;
+
+  background: #eef4ff;
+  color: #2e5bd8;
+}
+
+.modal-caso-dato-icono ion-icon {
+  font-size: 20px;
+}
+
+.modal-caso-dato-texto {
+  min-width: 0;
+}
+
+.modal-caso-dato-texto span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #8290a6;
+
+  font-size: 0.61rem;
+  font-weight: 700;
+
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modal-caso-dato-texto strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #0f1f3d;
+
+  font-size: 0.76rem;
+  font-weight: 800;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   BOTÓN INFERIOR
+   ========================================================= */
+
+.modal-caso-boton {
+  width: 100%;
+
+  margin-top: 20px;
+  padding: 14px 18px;
+
+  border: 0;
+  border-radius: 13px;
+
+  background: #2e5bd8;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(46, 91, 216, 0.22);
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.modal-caso-boton:hover {
+  background: #234bc0;
+}
+
+.modal-caso-boton:active {
+  transform: scale(0.985);
+}
+
+/* =========================================================
+   MÓVIL
+   ========================================================= */
+
+@media (max-width: 480px) {
+  ion-modal.modal-caso-animal {
+    --width: calc(100% - 20px);
+    --height: auto;
+
+    --border-radius: 22px;
+  }
+
+  ion-modal.modal-caso-animal::part(content) {
+    max-height: calc(100vh - 28px);
+
+    border-radius: 22px;
+  }
+
+  .modal-caso-card {
+    max-height: calc(100vh - 28px);
+  }
+
+  .modal-caso-portada {
+    flex-basis: 205px;
+
+    height: 205px;
+  }
+
+  .modal-caso-body {
+    padding: 18px 16px;
+  }
+
+  .modal-caso-encabezado {
+    gap: 10px;
+  }
+
+  .modal-caso-titulo h2 {
+    font-size: 1.3rem;
+  }
+}

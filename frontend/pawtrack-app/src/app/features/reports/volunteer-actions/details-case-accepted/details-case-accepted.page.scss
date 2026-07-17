@@ -1,0 +1,7 @@
+:host ::ng-deep .pin-detalle-inner {
+  width: 40px; height: 40px; display: grid; place-items: center;
+  background: #2E5BD8; color: #fff; border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  box-shadow: 0 4px 10px rgba(0,0,0,.3);
+}
+:host ::ng-deep .pin-detalle-inner .material-symbols-outlined { transform: rotate(45deg); font-size: 20px; }

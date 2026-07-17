@@ -43,3 +43,26 @@ html, body {
   min-height: 100%;
   overflow-y: auto; // Deja que el navegador maneje el scroll nativo
 }
+
+/* Aparicion suave: para contenido que se muestra con @if */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.25s ease-out;
+}
+
+/* Respeta a quien pidio menos animaciones en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+  }
+}

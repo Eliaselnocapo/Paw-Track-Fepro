@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { IonContent } from '@ionic/angular/standalone';
+import { Router, RouterLink } from '@angular/router';
+import { IonContent, IonModal } from '@ionic/angular/standalone';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
+import { HttpClient } from '@angular/common/http';
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
@@ -34,6 +34,8 @@ interface ReporterReport {
   notasAnimal: string;
 
   raw: IncidenciaResponse;
+
+  tipoIncidencia: string;
 }
 
 @Component({
@@ -42,6 +44,7 @@ interface ReporterReport {
   imports: [
     CommonModule,
     IonContent,
+    IonModal,
     RouterLink,
     NavbarWebComponent,
     FooterWebComponent
@@ -51,6 +54,8 @@ interface ReporterReport {
 })
 export class ReporterPage implements OnInit {
   reports: ReporterReport[] = [];
+  reportesPorPagina = 5;
+  paginaActualReportes = 1;
 
   cargando = true;
   errorCarga: string | null = null;
@@ -58,9 +63,22 @@ export class ReporterPage implements OnInit {
 
   modoActual: 'cuenta' | 'invitado' = 'invitado';
 
+  selectedFile: File | null = null;
+  fileName: string = '';
+  isUploadingPdf: boolean = false;
+  extractedData: any = null;
+
+  resultadoPdf: 'nuevo' | 'existente' | 'error' | null = null;
+  modalResultadoAbierto = false;
+  reclamando = false;
+  errorReclamo: string | null = null;
+  errorPdf: string | null = null;
+
   constructor(
     private reportService: ReportService,
-    private localReportCache: LocalReportCacheService
+    private localReportCache: LocalReportCacheService,
+    private router: Router,
+    private http: HttpClient // <-- SOLO AGREGA ESTA LÍNEA AQUÍ
   ) {}
 
   ngOnInit(): void {
@@ -71,19 +89,153 @@ export class ReporterPage implements OnInit {
     this.cargarReportes();
   }
 
-cargarReportes(): void {
-  this.cargando = true;
-  this.errorCarga = null;
-  this.reports = [];
-  this.totalCount = 0;
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    this.errorPdf = null;
 
-  if (this.haySesion()) {
-    this.cargarMisReportesDeCuenta();
-    return;
+    if (file && file.type === 'application/pdf') {
+      this.selectedFile = file;
+      this.fileName = file.name;
+      this.extractedData = null;
+    } else {
+      this.errorPdf = 'Selecciona un archivo PDF válido.';
+      this.selectedFile = null;
+      this.fileName = '';
+    }
   }
 
-  this.cargarReportesInvitado();
-}
+  uploadPdf() {
+    if (!this.selectedFile) return;
+
+    this.isUploadingPdf = true;
+    this.errorPdf = null;
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+    const API_URL = `${environment.apiUrl}/procesar-pdf-externo/`;
+
+    this.http.post(API_URL, formData).subscribe({
+      next: (response: any) => {
+        this.isUploadingPdf = false;
+        this.extractedData = response;
+      },
+      error: (err) => {
+        this.isUploadingPdf = false;
+        this.errorPdf =
+          err.status === 422 ? 'El PDF no tiene texto legible (¿es una imagen escaneada?).' :
+          err.status === 400 ? 'No se pudo leer este archivo.' :
+          'Hubo un problema al procesar el PDF. Intenta de nuevo.';
+      }
+    });
+  }
+
+
+  continuarConReporteLleno(): void {
+    const folio = this.extractedData?.folio_detectado;
+
+    if (!folio) {
+      this.router.navigate(['/reports/create-report'], {
+        state: { datosAutocompletar: this.extractedData }
+      });
+      return;
+    }
+
+    // Ya lo tienes vinculado — ni llamamos al back, evitamos el mensaje engañoso.
+    const yaLoTienes = this.reports.some(r => r.folio === folio);
+    if (yaLoTienes) {
+      this.resultadoPdf = 'existente';
+      this.modalResultadoAbierto = true;
+      this.selectedFile = null;
+      this.fileName = '';
+      this.extractedData = null;
+      return;
+    }
+
+    this.reclamando = true;
+    this.errorReclamo = null;
+
+    this.reportService.reclamarReporte(folio).subscribe({
+      next: () => {
+        this.reclamando = false;
+        this.selectedFile = null;
+        this.fileName = '';
+        this.extractedData = null;
+        this.resultadoPdf = 'nuevo';
+        this.modalResultadoAbierto = true;
+        this.cargarReportes();
+      },
+      error: (err) => {
+        this.reclamando = false;
+        this.resultadoPdf = 'error';
+        this.errorReclamo =
+          err.status === 404 ? 'No encontramos ningún reporte con ese folio.' :
+          err.status === 409 ? 'Ese reporte ya pertenece a otra cuenta.' :
+          'No se pudo asociar el reporte. Intenta de nuevo.';
+        this.modalResultadoAbierto = true;
+      }
+    });
+  }
+
+  cerrarModalResultado(): void {
+    this.modalResultadoAbierto = false;
+    // NO resetear resultadoPdf/errorReclamo aquí
+  }
+  
+  onModalDidDismiss(): void {
+    this.resultadoPdf = null;
+    this.errorReclamo = null;
+  }
+
+  get totalPaginasReportes(): number {
+  return Math.ceil(this.reports.length / this.reportesPorPagina);
+  }
+
+  get reportesPaginados(): ReporterReport[] {
+    const inicio = (this.paginaActualReportes - 1) * this.reportesPorPagina;
+    const fin = inicio + this.reportesPorPagina;
+
+    return this.reports.slice(inicio, fin);
+  }
+
+  get inicioPaginaReportes(): number {
+    if (this.reports.length === 0) return 0;
+
+    return (this.paginaActualReportes - 1) * this.reportesPorPagina + 1;
+  }
+
+  get finPaginaReportes(): number {
+    const fin = this.paginaActualReportes * this.reportesPorPagina;
+
+    return Math.min(fin, this.reports.length);
+  }
+
+  get paginasReportes(): number[] {
+    return Array.from(
+      { length: this.totalPaginasReportes },
+      (_, index) => index + 1
+    );
+  }
+
+  cambiarPaginaReportes(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginasReportes) return;
+
+    this.paginaActualReportes = pagina;
+  }
+
+  cargarReportes(): void {
+    this.cargando = true;
+    this.errorCarga = null;
+    this.reports = [];
+    this.totalCount = 0;
+    this.paginaActualReportes = 1;
+
+    if (this.haySesion()) {
+      this.cargarMisReportesDeCuenta();
+      return;
+    }
+
+    this.cargarReportesInvitado();
+  }
   haySesion(): boolean {
     return !!localStorage.getItem('pawtrack_access');
   }
@@ -161,14 +313,15 @@ private cargarMisReportesDeCuenta(): void {
       updatedAt: this.obtenerTiempoActualizado(incidencia.created_at, incidencia.updated_at),
       animalType: incidencia.tipo_animal || 'otro',
       imageUrl: this.imagenUrl(incidencia.imagen),
-      urgencyScore: incidencia.urgency_score || 0,
+      urgencyScore: Math.round(incidencia.urgency_score || 0),
       eta: undefined,
 
       tamanoAnimal: incidencia.tamano_animal || 'No especificado',
       condicionAnimal: incidencia.condicion_animal || 'No especificada',
       notasAnimal: incidencia.notas_animal || '',
 
-      raw: incidencia
+      raw: incidencia,
+      tipoIncidencia: incidencia.tipo_incidencia || 'No especificada'
     };
   }
 
@@ -184,10 +337,11 @@ private cargarMisReportesDeCuenta(): void {
   }
 
   private obtenerDireccionReporte(incidencia: IncidenciaResponse): string {
-    if (incidencia.lat_out != null && incidencia.lng_out != null) {
-      return `Ubicación registrada: ${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out.toFixed(5)}`;
+    const dir = (incidencia as any).direccion?.trim();
+    if (dir) return dir; 
+    if (incidencia.lat_out != null && incidencia.lng_out != null){
+      return `${incidencia.lat_out.toFixed(5)}, ${incidencia.lng_out?.toFixed(5)}`;
     }
-
     return 'Ubicación no disponible';
   }
 
@@ -237,7 +391,7 @@ private cargarMisReportesDeCuenta(): void {
       VALIDANDO: 'Validando',
       ASIGNADO: 'Asignado',
       EN_CAMINO: 'Rescatista en camino',
-      CERRADO: 'Cerrado',
+      CERRADO: 'Rescatado',
       COMPLETADO: 'Completado'
     };
 
@@ -252,7 +406,7 @@ private cargarMisReportesDeCuenta(): void {
       EN_PROCESO: 'bg-blue-100 text-blue-700 border-blue-200',
       ASIGNADO: 'bg-blue-100 text-blue-700 border-blue-200',
       EN_CAMINO: 'bg-blue-100 text-blue-700 border-blue-200',
-      CERRADO: 'bg-slate-100 text-slate-600 border-slate-200',
+      CERRADO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       COMPLETADO: 'bg-slate-100 text-slate-600 border-slate-200'
     };
 
@@ -307,5 +461,16 @@ private cargarMisReportesDeCuenta(): void {
     if (score >= 40) return 'bg-amber-100 text-amber-700 border-amber-200';
 
     return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+  }
+
+  verReporte(reporte: ReporterReport): void{
+    if (reporte.status === 'CERRADO') {
+      this.router.navigate(['/cronology-case', reporte.folio]);
+    } else {
+      this.router.navigate(['/view-follow-up', reporte.folio]);
+    }
+  }
+  esCerrado(reporte: ReporterReport): boolean {
+    return reporte.status === 'CERRADO';
   }
 }

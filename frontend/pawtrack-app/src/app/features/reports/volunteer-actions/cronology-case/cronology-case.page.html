@@ -1,0 +1,559 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+    <!-- FONDO DECORATIVO -->
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute left-[-150px] top-[120px] w-[440px] h-[440px] bg-emerald-100/60 rounded-full"></div>
+      <div class="absolute right-[-130px] top-[340px] w-[380px] h-[380px] bg-blue-100/55 rounded-full"></div>
+      <div class="absolute left-[9%] bottom-[130px] w-[170px] h-[170px] bg-teal-100/50 rotate-[12deg]"></div>
+      <div class="absolute top-[18%] left-[6%]">
+        <span class="absolute w-4 h-4 rounded-full bg-emerald-300/60" style="top:0; left:0;"></span>
+        <span class="absolute w-2.5 h-2.5 rounded-full bg-teal-300/60" style="top:16px; left:22px;"></span>
+        <span class="absolute w-5 h-5 rounded-full bg-emerald-400/50" style="top:34px; left:6px;"></span>
+      </div>
+      <div class="absolute top-[58%] right-[7%]">
+        <span class="absolute w-3 h-3 rounded-full bg-blue-300/60" style="top:0; left:12px;"></span>
+        <span class="absolute w-5 h-5 rounded-full bg-indigo-300/50" style="top:16px; left:0;"></span>
+        <span class="absolute w-2.5 h-2.5 rounded-full bg-blue-400/60" style="top:40px; left:24px;"></span>
+      </div>
+    </div>
+
+    @if (cargando) {
+      <main class="flex-1 flex items-center justify-center relative z-10">
+        <p class="text-slate-500 animate-pulse">Cargando expediente...</p>
+      </main>
+    } @else if (errorCarga) {
+      <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+        <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
+        <p class="text-slate-600 text-center">{{ errorCarga }}</p>
+        <button type="button" (click)="volver()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md">Volver</button>
+      </main>
+    } @else if (incidencia) {
+
+      <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10">
+
+        <button type="button" (click)="volver()" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+          <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+          Volver a mis misiones
+        </button>
+
+        <!-- ============ CARATULA DEL EXPEDIENTE ============ -->
+        <section class="border shadow-md mb-8 overflow-hidden"
+          [ngClass]="estaCancelado
+            ? 'border-red-200 bg-gradient-to-br from-red-50 via-white to-rose-50'
+            : estaCerrado
+              ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50'
+              : 'border-blue-200 bg-gradient-to-br from-blue-50 via-white to-indigo-50'">
+
+          <div class="flex flex-col lg:flex-row">
+
+            <!-- IZQUIERDA: foto + identidad -->
+            <div class="flex-1 p-6 md:p-8 flex flex-col sm:flex-row gap-6 min-w-0">
+
+              <div class="shrink-0 mx-auto sm:mx-0">
+                <div class="w-36 h-36 border-4 border-white shadow-lg bg-white overflow-hidden">
+                  <img [src]="imagenUrl(incidencia.imagen)" [alt]="titulo"
+                    class="w-full h-full object-cover"
+                    [class.grayscale]="estaCancelado">
+                </div>
+                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider text-center mt-2">
+                  {{ estaCerrado ? 'Evidencia final' : 'Foto del reporte' }}
+                </p>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5"
+                  [ngClass]="estaCancelado ? 'text-red-600' : estaCerrado ? 'text-emerald-600' : 'text-blue-700'">
+                  <span class="material-symbols-outlined text-[15px]">folder_open</span>
+                  Expediente de rescate
+                </p>
+
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight break-words">{{ titulo }}</h1>
+
+                <div class="mt-3 inline-flex items-center gap-2 border-2 border-dashed border-slate-300 bg-white/70 px-3 py-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-slate-400">confirmation_number</span>
+                  <span class="font-mono text-sm font-bold tracking-wider text-slate-700">{{ folio }}</span>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 bg-white text-blue-700 border border-blue-200 font-semibold shadow-sm">
+                    <span class="material-symbols-outlined text-[14px]">pets</span>
+                    {{ especie | titlecase }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 bg-white text-purple-700 border border-purple-200 font-semibold shadow-sm">
+                    <span class="material-symbols-outlined text-[14px]">straighten</span>
+                    {{ tamano | titlecase }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 bg-white text-amber-700 border border-amber-200 font-semibold shadow-sm">
+                    <span class="material-symbols-outlined text-[14px]">healing</span>
+                    {{ condicion }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 bg-white font-semibold border shadow-sm"
+                    [ngClass]="score >= 80
+                      ? 'text-red-700 border-red-200'
+                      : score >= 40
+                        ? 'text-orange-700 border-orange-200'
+                        : 'text-slate-600 border-slate-200'">
+                    <span class="material-symbols-outlined text-[14px]">priority_high</span>
+                    {{ nivelUrgencia }} · {{ score | number:'1.0-0' }}/100
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- DERECHA: sello recto + metricas, sobre fondo propio -->
+            <div class="lg:w-[280px] shrink-0 border-t lg:border-t-0 lg:border-l flex flex-col"
+              [ngClass]="estaCancelado
+                ? 'bg-red-50/80 border-red-200'
+                : estaCerrado
+                  ? 'bg-emerald-50/80 border-emerald-200'
+                  : 'bg-blue-50/80 border-blue-200'">
+
+              <!-- Sello: recto, solido, ancho completo -->
+              <div class="px-5 py-4 flex items-center justify-center gap-2 text-white shadow-sm"
+                [ngClass]="estaCancelado ? 'bg-red-600' : estaCerrado ? 'bg-emerald-600' : 'bg-blue-700'">
+                <span class="material-symbols-outlined text-[22px]">
+                  {{ estaCancelado ? 'cancel' : estaCerrado ? 'verified' : 'pending' }}
+                </span>
+                <span class="text-sm font-black uppercase tracking-widest">{{ estadoTexto }}</span>
+              </div>
+
+              <div class="p-6 flex flex-col gap-3.5">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-[11px] font-bold uppercase text-slate-500 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">event</span>
+                    Reportado
+                  </span>
+                  <span class="text-sm font-bold text-slate-800">
+                    {{ createdAt ? (createdAt | date:'dd MMM yyyy') : 'Sin fecha' }}
+                  </span>
+                </div>
+
+                <div class="h-px bg-white"></div>
+
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-[11px] font-bold uppercase text-slate-500 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">timer</span>
+                    Duracion
+                  </span>
+                  <span class="text-sm font-bold" [ngClass]="duracionRescate ? 'text-slate-800' : 'text-slate-400'">
+                    {{ duracionRescate ?? 'En curso' }}
+                  </span>
+                </div>
+
+                <div class="h-px bg-white"></div>
+
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-[11px] font-bold uppercase text-slate-500 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">timeline</span>
+                    Movimientos
+                  </span>
+                  <span class="text-sm font-bold text-slate-800">{{ totalAvances }}</span>
+                </div>
+
+                <div class="h-px bg-white"></div>
+
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-[11px] font-bold uppercase text-slate-500 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">route</span>
+                    Traslado
+                  </span>
+                  <span class="text-sm font-bold" [ngClass]="huboTraslado ? 'text-emerald-700' : 'text-slate-400'">
+                    {{ huboTraslado ? 'Si hubo' : 'Sin traslado' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+
+          <!-- ===================== COLUMNA IZQUIERDA ===================== -->
+          <div class="lg:col-span-7 flex flex-col gap-6">
+
+            <!-- CRONOLOGIA (crece libre, notas desplegables) -->
+            <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined">timeline</span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold uppercase text-blue-600">Historial completo</p>
+                  <h2 class="text-xl md:text-2xl font-bold text-slate-900">Cronologia del caso</h2>
+                </div>
+              </div>
+
+              <div class="p-6">
+                @if (lineaTiempo.length > 0) {
+                  <div class="relative pl-9 flex flex-col gap-6">
+                    <div class="absolute left-[13px] top-3 bottom-3 w-0.5 bg-slate-200"></div>
+
+                    @for (punto of lineaTiempo; track $index) {
+                      <div class="relative">
+                        <div class="absolute -left-9 top-0 w-7 h-7 rounded-full grid place-items-center border-4 border-white shadow"
+                          [ngClass]="{
+                            'bg-slate-400': punto.tipo === 'inicio',
+                            'bg-blue-600': punto.tipo === 'avance',
+                            'bg-emerald-500': punto.tipo === 'cierre',
+                            'bg-red-500': punto.tipo === 'cancelacion'
+                          }">
+                          <span class="material-symbols-outlined text-white text-[14px]">{{ iconoPunto(punto.tipo) }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <span class="text-base font-bold"
+                            [ngClass]="{
+                              'text-emerald-700': punto.tipo === 'cierre',
+                              'text-red-700': punto.tipo === 'cancelacion',
+                              'text-slate-900': punto.tipo !== 'cierre' && punto.tipo !== 'cancelacion'
+                            }">{{ punto.titulo }}</span>
+
+                          <span class="text-[11px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5">
+                            {{ punto.timestamp | date:'dd MMM yyyy · HH:mm' }}
+                          </span>
+                        </div>
+
+                        @if (punto.descripcion) {
+                          <p class="text-sm text-slate-500 mt-1 leading-relaxed">{{ punto.descripcion }}</p>
+                        }
+
+                        <!-- DETALLE DESPLEGABLE -->
+                        @if (tieneDetalle(punto)) {
+                          <button type="button" (click)="toggleDetalle($index)"
+                            class="mt-2 inline-flex items-center gap-1 text-xs font-bold transition-colors"
+                            [ngClass]="punto.tipo === 'cancelacion'
+                              ? 'text-red-600 hover:text-red-800'
+                              : punto.tipo === 'cierre'
+                                ? 'text-emerald-700 hover:text-emerald-900'
+                                : 'text-blue-700 hover:text-blue-900'">
+                            <span class="material-symbols-outlined text-[16px] transition-transform"
+                              [class.rotate-180]="estaAbierto($index)">expand_more</span>
+                            {{ estaAbierto($index) ? 'Ocultar' : etiquetaDetalle(punto) }}
+                          </button>
+
+                          @if (estaAbierto($index)) {
+                            <div class="mt-2 flex flex-col gap-2">
+
+                              @if (punto.nota) {
+                                <div class="border-l-4 border-slate-300 bg-slate-50 p-3">
+                                  <p class="text-[10px] font-bold uppercase text-slate-400 mb-1">Nota del voluntario</p>
+                                  <p class="text-sm text-slate-700">{{ punto.nota }}</p>
+                                </div>
+                              }
+
+                              @if (punto.motivo) {
+                                <div class="border-l-4 border-red-400 bg-red-50 p-3">
+                                  <p class="text-[10px] font-bold uppercase text-red-500 mb-1">Motivo de la cancelacion</p>
+                                  <p class="text-sm text-red-800">{{ punto.motivo }}</p>
+                                </div>
+                              }
+
+                              @if (punto.tipo === 'cierre') {
+                                <div class="border border-emerald-200 bg-emerald-50 p-3 flex flex-col gap-2">
+                                  @if (punto.lat != null) {
+                                    <div class="flex items-start gap-1.5 text-xs font-semibold text-emerald-800">
+                                      <span class="material-symbols-outlined text-[15px] mt-px">pin_drop</span>
+                                      <span>
+                                        Cerrado en
+                                        {{ direccionCierre ?? ((punto.lat | number:'1.4-4') + ', ' + (punto.lng | number:'1.4-4')) }}
+                                      </span>
+                                    </div>
+                                  }
+                                  @if (fotoEvidencia) {
+                                    <a [href]="fotoEvidencia" target="_blank" rel="noopener"
+                                      class="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:text-emerald-900">
+                                      <span class="material-symbols-outlined text-[15px]">photo_camera</span>
+                                      <span class="underline">Ver foto de evidencia</span>
+                                    </a>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="text-center py-10">
+                    <span class="material-symbols-outlined text-5xl text-slate-300">history_toggle_off</span>
+                    <p class="text-sm text-slate-500 mt-2">No hay registros en el historial de este caso.</p>
+                  </div>
+                }
+              </div>
+            </section>
+
+            <!-- FICHA CLINICA (baja de la derecha para llenar este espacio) -->
+<!-- FICHA CLINICA -->
+            <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-600 text-[20px]">stethoscope</span>
+                <h3 class="font-bold text-slate-800">Ficha clinica del animal</h3>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2">
+
+                <!-- LO QUE DIJO EL REPORTANTE -->
+                <div class="p-5 md:border-r border-slate-200">
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-blue-600 mb-4 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">person</span>
+                    Lo que reporto el reportante
+                  </p>
+
+                  <div class="flex flex-col gap-3">
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Especie</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize">{{ especie }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Tamano</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize">{{ tamano }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Condicion</span>
+                      <span class="text-sm font-bold text-slate-800 text-right">{{ condicion }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-slate-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Color</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize text-right break-words">{{ color }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                      <span class="text-xs font-bold uppercase text-slate-400">Raza</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize text-right break-words">{{ raza }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- LO QUE EVALUO EL VOLUNTARIO -->
+                <div class="p-5 border-t md:border-t-0 border-slate-200 bg-emerald-50/30">
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-600 mb-4 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[15px]">medical_information</span>
+                    Lo que evaluo el voluntario
+                  </p>
+
+                  <div class="flex flex-col gap-3">
+                    <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Peso</span>
+                      <span class="text-sm font-bold text-slate-800">{{ peso }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Edad</span>
+                      <span class="text-sm font-bold text-slate-800 capitalize">{{ edad }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100">
+                      <span class="text-xs font-bold uppercase text-slate-400">Temperamento</span>
+                      <span class="inline-flex items-center gap-1.5 text-sm font-bold"
+                        [ngClass]="{
+                          'text-red-700': agresividad === 'agresivo',
+                          'text-amber-700': agresividad === 'asustadizo',
+                          'text-emerald-700': agresividad === 'docil',
+                          'text-slate-500': !agresividad || agresividad === 'no_evaluable'
+                        }">
+                        {{ etiquetaTemperamento }}
+                      </span>
+                    </div>
+
+                    @for (dato of fichaVoluntario; track $index) {
+                      <div class="flex justify-between gap-3 pb-3 border-b border-emerald-100 last:border-0 last:pb-0">
+                        <span class="text-xs font-bold uppercase text-slate-400 shrink-0">{{ dato.etiqueta }}</span>
+                        <span class="text-sm font-bold text-slate-800 text-right break-words">{{ dato.valor }}</span>
+                      </div>
+                    }
+
+                    @if (fichaVoluntario.length === 0) {
+                      <p class="text-sm text-slate-400">Aun no registro la ficha completa.</p>
+                    }
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- DESCRIPCION DEL REPORTANTE (tambien baja de la derecha) -->
+            <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600 text-[20px]">description</span>
+                <h3 class="font-bold text-slate-800">Descripcion del reportante</h3>
+              </div>
+              <div class="p-5">
+                <p class="text-sm text-slate-700 leading-relaxed italic">"{{ notasReportante }}"</p>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- ===================== COLUMNA DERECHA ===================== -->
+          <aside class="lg:col-span-5 flex flex-col gap-6">
+
+            <!-- Evidencia de cierre -->
+            @if (puntoCierre) {
+              <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+                <div class="p-5 border-b border-slate-200 bg-emerald-50 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-emerald-600 text-[20px]">task_alt</span>
+                  <h3 class="font-bold text-emerald-800">Evidencia de cierre</h3>
+                </div>
+                <div class="p-5">
+
+                  @if (fotoEvidencia) {
+                    <a [href]="fotoEvidencia" target="_blank" rel="noopener"
+                      class="group block relative w-full mb-4 overflow-hidden border border-slate-200">
+                      <img [src]="fotoEvidencia" alt="Evidencia del cierre"
+                        class="w-full max-h-64 object-cover group-hover:scale-105 transition-transform duration-500">
+                      <span class="absolute top-2 right-2 inline-flex items-center gap-1 bg-white/90 text-slate-700 text-[11px] font-bold px-2 py-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                        Ver completa
+                      </span>
+                    </a>
+                  } @else {
+                    <div class="w-full h-44 bg-slate-100 border border-slate-200 grid place-items-center mb-4">
+                      <div class="text-center text-slate-400">
+                        <span class="material-symbols-outlined text-4xl">image_not_supported</span>
+                        <p class="text-xs mt-1">Sin foto de evidencia</p>
+                      </div>
+                    </div>
+                  }
+
+                  @if (puntoCierre.lat != null) {
+                    <div class="border border-slate-200 bg-slate-50 p-4">
+                      <p class="text-[11px] font-bold uppercase text-slate-500 mb-1">Donde quedo el animal</p>
+                      <p class="text-sm font-bold text-slate-800 flex items-start gap-1.5">
+                        <span class="material-symbols-outlined text-[16px] text-emerald-600 mt-0.5">pin_drop</span>
+                        <span>
+                          @if (cargandoDirecciones && !direccionCierre) {
+                            Obteniendo dirección...
+                          } @else {
+                            {{ direccionCierre ?? ((puntoCierre.lat | number:'1.5-5') + ', ' + (puntoCierre.lng | number:'1.5-5')) }}
+                          }
+                        </span>
+                      </p>
+                      @if (direccionCierre) {
+                        <p class="text-xs text-slate-400 mt-1.5 font-mono">
+                          {{ puntoCierre.lat | number:'1.6-6' }}, {{ puntoCierre.lng | number:'1.6-6' }}
+                        </p>
+                      }
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+
+            <!-- Cancelacion -->
+            @if (estaCancelado && puntoCancelacion) {
+              <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+                <div class="p-5 border-b border-slate-200 bg-red-50 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-red-600 text-[20px]">cancel</span>
+                  <h3 class="font-bold text-red-800">Rescate cancelado</h3>
+                </div>
+                <div class="p-5">
+                  <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                    El voluntario libero este caso, que volvio a estar disponible para que otra
+                    persona lo tome.
+                  </p>
+                  @if (puntoCancelacion.motivo) {
+                    <div class="border border-red-100 bg-red-50 p-4">
+                      <p class="text-[11px] font-bold uppercase text-red-600 mb-1">Motivo</p>
+                      <p class="text-sm text-red-800">{{ puntoCancelacion.motivo }}</p>
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+
+            <!-- Recorrido -->
+            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600 text-[20px]">route</span>
+                <h3 class="font-bold text-slate-800">Recorrido del caso</h3>
+              </div>
+              <div class="p-5">
+                <div class="relative pl-6 flex flex-col gap-5">
+                  <div class="absolute left-[5px] top-2 bottom-2 w-0.5 border-l-2 border-dashed border-slate-300"></div>
+
+                  <div class="relative">
+                    <div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow"></div>
+                    <p class="text-[11px] font-bold uppercase text-slate-400">Punto reportado</p>
+                    <p class="text-sm font-semibold text-slate-800 mt-0.5">{{ direccionReporte }}</p>
+                    @if (coordsReporte) {
+                      <p class="text-xs text-slate-400 mt-1 font-mono">{{ coordsReporte }}</p>
+                    }
+                  </div>
+
+                  @if (puntoCierre && puntoCierre.lat != null) {
+                    <div class="relative">
+                      <div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow"></div>
+                      <p class="text-[11px] font-bold uppercase text-slate-400">Punto de cierre</p>
+                      <p class="text-sm font-semibold text-slate-800 mt-0.5">
+                        {{ direccionCierre ?? ((puntoCierre.lat | number:'1.5-5') + ', ' + (puntoCierre.lng | number:'1.5-5')) }}
+                      </p>
+                      @if (!huboTraslado) {
+                        <p class="text-xs text-slate-400 mt-1">Se cerro en el mismo punto del reporte.</p>
+                      }
+                    </div>
+                  } @else {
+                    <div class="relative">
+                      <div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-slate-300 border-2 border-white shadow"></div>
+                      <p class="text-[11px] font-bold uppercase text-slate-400">Punto de cierre</p>
+                      <p class="text-sm text-slate-400 mt-0.5">Sin registrar</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            </article>
+
+            <!-- Personas involucradas -->
+            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600 text-[20px]">groups</span>
+                <h3 class="font-bold text-slate-800">Personas involucradas</h3>
+              </div>
+              <div class="p-5 flex flex-col gap-4">
+
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-slate-400 mb-1.5">Reportante</p>
+                  <p class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px] text-slate-400">person</span>
+                    {{ reportanteNombre }}
+                  </p>
+                  <p class="text-sm text-slate-600 flex items-center gap-1.5 mt-1">
+                    <span class="material-symbols-outlined text-[16px] text-slate-400">call</span>
+                    {{ reportanteTelefono }}
+                  </p>
+                </div>
+
+                <div class="h-px bg-slate-100"></div>
+
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-slate-400 mb-1.5">Voluntario asignado</p>
+                  @if (rescatistaNombre) {
+                    <p class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[16px] text-emerald-600">volunteer_activism</span>
+                      {{ rescatistaNombre }}
+                    </p>
+                    @if (rescatistaEmail) {
+                      <p class="text-sm text-slate-600 flex items-center gap-1.5 mt-1 break-all">
+                        <span class="material-symbols-outlined text-[16px] text-slate-400">mail</span>
+                        {{ rescatistaEmail }}
+                      </p>
+                    }
+                  } @else {
+                    <p class="text-sm text-slate-400">Sin voluntario asignado actualmente.</p>
+                  }
+                </div>
+              </div>
+            </article>
+
+          </aside>
+
+        </div>
+      </main>
+    }
+
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
+  </div>
+</ion-content>

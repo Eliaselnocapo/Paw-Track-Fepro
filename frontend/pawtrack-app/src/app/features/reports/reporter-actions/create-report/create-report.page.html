@@ -1,0 +1,1154 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen w-full bg-blue-50 flex flex-col font-body text-slate-800 relative overflow-hidden">
+  <!-- FONDO DECORATIVO -->
+  <div class="absolute top-1 md:top-2 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+    <div class="absolute top-[-5%] left-[-10%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-br from-indigo-500 to-violet-400 opacity-30"></div>
+    <div class="absolute top-[12%] right-0 w-[120px] h-[350px] md:w-[200px] md:h-[500px] rounded-l-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-30"></div>
+    <div class="absolute top-[48%] left-[-5%] md:left-[3%] w-[150px] h-[150px] md:w-[250px] md:h-[250px] rounded-3xl bg-gradient-to-tr from-rose-200 to-orange-200 opacity-30 rotate-12"></div>
+    <div class="absolute bottom-[-5%] right-[-5%] w-[300px] h-[300px] md:w-[550px] md:h-[550px] rounded-tl-full bg-gradient-to-tl from-blue-200 to-cyan-300 opacity-30"></div>
+    <div class="absolute bottom-[8%] left-[28%] w-[100px] h-[100px] md:w-[150px] md:h-[150px] rounded-full bg-gradient-to-t from-purple-200 to-indigo-200 opacity-30"></div>
+  </div>
+
+  <app-navbar-web class="w-full relative z-20"></app-navbar-web>
+    
+  @if (pasoActual !== 5) {
+    <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 pt-8 pb-16 relative z-10">
+
+      <!-- ============ HERO ============ -->
+      <section class="border border-slate-300 shadow-md overflow-hidden mb-6 bg-white rounded">
+        <div class="relative overflow-hidden bg-gradient-to-r from-blue-100 via-indigo-100 to-blue-200 border-b border-slate-200 px-6 md:px-10 py-8">
+          <span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[140px] text-blue-300/40 pointer-events-none select-none">pets</span>
+
+          <div class="relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white text-xs font-bold uppercase mb-4 w-fit shadow-sm tracking-wide">
+              <span class="material-symbols-outlined text-[17px]">e911_emergency</span>
+              Reporte de emergencia
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">Reportar un animal en riesgo</h1>
+            <p class="mt-2 text-sm md:text-base text-slate-600 max-w-2xl leading-relaxed">
+              Cuatro pasos rapidos. Entre mas precisa sea la informacion, mas rapido llega el rescate.
+            </p>
+          </div>
+        </div>
+
+        <!-- ============ STEPPER ============ -->
+        <div class="px-6 md:px-10 py-6 bg-white border-t border-slate-100 rounded">
+          <div class="flex items-center">
+
+            <!-- Paso 1 -->
+            <div class="flex flex-col items-center gap-2 shrink-0">
+              <div class="w-10 h-10 grid place-items-center rounded-full font-bold text-sm shadow-sm transition-colors"
+                [ngClass]="pasoActual > 1
+                  ? 'bg-emerald-600 text-white'
+                  : pasoActual === 1
+                    ? 'bg-blue-700 text-white'
+                    : 'bg-slate-100 text-slate-400 border border-slate-200'">
+                @if (pasoActual > 1) {
+                  <span class="material-symbols-outlined text-[20px]">check</span>
+                } @else { 1 }
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wide hidden sm:block"
+                [ngClass]="pasoActual >= 1 ? 'text-slate-700' : 'text-slate-400'">Evidencia</span>
+            </div>
+
+            <div class="flex-1 h-0.5 mx-2 md:mx-4 transition-colors"
+              [ngClass]="pasoActual > 1 ? 'bg-emerald-500' : 'bg-slate-200'"></div>
+
+            <!-- Paso 2 -->
+            <div class="flex flex-col items-center gap-2 shrink-0">
+              <div class="w-10 h-10 grid place-items-center rounded-full font-bold text-sm shadow-sm transition-colors"
+                [ngClass]="pasoActual > 2
+                  ? 'bg-emerald-600 text-white'
+                  : pasoActual === 2
+                    ? 'bg-blue-700 text-white'
+                    : 'bg-slate-100 text-slate-400 border border-slate-200'">
+                @if (pasoActual > 2) {
+                  <span class="material-symbols-outlined text-[20px]">check</span>
+                } @else { 2 }
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wide hidden sm:block"
+                [ngClass]="pasoActual >= 2 ? 'text-slate-700' : 'text-slate-400'">Animal</span>
+            </div>
+
+            <div class="flex-1 h-0.5 mx-2 md:mx-4 transition-colors"
+              [ngClass]="pasoActual > 2 ? 'bg-emerald-500' : 'bg-slate-200'"></div>
+
+            <!-- Paso 3 -->
+            <div class="flex flex-col items-center gap-2 shrink-0">
+              <div class="w-10 h-10 grid place-items-center rounded-full font-bold text-sm shadow-sm transition-colors"
+                [ngClass]="pasoActual > 3
+                  ? 'bg-emerald-600 text-white'
+                  : pasoActual === 3
+                    ? 'bg-blue-700 text-white'
+                    : 'bg-slate-100 text-slate-400 border border-slate-200'">
+                @if (pasoActual > 3) {
+                  <span class="material-symbols-outlined text-[20px]">check</span>
+                } @else { 3 }
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wide hidden sm:block"
+                [ngClass]="pasoActual >= 3 ? 'text-slate-700' : 'text-slate-400'">Ubicacion</span>
+            </div>
+
+            <div class="flex-1 h-0.5 mx-2 md:mx-4 transition-colors"
+              [ngClass]="pasoActual > 3 ? 'bg-emerald-500' : 'bg-slate-200'"></div>
+
+            <!-- Paso 4 -->
+            <div class="flex flex-col items-center gap-2 shrink-0">
+              <div class="w-10 h-10 grid place-items-center rounded-full font-bold text-sm shadow-sm transition-colors"
+                [ngClass]="pasoActual === 4
+                  ? 'bg-blue-700 text-white'
+                  : 'bg-slate-100 text-slate-400 border border-slate-200'">
+                4
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wide hidden sm:block"
+                [ngClass]="pasoActual >= 4 ? 'text-slate-700' : 'text-slate-400'">Revision</span>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <div class="flex flex-col md:flex-row gap-6 md:gap-8">
+
+        <!-- ============ COLUMNA DE AYUDA ============ -->
+        <div class="w-full md:w-1/3 flex flex-col gap-6 md:sticky md:top-6 self-start">
+
+          @if (pasoActual === 1) {
+            <div class="bg-white shadow-md border border-slate-300 ">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-700 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined text-[20px]">photo_camera</span>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-blue-700">Paso 1 de 4</p>
+                  <h2 class="text-lg font-bold text-slate-900 leading-tight">Captura de evidencia</h2>
+                </div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm text-slate-600 mb-5 leading-relaxed">
+                  Sube fotos claras del animal en su estado actual. Es lo que define la urgencia del caso.
+                </p>
+                <div class="flex flex-col gap-3">
+                  <div class="flex items-start gap-2">
+                    <span class="material-symbols-outlined text-emerald-600 text-[18px] mt-0.5">check_circle</span>
+                    <p class="text-xs text-slate-700 leading-relaxed">Captura tambien el entorno para dar contexto.</p>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="material-symbols-outlined text-emerald-600 text-[18px] mt-0.5">check_circle</span>
+                    <p class="text-xs text-slate-700 leading-relaxed">Cuida que la luz permita ver los detalles.</p>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="material-symbols-outlined text-red-500 text-[18px] mt-0.5">cancel</span>
+                    <p class="text-xs text-slate-700 leading-relaxed">No te acerques si el animal parece agresivo o asustado.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (pasoActual === 2) {
+            <div class="bg-white shadow-md border border-slate-300">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-700 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined text-[20px]">pets</span>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-blue-700">Paso 2 de 4</p>
+                  <h2 class="text-lg font-bold text-slate-900 leading-tight">Detalles del animal</h2>
+                </div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm text-slate-600 mb-5 leading-relaxed">
+                  Entre mas precisos los datos, mejor equipado llega el equipo de rescate.
+                </p>
+                <div class="border border-blue-100 bg-blue-50 p-4 flex items-start gap-2">
+                  <span class="material-symbols-outlined text-blue-700 text-[18px] mt-0.5">info</span>
+                  <p class="text-xs text-slate-700 leading-relaxed">
+                    Elige <b>especie</b>, <b>tamano</b> y <b>condicion</b> tocando las tarjetas.
+                    Puedes marcar hasta dos condiciones.
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (pasoActual === 3) {
+            <div class="bg-white shadow-md border border-slate-300">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-700 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined text-[20px]">location_on</span>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-blue-700">Paso 3 de 4</p>
+                  <h2 class="text-lg font-bold text-slate-900 leading-tight">Ubicacion del evento</h2>
+                </div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm text-slate-600 mb-5 leading-relaxed">
+                  Busca una direccion, da clic en el mapa o arrastra el pin para ajustar el punto exacto.
+                </p>
+                <div class="border border-dashed border-slate-300 bg-slate-50 p-4 flex items-start gap-2">
+                  <span class="material-symbols-outlined text-blue-700 text-[18px] mt-0.5">touch_app</span>
+                  <p class="text-xs text-slate-600 leading-relaxed">
+                    El pin marca la ubicacion final que vera el equipo de rescate.
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (pasoActual === 4) {
+            <div class="bg-white shadow-md border border-slate-300">
+              <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined text-[20px]">fact_check</span>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold uppercase text-emerald-600">Paso 4 de 4</p>
+                  <h2 class="text-lg font-bold text-slate-900 leading-tight">Revision final</h2>
+                </div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm text-slate-600 leading-relaxed">
+                  Verifica que todo este correcto. Al enviar, notificaremos a los rescatistas
+                  activos en la zona.
+                </p>
+              </div>
+            </div>
+          }
+
+        </div>
+
+        <!-- ============ CONTENIDO ============ -->
+        <div class="w-full md:w-2/3 flex flex-col gap-6">
+
+          <!-- ---------- PASO 1: EVIDENCIA ---------- -->
+          @if (pasoActual === 1) {
+            <div class="bg-white p-6 md:p-8 shadow-md border border-slate-300 rounded">
+
+              <div class="w-full border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-6 py-14 cursor-pointer transition-colors duration-200 hover:border-blue-600 hover:bg-blue-50/40">
+                <div class="w-16 h-16 bg-blue-100 grid place-items-center mb-4">
+                  <span class="material-symbols-outlined text-[32px] text-blue-700" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-1 text-center">Sube la evidencia del animal</h3>
+                <p class="text-xs text-slate-500 text-center mb-5">JPG, PNG o MP4. Tamano maximo 50MB.</p>
+
+                <input type="file" #inputCamara class="hidden" accept="image/*" capture="environment" (change)="onFileSelected($event)">
+                <input type="file" #inputGaleria class="hidden" accept="image/*,video/*" multiple (change)="onFileSelected($event)">
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <button (click)="inputCamara.click()"
+                    class="h-11 px-6 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                    Tomar foto
+                  </button>
+
+                  <button (click)="inputGaleria.click()"
+                    class="h-11 px-6 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-lg hover:bg-slate-50 transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">photo_library</span>
+                    Subir archivo
+                  </button>
+                </div>
+              </div>
+
+              @if (archivosSeleccionados.length > 0) {
+                <div class="mt-8">
+                  <h4 class="text-sm font-bold uppercase text-slate-400 mb-4">
+                    Archivos subidos ({{ archivosSeleccionados.length }})
+                  </h4>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    @for (archivo of archivosSeleccionados; track archivo) {
+                      <div class="relative group overflow-hidden shadow-sm border border-slate-300 aspect-video bg-slate-100 rounded">
+                        <img [src]="archivo.preview" alt="Evidencia" class="w-full h-full object-cover"/>
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
+                          <button (click)="eliminarArchivo(archivo)" class="w-11 h-11 bg-red-600 text-white grid place-items-center hover:bg-red-700 rounded-lg transition-colors shadow-lg">
+                            <span class="material-symbols-outlined">delete</span>
+                          </button>
+                        </div>
+                        <div class="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 text-[10px] font-semibold rounded text-slate-800 flex items-center gap-1 max-w-[85%]">
+                          <span class="material-symbols-outlined text-[14px] shrink-0">image</span>
+                          <span class="truncate">{{ archivo.nombre }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="mt-6 border border-blue-100 bg-blue-50 p-4 flex items-start gap-2">
+                  <span class="material-symbols-outlined text-blue-700 text-[18px]">info</span>
+                  <p class="text-xs text-slate-700 leading-relaxed">
+                    Necesitas al menos una foto para continuar. Es lo que permite evaluar la urgencia del caso.
+                  </p>
+                </div>
+              }
+
+              <div class="flex justify-end mt-8 border-t border-slate-200 pt-6">
+                <button (click)="siguientePaso()" [disabled]="archivosSeleccionados.length === 0"
+                  class="h-12 px-8 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 active:scale-95">
+                  Continuar
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ---------- PASO 2: DETALLES DEL ANIMAL ---------- -->
+          @if (pasoActual === 2) {
+            <div class="w-full bg-white p-6 md:p-8 shadow-md border border-slate-300 flex flex-col gap-8 rounded">
+
+              <section>
+                <label class="block text-sm font-bold text-slate-900 mb-2">Nombre del caso</label>
+                <input
+                  type="text"
+                  [(ngModel)]="nombreCaso"
+                  maxlength="60"
+                  class="w-full h-12 border bg-slate-50 px-4 text-sm text-slate-900 outline-none transition-all focus:bg-white focus:ring-2 rounded"
+                  [ngClass]="{
+                    'border-red-400 focus:border-red-500 focus:ring-red-100': nombreCaso && !nombreCasoValido(),
+                    'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !nombreCaso || nombreCasoValido()
+                  }"
+                  placeholder="Ej. Perrito herido cerca de CU"
+                >
+
+                @if (nombreCaso && !nombreCasoValido()) {
+                  <p class="mt-2 text-xs font-semibold text-red-600">
+                    Escribe un nombre mas claro. Ejemplo: "Perrito herido cerca de CU".
+                  </p>
+                }
+
+                <p class="mt-2 text-xs leading-relaxed text-slate-500">
+                  Este nombre te ayudara a identificar el reporte despues.
+                </p>
+              </section>
+
+              <hr class="border-slate-100">
+
+              <section>
+                <h2 class="text-base font-bold text-slate-900 mb-4">Que tipo de animal es?</h2>
+                <div class="grid grid-cols-2 gap-4">
+
+                  <button (click)="seleccionarTipo('perro')" class="relative flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'perro', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'perro'}">
+                    <img src="assets/icon/corgi.png" alt="Perro" class="w-14 h-14 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tipoAnimal === 'perro', 'opacity-50 grayscale': tipoAnimal !== 'perro'}">
+                    <span class="font-bold text-sm" [ngClass]="{'text-blue-800': tipoAnimal === 'perro', 'text-slate-700': tipoAnimal !== 'perro'}">Perro</span>
+                    @if(tipoAnimal === 'perro') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                  </button>
+
+                  <button (click)="seleccionarTipo('gato')" class="relative flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'gato', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'gato'}">
+                    <img src="assets/icon/exotic-shorthair.png" alt="Gato" class="w-14 h-14 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tipoAnimal === 'gato', 'opacity-50 grayscale': tipoAnimal !== 'gato'}">
+                    <span class="font-bold text-sm" [ngClass]="{'text-blue-800': tipoAnimal === 'gato', 'text-slate-700': tipoAnimal !== 'gato'}">Gato</span>
+                    @if(tipoAnimal === 'gato') { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                  </button>
+
+                </div>
+              </section>
+
+              <hr class="border-slate-100">
+
+              <section [class.opacity-50]="!tipoAnimal" [class.pointer-events-none]="!tipoAnimal" class="transition-opacity duration-300">
+                <div class="flex justify-between items-center mb-4">
+                  <h2 class="text-base font-bold text-slate-900">Tamano aproximado</h2>
+                  @if (!tipoAnimal) {
+                    <span class="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-1 uppercase tracking-wider">Selecciona animal primero</span>
+                  }
+                </div>
+
+                @if (tipoAnimal === 'gato') {
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-in">
+                    <button (click)="seleccionarTamano('cachorro')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'cachorro', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'cachorro'}">
+                      <img src="assets/icon/cat.png" alt="Cachorro" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'cachorro', 'opacity-50 grayscale': tamanoAproximado !== 'cachorro'}">
+                      <div>
+                        <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'cachorro', 'text-slate-700': tamanoAproximado !== 'cachorro'}">Cachorro</span>
+                        <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'cachorro', 'text-slate-500': tamanoAproximado !== 'cachorro'}">Menos de 6 meses</span>
+                      </div>
+                    </button>
+
+                    <button (click)="seleccionarTamano('adulto')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'adulto', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'adulto'}">
+                      <img src="assets/icon/cat_adult.png" alt="Adulto" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'adulto', 'opacity-50 grayscale': tamanoAproximado !== 'adulto'}">
+                      <div>
+                        <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'adulto', 'text-slate-700': tamanoAproximado !== 'adulto'}">Adulto</span>
+                        <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'adulto', 'text-slate-500': tamanoAproximado !== 'adulto'}">Tamano estandar</span>
+                      </div>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fade-in">
+                    <button (click)="seleccionarTamano('pequeño')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'pequeño', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'pequeño'}">
+                      <img src="assets/icon/small_dog.png" alt="Pequeño" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'pequeño', 'opacity-50 grayscale': tamanoAproximado !== 'pequeño'}">
+                      <div>
+                        <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'pequeño', 'text-slate-700': tamanoAproximado !== 'pequeño'}">Pequeno</span>
+                        <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'pequeño', 'text-slate-500': tamanoAproximado !== 'pequeño'}">&lt; 10 kg</span>
+                      </div>
+                    </button>
+
+                    <button (click)="seleccionarTamano('mediano')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'mediano', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'mediano'}">
+                      <img src="assets/icon/medium_dog.png" alt="Mediano" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'mediano', 'opacity-50 grayscale': tamanoAproximado !== 'mediano'}">
+                      <div>
+                        <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'mediano', 'text-slate-700': tamanoAproximado !== 'mediano'}">Mediano</span>
+                        <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'mediano', 'text-slate-500': tamanoAproximado !== 'mediano'}">10 - 25 kg</span>
+                      </div>
+                    </button>
+
+                    <button (click)="seleccionarTamano('grande')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'grande', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'grande'}">
+                      <img src="assets/icon/big_dog.png" alt="Grande" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'grande', 'opacity-50 grayscale': tamanoAproximado !== 'grande'}">
+                      <div>
+                        <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'grande', 'text-slate-700': tamanoAproximado !== 'grande'}">Grande</span>
+                        <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'grande', 'text-slate-500': tamanoAproximado !== 'grande'}">&gt; 25 kg</span>
+                      </div>
+                    </button>
+                  </div>
+                }
+              </section>
+
+              <hr class="border-slate-100">
+
+              <section>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-2">
+                      Color <span class="font-medium text-slate-400">(Opcional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      [(ngModel)]="colorAnimal"
+                      maxlength="50"
+                      class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                      placeholder="Ej. Negro con manchas blancas"
+                    >
+                    <p class="mt-2 text-xs text-slate-500">Como se ve a simple vista.</p>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-2">
+                      Raza <span class="font-medium text-slate-400">(Opcional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      [(ngModel)]="razaAnimal"
+                      maxlength="50"
+                      class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                      placeholder="Ej. Labrador, mestizo..."
+                    >
+                    <p class="mt-2 text-xs text-slate-500">Si no logras identificarla, dejala vacia o escribe "Desconozco".</p>
+                  </div>
+                </div>
+              </section>
+              <hr class="border-slate-100">
+
+              <section>
+                <h2 class="text-base font-bold text-slate-900 mb-1">Como reacciono al verte?</h2>
+                <p class="text-xs text-slate-500 mb-4">
+                  Esto le dice al rescatista con que precauciones debe acercarse. Se honesto:
+                  un animal asustado puede parecer agresivo.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                  <button type="button" (click)="seleccionarAgresividad('docil')"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
+                    [ngClass]="agresividadAnimal === 'docil'
+                      ? 'border-emerald-500 bg-emerald-50/60'
+                      : 'border-slate-200 bg-white hover:border-slate-300'">
+                    <span class="material-symbols-outlined text-[22px] shrink-0"
+                      [ngClass]="agresividadAnimal === 'docil' ? 'text-emerald-600' : 'text-slate-400'">volunteer_activism</span>
+                    <div>
+                      <span class="block font-bold text-sm"
+                        [ngClass]="agresividadAnimal === 'docil' ? 'text-emerald-800' : 'text-slate-700'">Se dejo acercar</span>
+                      <span class="block text-xs mt-0.5"
+                        [ngClass]="agresividadAnimal === 'docil' ? 'text-emerald-600/80' : 'text-slate-500'">Tranquilo, no mostro miedo ni rechazo.</span>
+                    </div>
+                  </button>
+
+                  <button type="button" (click)="seleccionarAgresividad('asustadizo')"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
+                    [ngClass]="agresividadAnimal === 'asustadizo'
+                      ? 'border-amber-500 bg-amber-50/60'
+                      : 'border-slate-200 bg-white hover:border-slate-300'">
+                    <span class="material-symbols-outlined text-[22px] shrink-0"
+                      [ngClass]="agresividadAnimal === 'asustadizo' ? 'text-amber-600' : 'text-slate-400'">directions_run</span>
+                    <div>
+                      <span class="block font-bold text-sm"
+                        [ngClass]="agresividadAnimal === 'asustadizo' ? 'text-amber-800' : 'text-slate-700'">Se alejo o huyo</span>
+                      <span class="block text-xs mt-0.5"
+                        [ngClass]="agresividadAnimal === 'asustadizo' ? 'text-amber-600/80' : 'text-slate-500'">Asustado, evito el contacto.</span>
+                    </div>
+                  </button>
+
+                  <button type="button" (click)="seleccionarAgresividad('agresivo')"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
+                    [ngClass]="agresividadAnimal === 'agresivo'
+                      ? 'border-red-500 bg-red-50/60'
+                      : 'border-slate-200 bg-white hover:border-slate-300'">
+                    <span class="material-symbols-outlined text-[22px] shrink-0"
+                      [ngClass]="agresividadAnimal === 'agresivo' ? 'text-red-600' : 'text-slate-400'">warning</span>
+                    <div>
+                      <span class="block font-bold text-sm"
+                        [ngClass]="agresividadAnimal === 'agresivo' ? 'text-red-800' : 'text-slate-700'">Gruno o intento morder</span>
+                      <span class="block text-xs mt-0.5"
+                        [ngClass]="agresividadAnimal === 'agresivo' ? 'text-red-600/80' : 'text-slate-500'">Requiere equipo de contencion.</span>
+                    </div>
+                  </button>
+
+                  <button type="button" (click)="seleccionarAgresividad('no_evaluable')"
+                    class="relative flex items-start gap-3 p-4 border-2 transition-all text-left active:scale-95 rounded"
+                    [ngClass]="agresividadAnimal === 'no_evaluable'
+                      ? 'border-slate-500 bg-slate-100'
+                      : 'border-slate-200 bg-white hover:border-slate-300'">
+                    <span class="material-symbols-outlined text-[22px] shrink-0"
+                      [ngClass]="agresividadAnimal === 'no_evaluable' ? 'text-slate-600' : 'text-slate-400'">help</span>
+                    <div>
+                      <span class="block font-bold text-sm"
+                        [ngClass]="agresividadAnimal === 'no_evaluable' ? 'text-slate-800' : 'text-slate-700'">No pude acercarme</span>
+                      <span class="block text-xs mt-0.5"
+                        [ngClass]="agresividadAnimal === 'no_evaluable' ? 'text-slate-600/80' : 'text-slate-500'">Lo vi de lejos, no se como reacciona.</span>
+                    </div>
+                  </button>
+
+                </div>
+              </section>
+              <section>
+                <h2 class="text-base font-bold text-slate-900 mb-4">Condicion visible</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    (click)="toggleCondicion('herido')"
+                    [disabled]="condicionBloqueada('herido')"
+                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed rounded"
+                    [ngClass]="{'border-red-500 bg-red-50/50': tieneCondicion('herido'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('herido')}"
+                  >
+                    <img src="assets/icon/medicine.png" alt="Herido" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('herido'), 'opacity-50 grayscale': !tieneCondicion('herido')}">
+                    <span class="font-bold text-sm mb-1" [ngClass]="{'text-red-700': tieneCondicion('herido'), 'text-slate-700': !tieneCondicion('herido')}">Herido</span>
+                    <span class="text-xs font-medium leading-snug" [ngClass]="{'text-red-600/80': tieneCondicion('herido'), 'text-slate-500': !tieneCondicion('herido')}">Signos de dolor o sangrado.</span>
+                    @if(tieneCondicion('herido')) { <div class="absolute top-3 right-3 w-5 h-5 bg-red-500 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                  </button>
+
+                  <button
+                    (click)="toggleCondicion('callejero')"
+                    [disabled]="condicionBloqueada('callejero')"
+                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed rounded"
+                    [ngClass]="{'border-amber-500 bg-amber-50/50': tieneCondicion('callejero'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('callejero')}"
+                  >
+                    <img src="assets/icon/street.png" alt="Callejero" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('callejero'), 'opacity-50 grayscale': !tieneCondicion('callejero') }">
+                    <span class="font-bold text-sm mb-1" [ngClass]="{'text-amber-700': tieneCondicion('callejero'), 'text-slate-700': !tieneCondicion('callejero')}">Callejero</span>
+                    <span class="text-xs font-medium leading-snug" [ngClass]="{'text-amber-600/80': tieneCondicion('callejero'), 'text-slate-500': !tieneCondicion('callejero')}">Deambula sin dueno aparente.</span>
+                    @if(tieneCondicion('callejero')) { <div class="absolute top-3 right-3 w-5 h-5 bg-amber-500 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                  </button>
+
+                  <button
+                    (click)="toggleCondicion('extraviado')"
+                    [disabled]="condicionBloqueada('extraviado')"
+                    class="relative flex flex-col p-4 border-2 transition-all duration-200 text-left hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed rounded"
+                    [ngClass]="{'border-blue-600 bg-blue-50/50': tieneCondicion('extraviado'), 'border-slate-200 bg-white hover:border-slate-300': !tieneCondicion('extraviado')}"
+                  >
+                    <img src="assets/icon/search.png" alt="Extraviado" class="w-10 h-10 mb-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tieneCondicion('extraviado'), 'opacity-50 grayscale': !tieneCondicion('extraviado')}">
+                    <span class="font-bold text-sm mb-1" [ngClass]="{'text-blue-700': tieneCondicion('extraviado'), 'text-slate-700': !tieneCondicion('extraviado')}">Extraviado</span>
+                    <span class="text-xs font-medium leading-snug" [ngClass]="{'text-blue-600/80': tieneCondicion('extraviado'), 'text-slate-500': !tieneCondicion('extraviado')}">Perdido o desorientado.</span>
+                    @if(tieneCondicion('extraviado')) { <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 grid place-items-center shadow-sm rounded-full"><span class="material-symbols-outlined text-white text-[12px]">check</span></div> }
+                  </button>
+                </div>
+              </section>
+
+              <section>
+                <label class="block text-sm font-bold text-slate-900 mb-2">
+                  Notas adicionales <span class="font-medium text-slate-400">(Opcional)</span>
+                </label>
+                <textarea
+                  [(ngModel)]="notasAdicionales"
+                  class="w-full border bg-slate-50 p-4 text-sm font-medium text-slate-800 focus:bg-white focus:ring-2 transition-all resize-y placeholder:text-slate-400 outline-none rounded"
+                  [ngClass]="{
+                    'border-red-400 focus:border-red-500 focus:ring-red-100': notasAdicionales && !descripcionValida(),
+                    'border-slate-300 focus:border-blue-600 focus:ring-blue-100': !notasAdicionales || descripcionValida()
+                  }"
+                  placeholder="Ej. Es de color negro con manchas blancas, tiene un collar rojo..."
+                  rows="3"
+                ></textarea>
+
+                @if (notasAdicionales && !descripcionValida()) {
+                  <p class="mt-2 text-xs font-semibold text-red-600">
+                    La descripcion debe tener al menos 10 caracteres utiles.
+                  </p>
+                }
+              </section>
+
+              <div class="flex justify-between items-center border-t border-slate-100 pt-6">
+                <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 text-sm rounded-lg">
+                  <span class="material-symbols-outlined text-[18px]">arrow_back</span> Atras
+                </button>
+                <button
+                  (click)="siguientePaso()"
+                  [disabled]="!nombreCasoValido() || !tipoAnimal || !tamanoAproximado || condicionesVisibles.length === 0 || !descripcionValida()"
+                  class="h-12 px-8 bg-blue-700 text-white font-bold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-700/25 flex items-center gap-2 text-sm active:scale-95 rounded-lg"
+                >
+                  Siguiente paso
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ---------- PASO 3: UBICACION ---------- -->
+          @if (pasoActual === 3) {
+            <div class="w-full flex flex-col gap-6 bg-white p-4 md:p-8 shadow-md border border-slate-300 rounded">
+
+              <div class="w-full relative overflow-hidden shadow-sm border border-slate-300 h-[400px] md:h-[500px] bg-[#e5e3df]">
+                <div id="mapa-interactivo" class="absolute inset-0 w-full h-full z-10 cursor-move"></div>
+              </div>
+
+              <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+
+                <div class="md:col-span-7 flex flex-col gap-5">
+                  <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Buscar direccion</label>
+                    <div class="relative group">
+                      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                      <input #searchInputWeb (keyup.enter)="buscarDireccion(searchInputWeb.value)" class="w-full h-12 pl-10 pr-4 bg-slate-50 border border-slate-300 text-sm text-slate-800 outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Ej. Paseo de la Reforma 222" type="text">
+                    </div>
+                    <button type="button" (click)="buscarDireccion(searchInputWeb.value)" class="mt-1 h-11 bg-blue-700 text-white text-sm font-bold hover:bg-blue-800 transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2 rounded-lg">
+                      <span class="material-symbols-outlined text-[18px]">travel_explore</span>
+                      Buscar ubicacion
+                    </button>
+                  </div>
+
+                  <div class="bg-blue-50 p-4 border border-blue-100 shadow-sm relative overflow-hidden transition-colors rounded">
+                    <div class="flex gap-3">
+                      <div class="mt-1 w-10 h-10 bg-blue-200 text-blue-700 grid place-items-center shrink-0 shadow-sm rounded-full" [class.animate-pulse]="cargandoDireccion">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+                          {{ cargandoDireccion ? 'hourglass_empty' : 'location_on' }}
+                        </span>
+                      </div>
+                      <div class="flex flex-col gap-1 w-full min-w-0">
+                        <span class="font-bold text-sm text-slate-900 leading-tight">
+                          @if(cargandoDireccion) { Localizando... } @else { {{ direccionActual }} }
+                        </span>
+                        <span class="text-xs text-slate-600">{{ ciudadActual }}</span>
+                        <div class="mt-2 pt-2 border-t border-blue-200/50 flex items-center gap-2">
+                          <span class="material-symbols-outlined text-[14px] text-slate-500">explore</span>
+                          <span class="text-[11px] font-mono text-slate-600">{{ latActual | number:'1.6-6' }}, {{ lngActual | number:'1.6-6' }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="md:col-span-5 flex flex-col gap-5 justify-between h-full">
+                  <div class="bg-white p-4 flex items-start gap-3 border border-dashed border-slate-300 rounded">
+                    <div class="w-9 h-9 bg-blue-50 text-blue-700 grid place-items-center shrink-0">
+                      <span class="material-symbols-outlined text-[18px]">touch_app</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed pt-0.5">
+                      Da clic en el mapa o arrastra el marcador para afinar la ubicacion exacta del reporte.
+                    </p>
+                  </div>
+
+                  <div class="flex justify-between items-center pt-4 md:pt-0 border-t border-slate-200 md:border-t-0 mt-auto">
+                    <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center gap-1.5 text-sm rounded-lg">
+                      <span class="material-symbols-outlined text-[18px]">arrow_back</span> Atras
+                    </button>
+                    <button (click)="siguientePaso()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 flex items-center gap-2 text-sm active:scale-95 rounded-lg">
+                      Confirmar <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          }
+
+          <!-- ---------- PASO 4: REVISION ---------- -->
+          @if (pasoActual === 4) {
+            <div class="w-full flex flex-col gap-6 rounded">
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                <div class="lg:col-span-7 flex flex-col gap-6">
+
+                  <!-- Foto -->
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden relative rounded">
+                    <div class="absolute top-4 right-4 z-10">
+                      <span class="bg-red-600 text-white px-3 py-1.5 text-xs font-bold flex items-center gap-1 shadow-md rounded-lg">
+                        <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+                        ALTA PRIORIDAD
+                      </span>
+                    </div>
+
+                    <div class="w-full aspect-[21/9] bg-slate-200 relative bg-cover bg-center"
+                         [style.background-image]="archivosSeleccionados.length > 0 ? 'url(' + archivosSeleccionados[0].preview + ')' : 'url(https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=400&auto=format&fit=crop)'">
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                      <div class="flex items-center gap-2 text-slate-600">
+                        <span class="material-symbols-outlined text-[20px]">photo_camera</span>
+                        <span class="text-sm font-semibold">{{ archivosSeleccionados.length || 0 }} fotografia(s) adjunta(s)</span>
+                      </div>
+                      <button (click)="pasoActual = 1" class="text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[18px]">edit</span> Editar
+                      </button>
+                    </div>
+                  </section>
+
+                  <!-- Descripcion del animal -->
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
+                    <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                      <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-700 text-[20px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                        Descripcion del animal
+                      </h2>
+                      <button (click)="pasoActual = 2" class="text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[18px]">edit</span> Editar
+                      </button>
+                    </div>
+
+                    <div class="p-6">
+                      <div class="mb-5 border-b border-slate-200 pb-4">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Nombre del caso</span>
+                        <p class="mt-1 text-lg text-slate-900 font-bold">{{ nombreCaso }}</p>
+                      </div>
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-6">
+                        <div class="flex flex-col gap-1">
+                          <span class="text-xs font-bold text-slate-500 uppercase">Especie</span>
+                          <span class="text-base text-slate-900 font-semibold capitalize">{{ tipoAnimal || 'No especificada' }}</span>
+                        </div>
+
+                        <div class="flex flex-col gap-1">
+                          <span class="text-xs font-bold text-slate-500 uppercase">Tamaño estimado</span>
+                          <span class="text-base text-slate-900 font-semibold capitalize">{{ tamanoAproximado || 'No especificado' }}</span>
+                        </div>
+
+                        <div class="flex flex-col gap-1 md:col-span-2">
+                          <span class="text-xs font-bold text-slate-500 uppercase">Condicion visible</span>
+                          <span class="text-base font-semibold flex items-center gap-2 capitalize"
+                                [ngClass]="{'text-red-600': tieneCondicion('herido'), 'text-amber-600': tieneCondicion('callejero') && !tieneCondicion('herido'), 'text-blue-700': tieneCondicion('extraviado') && !tieneCondicion('herido') && !tieneCondicion('callejero'), 'text-slate-900': !tieneCondicion('herido') && !tieneCondicion('callejero') && !tieneCondicion('extraviado')}">
+                            @if(tieneCondicion('herido')){<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">local_hospital</span>}
+                            @if(tieneCondicion('callejero') && !tieneCondicion('herido')){<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">route</span>}
+                            @if(tieneCondicion('extraviado') && !tieneCondicion('herido') && !tieneCondicion('callejero')){<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">explore</span>}
+                            {{ condicionesTexto }}
+                          </span>
+                        </div>
+
+                        <div class="md:col-span-2 flex flex-col gap-1 mt-2">
+                          <span class="text-xs font-bold text-slate-500 uppercase">Notas adicionales</span>
+                          <p class="text-sm text-slate-800 bg-slate-50 p-4 border border-slate-200 leading-relaxed rounded">
+                            {{ notasAdicionales || 'Sin notas adicionales proporcionadas.' }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  <!-- Contacto -->
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
+                    <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+                      <span class="material-symbols-outlined text-blue-700 text-[20px]">person</span>
+                      <h2 class="font-bold text-slate-800">Datos de contacto</h2>
+                    </div>
+
+                    <div class="p-6">
+                      <p class="text-xs text-slate-600 mb-4">
+                        Ingresa tu informacion para que los rescatistas puedan localizarte si tienen dudas.
+                      </p>
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-1.5">
+                          <label class="text-[11px] font-bold text-slate-500 uppercase">Nombre completo</label>
+                          <input
+                            type="text"
+                            [(ngModel)]="nombreUsuario"
+                            class="h-12 border bg-slate-50 px-4 text-sm outline-none transition-all focus:bg-white focus:ring-2 rounded"
+                            [ngClass]="{
+                              'border-red-400 focus:border-red-500 focus:ring-red-100': nombreUsuario && !nombreContactoValido(),
+                              'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !nombreUsuario || nombreContactoValido()
+                            }"
+                            placeholder="Ej. Juan Perez"
+                          >
+                          @if (nombreUsuario && !nombreContactoValido()) {
+                            <p class="text-xs text-red-600 font-semibold">
+                              El nombre solo debe contener letras y espacios.
+                            </p>
+                          }
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                          <label class="text-[11px] font-bold text-slate-500 uppercase">Telefono movil</label>
+                          <input
+                            type="tel"
+                            [(ngModel)]="telefonoUsuario"
+                            maxlength="10"
+                            inputmode="numeric"
+                            class="h-12 border bg-slate-50 px-4 text-sm outline-none transition-all focus:bg-white focus:ring-2 rounded"
+                            [ngClass]="{
+                              'border-red-400 focus:border-red-500 focus:ring-red-100': telefonoUsuario && !telefonoContactoValido(),
+                              'border-slate-300 focus:border-blue-700 focus:ring-blue-100': !telefonoUsuario || telefonoContactoValido()
+                            }"
+                            placeholder="Ej. 2221234567"
+                          >
+                          @if (telefonoUsuario && !telefonoContactoValido()) {
+                            <p class="text-xs text-red-600 font-semibold">
+                              El telefono debe tener exactamente 10 digitos.
+                            </p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- ASIDE DE REVISION -->
+                <div class="lg:col-span-5 flex flex-col gap-6">
+
+                  <section class="bg-white shadow-md border border-slate-300 overflow-hidden rounded">
+                    <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                      <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-700 text-[20px]" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                        Ubicacion
+                      </h2>
+                      <button (click)="irAMapa()" class="text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[18px]">edit</span> Editar
+                      </button>
+                    </div>
+
+                    <div class="w-full h-48 bg-slate-200 relative border-b border-slate-200">
+                      <div id="mapa-preview" class="absolute inset-0 w-full h-full z-10"></div>
+                    </div>
+
+                    <div class="p-5">
+                      <p class="text-sm text-slate-900 font-bold leading-snug flex items-start gap-1.5">
+                        <span class="material-symbols-outlined text-[16px] text-red-500 mt-0.5">pin_drop</span>
+                        <span>{{ direccionActual }}</span>
+                      </p>
+                      <p class="text-xs text-slate-500 mt-1 ml-6">{{ ciudadActual }}</p>
+                    </div>
+                  </section>
+
+                  <!-- Chequeo de posible duplicado -->
+                  @if (verificandoDuplicado) {
+                    <div class="bg-white shadow-md border border-slate-300 p-5 flex items-center gap-3 rounded">
+                      <span class="material-symbols-outlined text-blue-600 animate-spin text-[20px]">progress_activity</span>
+                      <p class="text-sm text-slate-600">Verificando si ya existe un reporte parecido cerca...</p>
+                    </div>
+                  } @else if (candidatoDuplicado && duplicadoConfirmado !== null) {
+                    <div class="bg-white shadow-md border-2 border-amber-300 overflow-hidden rounded">
+                      <div class="px-5 py-3 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-600 text-[20px]">help</span>
+                        <h3 class="font-bold text-sm text-slate-900">¿Es este el mismo caso?</h3>
+                      </div>
+                      <div class="p-5">
+                        <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                          Encontramos un reporte parecido cerca de esta ubicación. Ayúdanos a confirmar
+                          si es el mismo animal antes de enviar tu reporte.
+                        </p>
+                        <div class="flex gap-3 mb-4">
+                          <img [src]="candidatoDuplicado.imagen || 'assets/images/report-placeholder.jpg'" alt="Reporte similar"
+                            class="w-20 h-20 object-cover border border-slate-200 shrink-0">
+                          <div class="flex flex-col justify-center gap-1">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 w-fit">
+                              <span class="material-symbols-outlined text-[14px]">confirmation_number</span>{{ candidatoDuplicado.folio }}
+                            </span>
+                            @if (candidatoDuplicado.tipo_animal) {
+                              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 w-fit">
+                                <span class="material-symbols-outlined text-[14px]">pets</span>{{ candidatoDuplicado.tipo_animal }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+
+                        @if (duplicadoConfirmado === null) {
+                          <div class="flex flex-wrap gap-3">
+                            <button type="button" (click)="marcarComoMismoCaso()"
+                              class="h-11 px-5 bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
+                              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                              Sí, es el mismo caso
+                            </button>
+                            <button type="button" (click)="marcarComoDistinto()"
+                              class="h-11 px-5 bg-white border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                              <span class="material-symbols-outlined text-[18px]">cancel</span>
+                              No, son distintos
+                            </button>
+                          </div>
+                        } @else if (duplicadoConfirmado) {
+                          <div class="flex items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 p-3">
+                            <p class="text-sm text-emerald-800 font-semibold flex items-center gap-2">
+                              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                              Marcado como el mismo caso — se fusionará al enviar.
+                            </p>
+                            <button type="button" (click)="marcarComoDistinto()" class="text-xs font-bold text-slate-500 hover:text-slate-700 underline shrink-0">Cambiar</button>
+                          </div>
+                        } @else {
+                          <div class="flex items-center justify-between gap-3 bg-slate-50 border border-slate-200 p-3">
+                            <p class="text-sm text-slate-700 font-semibold flex items-center gap-2">
+                              <span class="material-symbols-outlined text-[18px]">check</span>
+                              Marcado como caso distinto.
+                            </p>
+                            <button type="button" (click)="marcarComoMismoCaso()" class="text-xs font-bold text-slate-500 hover:text-slate-700 underline shrink-0">Cambiar</button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Ventana de alerta: interrumpe el paso 4 hasta que el reportante
+                       responda si es el mismo caso o no — no se puede cerrar sin
+                       contestar (backdropDismiss="false"). -->
+                  <ion-modal
+                    class="modal-duplicado"
+                    [isOpen]="!!candidatoDuplicado && duplicadoConfirmado === null"
+                    [backdropDismiss]="false"
+                    alignment="center"
+                    style="--width: 92vw; --max-width: 460px; --height: auto; --max-height: 90vh; --border-radius: 8px; --box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.35); --backdrop-opacity: 0.65;"
+                  >
+                    <ng-template>
+                      <div class="bg-white flex flex-col w-full h-full max-h-[90vh] overflow-hidden rounded-lg">
+
+                        <!-- Header -->
+                        <div class="px-4 sm:px-5 py-4 bg-amber-50 border-b-2 border-amber-300 flex items-center gap-3 shrink-0">
+                          <div class="w-10 h-10 bg-amber-500 text-white grid place-items-center shrink-0 shadow-sm rounded-sm">
+                            <span class="material-symbols-outlined text-[20px]">help</span>
+                          </div>
+                          <div>
+                            <p class="text-[11px] font-bold uppercase text-amber-700 tracking-wide">Posible duplicado</p>
+                            <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">¿Es este el mismo caso?</h3>
+                          </div>
+                        </div>
+
+                        <!-- Contenido -->
+                        <div class="p-4 sm:p-5 overflow-y-auto">
+                          <p class="text-sm text-slate-600 leading-relaxed mb-5">
+                            Encontramos un reporte parecido cerca de esta ubicación. Ayúdanos a confirmar
+                            si es el mismo animal antes de enviar tu reporte.
+                          </p>
+
+                          @if (candidatoDuplicado) {
+                            <div class="flex gap-3 sm:gap-4 mb-5 bg-slate-50 border border-slate-200 p-3 rounded-md">
+                              <img [src]="candidatoDuplicado.imagen || 'assets/images/report-placeholder.jpg'" alt="Reporte similar"
+                                class="w-16 h-16 sm:w-20 sm:h-20 object-cover border border-slate-300 shrink-0 rounded-sm">
+                              <div class="flex flex-col justify-center gap-1.5">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-white text-slate-700 border border-slate-200 w-fit rounded-sm">
+                                  <span class="material-symbols-outlined text-[14px]">confirmation_number</span>{{ candidatoDuplicado.folio }}
+                                </span>
+                                @if (candidatoDuplicado.tipo_animal) {
+                                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-white text-slate-700 border border-slate-200 w-fit capitalize rounded-sm">
+                                    <span class="material-symbols-outlined text-[14px]">pets</span>{{ candidatoDuplicado.tipo_animal }}
+                                  </span>
+                                }
+                              </div>
+                            </div>
+                          }
+
+                  <!-- Botones Responsivos (Centrados y del tamaño correcto) -->
+                          <div class="flex flex-col-reverse sm:flex-row justify-center sm:justify-end items-center gap-3 mt-4 w-full">
+                            
+                            <button type="button" (click)="marcarComoDistinto()"
+                              class="w-auto min-w-[180px] h-11 px-5 bg-white border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-2 active:scale-95 rounded-md">
+                              <span class="material-symbols-outlined text-[18px]">cancel</span>
+                              No, son distintos
+                            </button>
+                            
+                            <button type="button" (click)="marcarComoMismoCaso()"
+                              class="w-auto min-w-[180px] h-11 px-5 bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2 active:scale-95 rounded-md">
+                              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                              Sí, es el mismo caso
+                            </button>
+
+                          </div>
+                          
+                        </div>
+                      </div>
+                    </ng-template>
+                  </ion-modal>
+
+                  <!-- Enviar -->
+                  <div class="bg-white shadow-md border-2 border-grayoverflow-hidden rounded">
+                    <div class="px-5 py-3 bg-blue-700 text-white flex items-center gap-2 rounded-t">
+                      <span class="material-symbols-outlined text-[20px]">send</span>
+                      <h3 class="font-bold text-sm uppercase tracking-wide">Listo para enviar</h3>
+                    </div>
+
+                    <div class="p-5">
+                      <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Al enviar este reporte, notificaremos de inmediato a los rescatistas
+                        activos en la zona.
+                      </p>
+
+                      <button
+                        (click)="intentarEnviar()"
+                        [disabled]="!nombreContactoValido() || !telefonoContactoValido() || !nombreCasoValido() || !descripcionValida() || verificandoDuplicado || faltaResponderDuplicado"
+                        class="w-full h-12 bg-red-600 text-white font-bold text-sm flex items-center justify-center gap-2 rounded-lg hover:bg-red-700 transition-colors shadow-md shadow-red-600/25 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                      >
+                        <span class="material-symbols-outlined text-[18px]">e911_emergency</span>
+                        Enviar reporte
+                      </button>
+
+                      @if (!nombreCasoValido() || !descripcionValida()) {
+                        <p class="mt-3 text-xs font-semibold text-red-600 text-center">
+                          Revisa el nombre del caso o la descripcion antes de enviar.
+                        </p>
+                      }
+                      @if (faltaResponderDuplicado) {
+                        <p class="mt-3 text-xs font-semibold text-amber-600 text-center">
+                          Responde si es el mismo caso antes de enviar.
+                        </p>
+                      }
+                    </div>
+                  </div>
+
+                  <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5 text-sm border border-slate-300 bg-white rounded-lg">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span> Volver al mapa
+                  </button>
+
+                </div>
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+    </main>
+  }
+
+  <!-- ============ PASO 5: EXITO ============ -->
+  @if (pasoActual === 5) {
+    <div class="fixed inset-0 pointer-events-none z-[999] overflow-hidden" id="confetti-container">
+      <div class="confetti-piece" style="left: 10%; animation-delay: 0s; background-color: #ef4444;"></div>
+      <div class="confetti-piece" style="left: 25%; animation-delay: 0.5s; background-color: #3b82f6;"></div>
+      <div class="confetti-piece" style="left: 40%; animation-delay: 0.2s; background-color: #10b981;"></div>
+      <div class="confetti-piece" style="left: 60%; animation-delay: 0.7s; background-color: #f59e0b;"></div>
+      <div class="confetti-piece" style="left: 75%; animation-delay: 0.4s; background-color: #8b5cf6;"></div>
+      <div class="confetti-piece" style="left: 90%; animation-delay: 0.1s; background-color: #ec4899;"></div>
+      <div class="confetti-piece" style="left: 15%; animation-delay: 1.2s; background-color: #3b82f6;"></div>
+      <div class="confetti-piece" style="left: 35%; animation-delay: 0.9s; background-color: #10b981;"></div>
+      <div class="confetti-piece" style="left: 55%; animation-delay: 1.5s; background-color: #ef4444;"></div>
+      <div class="confetti-piece" style="left: 70%; animation-delay: 0.8s; background-color: #f59e0b;"></div>
+      <div class="confetti-piece" style="left: 85%; animation-delay: 0.3s; background-color: #8b5cf6;"></div>
+    </div>
+
+    <div class="flex-grow w-full max-w-4xl mx-auto py-10 px-4 flex items-center justify-center relative z-10 animate-fade-in">
+      <div class="w-full bg-white shadow-xl border border-slate-300 overflow-hidden flex flex-col md:flex-row">
+
+        <div class="w-full md:w-5/12 bg-gradient-to-br from-emerald-500 to-teal-600 flex flex-col items-center justify-center p-10 text-center relative overflow-hidden rounded-r-none">
+          <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-[160px] text-white/10 pointer-events-none">pets</span>
+
+          <div class="relative z-10 flex flex-col items-center">
+            <div class="w-24 h-24 bg-white grid place-items-center mb-6 shadow-xl text-emerald-600 animate-bounce rounded-full">
+              <span class="material-symbols-outlined text-[48px]">check</span>
+            </div>
+            @if (duplicadoDescartado) {
+              <h1 class="text-3xl font-bold text-white mb-3">Gracias por confirmar</h1>
+              <p class="text-base text-emerald-50 leading-relaxed">
+                Ya le estamos dando seguimiento a este caso, no hacía falta un reporte nuevo.
+              </p>
+            } @else {
+              <h1 class="text-3xl font-bold text-white mb-3">Reporte enviado</h1>
+              <p class="text-base text-emerald-50 leading-relaxed">
+                Ya notificamos a los rescatistas cercanos. Tu accion hoy puede salvar una vida.
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="w-full md:w-7/12 p-8 md:p-10 flex flex-col justify-between bg-white">
+          <div class="flex flex-col gap-6">
+
+            @if (duplicadoDescartado) {
+              <div class="border border-blue-200 bg-blue-50 p-5">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Folio del caso existente
+                </p>
+                <p class="text-2xl text-blue-700 font-bold font-mono tracking-wider">{{ folioExistente }}</p>
+              </div>
+            } @else {
+            <div class="border border-blue-200 bg-blue-50 p-5" [class.animate-pulse]="enviando">
+              <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                Folio de seguimiento
+              </p>
+
+              @if (enviando) {
+                <p class="text-base text-slate-400">Generando folio...</p>
+              } @else if (errorEnvio) {
+                <p class="text-sm text-red-600">{{ errorEnvio }}</p>
+              } @else {
+                <p class="text-2xl text-blue-700 font-bold font-mono tracking-wider">{{ folioGenerado }}</p>
+
+                <!-- Separador visual -->
+                <div class="my-4 border-t border-blue-200/70"></div>
+
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Cartel de difusión
+                </p>
+                <p class="text-xs text-slate-500 mb-3">
+                  Imprímelo o compártelo en redes para ayudar a que más gente vea el caso.
+                </p>
+
+                <button
+                  type="button"
+                  (click)="descargarCartelManualmente()"
+                  [disabled]="descargandoCartelManual"
+                  class="h-11 px-4 bg-blue-700 text-white text-sm font-bold hover:bg-blue-800 transition-colors active:scale-95 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 w-full"
+                >
+                  @if (descargandoCartelManual) {
+                    <span class="material-symbols-outlined animate-spin text-[18px]">autorenew</span>
+                    Generando...
+                  } @else {
+                    <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                    Descargar cartel
+                  }
+                </button>
+              }
+            </div>
+            }
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-slate-50 p-4 border border-slate-200">
+                <div class="flex items-center gap-2 mb-2 text-slate-500">
+                  <span class="material-symbols-outlined text-[18px]">pets</span>
+                  <span class="text-[11px] font-bold uppercase">Animal</span>
+                </div>
+                <p class="text-sm font-bold text-slate-900 capitalize">
+                  {{ tipoAnimal || 'Perro' }}
+                  <span class="font-normal text-slate-600">({{ condicionesTexto || 'Herido' }})</span>
+                </p>
+              </div>
+              <div class="bg-slate-50 p-4 border border-slate-200">
+                <div class="flex items-center gap-2 mb-2 text-slate-500">
+                  <span class="material-symbols-outlined text-[18px]">location_on</span>
+                  <span class="text-[11px] font-bold uppercase">Ubicacion</span>
+                </div>
+                <p class="text-sm font-bold text-slate-900 truncate" [title]="ciudadActual">
+                  {{ ciudadActual || 'Puebla' }}
+                </p>
+              </div>
+            </div>
+
+            @if (!duplicadoDescartado) {
+            <div>
+              <h3 class="text-base font-bold text-slate-900 mb-4">¿Qué sigue?</h3>
+              <div class="flex flex-col relative before:absolute before:inset-0 before:ml-3.5 before:h-full before:w-0.5 before:bg-slate-200 pl-10">
+                @for (paso of proximosPasos; track paso.id; let first = $first) {
+                  <div class="relative flex items-center mb-6 last:mb-0 group">
+                    <div class="flex items-center justify-center w-7 h-7 rounded-full border-2 bg-white absolute -left-10"
+                         [ngClass]="{'border-blue-700': first, 'border-slate-300': !first}">
+                      @if(first) { <div class="w-3 h-3 rounded-full bg-blue-700"></div> }
+                    </div>
+                    <p class="text-sm" [ngClass]="{'text-slate-900 font-bold': first, 'text-slate-600': !first}">
+                      {{ paso.texto }}
+                    </p>
+                  </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+
+          <div class="flex gap-4 mt-8 pt-6 border-t border-slate-200">
+            <button routerLink="/dashboard/reporter" class="flex-1 bg-blue-700 text-white font-bold h-12 hover:bg-blue-800 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md active:scale-95">
+              <span class="material-symbols-outlined text-[18px]">dashboard</span>
+              Ir al dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+</div>
+</ion-content>

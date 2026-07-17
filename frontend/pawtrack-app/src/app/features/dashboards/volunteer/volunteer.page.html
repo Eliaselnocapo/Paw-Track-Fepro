@@ -1,14 +1,12 @@
 <ion-content [fullscreen]="true">
   <div class="w-full min-h-screen bg-blue-50 relative overflow-hidden">
-    
-<div class="absolute top-1 md:top-2 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+
+    <!-- FONDO DECORATIVO -->
+    <div class="absolute top-1 md:top-2 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
       <div class="absolute top-[-5%] left-[-10%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 opacity-30"></div>
       <div class="absolute top-[10%] right-0 w-[120px] h-[350px] md:w-[200px] md:h-[500px] rounded-l-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-30"></div>
-      
       <div class="absolute top-[25%] left-[35%] md:left-[45%] w-[200px] h-[80px] md:w-[400px] md:h-[140px] rounded-full bg-gradient-to-r from-cyan-200 to-blue-200 opacity-30 rotate-6"></div>
-
       <div class="absolute top-[45%] left-[-5%] md:left-[5%] w-[150px] h-[150px] md:w-[250px] md:h-[250px] rounded-3xl bg-gradient-to-tr from-rose-200 to-orange-200 opacity-30 rotate-12"></div>
-      
       <div class="absolute bottom-[-5%] right-[-5%] w-[300px] h-[300px] md:w-[550px] md:h-[550px] rounded-tl-full bg-gradient-to-tl from-blue-200 to-cyan-300 opacity-30"></div>
       <div class="absolute bottom-[10%] left-[30%] w-[100px] h-[100px] md:w-[150px] md:h-[150px] rounded-full bg-gradient-to-t from-purple-200 to-indigo-200 opacity-30"></div>
     </div>
@@ -16,7 +14,8 @@
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
     <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-12">
-      
+
+      <!-- HERO -->
       <section class="rounded bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8 relative">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
@@ -25,31 +24,48 @@
                 Sistema Activo
               </span>
             </div>
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Centro de Operaciones</h1>
-            <p class="text-slate-600 font-medium">Sector asignado: <span class="font-bold text-slate-800">Zona Metropolitana, CDMX</span></p>
+
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+              Centro de Operaciones
+            </h1>
+
+            <p class="text-slate-600 font-medium">
+              Sector asignado:
+              <span class="font-bold text-slate-800">Zona Metropolitana, CDMX</span>
+            </p>
           </div>
 
-          <button class="bg-slate-50 border border-slate-200 shadow-sm text-slate-700 font-bold px-5 py-3 rounded hover:bg-slate-100 transition-colors flex items-center gap-2 active:scale-95">
-            <span class="material-symbols-outlined text-[20px] text-blue-600">tune</span> Configurar radar
+          <button
+            type="button"
+            routerLink="/accepted-cases"
+            class="bg-blue-700 border border-blue-700 shadow-md text-white font-bold px-5 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-2 active:scale-95">
+            <span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+            Mis casos aceptados
           </button>
         </div>
       </section>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
 
+        <!-- COLUMNA PRINCIPAL -->
         <section class="lg:col-span-8 flex flex-col gap-6">
-          
+
+          <!-- BUSCADOR -->
           <div class="bg-white p-4 rounded shadow-md border border-slate-300 flex flex-col sm:flex-row gap-3 items-center">
             <div class="relative flex-grow w-full">
-              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
-              <input 
-                type="text" 
-                [(ngModel)]="searchTerm" 
-                placeholder="Buscar por zona, animal o emergencia..." 
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">
+                search
+              </span>
+
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                placeholder="Buscar por zona, animal o emergencia..."
                 class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-900 rounded focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm transition-shadow">
             </div>
-            <select 
-              [(ngModel)]="filtroActivo" 
+
+            <select
+              [(ngModel)]="filtroActivo"
               class="w-full sm:w-auto bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded focus:ring-blue-600 focus:border-blue-600 block py-2 pl-3 pr-8 font-semibold cursor-pointer">
               <option value="Todos">Todas las prioridades</option>
               <option value="Urgente">Urgentes</option>
@@ -58,267 +74,355 @@
             </select>
           </div>
 
-<div class="flex flex-col gap-5">
 
-  @if (cargando) {
-    <div class="bg-white p-12 rounded shadow-sm border border-slate-200 flex flex-col items-center text-center">
-      <span class="material-symbols-outlined text-6xl text-blue-300 mb-4 animate-pulse">hourglass_empty</span>
-      <h3 class="text-xl font-bold text-slate-800 mb-1">Cargando casos</h3>
-      <p class="text-slate-500 font-medium">Estamos consultando los reportes disponibles.</p>
-    </div>
-  } @else if (errorCarga) {
-    <div class="bg-red-50 p-8 rounded shadow-sm border border-red-200">
-      <h3 class="text-lg font-bold text-red-700">No se pudieron cargar los casos</h3>
-      <p class="text-sm text-red-600 mt-1">{{ errorCarga }}</p>
+          <!-- LISTA DE CASOS -->
+          <div class="flex flex-col gap-5">
 
-      <button
-        type="button"
-        (click)="cargarCasos()"
-        class="mt-4 h-10 px-5 rounded bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors">
-        Reintentar
-      </button>
-    </div>
-  } @else {
+            @if (cargando) {
+              <div class="bg-white p-12 rounded shadow-md border border-slate-200 flex flex-col items-center text-center">
+                <span class="material-symbols-outlined text-6xl text-blue-300 mb-4 animate-pulse">
+                  hourglass_empty
+                </span>
 
-    @for (caso of casosFiltrados; track caso.id) {
-      <article class="group bg-white rounded border border-slate-300 shadow-md hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col sm:flex-row">
+                <h3 class="text-xl font-bold text-slate-800 mb-1">
+                  Cargando casos
+                </h3>
 
-        <div class="relative w-full sm:w-56 h-52 sm:h-auto shrink-0 overflow-hidden">
-          <img
-            [src]="caso.fotoUrl"
-            [alt]="caso.titulo"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          >
+                <p class="text-slate-500 font-medium">
+                  Estamos consultando los reportes disponibles.
+                </p>
+              </div>
+            } @else if (errorCarga) {
+              <div class="bg-red-50 p-8 rounded shadow-md border border-red-200">
+                <h3 class="text-lg font-bold text-red-700">
+                  No se pudieron cargar los casos
+                </h3>
 
-          <div
-            class="absolute top-3 left-3 px-3 py-1.5 rounded text-[11px] font-bold tracking-wider uppercase shadow-lg backdrop-blur-md flex items-center gap-1.5"
-            [ngClass]="{
-              'bg-red-600/90 text-white border border-red-400/50': caso.prioridad === 'Urgente',
-              'bg-orange-500/90 text-white border border-orange-400/50': caso.prioridad === 'Alta',
-              'bg-blue-100/90 text-blue-800 border border-blue-200/50': caso.prioridad === 'Moderada'
-            }"
-          >
-            <span class="material-symbols-outlined text-[16px]">
-              {{ caso.prioridad === 'Urgente' ? 'warning' : 'priority_high' }}
-            </span>
-            {{ caso.prioridad }}
+                <p class="text-sm text-red-600 mt-1">
+                  {{ errorCarga }}
+                </p>
+
+                <button
+                  type="button"
+                  (click)="cargarCasos()"
+                  class="mt-4 h-10 px-5 rounded bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors">
+                  Reintentar
+                </button>
+              </div>
+            } @else {
+
+              @for (caso of casosPaginados; track caso.id) {
+                <article class="group bg-white rounded border border-slate-300 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col sm:flex-row">
+
+                  <div class="relative w-full sm:w-56 h-52 sm:h-auto shrink-0 overflow-hidden">
+                    <img
+                      [src]="caso.fotoUrl"
+                      [alt]="caso.titulo"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+
+                    <div
+                      class="absolute top-3 left-3 px-3 py-1.5 rounded text-[11px] font-bold tracking-wider uppercase shadow-lg backdrop-blur-md flex items-center gap-1.5"
+                      [ngClass]="{
+                        'bg-red-600/90 text-white border border-red-400/50': caso.prioridad === 'Urgente',
+                        'bg-orange-500/90 text-white border border-orange-400/50': caso.prioridad === 'Alta',
+                        'bg-blue-100/90 text-blue-800 border border-blue-200/50': caso.prioridad === 'Moderada'
+                      }">
+                      <span class="material-symbols-outlined text-[16px]">
+                        {{ caso.prioridad === 'Urgente' ? 'warning' : 'priority_high' }}
+                      </span>
+                      {{ caso.prioridad }}
+                    </div>
+                  </div>
+
+                  <div class="p-6 flex flex-col flex-grow">
+                    <div class="flex justify-between items-start gap-4 mb-2">
+                      <h3 class="text-xl font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700 transition-colors">
+                        {{ caso.titulo }}
+                      </h3>
+
+                      <span class="text-xs font-bold text-slate-500 flex items-center gap-1 shrink-0 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 shadow-sm">
+                        <span class="material-symbols-outlined text-[14px] text-blue-500">schedule</span>
+                        {{ caso.tiempo }}
+                      </span>
+                    </div>
+
+                    <p class="text-sm font-bold text-slate-500 flex items-center gap-1.5 mb-3">
+                      <span class="material-symbols-outlined text-[18px] text-red-500">location_on</span>
+                      {{ caso.ubicacion }}
+                    </p>
+
+                    <div class="mb-5 flex flex-col gap-3 flex-grow">
+                      <div class="flex flex-wrap gap-2">
+                        <span class="text-xs px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded font-semibold">
+                          {{ caso.especie }}
+                        </span>
+
+                        <span class="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded font-semibold">
+                          {{ caso.tamano | titlecase }}
+                        </span>
+
+                        <span class="text-xs px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded font-semibold">
+                          {{ caso.condicion }}
+                        </span>
+
+                        <span class="text-xs px-2.5 py-1 bg-red-50 text-red-700 border border-red-100 rounded font-semibold">
+                          Urgencia {{ caso.score | number:'1.0-0' }}/100
+                        </span>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <p class="text-sm text-slate-600 flex items-center gap-1.5">
+                          <span class="material-symbols-outlined text-[17px] text-slate-500">person</span>
+                          {{ caso.contactoNombre }}
+                        </p>
+
+                        <p class="text-sm text-slate-600 flex items-center gap-1.5">
+                          <span class="material-symbols-outlined text-[17px] text-slate-500">call</span>
+                          {{ caso.contactoTelefono }}
+                        </p>
+                      </div>
+
+                      <p class="text-sm text-slate-500 line-clamp-1">
+                        {{ caso.descripcion }}
+                      </p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 mt-auto">
+                      <button
+                        type="button"
+                        (click)="verDetalles(caso)"
+                        class="flex-1 px-5 py-2.5 rounded bg-blue-100 border-2 border-blue-700 text-blue-700 font-bold text-sm hover:bg-blue-50 hover:shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                        Detalles
+                      </button>
+
+                      <button
+                        type="button"
+                        (click)="aceptarMision(caso)"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded font-bold text-sm shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        Aceptar misión
+                      </button>
+                    </div>
+                  </div>
+
+                </article>
+              } @empty {
+                <div class="bg-white p-12 rounded shadow-md border border-slate-200 flex flex-col items-center text-center">
+                  <span class="material-symbols-outlined text-7xl text-slate-300 mb-4 drop-shadow-sm">
+                    search_off
+                  </span>
+
+                  <h3 class="text-xl font-bold text-slate-800 mb-1">
+                    @if (vistaCasos === 'aceptados') {
+                      No tienes casos aceptados
+                    } @else {
+                      No se encontraron casos
+                    }
+                  </h3>
+
+                  <p class="text-slate-500 font-medium">
+                    @if (vistaCasos === 'aceptados') {
+                      Cuando aceptes una misión, aparecerá aquí para darle seguimiento.
+                    } @else {
+                      Intenta cambiar los filtros o el término de búsqueda.
+                    }
+                  </p>
+                </div>
+              }
+
+            }
+
           </div>
-        </div>
 
-        <div class="p-6 flex flex-col flex-grow">
-          <div class="flex justify-between items-start gap-4 mb-2">
-            <h3 class="text-xl font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700 transition-colors">
-              {{ caso.titulo }}
-            </h3>
+          <!-- PAGINADOR: VA DENTRO DE LA COLUMNA PRINCIPAL -->
+          @if (casosPorVista.length > casosPorPagina) {
+            <div class="bg-white border border-slate-300 shadow-md p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 rounded">
 
-            <span class="text-xs font-bold text-slate-500 flex items-center gap-1 shrink-0 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 shadow-sm">
-              <span class="material-symbols-outlined text-[14px] text-blue-500">schedule</span>
-              {{ caso.tiempo }}
-            </span>
-          </div>
+              <p class="text-sm text-slate-500 font-semibold">
+                Mostrando
+                <span class="text-slate-900 font-bold">{{ inicioPaginaCasos }}</span>
+                -
+                <span class="text-slate-900 font-bold">{{ finPaginaCasos }}</span>
+                de
+                <span class="text-slate-900 font-bold">{{ casosPorVista.length }}</span>
+                casos
+              </p>
 
-          <p class="text-sm font-bold text-slate-500 flex items-center gap-1.5 mb-3">
-            <span class="material-symbols-outlined text-[18px] text-red-500">location_on</span>
-            {{ caso.ubicacion }}
-          </p>
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  (click)="cambiarPaginaCasos(paginaActualCasos - 1)"
+                  [disabled]="paginaActualCasos === 1"
+                  class="h-10 px-3 border border-slate-300 bg-white text-slate-700 font-bold shadow-md hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded">
+                  Anterior
+                </button>
 
-        <div class="mb-5 flex flex-col gap-3 flex-grow">
-          <div class="flex flex-wrap gap-2">
-            <span class="text-xs px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded font-semibold">
-              {{ caso.especie }}
-            </span>
+                @for (pagina of paginasCasos; track pagina) {
+                  <button
+                    type="button"
+                    (click)="cambiarPaginaCasos(pagina)"
+                    class="h-10 w-10 font-bold shadow-md transition-colors rounded"
+                    [ngClass]="paginaActualCasos === pagina
+                      ? 'bg-blue-700 text-white'
+                      : 'bg-white text-slate-700 border border-slate-300 hover:bg-blue-50'">
+                    {{ pagina }}
+                  </button>
+                }
 
-            <span class="text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded font-semibold">
-              {{ caso.tamano | titlecase }}
-            </span>
+                <button
+                  type="button"
+                  (click)="cambiarPaginaCasos(paginaActualCasos + 1)"
+                  [disabled]="paginaActualCasos === totalPaginasCasos"
+                  class="h-10 px-3 border border-slate-300 bg-white text-slate-700 font-bold shadow-md hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded">
+                  Siguiente
+                </button>
+              </div>
 
-            <span class="text-xs px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded font-semibold">
-              {{ caso.condicion }}
-            </span>
+            </div>
+          }
 
-            <span class="text-xs px-2.5 py-1 bg-red-50 text-red-700 border border-red-100 rounded font-semibold">
-              Urgencia {{ caso.score }}/100
-            </span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <p class="text-sm text-slate-600 flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-[17px] text-slate-500">person</span>
-              {{ caso.contactoNombre }}
-            </p>
-
-            <p class="text-sm text-slate-600 flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-[17px] text-slate-500">call</span>
-              {{ caso.contactoTelefono }}
-            </p>
-          </div>
-
-          <p class="text-sm text-slate-500 line-clamp-1">
-            {{ caso.descripcion }}
-          </p>
-        </div>
-
-          <div class="flex flex-col sm:flex-row gap-3 mt-auto">
-          <button
-            type="button"
-            (click)="aceptarMision(caso)"
-            class="flex-1 px-5 py-2.5 rounded bg-blue-100 border-2 border-blue-700 text-blue-700 font-bold text-sm hover:bg-blue-100 hover:shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
-            <span class=""></span> Detalles
-          </button>
-
-            <button
-              type="button"
-              (click)="aceptarMision(caso)"
-              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded font-bold text-sm shadow-md shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              Aceptar misión
-            </button>
-          </div>
-        </div>
-
-      </article>
-    } @empty {
-      <div class="bg-white p-12 rounded shadow-sm border border-slate-200 flex flex-col items-center text-center">
-        <span class="material-symbols-outlined text-7xl text-slate-300 mb-4 drop-shadow-sm">search_off</span>
-        <h3 class="text-xl font-bold text-slate-800 mb-1">No se encontraron casos</h3>
-        <p class="text-slate-500 font-medium">Intenta cambiar los filtros o el término de búsqueda.</p>
-      </div>
-    }
-
-  }
-
-</div>
         </section>
 
+        <!-- ASIDE -->
         <aside class="lg:col-span-4 flex flex-col gap-6">
 
-        <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden flex flex-col">
-          <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-            <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
-              <span class="material-symbols-outlined text-red-500 animate-pulse">radar</span>
-              Alertas cercanas
-            </h2>
+          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+              <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
+                <span class="material-symbols-outlined text-red-500 animate-pulse">radar</span>
+                Alertas cercanas
+              </h2>
 
-            <span class="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-2.5 py-1 rounded shadow-sm">
-              {{ alertasCercanas.length }} Activa{{ alertasCercanas.length === 1 ? '' : 's' }}
-            </span>
-          </div>
+              <span class="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-2.5 py-1 rounded shadow-sm">
+                {{ alertasCercanas.length }} Activa{{ alertasCercanas.length === 1 ? '' : 's' }}
+              </span>
+            </div>
 
-          <div class="flex flex-col p-2 gap-2">
-            <ng-container *ngIf="alertasCercanas.length > 0; else sinAlertasCercanas">
-              <div
-                *ngFor="let alerta of alertasCercanas"
-                class="p-4 rounded hover:bg-slate-50 hover:shadow-sm transition-all cursor-pointer group border border-transparent hover:border-slate-100"
-              >
-                <div class="flex justify-between items-start gap-3 mb-2">
-                  <h4 class="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">
-                    {{ alerta.titulo }}
-                  </h4>
-
-                  <span
-                    class="text-[10px] font-bold uppercase px-2 py-0.5 rounded shadow-sm border"
-                    [ngClass]="{
-                      'text-red-600 bg-red-50 border-red-100': alerta.prioridad === 'Urgente',
-                      'text-orange-600 bg-orange-50 border-orange-100': alerta.prioridad === 'Alta',
-                      'text-yellow-700 bg-yellow-50 border-yellow-100': alerta.prioridad === 'Moderada'
-                    }"
+            <div class="flex flex-col p-2 gap-2">
+              <ng-container *ngIf="alertasCercanas.length > 0; else sinAlertasCercanas">
+                  <button
+                    type="button"
+                    *ngFor="let alerta of alertasCercanas"
+                    (click)="verDetalles(alerta)"
+                    class="w-full text-left p-4 rounded hover:bg-slate-50 hover:shadow-sm transition-all cursor-pointer group border border-transparent hover:border-slate-100 active:scale-[0.99]"
                   >
-                    {{ alerta.prioridad === 'Urgente' ? 'Urgente' : 'Prioridad ' + alerta.prioridad }}
-                  </span>
+                  <div class="flex justify-between items-start gap-3 mb-2">
+                    <h4 class="font-bold text-slate-800 group-hover:text-blue-700 transition-colors">
+                      {{ alerta.titulo }}
+                    </h4>
+
+                    <span
+                      class="text-[10px] font-bold uppercase px-2 py-0.5 rounded shadow-sm border"
+                      [ngClass]="{
+                        'text-red-600 bg-red-50 border-red-100': alerta.prioridad === 'Urgente',
+                        'text-orange-600 bg-orange-50 border-orange-100': alerta.prioridad === 'Alta',
+                        'text-yellow-700 bg-yellow-50 border-yellow-100': alerta.prioridad === 'Moderada'
+                      }">
+                      {{ alerta.prioridad === 'Urgente' ? 'Urgente' : 'Prioridad ' + alerta.prioridad }}
+                    </span>
+                  </div>
+
+                  <p class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[14px]">map</span>
+                    {{ alerta.ubicacion }}
+                  </p>
+
+                  <div class="flex items-center gap-3 text-xs font-bold text-slate-400">
+                    <span class="bg-white px-2 py-1 rounded shadow-sm border border-slate-100 flex items-center gap-1 text-slate-600">
+                      <span class="material-symbols-outlined text-[14px] text-blue-500">pets</span>
+                      {{ alerta.especie }}
+                    </span>
+
+                    <span class="flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">schedule</span>
+                      {{ alerta.tiempo }}
+                    </span>
+                  </div>
+                </button>
+              </ng-container>
+
+              <ng-template #sinAlertasCercanas>
+                <div class="px-4 py-6 text-center">
+                  <p class="text-sm font-bold text-slate-700">No hay alertas activas</p>
+                  <p class="text-xs text-slate-500 mt-1">
+                    Los casos urgentes aparecerán aquí automáticamente.
+                  </p>
+                </div>
+              </ng-template>
+            </div>
+          </section>
+
+          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden">
+            <div class="p-5 border-b border-slate-200 bg-slate-50">
+              <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
+                <span class="material-symbols-outlined text-emerald-500">health_and_safety</span>
+                Protocolo de acción
+              </h2>
+            </div>
+
+            <div class="p-5 flex flex-col gap-4">
+              <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
+                <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
+                  <span class="material-symbols-outlined text-[18px]">check</span>
                 </div>
 
-                <p class="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-[14px]">map</span>
-                  {{ alerta.ubicacion }}
-                </p>
-
-                <div class="flex items-center gap-3 text-xs font-bold text-slate-400">
-                  <span class="bg-white px-2 py-1 rounded shadow-sm border border-slate-100 flex items-center gap-1 text-slate-600">
-                    <span class="material-symbols-outlined text-[14px] text-blue-500">pets</span>
-                    {{ alerta.especie }}
-                  </span>
-
-                  <span class="flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[14px]">schedule</span>
-                    {{ alerta.tiempo }}
-                  </span>
+                <div>
+                  <p class="font-bold text-sm text-slate-800">
+                    1. Evaluación visual inicial
+                  </p>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Mantén una distancia segura de 5 metros antes de interactuar.
+                  </p>
                 </div>
               </div>
-            </ng-container>
 
-            <ng-template #sinAlertasCercanas>
-              <div class="px-4 py-6 text-center">
-                <p class="text-sm font-bold text-slate-700">No hay alertas activas</p>
-                <p class="text-xs text-slate-500 mt-1">
-                  Los casos urgentes aparecerán aquí automáticamente.
-                </p>
-              </div>
-            </ng-template>
-          </div>
-        </section>
+              <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
+                <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
+                  <span class="material-symbols-outlined text-[18px]">check</span>
+                </div>
 
-        <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden">
-          <div class="p-5 border-b border-slate-200 bg-slate-50">
-            <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
-              <span class="material-symbols-outlined text-emerald-500">health_and_safety</span>
-              Protocolo de acción
-            </h2>
-          </div>
-
-          <div class="p-5 flex flex-col gap-4">
-            <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
-              <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">check</span>
+                <div>
+                  <p class="font-bold text-sm text-slate-800">
+                    2. Preparación de equipo
+                  </p>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Verifica transportadora, correa de seguridad y guantes de protección.
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <p class="font-bold text-sm text-slate-800">
-                  1. Evaluación visual inicial
-                </p>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">
-                  Mantén una distancia segura de 5 metros antes de interactuar.
-                </p>
+              <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
+                <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
+                  <span class="material-symbols-outlined text-[18px]">check</span>
+                </div>
+
+                <div>
+                  <p class="font-bold text-sm text-slate-800">
+                    3. Contacto con centro
+                  </p>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Notifica llegada al lugar y estado general del animal en la app.
+                  </p>
+                </div>
               </div>
             </div>
-
-            <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
-              <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">check</span>
-              </div>
-
-              <div>
-                <p class="font-bold text-sm text-slate-800">
-                  2. Preparación de equipo
-                </p>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">
-                  Verifica transportadora, correa de seguridad y guantes de protección.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-4 p-3 rounded bg-emerald-50/60 border border-emerald-100">
-              <div class="w-7 h-7 shrink-0 rounded bg-emerald-500 text-white grid place-items-center shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">check</span>
-              </div>
-
-              <div>
-                <p class="font-bold text-sm text-slate-800">
-                  3. Contacto con centro
-                </p>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">
-                  Notifica llegada al lugar y estado general del animal en la app.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
 
           <div class="rounded bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-900/20 p-6 relative overflow-hidden">
-            <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl opacity-20 transform -rotate-12 pointer-events-none">support_agent</span>
+            <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl opacity-20 transform -rotate-12 pointer-events-none">
+              support_agent
+            </span>
+
             <div class="relative z-10 flex gap-4 items-start">
-              <span class="material-symbols-outlined text-3xl text-blue-200 drop-shadow-md">support</span>
+              <span class="material-symbols-outlined text-3xl text-blue-200 drop-shadow-md">
+                support
+              </span>
+
               <div>
-                <h3 class="font-black text-lg mb-1 drop-shadow-sm">Soporte Operativo</h3>
+                <h3 class="font-black text-lg mb-1 drop-shadow-sm">
+                  Soporte Operativo
+                </h3>
+
                 <p class="text-sm text-blue-50 font-medium leading-relaxed drop-shadow-sm">
                   Si un caso se sale de control o el animal está herido de gravedad, presiona el botón de Emergencia en tu Navbar para contactar a protección civil.
                 </p>
@@ -331,6 +435,8 @@
       </div>
     </main>
 
-    <app-footer-web class="relative z-10 mt-auto"></app-footer-web>
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
   </div>
 </ion-content>

@@ -1,0 +1,14 @@
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 20px;
+  background: #ffd300;
+  top: 0;
+  opacity: 0;
+  animation: fall 3s infinite ease-in-out;
+}
+
+@keyframes fall {
+  0% { opacity: 1; top: -10%; transform: translateX(0) rotate(0deg); }
+  100% { opacity: 0; top: 100%; transform: translateX(20px) rotate(360deg); }
+}

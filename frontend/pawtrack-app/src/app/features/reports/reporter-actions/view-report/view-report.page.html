@@ -1,0 +1,350 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 font-body-md antialiased relative overflow-hidden">
+
+    <app-navbar-web></app-navbar-web>
+
+<!-- FONDO — figuras dispersas por toda la página, top mínimo 80px, opacidades bajas -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+
+  <!-- ZONA SUPERIOR -->
+  <div class="absolute top-[90px] left-[-140px] w-[340px] h-[340px] bg-rose-200/50 rounded-full"></div>
+  <div class="absolute top-[100px] left-[30%] w-[100px] h-[100px] bg-amber-200/40 rotate-[20deg]"></div>
+  <div class="absolute top-[110px] right-[-100px] w-[280px] h-[280px] bg-violet-200/45 rotate-[12deg]"></div>
+
+  <!-- ZONA SUPERIOR MEDIA -->
+  <div class="absolute top-[22%] left-[18%] w-[80px] h-[80px] bg-cyan-200/45 rotate-[30deg]"></div>
+  <div class="absolute top-[25%] left-[55%] w-[140px] h-[140px] bg-sky-200/35 rounded-full"></div>
+  
+  <!-- ZONA MEDIA -->
+  <div class="absolute top-[38%] left-[-60px] w-[200px] h-[200px] rounded-full border-[22px] border-pink-300/40"></div>
+  <div class="absolute top-[35%] left-[25%] w-[70px] h-[70px] bg-purple-200/35 rotate-[25deg]"></div>
+  <div class="absolute top-[40%] left-[62%] w-[110px] h-[110px] bg-orange-200/35 rounded-full"></div>
+
+  <!-- ZONA MEDIA BAJA -->
+  <div class="absolute top-[52%] left-[8%] w-[90px] h-[90px] bg-fuchsia-200/40 rotate-[18deg]"></div>
+  <div class="absolute top-[58%] right-[-60px] w-[180px] h-[180px] bg-indigo-100/45 rotate-[-8deg]"></div>
+
+  <!-- ZONA BAJA -->
+  <div class="absolute top-[68%] left-[-50px] w-[160px] h-[160px] bg-emerald-200/40 rotate-[10deg]"></div>
+  <div class="absolute top-[70%] left-[20%] w-[75px] h-[75px] bg-rose-200/40 rounded-full"></div>
+  <div class="absolute top-[72%] left-[50%] w-[95px] h-[95px] bg-amber-200/35 rotate-[35deg]"></div>
+  <div class="absolute top-[68%] right-[15%] w-[80px] h-[80px] bg-violet-200/40 rotate-[-20deg]"></div>
+
+  <!-- ZONA INFERIOR -->
+
+  <div class="absolute bottom-[-60px] right-[-50px] w-[240px] h-[240px] bg-teal-200/40 rotate-[-12deg]"></div>
+
+  <!-- MINI CUADROS DISPERSOS -->
+  <div class="absolute top-[15%] left-[10%]  w-4 h-4 bg-rose-300/55   rotate-12"></div>
+  <div class="absolute top-[28%] left-[45%]  w-5 h-5 bg-cyan-300/50   -rotate-6"></div>
+  <div class="absolute top-[44%] left-[33%]  w-3 h-3 bg-amber-300/55  rotate-45"></div>
+  <div class="absolute top-[60%] left-[70%]  w-4 h-4 bg-violet-300/50 -rotate-12"></div>
+  <div class="absolute top-[75%] left-[14%]  w-5 h-5 bg-emerald-300/45 rotate-6"></div>
+  <div class="absolute top-[18%] right-[30%] w-3 h-3 bg-purple-300/50  rotate-45"></div>
+  <div class="absolute top-[48%] right-[25%] w-4 h-4 bg-sky-300/50    rotate-20"></div>
+  <div class="absolute top-[65%] right-[35%] w-5 h-5 bg-fuchsia-300/45 -rotate-8"></div>
+
+</div>
+
+    @if (cargando) {
+      <main class="flex-grow flex items-center justify-center relative z-10">
+        <p class="text-slate-500 animate-pulse">Cargando reporte...</p>
+      </main>
+    }
+
+    @if (!cargando && error) {
+      <main class="flex-grow flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+        <div class="w-16 h-16 bg-red-50 text-red-600 border border-red-100 flex items-center justify-center">
+          <span class="material-symbols-outlined text-[40px]">cloud_off</span>
+        </div>
+        <p class="text-slate-600 text-center">{{ error }}</p>
+        <button (click)="regresar()" class="text-blue-700 font-bold hover:underline">Volver</button>
+      </main>
+    }
+
+    @if (!cargando && !error && reporte) {
+      <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 py-8 relative z-10">
+
+        <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8 rounded">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div class="flex items-start gap-4">
+              <button (click)="regresar()" class="w-11 h-11 border border-slate-200 bg-white text-slate-500 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-100 transition-colors flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined">arrow_back</span>
+              </button>
+              <div>
+                <p class="text-blue-700 font-bold text-sm mb-2">Detalle del reporte</p>
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+                  {{ reporte.nombre_caso || ('Caso ' + (reporte.folio ?? '#' + reporte.id)) }}
+                </h1>
+                <div class="flex flex-wrap items-center gap-2 mt-4">
+                  <span class="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-bold">
+                    {{ reporte.folio ?? '#' + reporte.id }}
+                  </span>
+                  <span [class]="urgencyClass(reporte.urgency_score) + ' px-3 py-1 text-xs uppercase tracking-wider font-bold border flex items-center gap-1'">
+                    <span class="material-symbols-outlined text-[14px]">warning</span>
+                    {{ urgencyLabel(reporte.urgency_score) }}
+                  </span>
+                  <span class="bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 text-xs font-bold">
+                    {{ reporte.estado || 'PENDIENTE' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3">
+              @if (puedeEditar()) {
+                <button [routerLink]="['/reports', reporte.folio ?? reporte.id, 'update']" class="h-12 px-6 bg-blue-700 text-white font-bold shadow-md hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
+                  <span class="material-symbols-outlined">add_comment</span>
+                  Agregar seguimiento
+                </button>
+              }
+              <button type="button" class="h-12 px-6 border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
+                <span class="material-symbols-outlined">support_agent</span>
+                Contactar voluntario
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start rounded">
+
+          <div class="lg:col-span-8 flex flex-col gap-6">
+
+            <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
+              @if (imagenUrl(reporte.imagen)) {
+                <div class="relative w-full bg-slate-200 overflow-hidden">
+                  <img [src]="imagenUrl(reporte.imagen)" alt="Evidencia del reporte" class="w-full h-auto object-cover max-h-[470px] transition-transform duration-700 hover:scale-[1.02]" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
+                  <div class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm border border-white/60 px-3 py-2 flex items-center gap-2 text-slate-800 text-xs font-bold shadow-md">
+                    <span class="material-symbols-outlined text-[16px] text-blue-700">schedule</span>
+                    Reportado {{ tiempoTranscurrido(reporte.created_at) }}
+                  </div>
+                </div>
+              } @else {
+                <div class="w-full h-[320px] flex flex-col items-center justify-center bg-slate-50 text-slate-400">
+                  <span class="material-symbols-outlined text-[72px]">pets</span>
+                  <p class="text-sm font-semibold mt-2">Sin imagen registrada</p>
+                </div>
+              }
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded">
+              <article class="bg-white border border-slate-300 shadow-md p-5">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Animal</p>
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-12 h-12 bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[30px]">pets</span>
+                  </div>
+                  <div>
+                    <p class="text-lg font-bold text-slate-900 capitalize">{{ reporte.tipo_animal || 'Sin especificar' }}</p>
+                    <p class="text-sm text-slate-500 capitalize">Tamaño {{ reporte.tamano_animal || '—' }}</p>
+                  </div>
+                </div>
+
+                <!-- Color y raza -->
+                <div class="flex flex-col gap-2.5 pt-4 border-t border-slate-100">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold uppercase text-slate-400 flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[15px]">palette</span>
+                      Color
+                    </span>
+                    <span class="text-sm font-semibold text-slate-800 text-right capitalize">
+                      {{ reporte.color_animal?.trim() || 'No especificado' }}
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold uppercase text-slate-400 flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[15px]">sell</span>
+                      Raza
+                    </span>
+                    <span class="text-sm font-semibold text-slate-800 text-right capitalize">
+                      {{ reporte.raza_animal?.trim() || 'No identificada' }}
+                    </span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="bg-white border border-slate-300 shadow-md p-5 md:col-span-2 rounded">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Detalles y Seguimiento</p>
+                <div class="flex items-start gap-3">
+                  <div class="w-12 h-12 bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[30px]">healing</span>
+                  </div>
+                  <div class="w-full">
+                    <p class="text-lg font-bold text-red-600 uppercase">
+                      {{ reporte.condicion_animal || 'Condición original no especificada' }}
+                    </p>
+
+                    <!-- Como reacciono: aviso de seguridad para el rescatista -->
+                    @if (reporte.agresividad_animal?.trim()) {
+                      <div class="mt-3 flex items-start gap-2 p-3 border"
+                        [ngClass]="{
+                          'bg-red-50 border-red-200':         reporte.agresividad_animal === 'agresivo',
+                          'bg-amber-50 border-amber-200':     reporte.agresividad_animal === 'asustadizo',
+                          'bg-emerald-50 border-emerald-200': reporte.agresividad_animal === 'docil',
+                          'bg-slate-50 border-slate-200':     reporte.agresividad_animal === 'no_evaluable'
+                        }">
+                        <span class="material-symbols-outlined text-[20px] shrink-0"
+                          [ngClass]="{
+                            'text-red-600':     reporte.agresividad_animal === 'agresivo',
+                            'text-amber-600':   reporte.agresividad_animal === 'asustadizo',
+                            'text-emerald-600': reporte.agresividad_animal === 'docil',
+                            'text-slate-500':   reporte.agresividad_animal === 'no_evaluable'
+                          }">
+                          {{ reporte.agresividad_animal === 'agresivo' ? 'warning'
+                             : reporte.agresividad_animal === 'asustadizo' ? 'directions_run'
+                             : reporte.agresividad_animal === 'docil' ? 'volunteer_activism' : 'help' }}
+                        </span>
+                        <div>
+                          <p class="text-sm font-bold"
+                            [ngClass]="{
+                              'text-red-800':     reporte.agresividad_animal === 'agresivo',
+                              'text-amber-800':   reporte.agresividad_animal === 'asustadizo',
+                              'text-emerald-800': reporte.agresividad_animal === 'docil',
+                              'text-slate-700':   reporte.agresividad_animal === 'no_evaluable'
+                            }">
+                            {{ reporte.agresividad_animal === 'agresivo' ? 'Gruñó o intentó morder'
+                               : reporte.agresividad_animal === 'asustadizo' ? 'Se alejó o huyó'
+                               : reporte.agresividad_animal === 'docil' ? 'Se dejó acercar' : 'No se pudo evaluar' }}
+                          </p>
+                          <p class="text-xs mt-0.5"
+                            [ngClass]="{
+                              'text-red-700':     reporte.agresividad_animal === 'agresivo',
+                              'text-amber-700':   reporte.agresividad_animal === 'asustadizo',
+                              'text-emerald-700': reporte.agresividad_animal === 'docil',
+                              'text-slate-500':   reporte.agresividad_animal === 'no_evaluable'
+                            }">
+                            {{ reporte.agresividad_animal === 'agresivo' ? 'Acércate con equipo de contención.'
+                               : reporte.agresividad_animal === 'asustadizo' ? 'Evita movimientos bruscos al acercarte.'
+                               : reporte.agresividad_animal === 'docil' ? 'No mostró rechazo al contacto.'
+                               : 'El reportante lo vio de lejos.' }}
+                          </p>
+                        </div>
+                      </div>
+                    }
+
+                    <div class="text-sm text-slate-600 leading-relaxed mt-3 whitespace-pre-line bg-slate-50 p-3 border border-slate-100 rounded-sm">
+                      {{ reporte.caracteristicas || reporte.notas_animal || 'Sin observaciones de seguimiento adicionales.' }}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+              <div class="flex items-center justify-between gap-4 mb-5">
+                <div>
+                  <h2 class="text-xl font-bold text-slate-900">Información del incidente</h2>
+                  <p class="text-sm text-slate-500 mt-1">Datos base capturados al crear el reporte.</p>
+                </div>
+                <div class="w-11 h-11 bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
+                  <span class="material-symbols-outlined">assignment</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-50 border border-slate-200 p-4">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Nombre del caso</p>
+                  <p class="text-sm font-bold text-slate-900">{{ reporte.nombre_caso || 'Sin nombre registrado' }}</p>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-4">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de incidencia</p>
+                  <p class="text-sm font-bold text-slate-900 capitalize">{{ reporte.tipo_incidencia || 'No especificado' }}</p>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-4">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Nivel de urgencia actual</p>
+                  <p class="text-sm font-bold" [class]="urgencyTextClass(reporte.urgency_score)">
+                    {{ urgencyLabel(reporte.urgency_score) }} · {{ (reporte.urgency_score || 0) | number:'1.0-0' }}%
+                  </p>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-4">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Confianza del reporte</p>
+                  <p class="text-sm font-bold text-slate-900">{{ reporte.trust_score || 0 }}%</p>
+                </div>
+                <div class="md:col-span-2 bg-slate-50 border border-slate-200 p-4">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas originales del reporte</p>
+                  <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line border-l-4 border-slate-300 pl-3">
+                    {{ reporte.notas_animal || 'El usuario no dejó notas descriptivas al crear el reporte inicial.' }}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+          </div>
+
+          <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
+
+            <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
+              <div class="p-5 border-b border-slate-300 bg-slate-50">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-blue-700">location_on</span>
+                  Ubicación
+                </h3>
+              </div>
+              <div class="h-[230px] w-full relative bg-slate-200">
+                <div id="mapa-reporte-web" class="w-full h-full z-10"></div>
+              </div>
+              <div class="p-5">
+                <p class="text-sm font-bold text-slate-900 flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-red-500 mt-0.5">pin_drop</span>
+                  <span>
+                    {{ reporte.direccion?.trim()
+                        || ((reporte.lat_out | number:'1.5-5') + ', ' + (reporte.lng_out | number:'1.5-5')) }}
+                  </span>
+                </p>
+                <p class="text-xs text-slate-400 mt-1.5 font-mono">
+                  {{ reporte.lat_out | number:'1.6-6' }}, {{ reporte.lng_out | number:'1.6-6' }}
+                </p>
+              </div>
+            </section>
+
+            <section class="bg-white border border-slate-300 shadow-md p-5 rounded">
+              <h3 class="text-lg font-bold text-slate-900 mb-4">Resumen rápido</h3>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-blue-50 border border-blue-100 p-4">
+                  <p class="text-2xl font-bold text-blue-700">{{ (reporte.urgency_score || 0) | number:'1.0-0' }}</p>
+                  <p class="text-xs font-bold text-slate-500">Urgencia</p>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-100 p-4">
+                  <p class="text-2xl font-bold text-emerald-700">{{ reporte.trust_score || 0 }}</p>
+                  <p class="text-xs font-bold text-slate-500">Confianza</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="bg-white border border-slate-300 shadow-md p-5 rounded">
+              <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 mb-6">
+                <span class="material-symbols-outlined text-blue-700">history</span>
+                Historial del caso
+              </h3>
+              <div class="flex flex-col relative before:absolute before:inset-0 before:ml-[11px] before:h-full before:w-0.5 before:bg-slate-200 pl-8">
+                <div class="relative flex flex-col mb-6 last:mb-0">
+                  <div class="absolute -left-8 top-1 w-6 h-6 border-[3px] border-white bg-blue-700 shadow-md z-10 rounded-full">
+                    <div class="absolute inset-0 animate-ping bg-blue-700/30"></div>
+                  </div>
+                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Ahora</p>
+                  <p class="text-sm font-bold text-slate-900">Estado: {{ reporte.estado || 'PENDIENTE' }}</p>
+                  <p class="text-xs text-slate-500 mt-1">Tipo: {{ reporte.tipo_incidencia || 'Sin tipo registrado' }}</p>
+                  @if (reporte.caracteristicas) {
+                    <div class="mt-3 bg-slate-50 border border-slate-200 p-3">
+                      <p class="text-xs text-slate-600 whitespace-pre-line leading-relaxed ">{{ reporte.caracteristicas }}</p>
+                    </div>
+                  }
+                </div>
+                <div class="relative flex flex-col mb-6 last:mb-0">
+                  <div class="absolute -left-8 top-1 w-6 h-6 border-[3px] border-white bg-slate-300 z-10 rounded-full"></div>
+                  <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Inicio</p>
+                  <p class="text-sm font-bold text-slate-700">Reporte creado</p>
+                  <p class="text-xs text-slate-500 mt-1">{{ reporte.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+              </div>
+            </section>
+
+          </aside>
+        </section>
+      </main>
+    }
+
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
+  </div>
+</ion-content>

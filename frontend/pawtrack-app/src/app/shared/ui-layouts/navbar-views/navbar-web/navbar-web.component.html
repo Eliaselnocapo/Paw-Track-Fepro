@@ -1,69 +1,32 @@
-<header class="bg-[#155EEF] shadow-md w-full z-50 h-16 flex items-center transition-all duration-200">
+<header class="bg-[#2E5BD8] border-b border-blue-800/40 shadow-lg w-full z-50 h-16 flex items-center">
   <div class="max-w-[1280px] mx-auto px-3 md:px-12 w-full flex justify-between items-center">
 
-    <div class="flex items-center gap-3 md:gap-10">
+    <div class="flex items-center gap-3 md:gap-16">
 
       <app-menu-toggle class="md:hidden"></app-menu-toggle>
 
-      <!-- Logo / marca -->
-      <div class="flex items-center gap-2.5 cursor-pointer" routerLink="/home">
-        <img
-          src="assets/icon/pawtrack-logo.png"
-          alt="PawTrack"
-          class="w-9 h-9 md:w-10 md:h-10 object-contain"
-        />
-
-        <span class="text-lg md:text-2xl font-bold text-white tracking-tight">
-          PawTrack
-        </span>
+      <!-- Logo / marca (pegado a la izquierda) -->
+      <div class="flex items-center gap-2.5 cursor-pointer group shrink-0" routerLink="/home">
+        <img src="assets/icon/pawtrack-logo.png" alt="PawTrack"
+          class="w-9 h-9 md:w-10 md:h-10 object-contain group-hover:scale-105 transition-transform" />
+        <span class="text-lg md:text-2xl font-bold text-white tracking-tight">PawTrack</span>
       </div>
 
       <!-- Links escritorio -->
-      <nav class="hidden md:flex gap-7 h-16 items-center">
+      <nav class="hidden md:flex gap-1 h-16 items-center">
 
-        <a
-          routerLink="/home"
-          routerLinkActive="text-white border-white"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="text-blue-100 hover:text-white transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-          Inicio
-        </a>
+        <a routerLink="/home" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link">Inicio</a>
 
-        <a
-          routerLink="/mapa"
-          routerLinkActive="text-white border-white"
-          class="text-blue-100 hover:text-white transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-          Mapa General
-        </a>
+        <a routerLink="/mapa" routerLinkActive="nav-active" class="nav-link">Mapa General</a>
 
-        <a
-          routerLink="/dashboard/reporter"
-          routerLinkActive="text-white border-white"
-          class="text-blue-100 hover:text-white transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-          Reportes
-        </a>
+        <a routerLink="/dashboard/reporter" routerLinkActive="nav-active" class="nav-link">Reportes</a>
 
         @if (isLoggedIn) {
-          <a
-            routerLink="/dashboard/volunteer"
-            routerLinkActive="text-white border-white"
-            class="text-blue-100 hover:text-white transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-            Apoyo
-          </a>
-
-          <a
-            routerLink="/impacto"
-            routerLinkActive="text-white border-white"
-            class="text-blue-100 hover:text-white transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-            Impacto
-          </a>
+          <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Apoyo</a>
+          <a routerLink="/app-coming-soon" routerLinkActive="nav-active" class="nav-link">Impacto</a>
         } @else {
-          <a
-            routerLink="/dashboard/volunteer"
-            routerLinkActive="text-white border-white"
-            class="text-blue-100 hover:text-white transition-colors text-sm font-semibold h-full flex items-center px-1 border-b-2 border-transparent">
-            Asistir
-          </a>
+          <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Asistir</a>
         }
 
       </nav>
@@ -72,50 +35,44 @@
     <div class="flex items-center gap-2 md:gap-5">
 
       @if (!isLoggedIn) {
-        <a
-          routerLink="/login"
+        <a routerLink="/login"
           class="hidden md:block text-blue-100 hover:text-white transition-colors text-sm font-semibold cursor-pointer">
-          Iniciar sesión
+          Iniciar sesion
         </a>
       } @else {
-        <!-- Avatar mejorado -->
-      <button
-        routerLink="/profile"
-        class="hidden md:flex w-10 h-10 rounded-full bg-white items-center justify-center overflow-hidden border-2 border-[#7DB7FF] hover:border-white hover:bg-blue-50 transition-colors focus:outline-none shadow-sm">
-        <!-- <img src="assets/icon/user-avatar.png" alt="Usuario" class="w-full h-full object-cover" /> -->
-
-        <span class="text-[#155EEF] font-bold text-xs">
-          US
-        </span>
-      </button>
+        <!-- Avatar dinamico -->
+        <button routerLink="/profile"
+          class="hidden md:flex w-10 h-10 bg-white items-center rounded-full justify-center overflow-hidden border-2 border-[#7DB7FF] hover:border-white hover:bg-blue-50 transition-colors focus:outline-none shadow-sm">
+          @if (usuario$ | async; as u) {
+            @if (fotoUrl(u)) {
+              <img [src]="fotoUrl(u)" alt="" class="w-full h-full object-cover">
+            } @else {
+              <span class="text-[#2E5BD8] font-bold text-sm">{{ iniciales(u) }}</span>
+            }
+          } @else {
+            <span class="material-symbols-outlined text-[#2E5BD8] text-[22px]">person</span>
+          }
+        </button>
       }
 
-      <!-- Botón móvil rojo -->
+      <!-- Boton movil rojo -->
       <button
-        class="flex md:hidden bg-red-600 text-white px-2.5 py-1.5 rounded-lg font-bold hover:bg-red-700 transition-colors items-center gap-1.5 shadow-sm active:scale-95"
+        class="flex md:hidden bg-red-600 text-white px-2.5 py-1.5 font-bold hover:bg-red-700 transition-colors items-center gap-1.5 shadow-sm active:scale-95"
         routerLink="/reports/create-report">
-
-        <!-- Espacio para imagen -->
         <span class="w-4 h-4 rounded-full bg-white flex items-center justify-center overflow-hidden">
           <img src="assets/icon/warning.png" alt="Emergencia" class="w-4 h-4 object-contain" />
         </span>
-
         <span class="flex flex-col text-[10px] leading-[11px] text-left">
           <span>Reportar</span>
           <span>Emergencia</span>
         </span>
       </button>
 
-      <!-- Botón escritorio rojo -->
+      <!-- Boton escritorio rojo -->
       <button
-        class="hidden md:flex bg-red-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-700 transition-colors items-center gap-2 shadow-sm active:scale-95"
+        class="hidden md:flex bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-red-700 transition-colors items-center gap-2 shadow-md shadow-red-900/20 active:scale-95"
         routerLink="/reports/create-report">
-
-        <!-- Espacio para imagen -->
-        <span class=" flex items-center justify-center overflow-hidden">
-          <!-- Pon tu imagen aquí -->
-        </span>
-
+        <span class="material-symbols-outlined text-[18px]">e911_emergency</span>
         Reportar emergencia
       </button>
 

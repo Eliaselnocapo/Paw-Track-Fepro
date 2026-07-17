@@ -19,7 +19,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
+        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'ubicacion', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_roles(self, value):
@@ -44,6 +44,20 @@ class UsuarioSerializer(serializers.ModelSerializer):
             PerfilPatrocinador.objects.get_or_create(usuario=usuario)
         return usuario
 
+class EditarPerfilSerializer(serializers.ModelSerializer):
+    """Serializer dedicado a PATCH/PUT /api/auth/user/ (self-service).
+
+    A propósito NO incluye email/password/roles: si el front los manda de
+    todas formas, DRF los ignora por completo porque no están declarados
+    aquí — así evitamos que este endpoint permita cambiar el correo, dejar
+    la contraseña sin hashear (bug real que tenía UsuarioSerializer.update()
+    por herencia de ModelSerializer) o autoasignarse roles.
+    """
+    class Meta:
+        model = Usuario
+        fields = ('first_name', 'last_name', 'telefono', 'ubicacion', 'foto_perfil')
+
+
 class CustomRegisterSerializer(RegisterSerializer):
     """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name."""
     username   = None
@@ -61,21 +75,22 @@ class CustomRegisterSerializer(RegisterSerializer):
         return value
 
     def validate_roles(self, value):
-        if not value:
-            return ['REPORTERO']
         validos = set(Usuario.ROLES_VALIDOS)
         invalidos = [r for r in value if r not in validos]
         if invalidos:
             raise serializers.ValidationError(
                 f"Roles inválidos: {invalidos}. Válidos: {Usuario.ROLES_VALIDOS}"
             )
-        return value
+        roles = ['REPORTERO', 'RESCATISTA']
+        if 'PATROCINADOR' in value:
+            roles.append('PATROCINADOR')
+        return roles
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
         data['first_name'] = self.validated_data.get('first_name', '')
         data['last_name']  = self.validated_data.get('last_name', '')
-        data['roles']      = self.validated_data.get('roles', ['REPORTERO'])
+        data['roles']      = self.validated_data.get('roles', ['REPORTERO', 'RESCATISTA'])
         return data
 
     def save(self, request):
@@ -83,7 +98,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         cleaned = self.get_cleaned_data()
         user.first_name = cleaned.get('first_name', '')
         user.last_name  = cleaned.get('last_name', '')
-        user.roles      = cleaned.get('roles', ['REPORTERO'])
+        user.roles      = cleaned.get('roles', ['REPORTERO', 'RESCATISTA'])
         user.save(update_fields=['first_name', 'last_name', 'roles'])
 
         roles = user.roles or []
@@ -117,31 +132,45 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     longitud = serializers.FloatField(write_only=True)
     lat_out  = serializers.SerializerMethodField(read_only=True)
     lng_out  = serializers.SerializerMethodField(read_only=True)
+    coincidencias_visuales = serializers.SerializerMethodField()
 
-    # Campos del animal para lectura (evita un segundo request desde el front)
-    tipo_animal      = serializers.CharField(source='animal.tipo',           read_only=True, default='')
-    tamano_animal    = serializers.CharField(source='animal.tamano',         read_only=True, default='')
-    condicion_animal = serializers.CharField(source='animal.salud',          read_only=True, default='')
-    notas_animal     = serializers.CharField(source='animal.otros',          read_only=True, default='')
-    edad_estimada    = serializers.CharField(source='animal.edad_estimada',  read_only=True, default='')
-    peso_estimado    = serializers.CharField(source='animal.peso_estimado',  read_only=True, default='')
+    # Campos del animal, aplanados en la incidencia (evita un segundo request
+    # desde el front). Son ESCRIBIBLES: el voluntario los llena desde
+    # update-case al registrar la ficha clinica del animal.
+    tipo_animal      = serializers.CharField(source='animal.tipo',           required=False, allow_blank=True, default='')
+    tamano_animal    = serializers.CharField(source='animal.tamano',         required=False, allow_blank=True, default='')
+    condicion_animal = serializers.CharField(source='animal.salud',          required=False, allow_blank=True, default='')
+    notas_animal     = serializers.CharField(source='animal.otros',          required=False, allow_blank=True, default='')
+    edad_estimada    = serializers.CharField(source='animal.edad_estimada',  required=False, allow_blank=True, default='')
+    peso_estimado    = serializers.CharField(source='animal.peso_estimado',  required=False, allow_blank=True, default='')
+
+    # Existian en el modelo Animal pero no se exponian en la incidencia,
+    # asi que desde el front eran invisibles.
+    color_animal       = serializers.CharField(source='animal.color',        required=False, allow_blank=True, default='')
+    raza_animal        = serializers.CharField(source='animal.raza',         required=False, allow_blank=True, default='')
+    agresividad_animal = serializers.CharField(source='animal.agresividad',  required=False, allow_blank=True, default='')
+
+    rescatista_info  = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Incidencia
         fields = (
             'id',
-            'usuario_reporta', 'animal',
-            'patrocinador', 'rescatista_asignado',
+            'usuario_reporta',
+            'patrocinador', 'rescatista_asignado', 'rescatista_info',
             'imagen',
             'latitud', 'longitud',
             'lat_out', 'lng_out',
+            'direccion',
             'tipo_animal', 'tamano_animal', 'condicion_animal', 'notas_animal', 'edad_estimada', 'peso_estimado',
+            'color_animal', 'raza_animal', 'agresividad_animal',
             'nombre_caso', 'nombre_contacto', 'telefono_contacto',
-            'caracteristicas', 'estado', 'tipo_incidencia', 'recompensa',
-            'urgency_score', 'trust_score', 'created_at', 'folio',
+            'caracteristicas', 'ficha_voluntario', 'estado', 'tipo_incidencia', 'recompensa',
+            'urgency_score', 'trust_score', 'created_at', 'updated_at', 'folio',
+            'coincidencias_visuales',
         )
         extra_kwargs = {
             'usuario_reporta':     {'required': False, 'allow_null': True},
-            'animal':              {'required': False, 'allow_null': True},
             'patrocinador':        {'required': False, 'allow_null': True},
             'rescatista_asignado': {'required': False, 'allow_null': True},
             'recompensa':          {'required': False, 'allow_null': True},
@@ -152,9 +181,12 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             'nombre_contacto':     {'required': False, 'allow_blank': True, 'default': ''},
             'telefono_contacto':   {'required': False, 'allow_blank': True, 'default': ''},
             'caracteristicas':     {'required': False, 'allow_blank': True, 'default': ''},
+            'ficha_voluntario':    {'required': False, 'allow_blank': True, 'default': ''},
+            'direccion':           {'required': False, 'allow_blank': True, 'default': ''},
             'urgency_score':       {'required': False},
             'trust_score':         {'read_only': True},
             'created_at':          {'read_only': True},
+            'updated_at':          {'read_only': True},
             'folio':               {'read_only': True},
         }
 
@@ -164,10 +196,58 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     def get_lng_out(self, obj):
         return obj.ubicacion.x if obj.ubicacion else None
 
+    def get_rescatista_info(self, obj):
+        if not obj.rescatista_asignado:
+            return None
+        u = obj.rescatista_asignado.usuario
+        return {
+            "id":     u.id,
+            "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
+            "email":  u.email,
+        }
+    
+    def get_coincidencias_visuales(self, obj):
+        # Fix P0-5: Retorna directamente la lista persistida desde la BD.
+        # Cero llamadas a IA bloqueando la petición del cliente y total aislamiento de módulos.
+        return obj.coincidencias_visuales_ids
+
+    # Los campos declarados con source='animal.x' llegan a validated_data
+    # agrupados bajo la llave 'animal'. Pero 'animal' TAMBIEN es la FK, que
+    # puede venir como PK (un entero) desde el front. Este helper distingue
+    # los dos casos para no confundirlos.
+    def _extraer_datos_animal(self, validated_data):
+        """
+        Saca la llave 'animal' de validated_data y devuelve (campos_anidados, fk).
+        - campos_anidados: dict con {tipo, tamano, salud, ...} o None
+        - fk: instancia/PK de Animal si vino como FK directa, o None
+        """
+        animal_data = validated_data.pop('animal', None)
+
+        if isinstance(animal_data, dict):
+            # Ignoramos strings vacios para no borrar datos ya guardados
+            campos = {k: v for k, v in animal_data.items() if v not in (None, '')}
+            return (campos or None), None
+
+        return None, animal_data
+
     def create(self, validated_data):
         lat = validated_data.pop('latitud')
         lng = validated_data.pop('longitud')
         validated_data['ubicacion'] = Point(lng, lat, srid=4326)
+
+        # Los campos con source='animal.x' llegan agrupados bajo 'animal'.
+        campos_animal = validated_data.pop('animal', {})
+
+        # El modelo Animal exige varios campos sin default: los rellenamos.
+        base = {
+            'nombre': 'Sin nombre', 'color': '', 'tamano': '', 'tipo': '',
+            'raza': '', 'agresividad': '', 'salud': '', 'otros': '',
+            'edad_estimada': '', 'peso_estimado': '',
+        }
+        base.update({k: v for k, v in campos_animal.items() if v is not None})
+
+        validated_data['animal'] = Animal.objects.create(**base)
+
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -175,4 +255,15 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         lng = validated_data.pop('longitud', None)
         if lat is not None and lng is not None:
             validated_data['ubicacion'] = Point(lng, lat, srid=4326)
+
+        campos_animal = validated_data.pop('animal', {})
+
+        # Ficha clinica: actualizamos el animal existente.
+        # Ignoramos vacios para no borrar datos ya guardados.
+        if campos_animal and instance.animal:
+            for campo, valor in campos_animal.items():
+                if valor not in (None, ''):
+                    setattr(instance.animal, campo, valor)
+            instance.animal.save()
+
         return super().update(instance, validated_data)

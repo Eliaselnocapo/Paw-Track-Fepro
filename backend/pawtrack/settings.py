@@ -7,6 +7,7 @@ from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DEDUP_MODELS_DIR = os.environ.get('DEDUP_MODELS_DIR', os.path.join(BASE_DIR, 'deduplicacion', 'ml_models'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Lee la llave del .env, si no hay (en local), usa una por defecto
@@ -43,6 +44,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'core',
     'rescates',
+    'notificaciones',
+    'deduplicacion',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -108,6 +112,20 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # <-- ¡AGREGA ESTA LÍNEA!
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Cache (Redis) — usado por deduplicacion.services.VisionService.aprender_embedding()
+# para el lock real (cache.lock()) que protege la escritura del índice HNSW
+# compartido. LocMemCache (el default de Django) no implementa .lock(), así
+# que hace falta un backend real aquí, no solo para Celery/Channels.
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('DJANGO_CACHE_URL', 'redis://redis:6379/2'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    },
+}
+
 # ASGI / Channels
 ASGI_APPLICATION = 'pawtrack.asgi.application'
 CHANNEL_LAYERS = {
@@ -149,6 +167,8 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
+
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
     'PAGE_SIZE': 20,
     'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
@@ -219,3 +239,12 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1', 
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
