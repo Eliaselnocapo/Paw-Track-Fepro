@@ -251,13 +251,17 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         nueva_incidencia = serializer.instance
 
-        candidata_fusionada = self._resolver_duplicado_en_creacion(request, data, nueva_incidencia)
+        candidata_descartada = self._resolver_duplicado_en_creacion(request, data, nueva_incidencia)
+        if candidata_descartada is not None:
+            # Confirmado como duplicado: nueva_incidencia ya se borró (ver
+            # descartar_duplicado) — no hay nada que serializar ni notificar.
+            return Response({
+                'duplicado_descartado': True,
+                'folio_existente': candidata_descartada.folio,
+            }, status=status.HTTP_200_OK)
 
-        from notificaciones.services import broadcast_duplicate_detected, broadcast_new_report
-        if candidata_fusionada is not None:
-            broadcast_duplicate_detected(nueva_incidencia, candidata_fusionada)
-        else:
-            broadcast_new_report(nueva_incidencia)
+        from notificaciones.services import broadcast_new_report
+        broadcast_new_report(nueva_incidencia)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -266,10 +270,14 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         """Si el paso 4 del wizard ya le preguntó al reportante por un
         candidato a duplicado (ver verificar_duplicado más abajo) y este
         envía la decisión junto con el resto del formulario, aquí se aplica:
-        fusiona si confirmó, o solo deja constancia en SugerenciaDuplicado si
-        rechazó. La decisión ya la tomó el humano antes de llegar aquí — este
-        método nunca decide solo. Devuelve la Incidencia candidata si se
-        fusionó, o None si no (sin candidato, folio inválido, o rechazado).
+        si confirmó, se borra nueva_incidencia por completo (ver
+        descartar_duplicado) — el candidato ya existe, no hace falta
+        guardar nada del reporte nuevo, ni como caso cerrado. Si rechazó,
+        solo se deja constancia en SugerenciaDuplicado y el reporte queda
+        como caso independiente. La decisión ya la tomó el humano antes de
+        llegar aquí — este método nunca decide solo. Devuelve la Incidencia
+        candidata si se descartó (confirmado), o None si no (sin candidato,
+        folio inválido, o rechazado).
         """
         folio_candidato = data.get('duplicado_candidato_folio')
         if not folio_candidato:
@@ -279,10 +287,14 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         if not candidata:
             return None  # folio inválido/ya no existe: se ignora, el reporte queda como caso independiente
 
-        from deduplicacion.models import SugerenciaDuplicado
-        from deduplicacion.services import fusionar
-
         confirmado = str(data.get('duplicado_confirmado', '')).strip().lower() in ('true', '1')
+
+        if confirmado:
+            from deduplicacion.services import descartar_duplicado
+            descartar_duplicado(original=candidata, duplicado=nueva_incidencia)
+            return candidata
+
+        from deduplicacion.models import SugerenciaDuplicado
         try:
             score = float(data.get('duplicado_score', 0) or 0)
         except (TypeError, ValueError):
@@ -292,14 +304,10 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             incidencia_nueva=nueva_incidencia,
             incidencia_candidata=candidata,
             score=score,
-            estado='CONFIRMADA' if confirmado else 'RECHAZADA',
+            estado='RECHAZADA',
             resuelto_at=timezone.now(),
             resuelto_por=request.user if request.user.is_authenticated else None,
         )
-
-        if confirmado:
-            fusionar(original=candidata, duplicado=nueva_incidencia)
-            return candidata
         return None
 
     @action(detail=False, methods=['post'], url_path='verificar-duplicado', permission_classes=[AllowAny])

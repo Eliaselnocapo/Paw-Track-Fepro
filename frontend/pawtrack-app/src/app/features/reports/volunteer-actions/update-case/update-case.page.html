@@ -272,7 +272,7 @@
                 <div>
                   <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-bold uppercase text-slate-400">Urgencia</span>
-                    <span class="text-sm font-bold text-slate-800">{{ score }}/100</span>
+                    <span class="text-sm font-bold text-slate-800">{{ score | number:'1.0-0' }}/100</span>
                   </div>
                   <div class="h-2 bg-slate-200 overflow-hidden">
                     <div class="h-full bg-red-500" [style.width.%]="score"></div>

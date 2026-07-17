@@ -36,25 +36,7 @@ class RankingService:
             
             distancia_m = cand.distancia_m.m
 
-            # Score Estructurado — tres señales a partes iguales:
-            # - tamano: catálogo fijo elegido por botones en el wizard de
-            #   reporte (cachorro/adulto/pequeño/mediano/grande, ver
-            #   create-report.page.html) — no hay typos posibles en un valor
-            #   de catálogo, así que comparación exacta case-insensitive
-            #   sigue siendo correcta (igual que el __iexact de filtros.py).
-            # - color y raza: texto libre capturado por percepción subjetiva
-            #   del reportante ("shibu inu" vs "shiba inu" — ver
-            #   decision-tecnica-filtro-raza.md). Nunca se filtran duro
-            #   (deduplicacion/filtros.py ya no excluye por raza), y aquí
-            #   participan como similitud continua, no como igualdad exacta:
-            #   un typo penaliza un poco, no anula el score.
-            cand_tamano = (cand.animal.tamano or '').strip().lower()
-            nueva_tamano = (nueva.animal.tamano or '').strip().lower()
-            score_estruc = (1/3) if cand_tamano == nueva_tamano else 0.0
-            score_estruc += (1/3) * _similitud(cand.animal.color, nueva.animal.color)
-            score_estruc += (1/3) * _similitud(cand.animal.raza, nueva.animal.raza)
-
-            # Calculamos el radio ideal usando la función de tu equipo basada en 
+            # Calculamos el radio ideal usando la función de tu equipo basada en
             # la especie y la antigüedad del reporte candidato
             radio_scoring = radio_dinamico(cand)
 
@@ -70,25 +52,35 @@ class RankingService:
             score_foto = similitud_visual.get(str(cand.id), 0.0)
 
             # --- ESTRUCTURA (METADATOS EXPANDIDOS) ---
-            # Leemos directamente de la relación cand.animal y nueva.animal
-            campos_meta = ['tipo', 'tamano', 'salud', 'edad_estimada', 'color', 'raza', 'agresividad']
-            coincidencias = 0
+            # Leemos directamente de la relación cand.animal y nueva.animal.
+            # tipo/tamano/salud/edad_estimada/agresividad son catálogo fijo
+            # elegido por botones en el wizard (sin typos posibles) → exacto.
+            # color/raza son texto libre tecleado por el reportante (ver
+            # decision-tecnica-filtro-raza.md: "shibu inu" vs "shiba inu" debe
+            # penalizar un poco, no anular) → similitud continua (_similitud).
+            CAMPOS_EXACTOS = ['tipo', 'tamano', 'salud', 'edad_estimada', 'agresividad']
+            CAMPOS_LIBRES = ['color', 'raza']
+            suma_validos = 0.0
             total_validos = 0
 
-            for campo in campos_meta:
-                val_nuevo = getattr(nueva.animal, campo, '') or ''
-                val_cand = getattr(cand.animal, campo, '') or ''
+            for campo in CAMPOS_EXACTOS:
+                val_nuevo = str(getattr(nueva.animal, campo, '') or '').strip().lower()
+                val_cand = str(getattr(cand.animal, campo, '') or '').strip().lower()
 
-                val_nuevo = str(val_nuevo).strip().lower()
-                val_cand = str(val_cand).strip().lower()
-                
                 # Solo evaluamos si ambos reportes llenaron el campo
                 if val_nuevo and val_cand:
                     total_validos += 1
                     if val_nuevo == val_cand:
-                        coincidencias += 1
-                        
-            score_meta = (coincidencias / total_validos) if total_validos > 0 else 0.0
+                        suma_validos += 1.0
+
+            for campo in CAMPOS_LIBRES:
+                val_nuevo = getattr(nueva.animal, campo, '') or ''
+                val_cand = getattr(cand.animal, campo, '') or ''
+                if val_nuevo and val_cand:
+                    total_validos += 1
+                    suma_validos += _similitud(val_cand, val_nuevo)
+
+            score_meta = (suma_validos / total_validos) if total_validos > 0 else 0.0
 
             # --- DISTRIBUCIÓN DE PESOS ---
             if es_texto_confiable:
@@ -98,10 +90,22 @@ class RankingService:
                 w_geo, w_meta, w_foto, w_texto = 0.15, 0.40, 0.45, 0.0
 
             # --- HARD GATING (La magia antimanchas) ---
-            # Si la similitud en su propia categoría es menor al 50%, se anula (0.0)
-            val_foto  = score_foto  if score_foto  >= 0.50 else 0.0
+            # Si la similitud en su propia categoría es menor al 50%, se anula (0.0).
+            # Geo queda fuera del gate: no es una señal de "parecido" que pueda
+            # coincidir por casualidad, es una distancia física que ya decae
+            # suave a 0 en el borde de radio_dinamico (ver arriba) — gatearla
+            # igual que foto/meta/texto la volvía binaria (todo lo que cae
+            # fuera de la mitad del radio puntúa 0 por igual, sin importar si
+            # son 200m o 9km) y le quitaba a distancia_m su poder de discriminar.
+            especie_animal = nueva.animal.tipo.upper()
+            umbral_foto = 0.75 if especie_animal == 'PERRO' else 0.40
+
+            if score_foto < umbral_foto:
+                val_foto = 0.0
+            else:
+                val_foto = score_foto
             val_meta  = score_meta  if score_meta  >= 0.50 else 0.0
-            val_geo   = score_geo   if score_geo   >= 0.50 else 0.0
+            val_geo   = score_geo
             val_texto = score_texto if score_texto >= 0.50 else 0.0
 
             # --- CÁLCULO FINAL ---

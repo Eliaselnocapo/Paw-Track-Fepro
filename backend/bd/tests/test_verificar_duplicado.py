@@ -119,7 +119,14 @@ class CrearReporteConDuplicadoTests(APITestCase):
             'imagen': _fake_imagen('nueva.jpg'),
         }
 
-    def test_confirmado_fusiona_y_enriquece_al_original(self):
+    def test_confirmado_borra_el_nuevo_y_da_un_boost_chico_con_tope_al_original(self):
+        """Al confirmar un duplicado, el reporte nuevo se borra por completo
+        (no se guarda ni como caso cerrado). El original recibe un boost
+        chico y con tope en urgency_score (más gente reportando el mismo
+        animal es señal real), pero sus datos NO se enriquecen con lo que
+        traiga el duplicado — ver descartar_duplicado() en
+        deduplicacion/services.py."""
+        antes = Incidencia.objects.count()
         self.client.force_authenticate(user=self.reportante)
         payload = self._payload_base()
         payload.update({
@@ -129,21 +136,41 @@ class CrearReporteConDuplicadoTests(APITestCase):
         })
         response = self.client.post('/api/incidencias/', payload, format='multipart')
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        nueva = Incidencia.objects.get(id=response.data['id'])
-        self.assertEqual(nueva.estado, 'CERRADO')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['duplicado_descartado'])
+        self.assertEqual(response.data['folio_existente'], self.original.folio)
+
+        # no quedó ninguna Incidencia nueva: ni activa ni cerrada
+        self.assertEqual(Incidencia.objects.count(), antes)
 
         self.original.refresh_from_db()
         self.animal_original.refresh_from_db()
-        self.assertEqual(self.original.urgency_score, 30)
-        # el original no tenía color/raza — se enriquece con lo que trajo el duplicado
-        self.assertEqual(self.animal_original.color, 'cafe')
-        self.assertEqual(self.animal_original.raza, 'labrador')
+        self.assertEqual(self.original.urgency_score, 25)  # 20 + boost (5 por default)
+        # el original no tenía color/raza — ya no se enriquece con el duplicado
+        self.assertEqual(self.animal_original.color, '')
+        self.assertEqual(self.animal_original.raza, '')
 
-        sugerencia = SugerenciaDuplicado.objects.get(incidencia_nueva=nueva)
-        self.assertEqual(sugerencia.estado, 'CONFIRMADA')
-        self.assertEqual(sugerencia.incidencia_candidata_id, self.original.id)
-        self.assertEqual(sugerencia.resuelto_por_id, self.reportante.id)
+    def test_boost_de_urgencia_respeta_el_tope_de_100(self):
+        """Regresión: el boost viejo (+10 sin tope) mandaba urgency_score
+        arriba de 100 y el front lo mostraba como "105%", "125%", etc. — ver
+        view-report.page.html. Con varios duplicados confirmados seguidos,
+        nunca debe pasar de 100."""
+        self.original.urgency_score = 97
+        self.original.save(update_fields=['urgency_score'])
+
+        self.client.force_authenticate(user=self.reportante)
+        payload = self._payload_base()
+        payload.update({
+            'duplicado_candidato_folio': self.original.folio,
+            'duplicado_confirmado': 'true',
+        })
+        self.client.post('/api/incidencias/', payload, format='multipart')
+
+        self.original.refresh_from_db()
+        self.assertEqual(self.original.urgency_score, 100)  # 97 + 5 topado a 100
+
+        # confirmado no deja SugerenciaDuplicado: no hay Incidencia a la cual apuntar
+        self.assertFalse(SugerenciaDuplicado.objects.filter(incidencia_candidata=self.original).exists())
 
     def test_rechazado_queda_como_caso_independiente(self):
         self.client.force_authenticate(user=self.reportante)
@@ -165,10 +192,10 @@ class CrearReporteConDuplicadoTests(APITestCase):
         sugerencia = SugerenciaDuplicado.objects.get(incidencia_nueva=nueva)
         self.assertEqual(sugerencia.estado, 'RECHAZADA')
 
-    def test_no_enriquece_un_campo_que_el_original_ya_tenia(self):
-        self.animal_original.color = 'negro'
-        self.animal_original.save()
-
+    def test_no_enriquece_ni_siquiera_un_campo_vacio(self):
+        """Regresión: fusionar() ya no llama a ningún enriquecimiento — un
+        campo vacío en el original se queda vacío, no se llena con lo que
+        traiga el duplicado."""
         self.client.force_authenticate(user=self.reportante)
         payload = self._payload_base()  # color_animal='cafe' en el nuevo reporte
         payload.update({
@@ -178,7 +205,7 @@ class CrearReporteConDuplicadoTests(APITestCase):
         self.client.post('/api/incidencias/', payload, format='multipart')
 
         self.animal_original.refresh_from_db()
-        self.assertEqual(self.animal_original.color, 'negro')  # no se sobreescribe
+        self.assertEqual(self.animal_original.color, '')  # sigue vacío, no se enriquece
 
     def test_sin_campos_de_duplicado_se_comporta_como_antes(self):
         self.client.force_authenticate(user=self.reportante)
