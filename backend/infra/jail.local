@@ -1,0 +1,30 @@
+[DEFAULT]
+# Protege a todos por igual
+bantime  = 3600
+findtime = 600
+maxretry = 5
+
+[nginx-404-generic]
+enabled  = true
+port     = http,https
+filter   = nginx-404-generic
+logpath  = /opt/pawtrack/backend/nginx/logs/access.log
+maxretry = 10
+# Aumenté a 10 porque 4 es muy poco y podrías bloquearte a ti mismo
+
+[nginx-botsearch]
+enabled  = true
+port     = http,https
+filter   = nginx-botsearch
+logpath  = /opt/pawtrack/backend/nginx/logs/access.log
+maxretry = 2
+bantime  = 86400
+# Este es brutal contra atacantes que buscan paneles admin o archivos ocultos
+
+[nginx-http-auth]
+enabled  = true
+port     = http,https
+filter   = nginx-http-auth
+logpath  = /opt/pawtrack/backend/nginx/logs/error.log
+maxretry = 3
+# Protege tu login de Django contra ataques de fuerza bruta

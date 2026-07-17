@@ -167,16 +167,23 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 REST_FRAMEWORK = {
+    'NUM_PROXIES': 1,
     'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
-
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
     'PAGE_SIZE': 20,
-    'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
     
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-    
+    ),
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/minute',  # Protege tu API de ataques de fuerza bruta
+        'user': '1000/day'
+    }
 }
 
 REST_AUTH = {
@@ -186,6 +193,7 @@ REST_AUTH = {
     'REGISTER_SERIALIZER': 'bd.serializers.CustomRegisterSerializer',
 }
 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'none'
@@ -201,6 +209,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",   # Angular CLI serve
     "http://0.0.0.0:8100",
     "http://13.59.118.210",    # <-- NUEVA IP DE PRODUCCIÓN
+    "https://13.59.118.210",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -232,19 +241,6 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 
-# ==============================================================================
-# CONFIGURACIÓN DE ALLAUTH (Modo estrictamente Email)
-# ==============================================================================
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1', 
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
+
+
