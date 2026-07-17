@@ -6,7 +6,10 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, CandidatoDuplicado } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
+<<<<<<< HEAD
 import { CartelPdf } from '../../../../core/services/cartel-pdf';
+=======
+>>>>>>> backend/motor_deduplicacion
 import { IonContent, IonModal } from '@ionic/angular/standalone';
 
 declare let L: any;
@@ -57,6 +60,17 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   folioGenerado: string | null = null;
   enviando = false;
   errorEnvio: string | null = null;
+  // true cuando se confirmó que era el mismo caso y el back borró el
+  // reporte nuevo (ver ReportService.crearReporte) — se muestra la misma
+  // pantalla de confirmación, sin folio propio, en vez de la ventana de
+  // "es el mismo caso ¿si o no?".
+  duplicadoDescartado = false;
+  folioExistente: string | null = null;
+
+  // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
+  verificandoDuplicado = false;
+  candidatoDuplicado: CandidatoDuplicado | null = null;
+  duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
 
   // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
   verificandoDuplicado = false;

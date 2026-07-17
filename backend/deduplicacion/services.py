@@ -49,47 +49,54 @@ class VisionService:
 
     def _initialize_models(self):
         logger.info("VisionService: cargando modelos ONNX y HNSW a la memoria...")
-        
         base_dir = settings.DEDUP_MODELS_DIR
 
-        # 1. Cargar el motor ONNX (Perros y Gatos)
+        
         self.dog_session = ort.InferenceSession(
-            os.path.join(base_dir, 'embedding_model_pruned_v4.onnx'), 
+            os.path.join(base_dir, 'dog_embedding_model_osnet_v5.onnx'), 
             providers=['CPUExecutionProvider']
         )
         self.cat_session = ort.InferenceSession(
-            os.path.join(base_dir, 'cat_embedding_model_pruned_v1.onnx'), 
+            os.path.join(base_dir, 'cat_embedding_model_v5.onnx'), 
             providers=['CPUExecutionProvider']
         )
-        
         self.input_name = self.dog_session.get_inputs()[0].name
 
-        # 2. Configurar el preprocesamiento visual
+        
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
 
-        # 3. Cargar Índices HNSW (Perros)
-        self.dog_map = self._parse_json_map(os.path.join(base_dir, 'embedding_index_v4_map.json'))
-        self.dog_index = hnswlib.Index(space='l2', dim=128)
-        # Usamos max(..., 1) por si el mapa viene vacío, HNSW no truene al recibir un 0
-        self.dog_index.load_index(os.path.join(base_dir, 'embedding_index_v4.bin'), max_elements=100000)
+        # Función auxiliar para cargar o inicializar HNSW
+        def cargar_indice(bin_name, map_name):
+            map_path = os.path.join(base_dir, map_name)
+            bin_path = os.path.join(base_dir, bin_name)
+            
+            indice_map = self._parse_json_map(map_path) if os.path.exists(map_path) else {}
+            indice_hnsw = hnswlib.Index(space='l2', dim=128)
+            
+           
+            if os.path.exists(bin_path):
+                indice_hnsw.load_index(bin_path, max_elements=100000)
+            else:
+                indice_hnsw.init_index(max_elements=100000, ef_construction=200, M=16)
+                
+            return indice_hnsw, indice_map
 
-        # 4. Cargar Índices HNSW (Gatos)
-        self.cat_map = self._parse_json_map(os.path.join(base_dir, 'cat_embedding_index_v1_map.json'))
-        self.cat_index = hnswlib.Index(space='l2', dim=128)
-        self.cat_index.load_index(os.path.join(base_dir, 'cat_embedding_index_v1.bin'), max_elements=100000)
+        # 3 y 4. Cargar/Inicializar Índices v5
+        self.dog_index, self.dog_map = cargar_indice('embedding_index_v5.bin', 'embedding_index_v5_map.json')
+        self.cat_index, self.cat_map = cargar_indice('cat_embedding_index_v5.bin', 'cat_embedding_index_v5_map.json')
 
-        logger.info("VisionService: modelos listos para producción.")
+        logger.info("VisionService: modelos v5 listos para producción.")
 
     def _index_para(self, especie):
         """Resuelve session/index/mapping/nombres de archivo según especie. None si no es perro/gato."""
         if especie.lower() == 'perro':
-            return self.dog_session, self.dog_index, self.dog_map, 'embedding_index_v4.bin', 'embedding_index_v4_map.json'
+            return self.dog_session, self.dog_index, self.dog_map, 'embedding_index_v5.bin', 'embedding_index_v5_map.json'
         if especie.lower() == 'gato':
-            return self.cat_session, self.cat_index, self.cat_map, 'cat_embedding_index_v1.bin', 'cat_embedding_index_v1_map.json'
+            return self.cat_session, self.cat_index, self.cat_map, 'cat_embedding_index_v5.bin', 'cat_embedding_index_v5_map.json'
         return None
 
     def aprender_embedding(self, emb, especie, db_id):
@@ -162,49 +169,67 @@ class VisionService:
 
         scores = {}
         for db_id, label, vector in zip(db_id_a_label.keys(), labels, vectores):
-            distancia = np.linalg.norm(np.array(vector) - emb)
-            scores[str(db_id)] = 1 / (1 + distancia)
+            # Los embeddings están normalizados L2 (unit vectors, ver
+            # nn.functional.normalize en EmbeddingNet.forward), así que la
+            # similitud coseno es directamente el producto punto -- no hace
+            # falta pasar por distancia euclidiana.
+            #
+            # ANTES: score = 1/(1+||a-b||). Para vectores unitarios,
+            # ||a-b||² = 2 - 2·cos_sim, así que un par NO relacionado
+            # (cos_sim≈0) daba distancia=√2≈1.414 -> score≈0.414. Eso
+            # comprimía todo el rango "no relacionado" en la banda 0.33-0.41,
+            # dejando solo 0.41-1.00 para representar de "algo parecido" a
+            # "idéntico" -- por eso perros sin ninguna relación real
+            # mostraban FOTO Raw~0.40-0.44 en vez de acercarse a 0.
+            #
+            # AHORA: cos_sim directo. Un par no relacionado da ~0.0, uno
+            # idéntico da ~1.0 -- se usa la escala completa 0-1, y el Hard
+            # Gate (score >= 0.50) vuelve a ser un umbral que separa señal
+            # real, no un umbral que casi todo par cruza por el piso de la
+            # fórmula anterior.
+            cos_sim = float(np.dot(vector, emb))
+            scores[str(db_id)] = max(0.0, cos_sim)
 
         return scores
 
-def fusionar(original, duplicado):
+BOOST_URGENCIA_POR_DUPLICADO = float(os.environ.get('DEDUP_BOOST_URGENCIA', 5))
+
+
+def descartar_duplicado(original, duplicado):
     """
-    Marca `duplicado` como CERRADO (es el reporte nuevo que resultó ser el
-    mismo caso), confirma `original` con un boost de urgencia, y enriquece
-    los datos de `original.animal` con lo que haya capturado `duplicado` y
-    el original no tenga (más gente reportando el mismo animal suele traer
-    mejores datos con el tiempo, no solo confirmación). Ver
+    Borra por completo `duplicado` (la Incidencia recién creada que el
+    reportante confirmó que es el mismo caso que uno ya existente), junto
+    con su Animal y la imagen que se haya subido — no tiene caso guardarla
+    ni como caso cerrado. No se migran datos hacia `original.animal` (ver
+    nota de fusionar() en versiones previas: mezclar datos de un reporte
+    que puede estar mal capturado generaba problemas). Lo único que se
+    ajusta en `original` es un boost chico y con tope en urgency_score:
+    que más gente reporte el mismo animal es una señal real de que más
+    gente lo está viendo/le importa, así que suma un poco — pero SIEMPRE
+    con `min(100, ...)`, nunca sin tope (ver bug real: un boost sin tope
+    aquí hacía que el front mostrara "105%", "125%", etc.). Ver
     SYSTEM_CONTRACT.md > Algoritmo: Deduplicación.
     """
-    duplicado.estado = 'CERRADO'
-    duplicado.save(update_fields=['estado'])
+    animal = duplicado.animal
+    imagen = duplicado.imagen
+    duplicado_id = duplicado.id
 
-    original.urgency_score = (original.urgency_score or 0) + 10
+    duplicado.delete()
+
+    if imagen:
+        imagen.delete(save=False)
+
+    urgencia_anterior = original.urgency_score or 0
+    original.urgency_score = min(100.0, urgencia_anterior + BOOST_URGENCIA_POR_DUPLICADO)
     original.save(update_fields=['urgency_score'])
 
-    _enriquecer_animal(original.animal, duplicado.animal)
+    if original.ubicacion and original.urgency_score != urgencia_anterior:
+        from notificaciones.services import broadcast_urgency_update
+        from core.zona import compute_zona_key
+        zona_key = compute_zona_key(original.ubicacion.y, original.ubicacion.x)
+        broadcast_urgency_update(original.id, zona_key, original.urgency_score)
 
-    logger.info("Deduplicación: incidencia %s fusionada como duplicado de %s.", duplicado.id, original.id)
+    if animal is not None and not animal.incidencias.exists():
+        animal.delete()
 
-
-def _enriquecer_animal(animal_original, animal_duplicado):
-    """Copia a `animal_original` los campos que tiene vacíos y que
-    `animal_duplicado` sí trae. Nunca sobreescribe un dato que el original
-    ya tenía — un reporte nuevo puede estar equivocado, así que solo llena
-    huecos, no reemplaza confirmaciones previas."""
-    if animal_original is None or animal_duplicado is None:
-        return
-
-    campos = ['color', 'tamano', 'raza', 'agresividad', 'salud', 'otros', 'edad_estimada', 'peso_estimado']
-    actualizados = []
-    for campo in campos:
-        valor_original = (getattr(animal_original, campo, '') or '').strip()
-        valor_nuevo = (getattr(animal_duplicado, campo, '') or '').strip()
-        if not valor_original and valor_nuevo:
-            setattr(animal_original, campo, valor_nuevo)
-            actualizados.append(campo)
-
-    if actualizados:
-        animal_original.save(update_fields=actualizados)
-        logger.info("Deduplicación: animal %s enriquecido con campos %s desde incidencia duplicada.",
-                    animal_original.id, actualizados)
+    logger.info("Deduplicación: incidencia %s borrada (confirmada como duplicado).", duplicado_id)

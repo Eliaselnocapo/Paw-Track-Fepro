@@ -34,3 +34,8 @@ node_modules/
 **/node_modules/
 .angular/
 .vscode/
+
+backend/deduplicacion/ml_models/*.bin
+backend/deduplicacion/ml_models/*.onnx
+backend/deduplicacion/ml_models/*_map.json
+backend/deduplicacion/ml_models/*.onnx.data

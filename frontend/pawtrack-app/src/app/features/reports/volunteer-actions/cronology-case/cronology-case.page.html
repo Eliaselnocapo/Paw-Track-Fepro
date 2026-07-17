@@ -97,7 +97,7 @@
                         ? 'text-orange-700 border-orange-200'
                         : 'text-slate-600 border-slate-200'">
                     <span class="material-symbols-outlined text-[14px]">priority_high</span>
-                    {{ nivelUrgencia }} · {{ score }}/100
+                    {{ nivelUrgencia }} · {{ score | number:'1.0-0' }}/100
                   </span>
                 </div>
               </div>
