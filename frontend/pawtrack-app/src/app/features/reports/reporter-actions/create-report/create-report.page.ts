@@ -57,14 +57,18 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   folioGenerado: string | null = null;
   enviando = false;
   errorEnvio: string | null = null;
+  // true cuando se confirmó que era el mismo caso y el back borró el
+  // reporte nuevo (ver ReportService.crearReporte) — se muestra la misma
+  // pantalla de confirmación, sin folio propio, en vez de la ventana de
+  // "es el mismo caso ¿si o no?".
+  duplicadoDescartado = false;
+  folioExistente: string | null = null;
 
   // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
   verificandoDuplicado = false;
   candidatoDuplicado: CandidatoDuplicado | null = null;
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
-  duplicadoDescartado = false;
-  folioExistente: string | null = null;
-  
+
   descargandoCartelManual = false;
 
   // Instancias de Leaflet

@@ -35,9 +35,10 @@ export interface ReportePayload {
    * wizard, si el reportante ya respondió la pregunta "¿es el mismo caso?"
    * antes de enviar. Ver ReportService.verificarDuplicado(). */
   duplicado_candidato_folio?: string;
-  /** true si el reportante confirmó que es el mismo caso (el back fusiona
-   * de inmediato), false si dijo que es distinto (queda como registro de
-   * auditoría, el reporte se crea como caso independiente). */
+  /** true si el reportante confirmó que es el mismo caso (el back borra
+   * el reporte nuevo de inmediato, sin tocar el caso original — ver
+   * DuplicadoDescartadoResponse), false si dijo que es distinto (queda
+   * como registro de auditoría, el reporte se crea como caso independiente). */
   duplicado_confirmado?: boolean;
   /** Score que regresó verificarDuplicado() para ese candidato, solo para
    * el registro de auditoría (SugerenciaDuplicado) del lado del back. */
@@ -284,7 +285,8 @@ export class ReportService {
    * Si el usuario confirma que es el mismo caso, el folio + score del
    * candidato se reenvían dentro de crearReporte() (campos
    * `duplicado_candidato_folio`/`duplicado_confirmado`/`duplicado_score`)
-   * para que el back fusione en el mismo request que crea el reporte.
+   * para que el back borre el reporte nuevo en el mismo request en vez de
+   * crearlo (ver DuplicadoDescartadoResponse).
    */
   verificarDuplicado(payload: VerificarDuplicadoPayload): Observable<{ candidato: CandidatoDuplicado | null }> {
     const form = new FormData();
