@@ -205,11 +205,10 @@ AUTHENTICATION_BACKENDS = [
 
 # CORS — definido UNA sola vez
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8100",   # Ionic serve
-    "http://localhost:4200",   # Angular CLI serve
-    "http://0.0.0.0:8100",
-    "http://13.59.118.210",    # <-- NUEVA IP DE PRODUCCIÓN
-    "https://13.59.118.210",
+    "http://localhost:8100",
+    "http://localhost:4200",
+    "https://pawtrack.me",
+    "https://www.pawtrack.me",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -240,6 +239,14 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False  # Nginx ya hace el redirect, no Django
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://pawtrack.me",
+    "https://www.pawtrack.me",
+]
 
 
 
