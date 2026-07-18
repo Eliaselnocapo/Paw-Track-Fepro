@@ -69,12 +69,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   candidatoDuplicado: CandidatoDuplicado | null = null;
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
 
-  // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
-  verificandoDuplicado = false;
-  candidatoDuplicado: CandidatoDuplicado | null = null;
-  duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
-  duplicadoDescartado = false;
-  folioExistente: string | null = null;
   
   descargandoCartelManual = false;
 
