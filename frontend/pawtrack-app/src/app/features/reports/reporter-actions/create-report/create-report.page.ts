@@ -6,10 +6,7 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, CandidatoDuplicado } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
-<<<<<<< HEAD
 import { CartelPdf } from '../../../../core/services/cartel-pdf';
-=======
->>>>>>> backend/motor_deduplicacion
 import { IonContent, IonModal } from '@ionic/angular/standalone';
 
 declare let L: any;
@@ -73,11 +70,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
 
   // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
-  verificandoDuplicado = false;
-  candidatoDuplicado: CandidatoDuplicado | null = null;
-  duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
-  duplicadoDescartado = false;
-  folioExistente: string | null = null;
   
   descargandoCartelManual = false;
 
