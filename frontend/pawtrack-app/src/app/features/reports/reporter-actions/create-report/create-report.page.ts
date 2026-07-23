@@ -69,8 +69,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   candidatoDuplicado: CandidatoDuplicado | null = null;
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
 
-  // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
-  
   descargandoCartelManual = false;
 
   // Instancias de Leaflet

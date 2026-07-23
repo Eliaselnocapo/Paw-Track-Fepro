@@ -27,11 +27,38 @@ export class RegisterPage {
 
   constructor(private auth: AuthService, private router: Router) {}
 
+tieneMayuscula(password: string): boolean {
+  return /[A-ZÁÉÍÓÚÑ]/.test(password);
+}
+
+tieneNumero(password: string): boolean {
+  return /\d/.test(password);
+}
+
+mostrarPassword = false;
+mostrarPasswordConfirm = false;
+
 onSubmit(): void {
   if (!this.fullName || !this.email || !this.password || !this.passwordConfirm) {
     this.error = 'Por favor completa todos los campos.';
     return;
   }
+
+  if (this.password.length < 8) {
+    this.error = 'La contraseña debe contener al menos 8 caracteres.';
+    return;
+  }
+
+  if (!this.tieneMayuscula(this.password)) {
+    this.error = 'La contraseña debe contener al menos una letra mayúscula.';
+    return;
+  }
+
+  if (!this.tieneNumero(this.password)) {
+    this.error = 'La contraseña debe contener al menos un número.';
+    return;
+  }
+
   if (this.password !== this.passwordConfirm) {
     this.error = 'Las contraseñas no coinciden.';
     return;
