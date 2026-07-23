@@ -971,21 +971,25 @@ export class CartelPdf {
       0
     );
 
+        /*
+     * Este comprobante es exclusivo del reportante.
+     * Debe retirarse antes de publicar o compartir el cartel.
+     */
     doc.setTextColor(
-      75,
-      90,
-      110
+      0,
+      88,
+      190
     );
 
     doc.setFont(
       'helvetica',
-      'normal'
+      'bold'
     );
 
-    doc.setFontSize(6);
+    doc.setFontSize(6.4);
 
     doc.text(
-      'Recorta un talón para conservar los datos de seguimiento',
+      'RETIRA ESTA SECCIÓN ANTES DE PUBLICAR EL CARTEL',
       anchoPagina / 2,
       yInicio + 4,
       {
@@ -993,92 +997,180 @@ export class CartelPdf {
       }
     );
 
-    const cantidadTalones = 4;
-    const margen = 10;
+    const margenComprobante = 10;
+    const yComprobante = yInicio + 6;
+    const anchoComprobante =
+      anchoPagina - margenComprobante * 2;
+    const altoComprobante =
+      altoPagina - yComprobante - 5;
 
-    const anchoDisponible =
-      anchoPagina - margen * 2;
+    /*
+     * Fondo del comprobante privado.
+     */
+    doc.setFillColor(
+      240,
+      247,
+      255
+    );
 
-    const anchoTalon =
-      anchoDisponible /
-      cantidadTalones;
+    doc.setDrawColor(
+      165,
+      200,
+      235
+    );
 
-    const telefono =
-      datos.telefonoContacto?.trim() ||
-      'Sin teléfono';
+    doc.setLineWidth(0.4);
 
-    for (
-      let indice = 0;
-      indice < cantidadTalones;
-      indice++
-    ) {
-      const x =
-        margen +
-        indice * anchoTalon;
+    doc.roundedRect(
+      margenComprobante,
+      yComprobante,
+      anchoComprobante,
+      altoComprobante,
+      2.5,
+      2.5,
+      'FD'
+    );
 
-      if (indice > 0) {
-        doc.setDrawColor(
-          175,
-          185,
-          200
-        );
+    /*
+     * División entre las indicaciones y el folio.
+     */
+    const anchoIndicaciones = 118;
+    const xDivision =
+      margenComprobante + anchoIndicaciones;
 
-        doc.line(
-          x,
-          yInicio + 6,
-          x,
-          altoPagina - 5
-        );
+    doc.setDrawColor(
+      190,
+      205,
+      220
+    );
+
+    doc.line(
+      xDivision,
+      yComprobante + 2.5,
+      xDivision,
+      yComprobante + altoComprobante - 2.5
+    );
+
+    /*
+     * Indicaciones para el reportante.
+     */
+        /*
+     * Contenido compacto del comprobante privado.
+     */
+    const xContenidoIzquierdo =
+      margenComprobante + 5;
+
+    const centroFolio =
+      xDivision +
+      (
+        anchoPagina -
+        margenComprobante -
+        xDivision
+      ) / 2;
+
+    /*
+     * Columna izquierda.
+     */
+    doc.setTextColor(
+      0,
+      88,
+      190
+    );
+
+    doc.setFont(
+      'helvetica',
+      'bold'
+    );
+
+    doc.setFontSize(6);
+
+    doc.text(
+      'COMPROBANTE PRIVADO DEL REPORTANTE',
+      xContenidoIzquierdo,
+      yComprobante + 3.8
+    );
+
+    doc.setTextColor(
+      40,
+      55,
+      75
+    );
+
+    doc.setFont(
+      'helvetica',
+      'normal'
+    );
+
+    doc.setFontSize(4.8);
+
+    doc.setFontSize(4.8);
+
+    doc.text(
+      'Conserva este folio para consultar, editar y dar seguimiento a tu reporte.',
+      xContenidoIzquierdo,
+      yComprobante + 8
+    );
+
+    doc.setTextColor(
+      185,
+      40,
+      40
+    );
+
+    doc.setFont(
+      'helvetica',
+      'bold'
+    );
+
+    doc.setFontSize(4.6);
+
+    doc.text(
+      'NO COMPARTAS ESTE FOLIO CON OTRAS PERSONAS',
+      xContenidoIzquierdo,
+      yComprobante + altoComprobante - 2,
+    );
+
+    /*
+     * Columna derecha.
+     */
+    doc.setTextColor(
+      65,
+      80,
+      105
+    );
+
+    doc.setFont(
+      'helvetica',
+      'bold'
+    );
+
+    doc.setFontSize(5.5);
+
+    doc.text(
+      'FOLIO DE SEGUIMIENTO',
+      centroFolio,
+      yComprobante + 4,
+      {
+        align: 'center'
       }
+    );
 
-      doc.setTextColor(
-        0,
-        88,
-        190
-      );
+    doc.setTextColor(
+      0,
+      88,
+      190
+    );
 
-      doc.setFont(
-        'helvetica',
-        'bold'
-      );
+    doc.setFontSize(8.5);
 
-      doc.setFontSize(6.5);
-
-      doc.text(
-        'PAW TRACK',
-        x + anchoTalon / 2,
-        yInicio + 10,
-        {
-          align: 'center'
-        }
-      );
-
-      doc.setTextColor(
-        30,
-        45,
-        65
-      );
-
-      doc.setFontSize(5.6);
-
-      doc.text(
-        `Folio: ${datos.folio}`,
-        x + anchoTalon / 2,
-        yInicio + 14,
-        {
-          align: 'center'
-        }
-      );
-
-      doc.text(
-        telefono,
-        x + anchoTalon / 2,
-        yInicio + 18,
-        {
-          align: 'center'
-        }
-      );
-    }
+    doc.text(
+      datos.folio,
+      centroFolio,
+      yComprobante + 9.5,
+      {
+        align: 'center'
+      }
+    );
   }
 
 
