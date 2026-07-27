@@ -103,6 +103,24 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   font-size: 13px; color: #64748b; margin: 6px 0 0; line-height: 1.5;
 }
 
+/* Encabezado de alertas con botón móvil */
+.alertas-hero-contenido {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alertas-hero-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+/* En escritorio el botón no aparece */
+.alertas-toggle-mobile {
+  display: none;
+}
+
 /* ===== FILTROS DE ALERTAS ===== */
 .alertas-filtros {
   display: flex; gap: 8px;
@@ -361,6 +379,23 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
     right: -220px;
   }
 }
+/* Encabezado de alertas: base para todas las vistas */
+.alertas-hero-contenido {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alertas-hero-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Oculto por defecto en escritorio */
+.alertas-toggle-mobile {
+  display: none;
+}
 
 /* Responsive móvil */
 @media (max-width: 640px) {
@@ -406,13 +441,73 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
     top: 560px;
     right: -180px;
   }
+
+  /* ===== Mostrar y ocultar alertas en móvil ===== */
+
+  .alertas-hero-contenido {
+    align-items: center;
+  }
+
+  .alertas-toggle-mobile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    flex-shrink: 0;
+
+    min-height: 36px;
+    padding: 7px 10px;
+
+    border: 1px solid #c7d7f5;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #2e5bd8;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+  }
+
+  .alertas-toggle-mobile ion-icon {
+    font-size: 17px;
+  }
+
+  /*
+   * Quita la altura mínima de 320px aplicada
+   * en el breakpoint de 980px.
+   */
+  .alertas-recientes--colapsada {
+    min-height: 0 !important;
+    height: auto;
+  }
+
+  /*
+   * Oculta descripción, filtros y tarjetas.
+   */
+  .alertas-recientes--colapsada .alertas-filtros,
+  .alertas-recientes--colapsada .tarjetas-alertas,
+  .alertas-recientes--colapsada .hero .subtitle {
+    display: none;
+  }
+
+  /*
+   * Reduce el encabezado al estar cerrado.
+   */
+  .alertas-recientes--colapsada .hero {
+    padding: 16px 18px;
+    border-bottom: none;
+  }
 }
 
 /* Tarjetas de alertas con imagen */
 .alerta-card-con-imagen {
   display: flex;
-  flex-direction: column;   /* imagen arriba, texto abajo */
-  align-items: stretch;     /* que ocupen todo el ancho */
+  flex-direction: column;
+  align-items: stretch;
   padding: 0;
   overflow: hidden;
 }
@@ -432,7 +527,6 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   display: block;
 }
 
-/* Placeholder cuando el backend manda imagen: null */
 .alerta-img-placeholder {
   width: 100%;
   height: 100%;
@@ -440,9 +534,13 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   display: grid;
   place-items: center;
 
-  background: linear-gradient(135deg, #dbeafe 0%, #ecfeff 100%);
-  color: #0058be;
+  background: linear-gradient(
+    135deg,
+    #dbeafe 0%,
+    #ecfeff 100%
+  );
 
+  color: #0058be;
   font-size: 2.4rem;
 }
 
@@ -465,12 +563,6 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
 
 .alerta-info {
   padding: 14px;
-}
-
-.alerta-folio {
-  margin-top: 8px !important;
-  font-size: 0.76rem !important;
-  color: #94a3b8 !important;
 }
 
 .mapa-general {

@@ -97,6 +97,58 @@ html, body {
 
 @media (max-width: 640px) {
 
+  .alertas-hero-contenido {
+  align-items: center;
+}
+
+.alertas-hero-texto {
+  flex: 1;
+}
+
+.alertas-toggle-mobile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  flex-shrink: 0;
+
+  min-height: 36px;
+  padding: 7px 10px;
+
+  border: 1px solid #c7d7f5;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #2e5bd8;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.alertas-toggle-mobile ion-icon {
+  font-size: 17px;
+}
+
+/* Estado oculto: deja solamente el encabezado */
+.alertas-recientes--colapsada {
+  min-height: 0;
+}
+
+.alertas-recientes--colapsada .alertas-filtros,
+.alertas-recientes--colapsada .tarjetas-alertas,
+.alertas-recientes--colapsada .hero .subtitle {
+  display: none;
+}
+
+.alertas-recientes--colapsada .hero {
+  padding-bottom: 18px;
+  border-bottom: none;
+}
+
   /* Contenedor principal — acotado al alto del modal centrado.
      Los botones (detalle-caso__acciones) NUNCA se encogen
      (flex-shrink: 0 más abajo), así que siempre quedan visibles
@@ -393,6 +445,21 @@ html, body {
     --border-color: #bed0ff;
     --border-width: 1px;
   }
+}
+
+.alertas-hero-contenido {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alertas-hero-texto {
+  min-width: 0;
+}
+
+.alertas-toggle-mobile {
+  display: none;
 }
 
 /* Ajuste para teléfonos muy pequeños */

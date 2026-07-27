@@ -10,14 +10,41 @@
       </section>
 
       <!-- ALERTAS RECIENTES -->
-      <section class="alertas-recientes glass-card">
+      <section class="alertas-recientes glass-card" [class.alertas-recientes--colapsada]="!mostrarAlertasMobile">
 
         <section class="hero">
-          <div class="container">
-            <h1 class="title">Alertas recientes</h1>
-            <p class="subtitle">
-              Aquí puedes ver las alertas más recientes de casos reportados en la zona.
-            </p>
+          <div class="container alertas-hero-contenido">
+
+            <div class="alertas-hero-texto">
+              <h1 class="title">
+                Alertas recientes
+              </h1>
+
+              <p class="subtitle">
+                Aquí puedes ver las alertas más recientes de casos
+                reportados en la zona.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="alertas-toggle-mobile"
+              [attr.aria-expanded]="mostrarAlertasMobile"
+              (click)="alternarAlertasMobile()"
+            >
+              <span>
+                {{ mostrarAlertasMobile ? 'Ocultar' : 'Mostrar' }}
+              </span>
+
+              <ion-icon
+                [name]="
+                  mostrarAlertasMobile
+                    ? 'chevron-up-outline'
+                    : 'chevron-down-outline'
+                "
+              ></ion-icon>
+            </button>
+
           </div>
         </section>
 
