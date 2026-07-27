@@ -5,10 +5,7 @@
     <main class="page-content layout-dashboard">
 
       <!-- MAPA -->
-      <section
-        #seccionMapa
-        class="mapa-general glass-card"
-      >
+      <section #seccionMapa class="mapa-general glass-card">
         <div id="mapa-casos"></div>
       </section>
 
@@ -17,13 +14,9 @@
 
         <section class="hero">
           <div class="container">
-            <h1 class="title">
-              Alertas recientes
-            </h1>
-
+            <h1 class="title">Alertas recientes</h1>
             <p class="subtitle">
-              Aquí puedes ver las alertas más recientes de casos
-              reportados en la zona.
+              Aquí puedes ver las alertas más recientes de casos reportados en la zona.
             </p>
           </div>
         </section>
@@ -61,40 +54,28 @@
           </button>
         </section>
 
+        <!-- LISTA DE CASOS -->
         <section class="tarjetas-alertas">
           <div class="container">
 
             @if (cargandoCasos) {
               <article class="alerta-card">
                 <h3>Cargando casos...</h3>
-
-                <p>
-                  Consultando reportes activos.
-                </p>
+                <p>Consultando reportes activos.</p>
               </article>
             }
 
             @if (errorCasos) {
               <article class="alerta-card">
                 <h3>Error al cargar</h3>
-
-                <p>
-                  {{ errorCasos }}
-                </p>
+                <p>{{ errorCasos }}</p>
               </article>
             }
 
-            @if (
-              !cargandoCasos &&
-              !errorCasos &&
-              casosActivos.length === 0
-            ) {
+            @if (!cargandoCasos && !errorCasos && casosActivos.length === 0) {
               <article class="alerta-card">
                 <h3>Sin alertas activas</h3>
-
-                <p>
-                  No hay casos reportados por ahora.
-                </p>
+                <p>No hay casos reportados por ahora.</p>
               </article>
             }
 
@@ -116,55 +97,27 @@
                       [alt]="obtenerTituloCaso(caso)"
                     />
                   } @else {
-                    <div class="alerta-img-placeholder">
-                      🐾
-                    </div>
+                    <div class="alerta-img-placeholder">🐾</div>
                   }
 
                   <span class="alerta-badge">
-                    {{
-                      caso.tipo_incidencia
-                        | sentenceCase
-                    }}
+                    {{ caso.tipo_incidencia | sentenceCase }}
                   </span>
-
                 </div>
 
                 <div class="alerta-info">
-
-                  <h3>
-                    {{
-                      obtenerTituloCaso(caso)
-                        | sentenceCase
-                    }}
-                  </h3>
-
+                  <h3>{{ obtenerTituloCaso(caso) | sentenceCase }}</h3>
                   <p>
-                    {{
-                      (caso.tipo_animal || 'Animal')
-                        | sentenceCase
-                    }}
-
+                    {{ (caso.tipo_animal || 'Animal') | sentenceCase }}
                     ·
-
-                    {{
-                      (
-                        caso.condicion_animal ||
-                        caso.tipo_incidencia
-                      ) | sentenceCase
-                    }}
+                    {{ (caso.condicion_animal || caso.tipo_incidencia) | sentenceCase }}
                   </p>
-
-                  <p class="alerta-folio">
-                    Folio: {{ caso.folio }}
-                  </p>
-
                 </div>
               </article>
             }
 
-        </div>
-      </section>
+          </div>
+        </section>
 
       </section>
 
@@ -173,37 +126,22 @@
 
         <section class="texto">
           <div class="container">
-            <h1 class="title">
-              Impacto en vivo.
-            </h1>
-
-            <p class="subtitle">
-              Datos en tiempo real sobre nuestra red de rescate.
-            </p>
+            <h1 class="title">Impacto en vivo.</h1>
+            <p class="subtitle">Datos en tiempo real sobre nuestra red de rescate.</p>
           </div>
         </section>
 
         <section class="animales-salvados">
           <div class="container">
-            <h2 class="stat-number">
-              {{ casosActivos.length }}
-            </h2>
-
-            <p class="statistic">
-              Casos activos
-            </p>
+            <h2 class="stat-number">{{ casosActivos.length }}</h2>
+            <p class="statistic">Casos activos</p>
           </div>
         </section>
 
         <section class="voluntarios-activos">
           <div class="container">
-            <h2 class="stat-number">
-              1
-            </h2>
-
-            <p class="statistic">
-              Voluntarios activos
-            </p>
+            <h2 class="stat-number">1</h2>
+            <p class="statistic">Voluntarios activos</p>
           </div>
         </section>
 
@@ -223,21 +161,20 @@
     <app-footer-web></app-footer-web>
   </div>
 
-  <!-- MODAL MÓVIL DEL CASO -->
+  <!-- MODAL DEL CASO -->
   <ion-modal
-  #modalCaso
-  class="modal-caso-animal"
-  [isOpen]="modalCasoAbierto"
-  [backdropDismiss]="true"
-  (didDismiss)="cerrarModalCaso()"
+    #modalCaso
+    class="modal-caso-animal"
+    [isOpen]="modalCasoAbierto"
+    [backdropDismiss]="true"
+    (didDismiss)="cerrarModalCaso()"
   >
     <ng-template>
 
       @if (casoSeleccionado; as caso) {
-
         <article class="detalle-caso">
 
-          <!-- IMAGEN A TODO ANCHO CON CIERRE FLOTANTE -->
+          <!-- Imagen superior -->
           <div class="detalle-caso__imagen-contenedor">
 
             @if (caso.imagen) {
@@ -247,9 +184,7 @@
                 [alt]="obtenerTituloCaso(caso)"
               />
             } @else {
-              <div class="detalle-caso__placeholder">
-                🐾
-              </div>
+              <div class="detalle-caso__placeholder">🐾</div>
             }
 
             <button
@@ -262,224 +197,114 @@
             </button>
 
             <span class="detalle-caso__badge">
-              {{
-                caso.tipo_incidencia
-                  | sentenceCase
-              }}
+              {{ caso.tipo_incidencia | sentenceCase }}
             </span>
 
             <div class="detalle-caso__degradado"></div>
 
             <div class="detalle-caso__titulo-flotante">
-              <p class="detalle-caso__tipo">
-                {{
-                  caso.tipo_animal
-                    | sentenceCase
-                }}
-              </p>
+              <p class="detalle-caso__tipo">{{ caso.tipo_animal | sentenceCase }}</p>
+              <h2>{{ obtenerTituloCaso(caso) | sentenceCase }}</h2>
+            </div>
+          </div>
 
-              <h2>
-                {{
-                  obtenerTituloCaso(caso)
-                    | sentenceCase
-                }}
-              </h2>
+          <!-- Cuerpo del modal -->
+          <div class="detalle-caso__cuerpo">
+
+            <!-- Zona desplazable -->
+            <div class="detalle-caso__contenido">
+
+              <ion-chip color="warning" class="detalle-caso__chip-estado">
+                {{ caso.estado | sentenceCase }}
+              </ion-chip>
+
+              <section class="detalle-caso__seccion">
+                <h3>Características</h3>
+                <p class="detalle-caso__descripcion">
+                  {{ caso.caracteristicas || caso.notas_animal || 'Sin características adicionales.' }}
+                </p>
+              </section>
+
+              <ion-list lines="full">
+
+                <ion-item>
+                  <ion-icon name="paw-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <p>Tipo de animal</p>
+                    <h3>{{ (caso.tipo_animal || 'Sin especificar') | sentenceCase }}</h3>
+                  </ion-label>
+                </ion-item>
+
+                <ion-item>
+                  <ion-icon name="medkit-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <p>Condición</p>
+                    <h3>{{ (caso.condicion_animal || 'Sin especificar') | sentenceCase }}</h3>
+                  </ion-label>
+                </ion-item>
+
+                <ion-item>
+                  <ion-icon name="resize-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <p>Tamaño</p>
+                    <h3>{{ (caso.tamano_animal || 'Sin especificar') | sentenceCase }}</h3>
+                  </ion-label>
+                </ion-item>
+
+                @if (caso.edad_estimada) {
+                  <ion-item>
+                    <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                    <ion-label>
+                      <p>Edad estimada</p>
+                      <h3>{{ caso.edad_estimada | sentenceCase }}</h3>
+                    </ion-label>
+                  </ion-item>
+                }
+
+                @if (caso.peso_estimado) {
+                  <ion-item>
+                    <ion-icon name="barbell-outline" slot="start"></ion-icon>
+                    <ion-label>
+                      <p>Peso estimado</p>
+                      <h3>{{ caso.peso_estimado }}</h3>
+                    </ion-label>
+                  </ion-item>
+                }
+
+                @if (caso.recompensa !== null && caso.recompensa > 0) {
+                  <ion-item>
+                    <ion-icon name="cash-outline" slot="start"></ion-icon>
+                    <ion-label>
+                      <p>Recompensa</p>
+                      <h3>{{ caso.recompensa | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</h3>
+                    </ion-label>
+                  </ion-item>
+                }
+
+              </ion-list>
+            </div>
+
+            <!-- Botones fijos abajo -->
+            <div class="detalle-caso__acciones">
+              <ion-button
+                fill="outline"
+                class="detalle-caso__boton detalle-caso__boton-secundario"
+                (click)="cerrarModalCaso()"
+              >
+                Cerrar
+              </ion-button>
+
+              <ion-button
+                class="detalle-caso__boton detalle-caso__boton-primario"
+                (click)="irADetalleCaso(caso.folio)"
+              >
+                Ver ficha
+              </ion-button>
             </div>
 
           </div>
 
-          <ion-content class="ion-padding detalle-caso__scroll">
-
-            <ion-chip color="warning" class="detalle-caso__chip-estado">
-              {{
-                caso.estado
-                  | sentenceCase
-              }}
-            </ion-chip>
-
-            <!-- DESCRIPCIÓN -->
-            <section class="detalle-caso__seccion">
-
-              <h3>
-                Características
-              </h3>
-
-              <p class="detalle-caso__descripcion">
-                {{
-                  caso.caracteristicas ||
-                  caso.notas_animal ||
-                  'Sin características adicionales.'
-                }}
-              </p>
-
-            </section>
-
-            <!-- INFORMACIÓN DEL CASO -->
-            <ion-list lines="full">
-
-              <ion-item>
-                <ion-icon
-                  name="paw-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Tipo de animal</p>
-
-                  <h3>
-                    {{
-                      (
-                        caso.tipo_animal ||
-                        'Sin especificar'
-                      ) | sentenceCase
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              <ion-item>
-                <ion-icon
-                  name="medkit-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Condición</p>
-
-                  <h3>
-                    {{
-                      (
-                        caso.condicion_animal ||
-                        'Sin especificar'
-                      ) | sentenceCase
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              <ion-item>
-                <ion-icon
-                  name="resize-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Tamaño</p>
-
-                  <h3>
-                    {{
-                      (
-                        caso.tamano_animal ||
-                        'Sin especificar'
-                      ) | sentenceCase
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              @if (caso.edad_estimada) {
-                <ion-item>
-                  <ion-icon
-                    name="calendar-outline"
-                    slot="start"
-                  ></ion-icon>
-
-                  <ion-label>
-                    <p>Edad estimada</p>
-
-                    <h3>
-                      {{
-                        caso.edad_estimada
-                          | sentenceCase
-                      }}
-                    </h3>
-                  </ion-label>
-                </ion-item>
-              }
-
-              @if (caso.peso_estimado) {
-                <ion-item>
-                  <ion-icon
-                    name="barbell-outline"
-                    slot="start"
-                  ></ion-icon>
-
-                  <ion-label>
-                    <p>Peso estimado</p>
-
-                    <h3>
-                      {{ caso.peso_estimado }}
-                    </h3>
-                  </ion-label>
-                </ion-item>
-              }
-
-              <ion-item>
-                <ion-icon
-                  name="document-text-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Folio</p>
-
-                  <h3>
-                    {{
-                      caso.folio ||
-                      'Sin folio'
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              @if (
-                caso.recompensa !== null &&
-                caso.recompensa > 0
-              ) {
-                <ion-item>
-                  <ion-icon
-                    name="cash-outline"
-                    slot="start"
-                  ></ion-icon>
-
-                  <ion-label>
-                    <p>Recompensa</p>
-
-                    <h3>
-                      {{
-                        caso.recompensa
-                          | currency:
-                            'MXN':
-                            'symbol-narrow':
-                            '1.0-0'
-                      }}
-                    </h3>
-                  </ion-label>
-                </ion-item>
-              }
-
-            </ion-list>
-
-            <ion-button
-              expand="block"
-              class="detalle-caso__boton detalle-caso__boton-primario"
-              (click)="irADetalleCaso(caso.folio)"
-            >
-              Ver ficha del caso
-            </ion-button>
-
-            <ion-button
-              expand="block"
-              fill="outline"
-              class="detalle-caso__boton detalle-caso__boton-secundario"
-              (click)="cerrarModalCaso()"
-            >
-              Cerrar
-            </ion-button>
-
-          </ion-content>
         </article>
-
       }
 
     </ng-template>
