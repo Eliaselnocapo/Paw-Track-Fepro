@@ -6,7 +6,14 @@ import {
   IonMenuToggle
 } from '@ionic/angular/standalone';
 
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive
+} from '@angular/router';
+
+import { filter } from 'rxjs/operators';
 import { AuthService } from './core/services/auth.service';
 
 @Component({
@@ -26,6 +33,29 @@ import { AuthService } from './core/services/auth.service';
 export class AppComponent {
 
   private authService = inject(AuthService);
+  private router = inject(Router);
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd =>
+          event instanceof NavigationEnd
+        )
+      )
+      .subscribe(() => {
+        requestAnimationFrame(() => {
+          // Reinicia el scroll normal del navegador.
+          window.scrollTo(0, 0);
+
+          // Reinicia el scroll interno de Ionic.
+          const contenidoActivo = document.querySelector(
+            'ion-router-outlet .ion-page:not(.ion-page-hidden) ion-content'
+          ) as HTMLIonContentElement | null;
+
+          contenidoActivo?.scrollToTop(0);
+        });
+      });
+  }
 
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();

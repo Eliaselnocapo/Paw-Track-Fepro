@@ -103,6 +103,24 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   font-size: 13px; color: #64748b; margin: 6px 0 0; line-height: 1.5;
 }
 
+/* Encabezado de alertas con botón móvil */
+.alertas-hero-contenido {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alertas-hero-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+/* En escritorio el botón no aparece */
+.alertas-toggle-mobile {
+  display: none;
+}
+
 /* ===== FILTROS DE ALERTAS ===== */
 .alertas-filtros {
   display: flex; gap: 8px;
@@ -303,6 +321,13 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 :host ::ng-deep .popup-folio { font-size: 11px; font-weight: 700; color: #94a3b8; margin: 0; padding-top: 9px; border-top: 1px solid #eef2f9; }
+
+/* En vista de escritorio no mostramos el folio en la tarjeta del popup */
+@media (min-width: 641px) {
+  :host ::ng-deep .popup-folio {
+    display: none;
+  }
+}
 :host ::ng-deep .popup-cta {
   width: 100%; margin-top: 10px; padding: 9px 0;
   background: #2E5BD8; color: #fff; border: none;
@@ -354,6 +379,23 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
     right: -220px;
   }
 }
+/* Encabezado de alertas: base para todas las vistas */
+.alertas-hero-contenido {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alertas-hero-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Oculto por defecto en escritorio */
+.alertas-toggle-mobile {
+  display: none;
+}
 
 /* Responsive móvil */
 @media (max-width: 640px) {
@@ -399,13 +441,73 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
     top: 560px;
     right: -180px;
   }
+
+  /* ===== Mostrar y ocultar alertas en móvil ===== */
+
+  .alertas-hero-contenido {
+    align-items: center;
+  }
+
+  .alertas-toggle-mobile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    flex-shrink: 0;
+
+    min-height: 36px;
+    padding: 7px 10px;
+
+    border: 1px solid #c7d7f5;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #2e5bd8;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+
+    cursor: pointer;
+  }
+
+  .alertas-toggle-mobile ion-icon {
+    font-size: 17px;
+  }
+
+  /*
+   * Quita la altura mínima de 320px aplicada
+   * en el breakpoint de 980px.
+   */
+  .alertas-recientes--colapsada {
+    min-height: 0 !important;
+    height: auto;
+  }
+
+  /*
+   * Oculta descripción, filtros y tarjetas.
+   */
+  .alertas-recientes--colapsada .alertas-filtros,
+  .alertas-recientes--colapsada .tarjetas-alertas,
+  .alertas-recientes--colapsada .hero .subtitle {
+    display: none;
+  }
+
+  /*
+   * Reduce el encabezado al estar cerrado.
+   */
+  .alertas-recientes--colapsada .hero {
+    padding: 16px 18px;
+    border-bottom: none;
+  }
 }
 
 /* Tarjetas de alertas con imagen */
 .alerta-card-con-imagen {
   display: flex;
-  flex-direction: column;   /* imagen arriba, texto abajo */
-  align-items: stretch;     /* que ocupen todo el ancho */
+  flex-direction: column;
+  align-items: stretch;
   padding: 0;
   overflow: hidden;
 }
@@ -425,7 +527,6 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   display: block;
 }
 
-/* Placeholder cuando el backend manda imagen: null */
 .alerta-img-placeholder {
   width: 100%;
   height: 100%;
@@ -433,9 +534,13 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   display: grid;
   place-items: center;
 
-  background: linear-gradient(135deg, #dbeafe 0%, #ecfeff 100%);
-  color: #0058be;
+  background: linear-gradient(
+    135deg,
+    #dbeafe 0%,
+    #ecfeff 100%
+  );
 
+  color: #0058be;
   font-size: 2.4rem;
 }
 
@@ -460,127 +565,10 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
   padding: 14px;
 }
 
-.alerta-folio {
-  margin-top: 8px !important;
-  font-size: 0.76rem !important;
-  color: #94a3b8 !important;
-}
-
 .mapa-general {
   scroll-margin-top: 90px;
 }
 
 .alerta-card[role="button"] {
   cursor: pointer;
-}
-
-/* ===== MODAL DE DETALLE DEL CASO (mobile) ===== */
-:host ::ng-deep .modal-caso-animal {
-  --border-radius: 0;
-  --width: 100%; --max-width: 480px;
-  --height: 100%;
-}
-
-.detalle-caso {
-  display: flex; flex-direction: column;
-  height: 100%; background: #fff;
-  font-family: 'Montserrat', sans-serif;
-}
-
-.detalle-caso__imagen-contenedor {
-  position: relative;
-  width: 100%; height: 260px; flex-shrink: 0;
-  background: #e2e8f0; overflow: hidden;
-}
-.detalle-caso__imagen { width: 100%; height: 100%; object-fit: cover; display: block; }
-.detalle-caso__placeholder {
-  width: 100%; height: 100%; display: grid; place-items: center;
-  font-size: 3.2rem;
-  background: linear-gradient(135deg, #dbeafe 0%, #ecfeff 100%);
-}
-
-.detalle-caso__cerrar {
-  position: absolute; top: 14px; right: 14px; z-index: 3;
-  width: 36px; height: 36px; display: grid; place-items: center;
-  background: rgba(15, 31, 61, 0.55); color: #fff;
-  border: none; backdrop-filter: blur(4px);
-  cursor: pointer;
-}
-.detalle-caso__cerrar ion-icon { font-size: 20px; }
-
-.detalle-caso__badge {
-  position: absolute; top: 14px; left: 14px; z-index: 3;
-  padding: 6px 11px;
-  background: rgba(0, 88, 190, 0.92); color: #fff;
-  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
-}
-
-.detalle-caso__degradado {
-  position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(to top, rgba(6, 15, 33, 0.85) 0%, rgba(6, 15, 33, 0) 55%);
-}
-
-.detalle-caso__titulo-flotante {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
-  padding: 18px 18px 16px;
-  color: #fff;
-}
-.detalle-caso__titulo-flotante .detalle-caso__tipo {
-  font-size: 12.5px; font-weight: 700; color: #cfe0ff; margin: 0 0 4px;
-  text-transform: capitalize;
-}
-.detalle-caso__titulo-flotante h2 {
-  font-size: 21px; font-weight: 800; margin: 0; letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.detalle-caso__scroll { --background: #fff; }
-
-.detalle-caso__chip-estado {
-  margin: 16px 0 4px;
-  font-weight: 700;
-}
-
-.detalle-caso__seccion { margin-top: 18px; }
-.detalle-caso__seccion h3 {
-  font-size: 12.5px; font-weight: 800; color: #94a3b8;
-  text-transform: uppercase; letter-spacing: .05em; margin: 0 0 8px;
-}
-.detalle-caso__descripcion {
-  font-size: 14px; color: #334155; line-height: 1.6; margin: 0;
-}
-
-.detalle-caso ion-list {
-  margin-top: 14px;
-  background: transparent;
-}
-.detalle-caso ion-item {
-  --background: transparent;
-  --padding-start: 0;
-}
-.detalle-caso ion-item ion-icon {
-  color: #2E5BD8; font-size: 20px; margin-right: 10px;
-}
-.detalle-caso ion-label p {
-  font-size: 11.5px; color: #94a3b8; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .03em;
-}
-.detalle-caso ion-label h3 {
-  font-size: 14.5px; font-weight: 700; color: #0f1f3d;
-}
-
-.detalle-caso__boton {
-  margin: 18px 0 0;
-  --border-radius: 0;
-  font-weight: 800;
-}
-.detalle-caso__boton-primario {
-  --background: #2E5BD8;
-  --background-hover: #1f47b8;
-}
-.detalle-caso__boton-secundario {
-  margin: 10px 0 8px;
-  --background: transparent;
-  --color: #2E5BD8;
-  --border-color: #c7d7f5;
 }
