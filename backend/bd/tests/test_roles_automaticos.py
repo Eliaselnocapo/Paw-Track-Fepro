@@ -48,6 +48,7 @@ class RolesAutomaticosEnRegistroTests(APITestCase):
             'password1': 'Perro999Verde',
             'password2': 'Perro999Verde',
             'roles': ['PATROCINADOR'],
+            'nombre_entidad': 'Empresa Test S.A. de C.V.',
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

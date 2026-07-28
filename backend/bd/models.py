@@ -104,6 +104,18 @@ class PerfilPatrocinador(models.Model):
     casos_soportados         = models.IntegerField(default=0)
     fecha_inicio_coordinacion = models.DateField(auto_now_add=True)
 
+    aprobado = models.BooleanField(default=False) # Bloquea self-service
+    
+    # Restricción a nivel BD para datos parcialmente válidos
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(nombre_entidad__isnull=False) & ~models.Q(nombre_entidad=''),
+                name='datos_entidad_requeridos'
+            )
+        ]
+
+
     def __str__(self):
         return f"{self.nombre_entidad} ({self.tipo_entidad})"
 
