@@ -9,8 +9,9 @@ class RecursoViewSet(viewsets.ModelViewSet):
     serializer_class = RecursoSerializer
 
     def get_queryset(self):
-        # GET /api/recursos/ propios
-        return Recurso.objects.filter(patrocinador__usuario=self.request.user)
+        return Recurso.objects.filter(
+            patrocinador__usuario=self.request.user
+        ).select_related('patrocinador', 'patrocinador__usuario', 'incidencia', 'incidencia__animal')
 
     def create(self, request, *args, **kwargs):
         # POST /api/recursos/ propios

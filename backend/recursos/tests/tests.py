@@ -1,3 +1,4 @@
+import threading
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -89,3 +90,31 @@ class RecursoTests(APITestCase):
         response_doble = self.client.patch(url)
         self.assertEqual(response_doble.status_code, status.HTTP_200_OK)
         self.assertEqual(response_doble.data['estado'], 'LIBERADO')
+
+    def test_liberacion_concurrente_idempotente(self):
+        """Simula múltiples hilos intentando liberar el mismo recurso simultáneamente."""
+        url = reverse('recursos-liberar', kwargs={'pk': self.recurso_propio_cerrado.id})
+        resultados = []
+
+        def hacer_peticion():
+            client = self.client_class()
+            client.force_authenticate(user=self.user_patrocinador)
+            response = client.patch(url)
+            resultados.append(response.status_code)
+
+        # Lanzamos 5 hilos concurrentes intentando liberar el recurso al mismo tiempo
+        hilos = [threading.Thread(target=hacer_peticion) for _ in range(5)]
+        
+        for h in hilos:
+            h.start()
+        for h in hilos:
+            h.join()
+
+        # Todos los hilos deben recibir un código exitoso sin romper la base de datos (idempotencia y locks)
+        for status_code in resultados:
+            self.assertEqual(status_code, status.HTTP_200_OK)
+
+        # Verificamos el estado final en la base de datos
+        self.recurso_propio_cerrado.refresh_from_db()
+        self.assertEqual(self.recurso_propio_cerrado.estado, 'LIBERADO')
+        self.assertIsNotNone(self.recurso_propio_cerrado.released_at)
