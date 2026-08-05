@@ -181,8 +181,9 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '10/minute',  # Protege tu API de ataques de fuerza bruta
-        'user': '1000/day'
+        'anon': '60/minute',  # Protege tu API de ataques de fuerza bruta
+        'user': '1000/day',
+	'vision_anon': '10/minute'
     }
 }
 
@@ -247,6 +248,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://pawtrack.me",
     "https://www.pawtrack.me",
 ]
+
 
 
 
