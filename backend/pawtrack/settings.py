@@ -10,12 +10,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEDUP_MODELS_DIR = os.environ.get('DEDUP_MODELS_DIR', os.path.join(BASE_DIR, 'deduplicacion', 'ml_models'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4_wjky+xcs*sn#jxg^n2r2^m5shnxq@%2^11puiy#2al36)4nw'
+# Lee la llave del .env, si no hay (en local), usa una por defecto
+SECRET_KEY = os.environ.get('SECRET_KEY', 'clave-insegura-de-desarrollo')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Solo será True si en el .env dice explícitamente "True"
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+# Lee las IPs permitidas separadas por comas desde el .env
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -107,6 +109,7 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # <-- ¡AGREGA ESTA LÍNEA!
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Cache (Redis) — usado por deduplicacion.services.VisionService.aprender_embedding()
@@ -164,16 +167,24 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 REST_FRAMEWORK = {
+    'NUM_PROXIES': 1,
     'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
-
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
     'PAGE_SIZE': 20,
-    'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
     
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-    
+    ),
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/minute',  # Protege tu API de ataques de fuerza bruta
+        'user': '1000/day',
+	'vision_anon': '10/minute'
+    }
 }
 
 REST_AUTH = {
@@ -183,6 +194,7 @@ REST_AUTH = {
     'REGISTER_SERIALIZER': 'bd.serializers.CustomRegisterSerializer',
 }
 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'none'
@@ -194,9 +206,10 @@ AUTHENTICATION_BACKENDS = [
 
 # CORS — definido UNA sola vez
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8100",   # Ionic serve
-    "http://localhost:4200",   # Angular CLI serve
-    "http://0.0.0.0:8100",
+    "http://localhost:8100",
+    "http://localhost:4200",
+    "https://pawtrack.me",
+    "https://www.pawtrack.me",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -227,10 +240,15 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False  # Nginx ya hace el redirect, no Django
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://pawtrack.me",
+    "https://www.pawtrack.me",
+]
 
-# ==============================================================================
-# CONFIGURACIÓN DE ALLAUTH (Modo estrictamente Email)
-# ==============================================================================
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
+
+

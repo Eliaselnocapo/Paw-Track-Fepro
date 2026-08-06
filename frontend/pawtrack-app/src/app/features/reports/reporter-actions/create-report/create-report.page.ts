@@ -68,6 +68,11 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   verificandoDuplicado = false;
   candidatoDuplicado: CandidatoDuplicado | null = null;
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
+  imagenBorradorId: string | null = null;
+  borradorId: string | null = null;
+  private subiendoImagenBorrador = false;
+  private precargandoEmbedding = false;
+
 
   descargandoCartelManual = false;
 
@@ -274,6 +279,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
 
       this.pasoActual++;
 
+      if (this.pasoActual === 2) this.subirImagenBorrador();
       if (this.pasoActual === 3) this.initInteractiveMap();
       if (this.pasoActual === 4) { this.initPreviewMap(); this.verificarDuplicado(); }
       if (this.pasoActual === 5) this.guardarBaseDatosLocal(); // Corregido el nombre aquí
@@ -301,6 +307,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       latitud: this.latActual,
       longitud: this.lngActual,
       imagen,
+      borrador_id: this.borradorId ?? undefined,
     });
   }
 
@@ -331,6 +338,36 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       },
     });
   }
+
+  /** Fase A: sube la foto sola, apenas se sale del paso 1. */
+  subirImagenBorrador(): void {
+    const imagen = this.archivosSeleccionados[0]?.archivoFisico;
+    if (!imagen || this.subiendoImagenBorrador || this.imagenBorradorId) return;
+
+    this.subiendoImagenBorrador = true;
+    this.reportService.subirImagenBorrador(imagen).subscribe({
+      next: (res) => {
+        this.imagenBorradorId = res.imagen_borrador_id;
+        this.subiendoImagenBorrador = false;
+        // Si el usuario ya eligió especie mientras esto subía, dispara ya la Fase B
+        if (this.tipoAnimal) this.activarPrecargaEmbedding();
+      },
+      error: () => { this.subiendoImagenBorrador = false; },
+    });
+  }
+
+  /** Fase B: dispara el cómputo en el instante en que se conoce la especie. */
+  activarPrecargaEmbedding(): void {
+    if (!this.imagenBorradorId || !this.tipoAnimal || this.precargandoEmbedding || this.borradorId) return;
+
+    this.precargandoEmbedding = true;
+    this.reportService.activarPrecargaEmbedding(this.imagenBorradorId, this.tipoAnimal).subscribe({
+      next: (res) => { this.borradorId = res.borrador_id; this.precargandoEmbedding = false; },
+      error: () => { this.precargandoEmbedding = false; },
+    });
+  }
+
+
 
   /**
    * Se llama al hacer clic en "Enviar reporte" (en vez de siguientePaso()
@@ -410,7 +447,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     this.guardarEnBaseDeDatos();
   }
   seleccionarColor(color: string) { this.colorAnimal = color; }
-  seleccionarTipo(tipo: string) { this.tipoAnimal = tipo; }
+  seleccionarTipo(tipo: string) { this.tipoAnimal = tipo; this.borradorId = null; if (this.imagenBorradorId) this.activarPrecargaEmbedding(); }
   seleccionarTamano(tamano: string) { this.tamanoAproximado = tamano; }
   seleccionarAgresividad(valor: string) { this.agresividadAnimal = valor; }
   
@@ -518,6 +555,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   onFileSelected(event: any) {
     const files = event.target.files;
     if (files && files.length > 0) {
+      this.imagenBorradorId = null;
+      this.borradorId = null;
       Array.from(files).forEach((file: any) => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
@@ -535,6 +574,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   eliminarArchivo(archivo: any) {
     const index = this.archivosSeleccionados.indexOf(archivo);
     if (index > -1) this.archivosSeleccionados.splice(index, 1);
+    this.imagenBorradorId = null;
+    this.borradorId = null;
   }
 
   guardarEnBaseDeDatos() {
@@ -574,7 +615,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
         }
 
         this.folioGenerado = res.folio ?? `#${res.id}`;
-
         const haySesion = !!localStorage.getItem('pawtrack_access');
 
         /*

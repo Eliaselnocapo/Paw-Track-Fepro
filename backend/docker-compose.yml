@@ -24,6 +24,8 @@ services:
   # Servicio de la Aplicación Django
   web:
     build: .
+    env_file:
+      - .env
     command: daphne -b 0.0.0.0 -p 8000 pawtrack.asgi:application
     volumes:
       - .:/app
@@ -86,6 +88,5 @@ services:
     depends_on:
       - db
       - redis
-
 volumes:
   postgres_data:
