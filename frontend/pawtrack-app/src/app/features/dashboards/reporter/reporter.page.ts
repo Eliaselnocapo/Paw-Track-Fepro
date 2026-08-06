@@ -93,15 +93,28 @@ export class ReporterPage implements OnInit {
     const file: File = event.target.files[0];
     this.errorPdf = null;
 
-    if (file && file.type === 'application/pdf') {
-      this.selectedFile = file;
-      this.fileName = file.name;
-      this.extractedData = null;
-    } else {
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
       this.errorPdf = 'Selecciona un archivo PDF válido.';
       this.selectedFile = null;
       this.fileName = '';
+      return;
     }
+
+    const MAX_MB = 10;
+    const maxBytes = MAX_MB * 1024 * 1024;
+
+    if (file.size > maxBytes) {
+      this.errorPdf = `El archivo pesa demasiado. Máximo ${MAX_MB}MB permitidos.`;
+      this.selectedFile = null;
+      this.fileName = '';
+      return;
+    }
+
+    this.selectedFile = file;
+    this.fileName = file.name;
+    this.extractedData = null;
   }
 
   uploadPdf() {
@@ -124,6 +137,8 @@ export class ReporterPage implements OnInit {
         this.errorPdf =
           err.status === 422 ? 'El PDF no tiene texto legible (¿es una imagen escaneada?).' :
           err.status === 400 ? 'No se pudo leer este archivo.' :
+          err.status === 413 ? 'El archivo es demasiado grande para el servidor.' :
+          err.status === 429 ? 'Demasiados intentos. Espera unos segundos antes de volver a intentar.' :
           'Hubo un problema al procesar el PDF. Intenta de nuevo.';
       }
     });

@@ -19,6 +19,7 @@ export class RegisterPage {
   selectedRole = 'REPORTERO';
   fullName = '';
   email = '';
+  telefono = '';
   password = '';
   passwordConfirm = '';
   termsAccepted = false;
@@ -27,88 +28,113 @@ export class RegisterPage {
 
   constructor(private auth: AuthService, private router: Router) {}
 
-tieneMayuscula(password: string): boolean {
-  return /[A-ZÁÉÍÓÚÑ]/.test(password);
-}
-
-tieneNumero(password: string): boolean {
-  return /\d/.test(password);
-}
-
-mostrarPassword = false;
-mostrarPasswordConfirm = false;
-
-onSubmit(): void {
-  if (!this.fullName || !this.email || !this.password || !this.passwordConfirm) {
-    this.error = 'Por favor completa todos los campos.';
-    return;
+  tieneMayuscula(password: string): boolean {
+    return /[A-ZÁÉÍÓÚÑ]/.test(password);
   }
 
-  if (this.password.length < 8) {
-    this.error = 'La contraseña debe contener al menos 8 caracteres.';
-    return;
+  tieneNumero(password: string): boolean {
+    return /\d/.test(password);
   }
 
-  if (!this.tieneMayuscula(this.password)) {
-    this.error = 'La contraseña debe contener al menos una letra mayúscula.';
-    return;
+  mostrarPassword = false;
+  mostrarPasswordConfirm = false;
+
+  /** Solo dígitos, espacios, +, -, paréntesis; al menos 10 dígitos reales. */
+  telefonoValido(telefono: string): boolean {
+    const soloDigitos = telefono.replace(/\D/g, '');
+    return soloDigitos.length >= 10;
   }
 
-  if (!this.tieneNumero(this.password)) {
-    this.error = 'La contraseña debe contener al menos un número.';
-    return;
-  }
+  onSubmit(): void {
+    if (
+      !this.fullName ||
+      !this.email ||
+      !this.telefono ||
+      !this.password ||
+      !this.passwordConfirm
+    ) {
+      this.error = 'Por favor completa todos los campos.';
+      return;
+    }
 
-  if (this.password !== this.passwordConfirm) {
-    this.error = 'Las contraseñas no coinciden.';
-    return;
-  }
-  if (!this.termsAccepted) {
-    this.error = 'Debes aceptar los Términos de Servicio para continuar.';
-    return;
-  }
+    // Nombre completo debe traer al menos nombre y apellido, no solo una palabra.
+    const partes = this.fullName.trim().split(/\s+/);
+    if (partes.length < 2) {
+      this.error = 'Ingresa tu nombre completo (nombre y apellido).';
+      return;
+    }
 
-  const partes = this.fullName.trim().split(' ');
-  const first_name = partes[0] ?? '';
-  const last_name = partes.slice(1).join(' ');
+    if (!this.telefonoValido(this.telefono)) {
+      this.error = 'Ingresa un número de teléfono válido (mínimo 10 dígitos).';
+      return;
+    }
 
-  this.cargando = true;
-  this.error = '';
+    if (this.password.length < 8) {
+      this.error = 'La contraseña debe contener al menos 8 caracteres.';
+      return;
+    }
 
-  this.auth
-    .register({
-      email: this.email,
-      password1: this.password,
-      password2: this.passwordConfirm,
-      first_name,
-      last_name,
-      roles: ['REPORTERO'], // el registro nace como reportero...
-    })
-    .pipe(
-      // ...y aquí le sumamos RESCATISTA + creamos su PerfilRescatista
-      switchMap((res) =>
-        this.auth.habilitarRoles(res.user.id).pipe(
-          map(() => res),
-          catchError(() => of(res)) // si falla el rol, igual dejamos entrar
+    if (!this.tieneMayuscula(this.password)) {
+      this.error = 'La contraseña debe contener al menos una letra mayúscula.';
+      return;
+    }
+
+    if (!this.tieneNumero(this.password)) {
+      this.error = 'La contraseña debe contener al menos un número.';
+      return;
+    }
+
+    if (this.password !== this.passwordConfirm) {
+      this.error = 'Las contraseñas no coinciden.';
+      return;
+    }
+    if (!this.termsAccepted) {
+      this.error = 'Debes aceptar los Términos de Servicio para continuar.';
+      return;
+    }
+
+    const first_name = partes[0] ?? '';
+    const last_name = partes.slice(1).join(' ');
+
+    this.cargando = true;
+    this.error = '';
+
+    this.auth
+      .register({
+        email: this.email,
+        telefono: this.telefono.trim(),
+        password1: this.password,
+        password2: this.passwordConfirm,
+        first_name,
+        last_name,
+        roles: ['REPORTERO'], // el registro nace como reportero...
+      })
+      .pipe(
+        // ...y aquí le sumamos RESCATISTA + creamos su PerfilRescatista
+        switchMap((res) =>
+          this.auth.habilitarRoles(res.user.id).pipe(
+            map(() => res),
+            catchError(() => of(res)) // si falla el rol, igual dejamos entrar
+          )
         )
       )
-    )
-    .subscribe({
-      next: (res) => {
-        this.cargando = false;
-        this.auth.setActiveRole('RESCATISTA');
-        this.router.navigate(['/home']);
-      },
-      error: (err) => {
-        this.cargando = false;
-        const data = err.error ?? {};
-        this.error =
-          data.email?.[0] ??
-          data.password1?.[0] ??
-          data.non_field_errors?.[0] ??
-          data.detail ??
-          'Error al registrarse. Inténtalo de nuevo.';
-      },
-    });
-}
+      .subscribe({
+        next: (res) => {
+          this.cargando = false;
+          this.auth.setActiveRole('RESCATISTA');
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          this.cargando = false;
+          const data = err.error ?? {};
+          this.error =
+            data.email?.[0] ??
+            data.telefono?.[0] ??
+            data.password1?.[0] ??
+            data.non_field_errors?.[0] ??
+            data.detail ??
+            'Error al registrarse. Inténtalo de nuevo.';
+        },
+      });
+  }
 }

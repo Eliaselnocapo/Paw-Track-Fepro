@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+import { MapaLeafletService } from '../../../../core/services/mapa-leaflet.service';
 
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
@@ -10,7 +11,7 @@ import { ReportService, IncidenciaResponse } from '../../../../core/services/rep
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from 'src/environments/environment';
 
-declare let L: any;
+import * as L from 'leaflet';
 
 interface DetalleCasoVoluntario {
   id: number;
@@ -47,7 +48,7 @@ interface DetalleCasoVoluntario {
   templateUrl: './details-case.page.html',
   styleUrls: ['./details-case.page.scss']
 })
-export class DetailsCasePage implements OnInit, AfterViewInit  {
+export class DetailsCasePage implements OnInit, AfterViewInit, OnDestroy {
 
   private mapa: any = null;
   caso: DetalleCasoVoluntario | null = null;
@@ -58,7 +59,8 @@ export class DetailsCasePage implements OnInit, AfterViewInit  {
     private route: ActivatedRoute,
     private router: Router,
     private reportService: ReportService,
-    private auth: AuthService
+    private auth: AuthService,
+    private mapaService: MapaLeafletService
   ) {}
 
   ngOnInit(): void {
@@ -117,40 +119,35 @@ cargarCaso(): void {
     // el mapa se inicializa desde cargarCaso al terminar
   }
 
-private initMapa(): void {
-  const lat = this.caso?.latitud;
-  const lng = this.caso?.longitud;
-  if (this.mapa || lat == null || lng == null) return;
+  private initMapa(): void {
+      const lat = this.caso?.latitud;
+      const lng = this.caso?.longitud;
+      if (this.mapa || lat == null || lng == null) return;
 
-  setTimeout(() => {
-    const el = document.getElementById('mapa-detalle-caso');
-    if (!el || lat == null || lng == null) return;
+      setTimeout(() => {
+        this.mapa = this.mapaService.crear({
+          contenedorId: 'mapa-detalle-caso',
+          lat, lng,
+          zoom: 15,
+          attributionControl: false,
+          scrollWheelZoom: false,
+        });
 
-    this.mapa = L.map('mapa-detalle-caso', {
-      zoomControl: true,
-      attributionControl: false,
-      scrollWheelZoom: false,
-    }).setView([lat, lng], 15);
+        if (!this.mapa) return;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(this.mapa);
+        const icono = this.mapaService.crearIconoPin(
+          '<div class="pin-detalle-inner"><span class="material-symbols-outlined">pets</span></div>',
+          'pin-detalle'
+        );
+        L.marker([lat, lng], { icon: icono }).addTo(this.mapa);
 
-    const icono = L.divIcon({
-      className: 'pin-detalle',
-      html: '<div class="pin-detalle-inner"><span class="material-symbols-outlined">pets</span></div>',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-    });
+        this.mapaService.invalidarTamano(this.mapa);
+      }, 300);
+    }
 
-    L.marker([lat, lng], { icon: icono }).addTo(this.mapa);
-
-    // refuerzo: recalcular tamaño varias veces por si el div tardo en tener alto
-    setTimeout(() => this.mapa?.invalidateSize(), 300);
-    setTimeout(() => this.mapa?.invalidateSize(), 700);
-  }, 300);
-}
+    ngOnDestroy(): void {
+      this.mapa = this.mapaService.destruir(this.mapa);
+    }
 
   aceptarMision(): void {
     if (!this.caso) return;

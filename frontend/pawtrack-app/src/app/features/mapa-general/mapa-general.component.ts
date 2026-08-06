@@ -49,7 +49,7 @@ import { SentenceCasePipe } from '../../shared/pipes/sentence-case-pipe';
 
 import { environment } from 'src/environments/environment';
 
-declare let L: any;
+import * as L from 'leaflet';
 
 interface RespuestaIncidencias {
   count: number;

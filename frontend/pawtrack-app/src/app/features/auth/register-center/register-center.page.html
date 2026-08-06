@@ -1,0 +1,499 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen w-full bg-blue-50 flex flex-col relative overflow-hidden">
+
+    <!-- FONDO DECORATIVO -->
+    <div class="absolute top-1 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-[-5%] left-[-10%] w-[350px] h-[350px] rounded-full bg-gradient-to-br from-blue-200 to-blue-400 opacity-25"></div>
+      <div class="absolute top-[12%] right-0 w-[150px] h-[400px] rounded-l-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-25"></div>
+      <div class="absolute bottom-[-8%] right-[-6%] w-[380px] h-[380px] rounded-full bg-gradient-to-tl from-emerald-200 to-blue-300 opacity-20"></div>
+      <div class="absolute bottom-[18%] left-[10%] w-[90px] h-[90px] rounded-full bg-gradient-to-br from-amber-200 to-orange-200 opacity-20"></div>
+    </div>
+
+    <app-navbar-web class="relative z-20"></app-navbar-web>
+
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-16">
+
+      <button type="button" (click)="volver()" class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        Volver a refugios cercanos
+      </button>
+
+      @if (enviado) {
+
+        <section class="max-w-2xl mx-auto bg-white/85 backdrop-blur-xl rounded border border-slate-300 shadow-xl p-10 text-center flex flex-col items-center">
+          <div class="w-16 h-16 bg-emerald-100 text-emerald-600 grid place-items-center mb-4 rounded">
+            <span class="material-symbols-outlined text-[32px]">check_circle</span>
+          </div>
+          <h2 class="text-xl font-bold text-slate-900 mb-2">Solicitud enviada</h2>
+          <p class="text-sm text-slate-600 max-w-md mb-6">
+            Tu registro está en revisión. Una vez aprobado, tu centro aparecerá con el
+            distintivo de "Verificado" en el mapa de refugios cercanos.
+          </p>
+          <button type="button" (click)="volver()" class="h-11 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md rounded-lg active:scale-95">
+            Volver al mapa
+          </button>
+        </section>
+
+      } @else {
+
+        <!-- ENCABEZADO -->
+        <section class="bg-white/80 backdrop-blur-xl rounded border border-slate-300 shadow-xl p-6 md:p-8 mb-6">
+          <p class="text-sm font-bold text-blue-700 mb-2">Red de apoyo animal</p>
+          <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Registrar mi centro</h1>
+          <p class="text-sm md:text-base text-slate-600 max-w-xl">
+            Dos pasos rápidos. Un administrador revisará tu solicitud antes de aparecer como "Verificado".
+          </p>
+        </section>
+
+        <!-- INDICADOR DE 2 PASOS -->
+        <div class="flex items-center gap-3 mb-6 px-1">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 grid place-items-center rounded-full text-xs font-bold shadow-sm"
+              [ngClass]="pasoActual >= 1 ? 'bg-blue-700 text-white' : 'bg-white text-slate-400 border border-slate-200'">1</div>
+            <span class="text-sm font-bold" [ngClass]="pasoActual === 1 ? 'text-slate-900' : 'text-slate-400'">Datos y ubicación</span>
+          </div>
+          <div class="flex-1 h-0.5" [ngClass]="pasoActual > 1 ? 'bg-blue-600' : 'bg-slate-200'"></div>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 grid place-items-center rounded-full text-xs font-bold shadow-sm"
+              [ngClass]="pasoActual >= 2 ? 'bg-blue-700 text-white' : 'bg-white text-slate-400 border border-slate-200'">2</div>
+            <span class="text-sm font-bold" [ngClass]="pasoActual === 2 ? 'text-slate-900' : 'text-slate-400'">Perfil</span>
+          </div>
+        </div>
+
+        @if (error) {
+          <div class="bg-red-50 border border-red-200 text-red-700 text-sm font-semibold px-4 py-3 rounded mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">error</span>
+            {{ error }}
+          </div>
+        }
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- ═══════════ COLUMNA PRINCIPAL: FORMULARIO ═══════════ -->
+          <div class="lg:col-span-7">
+
+            <!-- PÁGINA 1 -->
+            @if (pasoActual === 1) {
+              <section class="bg-white/85 backdrop-blur-xl rounded border border-slate-300 shadow-xl overflow-hidden">
+                <div class="p-6 md:p-8 flex flex-col gap-6">
+
+                  <div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-slate-900 mb-3">
+                      <span class="w-7 h-7 rounded bg-blue-700 text-white grid place-items-center shrink-0 shadow-sm">
+                        <span class="material-symbols-outlined text-[16px]">category</span>
+                      </span>
+                      Tipo de centro
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                      <button type="button" (click)="tipo = 'veterinaria'"
+                        class="relative p-4 border-2 rounded text-left transition-all"
+                        [ngClass]="tipo === 'veterinaria' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
+                        <span class="material-symbols-outlined text-blue-700 mb-1 block">local_hospital</span>
+                        <span class="font-bold text-sm text-slate-800">Veterinaria</span>
+                        @if (tipo === 'veterinaria') {
+                          <span class="absolute top-3 right-3 material-symbols-outlined text-blue-600 text-[18px]">check_circle</span>
+                        }
+                      </button>
+                      <button type="button" (click)="tipo = 'refugio'"
+                        class="relative p-4 border-2 rounded text-left transition-all"
+                        [ngClass]="tipo === 'refugio' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
+                        <span class="material-symbols-outlined text-blue-700 mb-1 block">pets</span>
+                        <span class="font-bold text-sm text-slate-800">Refugio</span>
+                        @if (tipo === 'refugio') {
+                          <span class="absolute top-3 right-3 material-symbols-outlined text-blue-600 text-[18px]">check_circle</span>
+                        }
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-2">Nombre del centro</label>
+                    <input type="text" [(ngModel)]="nombre"
+                      class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                      placeholder="Ej. Veterinaria San Francisco">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-2">Teléfono</label>
+                    <input type="tel" [(ngModel)]="telefono" maxlength="10" inputmode="numeric"
+                      class="w-full h-12 border bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:ring-2 transition-all rounded"
+                      [ngClass]="telefono && !telefonoValido() ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-slate-300 focus:border-blue-700 focus:ring-blue-100'"
+                      placeholder="10 dígitos">
+                    @if (telefono && !telefonoValido()) {
+                      <p class="text-xs text-red-600 font-semibold mt-1">Debe tener exactamente 10 dígitos.</p>
+                    }
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label class="block text-sm font-bold text-slate-900 mb-2">
+                        Horario <span class="font-medium text-slate-400">(Opcional)</span>
+                      </label>
+                      <input type="text" [(ngModel)]="horario"
+                        class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                        placeholder="Ej. Lun-Vie 9:00-18:00">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-bold text-slate-900 mb-2">
+                        Sitio web <span class="font-medium text-slate-400">(Opcional)</span>
+                      </label>
+                      <input type="text" [(ngModel)]="sitioWeb"
+                        class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                        placeholder="https://...">
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-2">
+                      Descripción <span class="font-medium text-slate-400">(Opcional)</span>
+                    </label>
+                    <textarea [(ngModel)]="descripcion" rows="3"
+                      class="w-full border border-slate-300 bg-slate-50 p-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"
+                      placeholder="Qué servicios ofreces, especialidades, etc."></textarea>
+                  </div>
+
+                  <hr class="border-slate-100">
+
+                  <div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-slate-900 mb-3">
+                      <span class="w-7 h-7 rounded bg-red-500 text-white grid place-items-center shrink-0 shadow-sm">
+                        <span class="material-symbols-outlined text-[16px]">location_on</span>
+                      </span>
+                      Ubicación
+                    </label>
+                    <div class="relative mb-3">
+                      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                      <input #searchInput (keyup.enter)="buscarDireccion(searchInput.value)" type="text"
+                        class="w-full h-12 pl-10 pr-4 border border-slate-300 bg-slate-50 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                        placeholder="Busca la dirección de tu centro">
+                    </div>
+                    <div id="mapa-registro-centro" class="w-full h-64 border border-slate-300 bg-slate-100 rounded overflow-hidden"></div>
+                    <p class="text-xs text-slate-500 mt-2">
+                      Da clic en el mapa o arrastra el marcador para ajustar el punto exacto.
+                    </p>
+                  </div>
+
+                </div>
+
+                <div class="p-6 border-t border-slate-200 bg-slate-50 flex justify-end">
+                  <button (click)="siguientePaso()" [disabled]="!paso1Valido()"
+                    class="h-12 px-8 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 active:scale-95">
+                    Continuar
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </button>
+                </div>
+              </section>
+            }
+
+            <!-- PÁGINA 2 -->
+            @if (pasoActual === 2) {
+              <section class="bg-white/85 backdrop-blur-xl rounded border border-slate-300 shadow-xl overflow-hidden">
+                <div class="p-6 md:p-8 flex flex-col gap-6">
+
+                  <div class="bg-blue-50 border border-blue-100 rounded p-4 flex items-start gap-3">
+                    <span class="material-symbols-outlined text-blue-700 text-[20px]">auto_awesome</span>
+                    <div>
+                      <p class="text-sm font-bold text-slate-900">Perfil de tu organización</p>
+                      <p class="text-sm text-slate-600 mt-0.5">
+                        Todo lo de aquí es opcional — mira la vista previa a la derecha mientras lo llenas.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label class="block text-sm font-bold text-slate-900 mb-2">Banner (portada)</label>
+                      @if (bannerPreview) {
+                        <div class="relative w-full h-28 rounded overflow-hidden border border-slate-300">
+                          <img [src]="bannerPreview" class="w-full h-full object-cover" alt="Vista previa del banner">
+                          <button type="button" (click)="quitarBanner()"
+                            class="absolute top-2 right-2 w-7 h-7 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
+                            <span class="material-symbols-outlined text-[16px]">close</span>
+                          </button>
+                        </div>
+                      } @else {
+                        <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-300 rounded cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors">
+                          <span class="material-symbols-outlined text-slate-400 text-[24px] mb-1">image</span>
+                          <span class="text-xs text-slate-500 font-semibold">Subir portada</span>
+                          <input type="file" accept="image/*" class="hidden" (change)="onBannerSeleccionado($event)">
+                        </label>
+                      }
+                    </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-2 ">Logo</label>
+                    @if (logoPreview) {
+                      <div class="relative w-28 h-28 mx-auto  md:mx-0">
+                        <div class="w-28 h-28 rounded-full overflow-hidden border border-slate-300">
+                          <img [src]="logoPreview" class="w-full h-full object-cover" alt="Vista previa del logo">
+                        </div>
+                        <!-- El botón vive FUERA del div con overflow-hidden — si estuviera
+                             adentro, el rounded-full le recorta las esquinas y queda
+                             invisible/inaccesible (eso pasaba antes). -->
+                        <button type="button" (click)="quitarLogo()"
+                          class="absolute -top-1 -right-1 w-7 h-7 bg-black/70 text-white rounded-full flex items-center justify-center hover:bg-black/90 transition-colors shadow-md z-10">
+                          <span class="material-symbols-outlined text-[16px]">close</span>
+                        </button>
+                      </div>
+                    } @else {
+                      <label class="flex flex-col items-center justify-center w-28 h-28 border-2 border-dashed border-slate-300 rounded-full cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors mx-auto md:mx-0">
+                        <span class="material-symbols-outlined text-slate-400 text-[22px]">add_a_photo</span>
+                        <input type="file" accept="image/*" class="hidden" (change)="onLogoSeleccionado($event)">
+                      </label>
+                    }
+                  </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label class="block text-sm font-bold text-slate-900 mb-2">Misión</label>
+                      <textarea [(ngModel)]="mision" rows="3"
+                        class="w-full border border-slate-300 bg-slate-50 p-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"
+                        placeholder="¿Cuál es el propósito de tu organización?"></textarea>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-bold text-slate-900 mb-2">Visión</label>
+                      <textarea [(ngModel)]="vision" rows="3"
+                        class="w-full border border-slate-300 bg-slate-50 p-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"
+                        placeholder="¿Qué buscan lograr a futuro?"></textarea>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-3">¿De qué formas pueden ayudarte?</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      @for (forma of formasAyudaDisponibles; track forma.valor) {
+                        <button type="button" (click)="toggleFormaAyuda(forma.valor)"
+                          class="p-3 border-2 rounded text-left transition-all flex items-center gap-2"
+                          [ngClass]="tieneFormaAyuda(forma.valor) ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
+                          <span class="material-symbols-outlined text-[20px]" [ngClass]="tieneFormaAyuda(forma.valor) ? 'text-blue-700' : 'text-slate-400'">{{ forma.icono }}</span>
+                          <span class="text-xs font-bold" [ngClass]="tieneFormaAyuda(forma.valor) ? 'text-blue-800' : 'text-slate-600'">{{ forma.etiqueta }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-slate-900 mb-3">
+                      Redes sociales <span class="font-medium text-slate-400">(Opcional)</span>
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">link</span>
+                        <input type="text" [(ngModel)]="redesSociales.facebook"
+                          class="w-full h-11 pl-10 pr-4 border border-slate-300 bg-slate-50 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                          placeholder="Facebook (link)">
+                      </div>
+                      <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">link</span>
+                        <input type="text" [(ngModel)]="redesSociales.instagram"
+                          class="w-full h-11 pl-10 pr-4 border border-slate-300 bg-slate-50 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                          placeholder="Instagram (link)">
+                      </div>
+                      <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">link</span>
+                        <input type="text" [(ngModel)]="redesSociales.tiktok"
+                          class="w-full h-11 pl-10 pr-4 border border-slate-300 bg-slate-50 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                          placeholder="TikTok (link)">
+                      </div>
+                      <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">chat</span>
+                        <input type="text" [(ngModel)]="redesSociales.whatsapp"
+                          class="w-full h-11 pl-10 pr-4 border border-slate-300 bg-slate-50 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded"
+                          placeholder="WhatsApp (número o link)">
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="p-6 border-t border-slate-200 bg-slate-50 flex justify-between items-center">
+                  <button (click)="regresarPaso()" class="h-12 px-5 text-slate-600 font-bold hover:bg-white transition-colors flex items-center gap-1.5 text-sm rounded-lg border border-slate-300 bg-white">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span> Atrás
+                  </button>
+                  <button (click)="enviar()" [disabled]="!formularioValido() || enviando"
+                    class="h-12 px-8 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 transition-colors shadow-md shadow-blue-700/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 active:scale-95">
+                    @if (enviando) {
+                      <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                      Enviando...
+                    } @else {
+                      <span class="material-symbols-outlined text-[18px]">send</span>
+                      Enviar solicitud
+                    }
+                  </button>
+                </div>
+              </section>
+            }
+
+          </div>
+
+          <!-- ═══════════ PANEL LATERAL: VISTA PREVIA EN VIVO ═══════════ -->
+          <aside class="lg:col-span-5">
+            <div class="lg:sticky lg:top-6 flex flex-col gap-4">
+
+              <p class="text-xs font-bold uppercase text-slate-500 px-1 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px]">visibility</span>
+                Así se verá tu perfil público
+              </p>
+
+              <!-- TARJETA DE PREVIEW -->
+              <div class="bg-white rounded border border-slate-300 shadow-xl overflow-hidden">
+
+                <!-- Banner -->
+                <div class="relative h-32 bg-gradient-to-br from-blue-500 to-blue-700">
+                  @if (bannerPreview) {
+                    <img [src]="bannerPreview" class="absolute inset-0 w-full h-full object-cover">
+                  } @else {
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <span class="material-symbols-outlined text-white/40 text-[48px]">image</span>
+                    </div>
+                  }
+
+                  <!-- Badge verificado (pendiente) -->
+                  <span class="absolute top-3 right-3 bg-white/90 text-slate-600 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">schedule</span>
+                    Pendiente
+                  </span>
+
+                  <!-- Logo montado sobre el banner -->
+                  <div class="absolute -bottom-8 left-5 w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden bg-white">
+                    @if (logoPreview) {
+                      <img [src]="logoPreview" class="w-full h-full object-cover">
+                    } @else {
+                      <div class="w-full h-full bg-slate-100 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-slate-300 text-[28px]">{{ tipo === 'veterinaria' ? 'local_hospital' : 'pets' }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="pt-11 px-5 pb-5">
+
+                  <h3 class="text-lg font-bold text-slate-900 leading-tight">
+                    {{ nombre || 'Nombre de tu centro' }}
+                  </h3>
+
+                  <span class="inline-flex items-center gap-1 mt-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                    <span class="material-symbols-outlined text-[13px]">{{ tipo === 'veterinaria' ? 'local_hospital' : 'pets' }}</span>
+                    {{ tipo === 'veterinaria' ? 'Veterinaria' : 'Refugio' }}
+                  </span>
+
+                  @if (telefono || horario) {
+                    <div class="mt-4 space-y-1.5 text-sm text-slate-600">
+                      @if (telefono) {
+                        <p class="flex items-center gap-1.5">
+                          <span class="material-symbols-outlined text-[16px] text-slate-400">call</span>
+                          {{ telefono }}
+                        </p>
+                      }
+                      @if (horario) {
+                        <p class="flex items-center gap-1.5">
+                          <span class="material-symbols-outlined text-[16px] text-slate-400">schedule</span>
+                          {{ horario }}
+                        </p>
+                      }
+                    </div>
+                  }
+
+                  @if (direccion) {
+                    <p class="mt-2 text-sm text-slate-600 flex items-start gap-1.5">
+                      <span class="material-symbols-outlined text-[16px] text-slate-400 mt-0.5">location_on</span>
+                      <span class="line-clamp-2">{{ direccion }}</span>
+                    </p>
+                  }
+
+                  @if (sitioWeb) {
+                    <p class="mt-2 text-sm text-blue-700 font-semibold flex items-center gap-1.5 truncate">
+                      <span class="material-symbols-outlined text-[16px] text-slate-400">link</span>
+                      {{ sitioWeb }}
+                    </p>
+                  }
+
+                  @if (descripcion) {
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                      <p class="text-xs font-bold uppercase text-slate-400 mb-1">Descripción</p>
+                      <p class="text-sm text-slate-700 leading-relaxed">{{ descripcion }}</p>
+                    </div>
+                  }
+
+                  @if (mision || vision) {
+                    <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-4">
+                      @if (mision) {
+                        <div>
+                          <p class="text-xs font-bold uppercase text-slate-400 mb-1">Misión</p>
+                          <p class="text-sm text-slate-700 leading-relaxed line-clamp-4">{{ mision }}</p>
+                        </div>
+                      }
+                      @if (vision) {
+                        <div>
+                          <p class="text-xs font-bold uppercase text-slate-400 mb-1">Visión</p>
+                          <p class="text-sm text-slate-700 leading-relaxed line-clamp-4">{{ vision }}</p>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  @if (formasAyudaSeleccionadas.length > 0) {
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                      <p class="text-xs font-bold uppercase text-slate-400 mb-2">Cómo ayudar</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        @for (valor of formasAyudaSeleccionadas; track valor) {
+                          <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">{{ valor }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  @if (redesSociales.facebook || redesSociales.instagram || redesSociales.tiktok || redesSociales.whatsapp) {
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex gap-2">
+                      <!-- Cada ícono usa una imagen real de la red social, no un
+                           símbolo genérico. Pon aquí las rutas correctas cuando
+                           tengas los archivos, ej: assets/icon/social/facebook.svg -->
+                      @if (redesSociales.facebook) {
+                        <span class="w-10 h-10 rounded-full bg-slate-100 grid place-items-center overflow-hidden">
+                          <img src="assets/icon/social/communication.png" alt="Facebook" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+                        </span>
+                      }
+                      @if (redesSociales.instagram) {
+                        <span class="w-10 h-10 rounded-full bg-slate-100 grid place-items-center overflow-hidden">
+                          <img src="assets/icon/social/instagram.png" alt="Instagram" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+                        </span>
+                      }
+                      @if (redesSociales.tiktok) {
+                        <span class="w-10 h-10 rounded-full bg-slate-100 grid place-items-center overflow-hidden">
+                          <img src="assets/icon/social/tiktok.png" alt="TikTok" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+                        </span>
+                      }
+                      @if (redesSociales.whatsapp) {
+                        <span class="w-10 h-10 rounded-full bg-slate-100 grid place-items-center overflow-hidden">
+                          <img src="assets/icon/social/whatsapp.png" alt="WhatsApp" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
+                        </span>
+                      }
+                    </div>
+                  }
+
+                </div>
+              </div>
+
+              <div class="bg-blue-700 text-white rounded shadow-md p-4 flex gap-3 items-start">
+                <span class="material-symbols-outlined mt-0.5">info</span>
+                <p class="text-sm text-blue-50">
+                  El badge "Pendiente" cambiará a "Verificado" en cuanto un administrador apruebe tu solicitud.
+                </p>
+              </div>
+
+            </div>
+          </aside>
+
+        </div>
+
+      }
+
+    </main>
+
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
+</ion-content>

@@ -47,6 +47,7 @@ export class AuthService {
 
   register(payload: {
     email: string;
+    telefono: string; // NUEVO
     password1: string;
     password2: string;
     first_name: string;
@@ -63,6 +64,7 @@ export class AuthService {
         })
       );
   }
+ 
 
   logout(): void {
     this.http.post(`${this.API}/logout/`, {}).subscribe({ error: () => {} });
@@ -118,5 +120,17 @@ export class AuthService {
   private limpiarUsuario(): void {
     localStorage.removeItem('pawtrack_user');
     this.userSubject.next(null);
+  }
+
+  loginConGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.API}/google/`, { id_token: idToken })
+      .pipe(
+        tap((res) => {
+          localStorage.setItem('pawtrack_access', res.access);
+          localStorage.setItem('pawtrack_refresh', res.refresh);
+          this.setCurrentUser(res.user);
+        })
+      );
   }
 }

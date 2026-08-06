@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, OnDestroy  } from '@angular/core';
+import { CommonModule, DecimalPipe} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
@@ -8,8 +8,9 @@ import { ReportService, CandidatoDuplicado } from '../../../../core/services/rep
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 import { CartelPdf } from '../../../../core/services/cartel-pdf';
 import { IonContent, IonModal } from '@ionic/angular/standalone';
+import { AuthService } from '../../../../core/services/auth.service';
 
-declare let L: any;
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-create-report',
@@ -27,7 +28,7 @@ declare let L: any;
   ],
   standalone: true,
 })
-export class CreateReportPage implements OnInit, AfterViewInit {
+export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
 
   pasoActual: number = 1;
 
@@ -46,6 +47,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   // Datos de contacto del usuario
   nombreUsuario: string = '';
   telefonoUsuario: string = '';
+  contactoDesdePerfil = false;
+  editandoContactoManualmente = false;
 
   // Datos de ubicación
   direccionActual: string = 'Av. San Manuel, Puebla (Cerca de CU)';
@@ -88,28 +91,84 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     private reportService: ReportService,
     private localReportCache: LocalReportCacheService,
     private cartelPdf: CartelPdf,
+    private auth: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     const state = this.router.getCurrentNavigation()?.extras.state
       ?? history.state;
-
+ 
     const datos = state?.['datosAutocompletar'];
-
+ 
     if (datos) {
       if (datos.telefono_contacto) {
         this.telefonoUsuario = datos.telefono_contacto;
       }
-
+ 
       if (datos.descripcion_bruta) {
-        // El PDF solo trae texto plano, lo mandamos a notas adicionales
-        // recortado al límite que ya valida descripcionValida() (250 caracteres).
         this.notasAdicionales = datos.descripcion_bruta.slice(0, 250);
       }
     }
+ 
+    this.autocompletarContactoDesdePerfil();
+  }
+ 
+  /**
+   * Si hay sesión iniciada y el perfil ya tiene nombre + teléfono
+   * guardados, se usan aquí y se muestran como resumen (no se le vuelve
+   * a pedir escribirlos). Si le falta el teléfono — típico de quien entró
+   * con Google, que no lo da — se deja el formulario normal, editable,
+   * igual que a un invitado.
+   *
+   * OJO: si datosAutocompletar (import de PDF) ya puso un teléfono, no lo
+   * pisamos — se respeta lo que vino del PDF.
+   */
+  private autocompletarContactoDesdePerfil(): void {
+    if (!this.auth.isLoggedIn()) return;
+ 
+    const usuario = this.auth.getCurrentUser();
+    if (!usuario) return;
+ 
+    const nombreCompleto = `${usuario.first_name ?? ''} ${usuario.last_name ?? ''}`.trim();
+    const telefonoPerfil = usuario.telefono?.trim();
+ 
+    if (!this.telefonoUsuario && telefonoPerfil) {
+      this.telefonoUsuario = telefonoPerfil;
+    }
+ 
+    if (!this.nombreUsuario && nombreCompleto) {
+      this.nombreUsuario = nombreCompleto;
+    }
+ 
+    // Solo se muestra como "resumen de solo lectura" si AMBOS datos
+    // quedaron completos. Si falta el teléfono, sigue como formulario
+    // editable normal (nombreUsuario puede haber quedado prellenado,
+    // pero el usuario todavía tiene que confirmar/poner el teléfono).
+    this.contactoDesdePerfil = !!(this.nombreUsuario && this.telefonoContactoValido());
+  }
+ 
+  /** El reportante quiere usar un contacto distinto al de su perfil, solo para este reporte. */
+  usarOtroContacto(): void {
+    this.editandoContactoManualmente = true;
+  }
+ 
+  /** Regresa al resumen del perfil (descarta lo que haya escrito manualmente). */
+  usarContactoDePerfil(): void {
+    this.editandoContactoManualmente = false;
+    this.autocompletarContactoDesdePerfil();
+  }
+ 
+  /** El HTML usa esto para decidir: ¿muestro el resumen, o los inputs editables? */
+  get mostrarResumenContacto(): boolean {
+    return this.contactoDesdePerfil && !this.editandoContactoManualmente;
   }
 
+  ngOnDestroy(): void {
+    this.destroyInteractiveMap();
+    this.destroyPreviewMap();
+  }
+  
   ngAfterViewInit() {}
 
   // === INICIALIZACIÓN DE MAPA INTERACTIVO (PASO 3) ===
@@ -223,12 +282,13 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     if (!this.folioGenerado || this.descargandoCartelManual) {
       return;
     }
-
+ 
     this.descargandoCartelManual = true;
-
+ 
     try {
       await this.cartelPdf.descargarCartel({
         folio: this.folioGenerado,
+        incluirTalonPrivado: true, // <-- AGREGAR
         imagen: this.archivosSeleccionados[0]?.archivoFisico ?? null,
         nombreCaso: this.nombreCaso.trim() || undefined,
         tipoAnimal: this.tipoAnimal.trim() || undefined,

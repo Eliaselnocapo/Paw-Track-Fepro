@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
@@ -8,7 +8,7 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 
 import { ReportService, IncidenciaResponse, EntradaHistorial } from '../../../../core/services/report.service';
 import { environment } from 'src/environments/environment';
-declare let L: any;
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-view-follow-up',
@@ -23,7 +23,7 @@ declare let L: any;
   templateUrl: './view-follow-up.page.html',
   styleUrls: ['./view-follow-up.page.scss'],
 })
-export class ViewFollowUpPage implements OnInit {
+export class ViewFollowUpPage implements OnInit, OnDestroy {
 
   private mapaFinal: any = null;
   incidencia: IncidenciaResponse | null = null;
@@ -83,6 +83,12 @@ cargar(): void {
     error: () => { this.historial = []; },
   });
 }
+  ngOnDestroy(): void {
+    if (this.mapaFinal) {
+      this.mapaFinal.remove();
+      this.mapaFinal = null;
+    }
+  }
 
   // ─────────────────────────────────────────
   // Estado del caso
@@ -283,8 +289,8 @@ cargar(): void {
         attributionControl: false,
       }).setView([ubi.lat, ubi.lng], 15);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19,
       }).addTo(this.mapaFinal);
 

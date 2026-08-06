@@ -233,25 +233,38 @@
               ) {
                 <article class="tarjeta-centro">
 
-                  <div class="tarjeta-cabecera">
-                    <div class="icono-centro">
-                      <span class="material-symbols-outlined">
-                        pets
-                      </span>
-                    </div>
-
-                    <div class="nombre-centro">
-                      <h3>{{ centro.nombre }}</h3>
-
-                      <span class="tipo-centro">
-                        Refugio de animales
-                      </span>
-                    </div>
-
-                    <span class="distancia-centro">
-                      {{ centro.distanciaKm }} km
+              <div class="tarjeta-cabecera">
+                <div class="icono-centro" [class.icono-verificado]="centro.verificado">
+                  <span class="material-symbols-outlined">
+                    {{ centro.tipo === 'veterinaria' ? 'local_hospital' : 'pets' }}
+                  </span>
+                </div>
+              
+                <div class="nombre-centro">
+                  <h3>{{ centro.nombre }}</h3>
+              
+                  <div class="fila-tipo-badge">
+                    <span class="tipo-centro">
+                      {{ centro.tipo === 'veterinaria' ? 'Veterinaria' : 'Refugio de animales' }}
                     </span>
+              
+                    @if (centro.verificado) {
+                      <span class="badge-verificado">
+                        <span class="material-symbols-outlined">verified</span>
+                        Verificado
+                      </span>
+                    } @else {
+                      <span class="badge-no-verificado">
+                        Sin verificar
+                      </span>
+                    }
                   </div>
+                </div>
+              
+                <span class="distancia-centro">
+                  {{ centro.distanciaKm }} km
+                </span>
+              </div>
 
                   @if (
                     centro.direccion ||
@@ -317,6 +330,15 @@
 
                       Ver en mapa
                     </button>
+                    @if (centro.verificado) {
+                    <a
+                      [routerLink]="['/centro', centro.id]"
+                      class="boton-secundario"
+                    >
+                      <span class="material-symbols-outlined">badge</span>
+                      Ver perfil
+                    </a>
+                    }
 
                     @if (centro.sitioWeb) {
                       <a

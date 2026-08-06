@@ -8,6 +8,7 @@ import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/foote
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 import { environment } from '../../../../../environments/environment';
+import { CartelPdf } from '../../../../core/services/cartel-pdf'; // AJUSTA la ruta al lugar real de tu servicio
 
 declare const L: any;
 
@@ -30,6 +31,9 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
   cargando = true;
   error: string | null = null;
 
+  generandoCartel = false;
+  errorCartel: string | null = null;
+
   private mapaWeb: any = null;
 
   constructor(
@@ -37,6 +41,7 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private reportService: ReportService,
     private localReportCache: LocalReportCacheService,
+    private cartelPdf: CartelPdf,
   ) {}
 
   ngOnInit(): void {
@@ -198,6 +203,47 @@ export class ViewReportComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return false;
+  }
+
+  // ─────────────────────────────────────────
+  // Descargar cartel: disponible para CUALQUIERA que vea el reporte,
+  // no solo el dueño — la idea es que cualquiera pueda ayudar a
+  // difundirlo (imprimirlo, publicarlo en redes, pegarlo en la zona, etc).
+  // ─────────────────────────────────────────
+
+  descargarCartel(): void {
+    if (!this.reporte || this.generandoCartel) return;
+ 
+    this.generandoCartel = true;
+    this.errorCartel = null;
+ 
+    const imagenAbsoluta = this.reporte.imagen
+      ? this.imagenUrl(this.reporte.imagen)
+      : null;
+ 
+    this.cartelPdf
+      .descargarCartel({
+        folio: this.reporte.folio ?? String(this.reporte.id),
+        incluirTalonPrivado: this.puedeEditar(), // <-- AGREGAR: solo el dueño ve el folio privado
+        nombreCaso: this.reporte.nombre_caso ?? undefined,
+        tipoAnimal: this.reporte.tipo_animal ?? undefined,
+        tamanoAnimal: this.reporte.tamano_animal ?? undefined,
+        condicionAnimal: this.reporte.condicion_animal ?? undefined,
+        direccion: this.reporte.direccion ?? undefined,
+        caracteristicas: this.reporte.caracteristicas ?? undefined,
+        notasAnimal: this.reporte.notas_animal ?? undefined,
+        nombreContacto: this.reporte.nombre_contacto ?? undefined,
+        telefonoContacto: this.reporte.telefono_contacto ?? undefined,
+        imagen: imagenAbsoluta ?? undefined,
+      })
+      .then(() => {
+        this.generandoCartel = false;
+      })
+      .catch((err) => {
+        console.error('No se pudo generar el cartel:', err);
+        this.generandoCartel = false;
+        this.errorCartel = 'No se pudo generar el cartel. Intenta de nuevo.';
+      });
   }
 
   regresar(): void {

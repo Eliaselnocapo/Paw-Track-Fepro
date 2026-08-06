@@ -1,0 +1,314 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900">
+
+    <app-navbar-web></app-navbar-web>
+
+    @if (cargando) {
+      <main class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-12 py-8">
+        <section class="bg-white border border-slate-300 shadow-md p-8 text-center text-slate-500 font-semibold">
+          Cargando tu reputación...
+        </section>
+      </main>
+    } @else if (error) {
+      <main class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-12 py-8">
+        <section class="bg-white border border-red-200 shadow-md p-8 text-center text-red-600 font-semibold">
+          {{ error }}
+          <div class="mt-3">
+            <button (click)="cargarReputacion()" class="text-sm font-bold text-blue-700 hover:underline">
+              Reintentar
+            </button>
+          </div>
+        </section>
+      </main>
+    } @else if (datos) {
+
+      <main class="flex-grow w-full max-w-7xl mx-auto px-4 md:px-12 py-8 grid grid-cols-12 gap-6">
+
+        <!-- ENCABEZADO (hero) -->
+        <div class="col-span-12 mb-2">
+          <a routerLink="/profile" class="inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-blue-700 transition-colors mb-3">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            Volver a mi perfil
+          </a>
+
+          <div class="relative bg-white rounded border border-slate-300 shadow-md overflow-hidden p-6 md:p-8">
+            <!-- Manchas decorativas suaves, mismo lenguaje que el resto de hero cards -->
+            <div class="absolute -top-10 -right-10 w-48 h-48 bg-blue-50 rounded-full pointer-events-none"></div>
+            <div class="absolute bottom-[-40px] right-24 w-28 h-28 bg-emerald-50 rounded-full pointer-events-none"></div>
+            <div class="absolute top-6 right-40 w-16 h-16 bg-violet-50 rounded-full pointer-events-none hidden md:block"></div>
+
+            <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <p class="text-xs font-bold uppercase text-blue-700 mb-1">Panel de reputación</p>
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Sistema de reputación y confianza</h1>
+                <p class="text-sm md:text-base text-slate-500 mt-2 max-w-xl">
+                  Así calcula PawTrack qué tan confiable es tu actividad, a partir de tus reportes, rescates y seguimientos validados.
+                </p>
+              </div>
+
+              <div class="shrink-0 w-14 h-14 rounded-2xl bg-blue-700 text-white flex items-center justify-center shadow-md self-start md:self-center">
+                <span class="material-symbols-outlined text-3xl">verified_user</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GAUGE DE CONFIANZA -->
+        <article class="col-span-12 lg:col-span-4 bg-white border border-slate-300 shadow-md rounded overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-slate-100 bg-slate-50">
+            <p class="text-xs font-bold uppercase text-blue-700 mb-1">Contribución PawTrack</p>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <span class="material-symbols-outlined text-blue-700">verified_user</span>
+              Puntuación de confianza
+            </h2>
+          </div>
+
+          <div class="flex-grow flex flex-col items-center justify-center p-6">
+            <div class="relative w-48 h-48 flex items-center justify-center">
+              <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                <circle cx="50" cy="50" r="45" fill="none" stroke-width="8" class="stroke-slate-100" />
+                <circle
+                  cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke-linecap="round"
+                  [attr.stroke-dasharray]="circunferenciaGauge"
+                  [attr.stroke-dashoffset]="dashOffsetGauge"
+                  [style.stroke]="nivelActual.colorBarra"
+                  class="transition-all duration-700"
+                />
+              </svg>
+              <div class="absolute flex flex-col items-center">
+                <span class="text-5xl font-bold" [style.color]="nivelActual.colorBarra">{{ datos.score }}</span>
+                <span class="text-xs font-bold uppercase text-slate-400">/ 100</span>
+              </div>
+            </div>
+
+            <div
+              class="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 border text-xs font-bold uppercase rounded"
+              [ngClass]="nivelActual.colorClase"
+            >
+              <span class="material-symbols-outlined" style="font-size: 16px;">{{ nivelActual.icono }}</span>
+              {{ nivelActual.nombre }}
+            </div>
+
+            <div class="mt-6 w-full">
+              <div class="flex justify-between text-sm text-slate-500 mb-1.5">
+                <span>Puntos por casos falsos</span>
+                <span class="text-red-600 font-bold">{{ datos.impactoFraude }} pts</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="bg-red-500 h-2 rounded-full" [style.width.%]="impactoFraudePorcentaje"></div>
+              </div>
+              <p class="mt-2 text-xs text-slate-500 text-center">
+                Reportes marcados como <code class="bg-slate-100 px-1 rounded text-red-600">falso positivo</code> reducen tu puntuación.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CICLO DE CREDIBILIDAD + URGENCIA VS CONFIANZA -->
+        <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+
+          <!-- CICLO DE CREDIBILIDAD -->
+          <article class="bg-white border border-slate-300 shadow-md rounded overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50">
+              <p class="text-xs font-bold uppercase text-blue-700 mb-1">Cómo funciona</p>
+              <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-orange-600">cycle</span>
+                Ciclo de credibilidad
+              </h2>
+            </div>
+
+            <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-red-50 border border-red-100 p-4 rounded">
+                <div class="flex items-center gap-2 text-red-600 mb-2">
+                  <span class="material-symbols-outlined text-[20px]">warning</span>
+                  <span class="text-xs font-bold uppercase">Menos de 40 pts</span>
+                </div>
+                <p class="text-sm text-slate-600">Tus reportes entran con baja prioridad. No se disparan notificaciones push.</p>
+              </div>
+
+              <div class="bg-blue-50 border border-blue-100 p-4 rounded">
+                <div class="flex items-center gap-2 text-blue-700 mb-2">
+                  <span class="material-symbols-outlined text-[20px]">rule</span>
+                  <span class="text-xs font-bold uppercase">Validación cruzada</span>
+                </div>
+                <p class="text-sm text-slate-600">El sistema requiere confirmación de otro usuario cercano al evento.</p>
+              </div>
+
+              <div class="bg-emerald-50 border border-emerald-100 p-4 rounded">
+                <div class="flex items-center gap-2 text-emerald-700 mb-2">
+                  <span class="material-symbols-outlined text-[20px]">trending_up</span>
+                  <span class="text-xs font-bold uppercase">Recuperación</span>
+                </div>
+                <p class="text-sm text-slate-600">Aportes validados suman puntos de forma progresiva hacia el siguiente nivel.</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- URGENCIA VS CONFIANZA -->
+          <article class="bg-white border border-slate-300 shadow-md rounded overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50">
+              <p class="text-xs font-bold uppercase text-blue-700 mb-1">Impacto en tus reportes</p>
+              <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-700">data_exploration</span>
+                Urgencia vs. confianza
+              </h2>
+            </div>
+
+            <div class="p-5 flex flex-col md:flex-row items-center gap-6">
+              <div class="w-full md:w-1/2">
+                <p class="text-sm text-slate-600 mb-4">
+                  La urgencia de un reporte solo se amplifica si mantienes un puntaje de confianza suficiente.
+                </p>
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <span class="text-sm text-slate-700">Prioridad reducida:</span>
+                    <code class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">score &lt; 40</code>
+                  </div>
+                  <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <span class="text-sm text-slate-700">Escalado gradual:</span>
+                    <code class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded">40 – 79</code>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-700">Prioridad automática:</span>
+                    <code class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded">score &gt; 80</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="w-full md:w-1/2 bg-slate-50 border border-slate-200 rounded p-4">
+                <p class="text-xs font-bold uppercase text-slate-400 mb-4 text-center">Dónde caes tú</p>
+                <div class="relative h-40 flex items-end justify-center gap-6">
+                  <!-- Líneas de referencia -->
+                  <div class="absolute left-0 right-0 border-t border-dashed border-slate-300" style="bottom: 40%;">
+                    <span class="absolute -top-4 right-0 text-[10px] font-bold text-slate-400">80</span>
+                  </div>
+                  <div class="absolute left-0 right-0 border-t border-dashed border-slate-300" style="bottom: 20%;">
+                    <span class="absolute -top-4 right-0 text-[10px] font-bold text-slate-400">40</span>
+                  </div>
+
+                  <!-- Barra: Bajo -->
+                  <div class="flex flex-col items-center gap-1.5 z-10">
+                    <span class="text-xs font-bold text-slate-500">20</span>
+                    <div class="w-10 bg-red-400 rounded-t" style="height: 40px"></div>
+                    <span class="text-[11px] font-bold uppercase text-slate-500">Bajo</span>
+                  </div>
+
+                  <!-- Barra: Medio -->
+                  <div class="flex flex-col items-center gap-1.5 z-10">
+                    <span class="text-xs font-bold text-slate-500">55</span>
+                    <div class="w-10 bg-blue-500 rounded-t" style="height: 88px"></div>
+                    <span class="text-[11px] font-bold uppercase text-slate-500">Medio</span>
+                  </div>
+
+                  <!-- Barra: Tú (score real) -->
+                  <div class="flex flex-col items-center gap-1.5 z-10 relative">
+                    <span class="absolute -top-8 bg-emerald-600 text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap">Tú estás aquí</span>
+                    <span class="text-xs font-bold text-emerald-700">{{ datos.score }}</span>
+                    <div class="w-10 bg-emerald-500 rounded-t ring-2 ring-emerald-600 ring-offset-2" [style.height.px]="scoreGaugePorcentaje * 1.6"></div>
+                    <span class="text-[11px] font-bold uppercase text-emerald-700">Tú</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- HISTORIAL DE VERACIDAD -->
+        <section class="col-span-12 bg-white border border-slate-300 shadow-md rounded overflow-hidden">
+          <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <p class="text-xs font-bold uppercase text-blue-700 mb-1">Trazabilidad</p>
+              <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-500">history</span>
+                Historial de veracidad
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              (click)="vistaTecnica = !vistaTecnica"
+              class="text-xs font-bold uppercase text-blue-700 border border-blue-200 bg-blue-50 px-3 py-1.5 rounded hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+            >
+              <span class="material-symbols-outlined text-[16px]">{{ vistaTecnica ? 'visibility_off' : 'code' }}</span>
+              {{ vistaTecnica ? 'Ocultar detalle técnico' : 'Ver detalle técnico' }}
+            </button>
+          </div>
+
+          <div class="p-5 overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[640px]" *ngIf="historialCasos.length > 0">
+              <thead>
+                <tr class="border-b border-slate-200">
+                  <th class="py-3 px-3 text-xs font-bold uppercase text-slate-400">Folio</th>
+                  <th class="py-3 px-3 text-xs font-bold uppercase text-slate-400">Tipo</th>
+                  <th class="py-3 px-3 text-xs font-bold uppercase text-slate-400">Estado</th>
+                  <th class="py-3 px-3 text-xs font-bold uppercase text-slate-400">
+                    {{ vistaTecnica ? 'Variables técnicas' : 'Detalle' }}
+                  </th>
+                  <th class="py-3 px-3 text-xs font-bold uppercase text-slate-400 text-right">Impacto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let caso of historialCasos" class="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                  <td class="py-3 px-3 text-sm font-mono font-bold text-slate-900">{{ caso.folio }}</td>
+                  <td class="py-3 px-3 text-sm text-slate-700">{{ caso.tipo }}</td>
+                  <td class="py-3 px-3">
+                    <span
+                      class="inline-flex items-center gap-1 px-2 py-1 border text-xs font-bold uppercase rounded"
+                      [ngClass]="claseEstado(caso.estado)"
+                    >
+                      <span class="material-symbols-outlined text-[14px]">{{ iconoEstado(caso.estado) }}</span>
+                      {{ etiquetaEstado(caso.estado) }}
+                    </span>
+                  </td>
+
+                  <!-- Vista humana (default) -->
+                  <td class="py-3 px-3" *ngIf="!vistaTecnica">
+                    <div class="flex flex-col gap-1">
+                      <span
+                        class="inline-flex items-center gap-1 text-xs font-semibold"
+                        [class.text-emerald-700]="caso.fraudFlags === 0"
+                        [class.text-red-600]="caso.fraudFlags > 0"
+                      >
+                        <span class="material-symbols-outlined text-[14px]">{{ caso.fraudFlags === 0 ? 'check_circle' : 'report' }}</span>
+                        {{ caso.fraudFlags === 0 ? 'Sin alertas de fraude' : caso.fraudFlags + ' alerta(s) de fraude' }}
+                      </span>
+                      <span class="text-xs text-slate-500" *ngIf="caso.urgencyMultiplier !== 1">
+                        Urgencia {{ caso.urgencyMultiplier > 1 ? 'amplificada' : 'reducida' }} x{{ caso.urgencyMultiplier }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <!-- Vista técnica (toggle) -->
+                  <td class="py-3 px-3 font-mono text-xs text-slate-500" *ngIf="vistaTecnica">
+                    <div [class.text-red-600]="caso.fraudFlags > 0">fraud_flags = {{ caso.fraudFlags }}</div>
+                    <div>urgency_multiplier = {{ caso.urgencyMultiplier }}</div>
+                  </td>
+
+                  <td
+                    class="py-3 px-3 text-sm font-bold text-right"
+                    [class.text-emerald-700]="caso.impactoPuntos > 0"
+                    [class.text-red-600]="caso.impactoPuntos < 0"
+                    [class.text-slate-400]="caso.impactoPuntos === 0"
+                  >
+                    {{ caso.impactoPuntos > 0 ? '+' : '' }}{{ caso.impactoPuntos }} pts
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p *ngIf="historialCasos.length === 0" class="text-sm text-slate-500 text-center py-6">
+              Aún no hay casos registrados que hayan afectado tu puntuación.
+            </p>
+          </div>
+        </section>
+
+      </main>
+    }
+
+    <footer class="w-full bg-white border-t border-slate-200 mt-auto">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
+</ion-content>

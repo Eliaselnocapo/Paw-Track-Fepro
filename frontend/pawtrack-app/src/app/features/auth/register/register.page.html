@@ -166,7 +166,7 @@
           <form class="space-y-5" (ngSubmit)="onSubmit()" #registerForm="ngForm">
 
             <!-- Campos de datos -->
-            <div class="space-y-4 pt-2">
+            <div class="space-y-0 pt-2">
 
               <!-- Nombre completo -->
               <div class="min-h-[64px]">
@@ -214,6 +214,40 @@
                 <div class="mt-1 h-[16px]"></div>
               </div>
 
+              <!-- Teléfono -->
+              <div class="min-h-[64px]">
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span
+                      class="material-symbols-outlined text-slate-400 text-[20px]"
+                      [class.text-red-400]="telefono && !telefonoValido(telefono)"
+                    >
+                      call
+                    </span>
+                  </div>
+              
+                  <input
+                    class="block w-full pl-10 pr-4 h-11 border border-slate-300 rounded bg-slate-50 text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm outline-none shadow-sm placeholder-slate-400 transition-colors"
+                    [class.border-red-400]="telefono && !telefonoValido(telefono)"
+                    id="telefono"
+                    name="telefono"
+                    type="tel"
+                    placeholder="Teléfono (10 dígitos)"
+                    [(ngModel)]="telefono"
+                    required
+                  />
+                </div>
+              
+                <div class="mt-1 h-[16px]">
+                  <p
+                    *ngIf="telefono && !telefonoValido(telefono)"
+                    class="text-xs text-red-600 pl-1"
+                  >
+                    Ingresa un teléfono válido (mínimo 10 dígitos).
+                  </p>
+                </div>
+              </div>
+              
               <!-- Contraseña -->
               <div class="min-h-[64px]">
                 <div class="relative">

@@ -1,0 +1,514 @@
+<ion-content [fullscreen]="true">
+  <div class="min-h-screen w-full bg-blue-50 flex flex-col relative overflow-hidden">
+
+    <div class="absolute top-1 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-[-5%] left-[-10%] w-[350px] h-[350px] rounded-full bg-gradient-to-br from-blue-200 to-blue-400 opacity-25"></div>
+      <div class="absolute top-[12%] right-0 w-[150px] h-[400px] rounded-l-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-25"></div>
+      <div class="absolute bottom-[-8%] right-[-6%] w-[380px] h-[380px] rounded-full bg-gradient-to-tl from-emerald-200 to-blue-300 opacity-20"></div>
+    </div>
+
+    <app-navbar-web class="relative z-20"></app-navbar-web>
+
+    <main class="relative z-10 w-full max-w-6xl mx-auto px-6 py-10">
+
+      <button type="button" (click)="volver()" class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        Volver a refugios cercanos
+      </button>
+
+      @if (cargando) {
+        <section class="bg-white/85 backdrop-blur-xl rounded border border-slate-300 shadow-md p-10 text-center text-slate-500 font-semibold">
+          Cargando tu centro...
+        </section>
+      } @else if (error) {
+        <section class="bg-red-50 border border-red-200 rounded shadow-sm p-8 text-center">
+          <p class="text-red-600 font-semibold">{{ error }}</p>
+          <button (click)="cargarPerfil()" class="mt-3 text-sm font-bold text-blue-700 hover:underline">Reintentar</button>
+        </section>
+      } @else if (perfil && centro) {
+
+        <p class="text-sm font-bold text-blue-700 mb-1 px-1">Panel de administración</p>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-6 px-1">Administrar {{ centro.nombre }}</h1>
+
+        @if (!editando) {
+
+          <!-- ═══════════ MODO VISTA: hero con preview real + acciones ═══════════ -->
+          <div class="bg-white rounded border border-slate-300 shadow-xl overflow-hidden mb-6">
+
+            <div class="relative h-40 md:h-48 bg-gradient-to-br from-blue-500 to-blue-700">
+              @if (centro.bannerUrl) {
+                <img [src]="centro.bannerUrl" class="absolute inset-0 w-full h-full object-cover">
+              } @else {
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-white/30 text-[56px]">image</span>
+                </div>
+              }
+
+              <span class="absolute top-4 right-4 text-xs font-bold uppercase px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md"
+                [ngClass]="centro.estado === 'APROBADO' ? 'bg-emerald-500 text-white' : 'bg-white/90 text-slate-600'">
+                <span class="material-symbols-outlined text-[15px]">{{ centro.estado === 'APROBADO' ? 'verified' : 'schedule' }}</span>
+                {{ centro.estado === 'APROBADO' ? 'Verificado' : 'Pendiente' }}
+              </span>
+
+              <div class="absolute -bottom-9 left-6 w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden bg-white">
+                @if (centro.logoUrl) {
+                  <img [src]="centro.logoUrl" class="w-full h-full object-cover">
+                } @else {
+                  <div class="w-full h-full bg-slate-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-slate-300 text-[28px]">{{ centro.tipo === 'veterinaria' ? 'local_hospital' : 'pets' }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="pt-12 px-6 pb-5 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div>
+                <h2 class="text-xl font-bold text-slate-900">{{ centro.nombre }}</h2>
+                <span class="inline-flex items-center gap-1.5 mt-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                  <span class="material-symbols-outlined text-[14px]">{{ centro.tipo === 'veterinaria' ? 'local_hospital' : 'pets' }}</span>
+                  {{ centro.tipo === 'veterinaria' ? 'Veterinaria' : 'Refugio' }}
+                </span>
+              </div>
+
+              <div class="flex gap-2">
+                <button type="button" [routerLink]="['/centro', centro.id]"
+                  class="h-10 px-4 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px]">visibility</span>
+                  Ver perfil público
+                </button>
+                <button type="button" (click)="activarEdicion()"
+                  class="h-10 px-4 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px]">edit</span>
+                  Editar información
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATS -->
+          <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <button type="button" (click)="abrirSeguidores()"
+              class="bg-white rounded border border-slate-300 shadow-sm p-4 flex items-center gap-3 hover:border-blue-300 hover:shadow-md transition-all text-left">
+              <span class="w-9 h-9 rounded bg-blue-700 text-white grid place-items-center shrink-0">
+                <span class="material-symbols-outlined text-[18px]">group</span>
+              </span>
+              <div>
+                <p class="text-lg font-bold text-slate-900 leading-none">{{ perfil.estadisticas.seguidores }}</p>
+                <p class="text-[11px] font-bold uppercase text-slate-400 mt-0.5">Seguidores</p>
+              </div>
+            </button>
+            <div class="bg-white rounded border border-slate-300 shadow-sm p-4 flex items-center gap-3">
+              <span class="w-9 h-9 rounded bg-blue-700 text-white grid place-items-center shrink-0">
+                <span class="material-symbols-outlined text-[18px]">campaign</span>
+              </span>
+              <div>
+                <p class="text-lg font-bold text-slate-900 leading-none">{{ perfil.estadisticas.totalPublicaciones }}</p>
+                <p class="text-[11px] font-bold uppercase text-slate-400 mt-0.5">Publicaciones</p>
+              </div>
+            </div>
+            <div class="bg-white rounded border border-slate-300 shadow-sm p-4 flex items-center gap-3">
+              <span class="w-9 h-9 rounded bg-amber-500 text-white grid place-items-center shrink-0">
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+              </span>
+              <div>
+                <p class="text-lg font-bold text-slate-900 leading-none">{{ perfil.estadisticas.calificacionPromedio }}</p>
+                <p class="text-[11px] font-bold uppercase text-slate-400 mt-0.5">Calificación</p>
+              </div>
+            </div>
+            <div class="bg-white rounded border border-slate-300 shadow-sm p-4 flex items-center gap-3">
+              <span class="w-9 h-9 rounded bg-slate-500 text-white grid place-items-center shrink-0">
+                <span class="material-symbols-outlined text-[18px]">rate_review</span>
+              </span>
+              <div>
+                <p class="text-lg font-bold text-slate-900 leading-none">{{ perfil.estadisticas.totalResenas }}</p>
+                <p class="text-[11px] font-bold uppercase text-slate-400 mt-0.5">Reseñas</p>
+              </div>
+            </div>
+          </section>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <div class="lg:col-span-8 flex flex-col gap-6">
+
+              <!-- PUBLICAR -->
+              <section class="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded bg-blue-700 text-white grid place-items-center shrink-0">
+                      <span class="material-symbols-outlined text-[16px]">campaign</span>
+                    </span>
+                    <h2 class="text-lg font-bold text-slate-900">Publicar novedad</h2>
+                  </div>
+                  @if (!mostrarFormularioPost) {
+                    <button type="button" (click)="abrirFormularioPost()"
+                      class="h-9 px-4 bg-blue-700 text-white text-xs font-bold rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[16px]">add</span>
+                      Nueva
+                    </button>
+                  }
+                </div>
+
+                @if (mostrarFormularioPost) {
+                  <div class="p-5">
+                    <textarea [(ngModel)]="textoNuevoPost" rows="4"
+                      class="w-full border border-slate-300 bg-slate-50 p-3 text-sm outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"
+                      placeholder="Comparte una novedad, evento, jornada, o necesidad urgente..."></textarea>
+
+                    @if (fotoPostPreview) {
+                      <div class="relative w-full h-40 mt-3 rounded overflow-hidden border border-slate-300">
+                        <img [src]="fotoPostPreview" class="w-full h-full object-cover">
+                        <button type="button" (click)="quitarFotoPost()"
+                          class="absolute top-2 right-2 w-7 h-7 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors">
+                          <span class="material-symbols-outlined text-[16px]">close</span>
+                        </button>
+                      </div>
+                    } @else {
+                      <label class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:underline cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+                        Agregar foto
+                        <input type="file" accept="image/*" class="hidden" (change)="onFotoPostSeleccionada($event)">
+                      </label>
+                    }
+
+                    @if (errorPost) {
+                      <p class="text-xs text-red-600 font-semibold mt-2">{{ errorPost }}</p>
+                    }
+
+                    <div class="flex justify-end gap-2 mt-3">
+                      <button type="button" (click)="cancelarPost()"
+                        class="h-10 px-5 bg-white border border-slate-300 text-slate-600 text-sm font-bold rounded-lg hover:bg-slate-50 transition-colors">
+                        Cancelar
+                      </button>
+                      <button type="button" (click)="publicarPost()" [disabled]="enviandoPost"
+                        class="h-10 px-5 bg-blue-700 text-white text-sm font-bold rounded-lg hover:bg-blue-800 disabled:opacity-50 transition-colors flex items-center gap-2">
+                        @if (enviandoPost) {
+                          <span class="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>
+                          Guardando...
+                        } @else {
+                          <span class="material-symbols-outlined text-[16px]">{{ editandoPostId !== null ? 'save' : 'send' }}</span>
+                          {{ editandoPostId !== null ? 'Guardar cambios' : 'Publicar' }}
+                        }
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="p-5 text-sm text-slate-500">
+                    Comparte novedades, campañas, animales en adopción o eventos con quienes te siguen.
+                  </div>
+                }
+              </section>
+
+              <!-- MIS PUBLICACIONES -->
+              <section class="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50">
+                  <h2 class="text-lg font-bold text-slate-900">Tus publicaciones</h2>
+                </div>
+
+                @if (perfil.publicaciones.length === 0) {
+                  <div class="p-8 text-center text-sm text-slate-500">
+                    Todavía no has publicado nada.
+                  </div>
+                } @else {
+                  <div class="divide-y divide-slate-100">
+                    @for (post of perfil.publicaciones; track post.id) {
+                      <article class="p-5 flex items-start justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                          <p class="text-xs text-slate-400 mb-1">{{ post.fecha | date:'d MMM y, HH:mm' }}</p>
+                          <p class="text-sm text-slate-700 leading-relaxed">{{ post.texto }}</p>
+                          @if (post.imagenUrl) {
+                            <img [src]="post.imagenUrl" class="mt-3 w-full max-h-56 object-cover rounded border border-slate-200">
+                          }
+                        </div>
+                        <div class="flex gap-1 shrink-0">
+                          <button type="button" (click)="editarPost(post)"
+                            class="w-8 h-8 rounded text-slate-400 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                          </button>
+                          <button type="button" (click)="eliminarPost(post.id)"
+                            class="w-8 h-8 rounded text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                          </button>
+                        </div>
+                      </article>
+                    }
+                  </div>
+                }
+              </section>
+
+            </div>
+
+            <!-- RESEÑAS RECIBIDAS -->
+            <aside class="lg:col-span-4">
+              <section class="bg-white rounded border border-slate-300 shadow-md overflow-hidden lg:sticky lg:top-6">
+                <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
+                  <span class="w-7 h-7 rounded bg-amber-500 text-white grid place-items-center shrink-0">
+                    <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                  </span>
+                  <h2 class="text-lg font-bold text-slate-900">Reseñas recibidas</h2>
+                </div>
+
+                @if (perfil.resenas.length === 0) {
+                  <div class="p-6 text-center text-sm text-slate-500">
+                    Todavía no tienes reseñas.
+                  </div>
+                } @else {
+                  <div class="divide-y divide-slate-100 max-h-[420px] overflow-y-auto">
+                    @for (resena of perfil.resenas; track resena.id) {
+                      <article class="p-4">
+                        <div class="flex items-center justify-between mb-1">
+                          <p class="font-bold text-sm text-slate-900">{{ resena.autorNombre }}</p>
+                          <p class="text-[11px] text-slate-400">{{ resena.fecha | date:'d MMM' }}</p>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">{{ resena.comentario }}</p>
+
+                        @if (resena.respuestaCentro) {
+                          <div class="mt-2 pl-3 border-l-2 border-blue-200">
+                            <p class="text-[10px] font-bold uppercase text-blue-700 mb-0.5">Tu respuesta</p>
+                            <p class="text-xs text-slate-600 leading-relaxed">{{ resena.respuestaCentro }}</p>
+                          </div>
+                        } @else if (respondiendoResenaId === resena.id) {
+                          <div class="mt-2">
+                            <textarea [(ngModel)]="textoRespuesta" rows="2"
+                              class="w-full border border-slate-300 bg-slate-50 p-2 text-xs outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"
+                              placeholder="Responde públicamente..."></textarea>
+
+                            @if (errorRespuesta) {
+                              <p class="text-[11px] text-red-600 font-semibold mt-1">{{ errorRespuesta }}</p>
+                            }
+
+                            <div class="flex justify-end gap-1.5 mt-1.5">
+                              <button type="button" (click)="cancelarRespuesta()"
+                                class="h-7 px-3 bg-white border border-slate-300 text-slate-600 text-[11px] font-bold rounded hover:bg-slate-50 transition-colors">
+                                Cancelar
+                              </button>
+                              <button type="button" (click)="enviarRespuesta(resena.id)" [disabled]="enviandoRespuesta"
+                                class="h-7 px-3 bg-blue-700 text-white text-[11px] font-bold rounded hover:bg-blue-800 disabled:opacity-50 transition-colors">
+                                {{ enviandoRespuesta ? 'Enviando...' : 'Responder' }}
+                              </button>
+                            </div>
+                          </div>
+                        } @else {
+                          <button type="button" (click)="abrirRespuesta(resena.id)"
+                            class="mt-1.5 text-[11px] font-bold text-blue-700 hover:underline">
+                            Responder
+                          </button>
+                        }
+                      </article>
+                    }
+                  </div>
+                }
+              </section>
+            </aside>
+
+          </div>
+
+        } @else {
+
+          <!-- ═══════════ MODO EDICIÓN ═══════════ -->
+          <section class="bg-white rounded border border-slate-300 shadow-xl overflow-hidden">
+            <div class="p-6 md:p-8 flex flex-col gap-6">
+
+              @if (errorEdicion) {
+                <div class="bg-red-50 border border-red-200 text-red-700 text-sm font-semibold px-4 py-3 rounded flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[18px]">error</span>
+                  {{ errorEdicion }}
+                </div>
+              }
+
+              <!-- Banner + logo -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">Banner (portada)</label>
+                  @if (formBannerPreview) {
+                    <div class="relative w-full h-32 rounded overflow-hidden border border-slate-300">
+                      <img [src]="formBannerPreview" class="w-full h-full object-cover">
+                    </div>
+                    <label class="mt-2 inline-block text-xs font-bold text-blue-700 hover:underline cursor-pointer">
+                      Cambiar imagen
+                      <input type="file" accept="image/*" class="hidden" (change)="onBannerSeleccionado($event)">
+                    </label>
+                  } @else {
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors">
+                      <span class="material-symbols-outlined text-slate-400 text-[24px] mb-1">image</span>
+                      <span class="text-xs text-slate-500 font-semibold">Subir portada</span>
+                      <input type="file" accept="image/*" class="hidden" (change)="onBannerSeleccionado($event)">
+                    </label>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">Logo</label>
+                  <div class="flex items-center gap-3">
+                    <div class="w-20 h-20 rounded-full overflow-hidden border border-slate-300 bg-slate-100 shrink-0">
+                      @if (formLogoPreview) {
+                        <img [src]="formLogoPreview" class="w-full h-full object-cover">
+                      } @else {
+                        <div class="w-full h-full flex items-center justify-center">
+                          <span class="material-symbols-outlined text-slate-300 text-[22px]">add_a_photo</span>
+                        </div>
+                      }
+                    </div>
+                    <label class="text-xs font-bold text-blue-700 hover:underline cursor-pointer">
+                      Cambiar logo
+                      <input type="file" accept="image/*" class="hidden" (change)="onLogoSeleccionado($event)">
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="border-slate-100">
+
+              <!-- Datos básicos -->
+              <div>
+                <label class="block text-sm font-bold text-slate-900 mb-2">Tipo de centro</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button type="button" (click)="formTipo = 'veterinaria'"
+                    class="p-3 border-2 rounded text-left transition-all"
+                    [ngClass]="formTipo === 'veterinaria' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
+                    <span class="material-symbols-outlined text-blue-700 block mb-1">local_hospital</span>
+                    <span class="font-bold text-sm text-slate-800">Veterinaria</span>
+                  </button>
+                  <button type="button" (click)="formTipo = 'refugio'"
+                    class="p-3 border-2 rounded text-left transition-all"
+                    [ngClass]="formTipo === 'refugio' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
+                    <span class="material-symbols-outlined text-blue-700 block mb-1">pets</span>
+                    <span class="font-bold text-sm text-slate-800">Refugio</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-900 mb-2">Nombre del centro</label>
+                <input type="text" [(ngModel)]="formNombre"
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">Teléfono</label>
+                  <input type="tel" [(ngModel)]="formTelefono" maxlength="10"
+                    class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+                </div>
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">Horario</label>
+                  <input type="text" [(ngModel)]="formHorario"
+                    class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-900 mb-2">Sitio web</label>
+                <input type="text" [(ngModel)]="formSitioWeb"
+                  class="w-full h-12 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-900 mb-2">Descripción</label>
+                <textarea [(ngModel)]="formDescripcion" rows="3"
+                  class="w-full border border-slate-300 bg-slate-50 p-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"></textarea>
+              </div>
+
+              <hr class="border-slate-100">
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">Misión</label>
+                  <textarea [(ngModel)]="formMision" rows="3"
+                    class="w-full border border-slate-300 bg-slate-50 p-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-bold text-slate-900 mb-2">Visión</label>
+                  <textarea [(ngModel)]="formVision" rows="3"
+                    class="w-full border border-slate-300 bg-slate-50 p-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"></textarea>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-900 mb-3">¿De qué formas pueden ayudarte?</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  @for (forma of formasAyudaDisponibles; track forma.valor) {
+                    <button type="button" (click)="toggleFormaAyuda(forma.valor)"
+                      class="p-3 border-2 rounded text-left transition-all flex items-center gap-2"
+                      [ngClass]="tieneFormaAyuda(forma.valor) ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
+                      <span class="material-symbols-outlined text-[20px]" [ngClass]="tieneFormaAyuda(forma.valor) ? 'text-blue-700' : 'text-slate-400'">{{ forma.icono }}</span>
+                      <span class="text-xs font-bold" [ngClass]="tieneFormaAyuda(forma.valor) ? 'text-blue-800' : 'text-slate-600'">{{ forma.etiqueta }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-slate-900 mb-3">Redes sociales</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input type="text" [(ngModel)]="formRedesSociales.facebook" placeholder="Facebook (link)"
+                    class="h-11 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+                  <input type="text" [(ngModel)]="formRedesSociales.instagram" placeholder="Instagram (link)"
+                    class="h-11 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+                  <input type="text" [(ngModel)]="formRedesSociales.tiktok" placeholder="TikTok (link)"
+                    class="h-11 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+                  <input type="text" [(ngModel)]="formRedesSociales.whatsapp" placeholder="WhatsApp"
+                    class="h-11 border border-slate-300 bg-slate-50 px-4 text-sm outline-none focus:bg-white focus:border-blue-700 focus:ring-2 focus:ring-blue-100 transition-all rounded">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="p-6 border-t border-slate-200 bg-slate-50 flex justify-between items-center">
+              <button type="button" (click)="cancelarEdicion()"
+                class="h-12 px-6 bg-white border border-slate-300 text-slate-700 font-bold text-sm rounded-lg hover:bg-slate-50 transition-colors">
+                Cancelar
+              </button>
+              <button type="button" (click)="guardarEdicion()" [disabled]="guardandoEdicion"
+                class="h-12 px-8 bg-blue-700 text-white font-bold text-sm rounded-lg hover:bg-blue-800 disabled:opacity-50 transition-colors flex items-center gap-2 shadow-md">
+                @if (guardandoEdicion) {
+                  <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                  Guardando...
+                } @else {
+                  <span class="material-symbols-outlined text-[18px]">save</span>
+                  Guardar cambios
+                }
+              </button>
+            </div>
+          </section>
+
+        }
+
+        <!-- MODAL: LISTA DE SEGUIDORES -->
+        @if (mostrarSeguidores) {
+          <div class="fixed inset-0 bg-slate-950/50 z-[100] flex items-center justify-center p-4" (click)="cerrarSeguidores()">
+            <div class="bg-white rounded border border-slate-300 shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden" (click)="$event.stopPropagation()">
+
+              <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                <h3 class="font-bold text-slate-900">Seguidores ({{ seguidores.length }})</h3>
+                <button type="button" (click)="cerrarSeguidores()" class="w-8 h-8 rounded hover:bg-slate-200 flex items-center justify-center transition-colors">
+                  <span class="material-symbols-outlined text-[18px] text-slate-500">close</span>
+                </button>
+              </div>
+
+              <div class="overflow-y-auto divide-y divide-slate-100">
+                @for (seguidor of seguidores; track seguidor.id) {
+                  <div class="p-4 flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0">
+                      {{ seguidor.nombre.charAt(0) }}
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold text-slate-900">{{ seguidor.nombre }}</p>
+                      <p class="text-[11px] text-slate-400">Te sigue desde {{ seguidor.desde | date:'d MMM y' }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+      }
+
+    </main>
+
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
+</ion-content>

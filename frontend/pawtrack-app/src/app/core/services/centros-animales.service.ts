@@ -1,10 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 import {
   CentroAnimal,
-  UbicacionUsuario
+  UbicacionUsuario,
+  SolicitudCentroApoyo,
+  NuevaSolicitudCentro
 } from '../models/centro-animal.model';
 
 interface OverpassTags {
@@ -195,7 +198,8 @@ export class CentrosAnimalesService {
       horario:
         tags.opening_hours,
 
-      tipo: 'refugio'
+      tipo: 'refugio',
+      verificado: false
     };
   }
 
@@ -280,4 +284,125 @@ export class CentrosAnimalesService {
         return 'Ocurrió un error al obtener tu ubicación.';
     }
   }
+
+  buscarCentrosVerificados(
+    ubicacion: UbicacionUsuario,
+    radioKm: number
+  ): Observable<CentroAnimal[]> {
+    const params = new HttpParams()
+      .set('lat', ubicacion.latitud)
+      .set('lng', ubicacion.longitud)
+      .set('radio_km', radioKm);
+ 
+    return this.http
+      .get<any[]>(`${environment.apiUrl}/centros-apoyo/cercanos/`, { params })
+      .pipe(
+        map((resultados) =>
+          resultados.map((c) => ({
+            id: `verificado-${c.id}`,
+            nombre: c.nombre,
+            latitud: c.latitud,
+            longitud: c.longitud,
+            distanciaKm: this.calcularDistanciaKm(
+              ubicacion.latitud,
+              ubicacion.longitud,
+              c.latitud,
+              c.longitud
+            ),
+            direccion: c.direccion ?? undefined,
+            telefono: c.telefono ?? undefined,
+            sitioWeb: c.sitio_web ?? undefined,
+            horario: c.horario ?? undefined,
+            tipo: c.tipo ?? 'otro',
+            verificado: true, // <-- viene de tu backend, ya fue aprobado
+          }))
+        )
+      );
+  }
+  
+  buscarTodosLosCentros(
+    ubicacion: UbicacionUsuario,
+    radioKm: number
+  ): Observable<CentroAnimal[]> {
+    return forkJoin({
+      osm: this.buscarRefugios(ubicacion, radioKm),
+      verificados: this.buscarCentrosVerificados(ubicacion, radioKm).pipe(
+        catchError(() => of([] as CentroAnimal[]))
+      ),
+    }).pipe(
+      map(({ osm, verificados }) =>
+        [...verificados, ...osm].sort((a, b) => a.distanciaKm - b.distanciaKm)
+      )
+    );
+  }
+
+    /** Registra una solicitud nueva de centro de apoyo (queda en PENDIENTE). */
+  registrarCentro(
+    solicitud: NuevaSolicitudCentro
+  ): Observable<SolicitudCentroApoyo> {
+    const formData = new FormData();
+ 
+    formData.append('nombre', solicitud.nombre);
+    formData.append('tipo', solicitud.tipo);
+    formData.append('direccion', solicitud.direccion);
+    formData.append('latitud', String(solicitud.latitud));
+    formData.append('longitud', String(solicitud.longitud));
+    formData.append('telefono', solicitud.telefono);
+ 
+    if (solicitud.horario) formData.append('horario', solicitud.horario);
+    if (solicitud.sitioWeb) formData.append('sitio_web', solicitud.sitioWeb);
+    if (solicitud.descripcion) formData.append('descripcion', solicitud.descripcion);
+    if (solicitud.mision) formData.append('mision', solicitud.mision);
+    if (solicitud.vision) formData.append('vision', solicitud.vision);
+ 
+    if (solicitud.banner) formData.append('banner', solicitud.banner);
+    if (solicitud.logo) formData.append('logo', solicitud.logo);
+ 
+    // Arrays/objetos van como JSON string dentro del FormData — es el
+    // patrón estándar, el backend los parsea con json.loads() del lado
+    // de Django al recibir el campo.
+    if (solicitud.formasAyuda?.length) {
+      formData.append('formas_ayuda', JSON.stringify(solicitud.formasAyuda));
+    }
+    if (solicitud.redesSociales) {
+      formData.append('redes_sociales', JSON.stringify(solicitud.redesSociales));
+    }
+ 
+    return this.http
+      .post<any>(`${environment.apiUrl}/centros-apoyo/`, formData)
+      .pipe(map((r) => this.mapearSolicitud(r)));
+  }
+ 
+  /** Las solicitudes que ha hecho el usuario logueado (para ver su estado). */
+  misSolicitudesCentro(): Observable<SolicitudCentroApoyo[]> {
+    return this.http
+      .get<any[]>(`${environment.apiUrl}/centros-apoyo/mis-solicitudes/`)
+      .pipe(map((lista) => lista.map((r) => this.mapearSolicitud(r))));
+  }
+ 
+  private mapearSolicitud(r: any): SolicitudCentroApoyo {
+    return {
+      id: r.id,
+      nombre: r.nombre,
+      tipo: r.tipo,
+      direccion: r.direccion,
+      latitud: r.latitud,
+      longitud: r.longitud,
+      telefono: r.telefono,
+      horario: r.horario ?? undefined,
+      sitioWeb: r.sitio_web ?? undefined,
+      descripcion: r.descripcion ?? undefined,
+      estado: r.estado,
+      motivoRechazo: r.motivo_rechazo ?? undefined,
+      createdAt: r.created_at,
+ 
+      bannerUrl: r.banner ?? undefined,
+      logoUrl: r.logo ?? undefined,
+      mision: r.mision ?? undefined,
+      vision: r.vision ?? undefined,
+      formasAyuda: r.formas_ayuda ?? undefined,
+      redesSociales: r.redes_sociales ?? undefined,
+    };
+  }
+ 
 }

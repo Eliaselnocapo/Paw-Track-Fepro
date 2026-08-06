@@ -58,6 +58,13 @@ export interface SeguimientoHistorial {
   historial: EntradaHistorial[];
 }
 
+export const MOTIVOS_CANCELACION_REPORTE = [
+  'Alguien externo a la app ya ayudó al animal',
+  'El animal ya no está en el lugar reportado',
+  'Reporté por error / duplicado',
+  'Otro motivo',
+] as const;
+
 /**
  * Candidato a duplicado que verificarDuplicado() encontró para los datos que
  * el reportante lleva capturados hasta el paso 4 del wizard (imagen +
@@ -527,6 +534,13 @@ export class ReportService {
     return this.http.post<MensajeResponse>(
       `${this.rescatesUrl}${rescateId}/cancelar/`,
       { motivo: motivo?.trim() || '' },
+    );
+  }
+
+    cancelarReporte(incidenciaId: number, motivo: string): Observable<MensajeResponse> {
+    return this.http.post<MensajeResponse>(
+      `${this.apiUrl}${incidenciaId}/cancelar/`,
+      { motivo: motivo.trim() },
     );
   }
 }

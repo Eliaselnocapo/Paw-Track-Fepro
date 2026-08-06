@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy  } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
@@ -9,7 +9,9 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 import { ReportService, RescateResponse } from '../../../../core/services/report.service';
 import { environment } from 'src/environments/environment';
 
-declare let L: any;
+import { CartelPdf } from '../../../../core/services/cartel-pdf';
+
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-details-case-accepted',
@@ -24,12 +26,14 @@ declare let L: any;
   templateUrl: './details-case-accepted.page.html',
   styleUrls: ['./details-case-accepted.page.scss'],
 })
-export class DetailsCaseAcceptedPage implements OnInit, AfterViewInit {
+export class DetailsCaseAcceptedPage implements OnInit, AfterViewInit, OnDestroy {
 
   rescate: RescateResponse | null = null;
   private mapa: any = null;
   cargando = true;
   errorCarga: string | null = null;
+  generandoCartel = false;
+  errorCartel: string | null = null;
 
   // Pasos del stepper (solo lectura)
   pasos = ['En camino', 'En sitio', 'Rescatado'];
@@ -38,6 +42,7 @@ export class DetailsCaseAcceptedPage implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private reportService: ReportService,
+    private cartelPdf: CartelPdf
   ) {}
 
   ngOnInit(): void {
@@ -114,6 +119,13 @@ private initMapa(): void {
     });
   }
 
+    ngOnDestroy(): void {
+      if (this.mapa) {
+        this.mapa.off();
+        this.mapa.remove();
+        this.mapa = null;
+      }
+    }
   // ─────────────────────────────────────────
   // Getters de presentación
   // ─────────────────────────────────────────
@@ -355,8 +367,55 @@ private initMapa(): void {
   }
 
   verCronologia(): void {
-  if (this.rescate) {
-    this.router.navigate(['/cronology-case', this.rescate.incidencia?.folio]);
+    if (this.rescate) {
+      this.router.navigate(['/cronology-case', this.rescate.incidencia?.folio]);
+    }
   }
-}
+  
+  descargarCartel(): void {
+    const incidencia = this.rescate?.incidencia;
+    if (!incidencia || this.generandoCartel) return;
+ 
+    this.generandoCartel = true;
+    this.errorCartel = null;
+ 
+    // OJO: NO usamos el helper imagenUrl() de este archivo para esto,
+    // porque ese método siempre regresa algo (cae al placeholder local
+    // 'assets/images/report-placeholder.jpg' si no hay foto) — y eso
+    // era justo el bug que causaba que el cartel dibujara el ícono
+    // genérico como si fuera una foto real. Aquí solo pasamos la
+    // imagen si de verdad existe.
+    const imagenReal = incidencia.imagen
+      ? (incidencia.imagen.startsWith('http')
+          ? incidencia.imagen
+          : `${environment.apiUrl}${incidencia.imagen}`)
+      : null;
+ 
+    this.cartelPdf
+      .descargarCartel({
+        folio: incidencia.folio ?? String(incidencia.id),
+        // El rescatista NUNCA es el dueño del reporte — nunca lleva el
+        // talón privado con el folio de reclamo. Fijo en false, sin
+        // necesidad de checar nada más (a diferencia de view-report,
+        // donde sí puede ser el dueño y se usa puedeEditar()).
+        incluirTalonPrivado: false,
+        imagen: imagenReal ?? undefined,
+        nombreCaso: incidencia.nombre_caso ?? undefined,
+        tipoAnimal: incidencia.tipo_animal ?? undefined,
+        tamanoAnimal: incidencia['tamano_animal'] ?? undefined,
+        condicionAnimal: incidencia['condicion_animal'] ?? undefined,
+        direccion: incidencia['direccion'] ?? undefined,
+        notasAnimal: incidencia['notas_animal'] ?? undefined,
+        nombreContacto: incidencia.nombre_contacto ?? undefined,
+        telefonoContacto: incidencia.telefono_contacto ?? undefined,
+      })
+      .then(() => {
+        this.generandoCartel = false;
+      })
+      .catch((err) => {
+        console.error('No se pudo generar el cartel:', err);
+        this.generandoCartel = false;
+        this.errorCartel = 'No se pudo generar el cartel. Intenta de nuevo.';
+      });
+  }
 }

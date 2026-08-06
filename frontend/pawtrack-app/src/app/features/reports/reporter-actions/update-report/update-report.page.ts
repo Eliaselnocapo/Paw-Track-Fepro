@@ -4,6 +4,7 @@ import {
   OnInit,
   AfterViewInit,
   ChangeDetectorRef,
+  OnDestroy
 } from '@angular/core';
 import { CommonModule, TitleCasePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +15,7 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 
-declare let L: any;
+import * as L from 'leaflet';
 
 type TipoAnimal = '' | 'perro' | 'gato';
 type TamanoAnimal = '' | 'cachorro' | 'pequeño' | 'mediano' | 'grande' | 'adulto';
@@ -63,7 +64,7 @@ interface CambioAplicado {
   templateUrl: './update-report.page.html',
   styleUrls: ['./update-report.page.scss'],
 })
-export class UpdateReportPage implements OnInit, AfterViewInit {
+export class UpdateReportPage implements OnInit, AfterViewInit, OnDestroy  {
   esPantallaGrande = window.innerWidth >= 768;
 
   private reporteNumericId!: number;
@@ -126,6 +127,14 @@ export class UpdateReportPage implements OnInit, AfterViewInit {
         this.cargando = false;
       },
     });
+  }
+  ngOnDestroy(): void {
+    if (this.mapInteractive) {
+      this.mapInteractive.off();
+      this.mapInteractive.remove();
+      this.mapInteractive = null;
+      this.markerInteractive = null;
+    }
   }
 
   ngAfterViewInit(): void {}
