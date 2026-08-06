@@ -1,5 +1,6 @@
 import logging
 
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from bd.models import Incidencia
@@ -17,4 +18,4 @@ def disparar_motor_vision(sender, instance, created, **kwargs):
     # reporte) — esta señal solo aprende el embedding para futuras comparaciones.
     if created and instance.imagen:
         logger.info("Nueva incidencia %s creada, aprendiendo embedding.", instance.id)
-        aprender_incidencia.delay(instance.id)
+        transaction.on_commit(lambda: aprender_incidencia.delay(instance.id))

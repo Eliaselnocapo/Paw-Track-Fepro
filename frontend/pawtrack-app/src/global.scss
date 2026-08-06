@@ -66,3 +66,411 @@ html, body {
     animation: none;
   }
 }
+
+
+/* Pa el modal mobile */
+.modal-caso-animal {
+  --width: min(94vw, 460px);
+  --height: auto;
+  --max-height: 90vh;
+  --border-radius: 20px;
+  --box-shadow: 0 24px 60px rgba(15, 31, 61, 0.35);
+  --backdrop-opacity: 0.55;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-caso-animal .ion-page {
+  position: relative;
+  display: block;
+  contain: content;
+  max-height: 90vh;
+}
+
+/* Recorta el contenido a las esquinas redondeadas del modal */
+.modal-caso-animal::part(content) {
+  overflow: hidden;
+}
+
+/* ===== MODAL DE DETALLE DEL CASO: SOLO MÓVIL ===== */
+
+@media (max-width: 640px) {
+
+  .alertas-hero-contenido {
+  align-items: center;
+}
+
+.alertas-hero-texto {
+  flex: 1;
+}
+
+.alertas-toggle-mobile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  flex-shrink: 0;
+
+  min-height: 36px;
+  padding: 7px 10px;
+
+  border: 1px solid #c7d7f5;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #2e5bd8;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.alertas-toggle-mobile ion-icon {
+  font-size: 17px;
+}
+
+/* Estado oculto: deja solamente el encabezado */
+.alertas-recientes--colapsada {
+  min-height: 0;
+}
+
+.alertas-recientes--colapsada .alertas-filtros,
+.alertas-recientes--colapsada .tarjetas-alertas,
+.alertas-recientes--colapsada .hero .subtitle {
+  display: none;
+}
+
+.alertas-recientes--colapsada .hero {
+  padding-bottom: 18px;
+  border-bottom: none;
+}
+
+  /* Contenedor principal — acotado al alto del modal centrado.
+     Los botones (detalle-caso__acciones) NUNCA se encogen
+     (flex-shrink: 0 más abajo), así que siempre quedan visibles
+     sin necesidad de hacer scroll; solo el contenido del medio
+     (detalle-caso__contenido) hace scroll si no cabe. */
+  .detalle-caso {
+    width: 100%;
+    max-height: 88vh;
+    height: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+    background: #ffffff;
+
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  /* ===== Imagen superior ===== */
+
+  .detalle-caso__imagen-contenedor {
+    position: relative;
+
+    width: 100%;
+    height: 190px;
+    flex-shrink: 0;
+
+    overflow: hidden;
+    background: #e2e8f0;
+  }
+
+  .detalle-caso__imagen {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+    object-fit: cover;
+  }
+
+  .detalle-caso__placeholder {
+    width: 100%;
+    height: 100%;
+
+    display: grid;
+    place-items: center;
+
+    background:
+      linear-gradient(
+        135deg,
+        #dbeafe 0%,
+        #ecfeff 100%
+      );
+
+    font-size: 3rem;
+  }
+
+  /* Botón de cerrar */
+
+  .detalle-caso__cerrar {
+    position: absolute;
+    top: 11px;
+    right: 11px;
+    z-index: 3;
+
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(15, 31, 61, 0.64);
+    color: #ffffff;
+
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+  }
+
+  .detalle-caso__cerrar ion-icon {
+    font-size: 20px;
+  }
+
+  /* Etiqueta del tipo de incidencia */
+
+  .detalle-caso__badge {
+    position: absolute;
+    top: 11px;
+    left: 11px;
+    z-index: 3;
+
+    padding: 6px 10px;
+    border-radius: 999px;
+
+    background: rgba(0, 88, 190, 0.94);
+    color: #ffffff;
+
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Degradado sobre la imagen */
+
+  .detalle-caso__degradado {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background:
+      linear-gradient(
+        to top,
+        rgba(6, 15, 33, 0.88) 0%,
+        rgba(6, 15, 33, 0.12) 58%,
+        rgba(6, 15, 33, 0) 78%
+      );
+  }
+
+  /* Nombre y tipo sobre la imagen */
+
+  .detalle-caso__titulo-flotante {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+
+    padding: 12px 15px;
+
+    color: #ffffff;
+  }
+
+  .detalle-caso__titulo-flotante .detalle-caso__tipo {
+    margin: 0 0 2px;
+
+    color: #dbeafe;
+
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .detalle-caso__titulo-flotante h2 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  /* ===== Cuerpo del modal (contenido + acciones) ===== */
+
+  .detalle-caso__cuerpo {
+    flex: 1;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+  }
+
+  /* ===== Zona desplazable ===== */
+
+  .detalle-caso__contenido {
+    flex: 1;
+    min-height: 0;
+
+    overflow-y: auto;
+
+    padding: 12px 16px 0;
+  }
+
+  /* Chip de estado */
+
+  .detalle-caso__chip-estado {
+    margin: 0 0 10px;
+
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* Características */
+
+  .detalle-caso__seccion {
+    margin: 0 0 8px;
+  }
+
+  .detalle-caso__seccion h3 {
+    margin: 0 0 5px;
+
+    color: #94a3b8;
+
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .detalle-caso__descripcion {
+    margin: 0;
+
+    color: #334155;
+
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  /* ===== Lista de información ===== */
+
+  .detalle-caso ion-list {
+    margin: 6px 0 0;
+    padding: 0;
+
+    background: transparent;
+  }
+
+  .detalle-caso ion-item {
+    --background: transparent;
+
+    --padding-start: 0;
+    --padding-end: 0;
+    --inner-padding-end: 0;
+
+    --min-height: 46px;
+  }
+
+  .detalle-caso ion-item ion-icon {
+    margin-right: 8px;
+
+    color: #2e5bd8;
+    font-size: 18px;
+  }
+
+  .detalle-caso ion-label p {
+    margin: 0 0 1px;
+
+    color: #94a3b8;
+
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .detalle-caso ion-label h3 {
+    margin: 0;
+
+    color: #0f1f3d;
+
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  /* ===== Botones en dos columnas ===== */
+
+  .detalle-caso__acciones {
+    flex-shrink: 0;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+
+    margin-top: 12px;
+    padding: 12px 16px 16px;
+  }
+
+  .detalle-caso__boton {
+    width: 100%;
+    min-height: 42px;
+    margin: 0;
+
+    --border-radius: 11px;
+
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .detalle-caso__boton-primario {
+    --background: #2e5bd8;
+    --background-hover: #1f47b8;
+
+    --box-shadow:
+      0 5px 12px rgba(46, 91, 216, 0.24);
+  }
+
+  .detalle-caso__boton-secundario {
+    --background: #ffffff;
+    --color: #2e5bd8;
+
+    --border-color: #bed0ff;
+    --border-width: 1px;
+  }
+}
+
+.alertas-hero-contenido {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alertas-hero-texto {
+  min-width: 0;
+}
+
+.alertas-toggle-mobile {
+  display: none;
+}
+
+/* Ajuste para teléfonos muy pequeños */
+
+@media (max-width: 360px) {
+
+  .modal-caso-animal {
+    --width: 96vw;
+  }
+
+  .detalle-caso__imagen-contenedor {
+    height: 160px;
+  }
+}

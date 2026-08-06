@@ -146,9 +146,9 @@ class DisponiblesView(ListAPIView):
 
         # Magia PostGIS: filtramos PENDIENTE y calculamos la distancia geométrica en un solo query
         return Incidencia.objects.filter(
-            estado='PENDIENTE',
-            ubicacion__distance_lte=(punto, Distance(km=10))
-        ).order_by('-urgency_score')
+        estado='PENDIENTE',
+        ubicacion__distance_lte=(punto, Distance(km=10))
+    ).select_related('animal', 'usuario_reporta').order_by('-urgency_score')
 
 
 class ActualizarEstadoView(APIView):

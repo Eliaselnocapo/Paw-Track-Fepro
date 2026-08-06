@@ -1,0 +1,492 @@
+<!-- NAVBAR MÓVIL -->
+<ion-header class="md:hidden">
+  <ion-toolbar class="navbar-mobile">
+
+    <ion-buttons slot="start">
+      <ion-menu-button
+        [autoHide]="false"
+        aria-label="Abrir menú"
+      ></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>
+      <div class="mobile-brand">
+        <div class="mobile-logo">
+          <img
+            src="assets/icon/pawtrack-logo.png"
+            alt="PawTrack"
+          >
+        </div>
+
+        <span>PawTrack</span>
+      </div>
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <a
+        routerLink="/reports/create-report"
+        class="boton-emergencia-mobile"
+      >
+        <span class="material-symbols-outlined">
+          error
+        </span>
+
+        <span>
+          Reportar
+          <small>Emergencia</small>
+        </span>
+      </a>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content
+
+  [scrollY]="true"
+
+>
+  <div class="pagina-shell">
+
+    <!-- NAVBAR WEB -->
+    <app-navbar-web
+      class="relative z-50 hidden md:block"
+    ></app-navbar-web>
+
+    <!-- HERO -->
+    <section class="hero-patrocinadores">
+
+      <div class="figura figura-circulo"></div>
+      <div class="figura figura-cuadro"></div>
+      <div class="figura figura-puntos"></div>
+
+      <div class="hero-contenido">
+        <span class="hero-etiqueta">
+          Red de apoyo animal
+        </span>
+
+        <div class="hero-fila">
+          <div>
+            <h1>
+              Refugios y organizaciones cercanas
+            </h1>
+
+            <p>
+              Encuentra centros de rescate animal próximos a tu
+              ubicación y consulta sus datos de contacto.
+            </p>
+          </div>
+
+          @if (ubicacionUsuario) {
+            <div class="radio-actual">
+              <span>Radio de búsqueda</span>
+
+              <strong>
+                {{ radioActualKm }} km
+              </strong>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENIDO -->
+    <main class="contenido-patrocinadores">
+
+      <div class="layout-patrocinadores">
+
+        <!-- COLUMNA DE RESULTADOS -->
+        <section class="panel-resultados">
+
+          <header class="panel-encabezado">
+            <div>
+              <span class="panel-sobrelinea">
+                Resultados
+              </span>
+
+              <h2>Centros cercanos</h2>
+
+              <p>
+                Ordenados desde el más próximo.
+              </p>
+            </div>
+
+            @if (
+              !cargandoUbicacion &&
+              !cargandoCentros &&
+              !error
+            ) {
+              <span class="contador-resultados">
+                {{ centros.length }}
+              </span>
+            }
+          </header>
+
+          <!-- OBTENIENDO UBICACIÓN -->
+          @if (cargandoUbicacion) {
+            <div class="estado-panel">
+              <div class="cargador"></div>
+
+              <h3>Obteniendo tu ubicación</h3>
+
+              <p>
+                Permite el acceso para encontrar refugios
+                cercanos a ti.
+              </p>
+            </div>
+          }
+
+          <!-- BUSCANDO CENTROS -->
+          @if (
+            !cargandoUbicacion &&
+            cargandoCentros
+          ) {
+            <div class="estado-panel">
+              <div class="cargador"></div>
+
+              <h3>Buscando refugios</h3>
+
+              <p>
+                Consultando centros dentro de
+                {{ radioActualKm }} km.
+              </p>
+            </div>
+          }
+
+          <!-- ERROR -->
+          @if (
+            !cargandoUbicacion &&
+            !cargandoCentros &&
+            error
+          ) {
+            <div class="estado-panel">
+              <div class="icono-estado icono-error">
+                !
+              </div>
+
+              <h3>
+                No se pudo completar la búsqueda
+              </h3>
+
+              <p>{{ error }}</p>
+
+              <button
+                type="button"
+                class="boton-principal estado-boton"
+                (click)="reintentar()"
+              >
+                Volver a intentar
+              </button>
+            </div>
+          }
+
+          <!-- SIN RESULTADOS -->
+          @if (
+            !cargandoUbicacion &&
+            !cargandoCentros &&
+            !error &&
+            centros.length === 0
+          ) {
+            <div class="estado-panel">
+              <div class="icono-estado">
+                <span class="material-symbols-outlined">
+                  pets
+                </span>
+              </div>
+
+              <h3>No encontramos refugios</h3>
+
+              <p>
+                No hay centros registrados dentro de
+                {{ radioActualKm }} km.
+              </p>
+
+              @if (puedeMostrarMas) {
+                <button
+                  type="button"
+                  class="boton-principal estado-boton"
+                  (click)="mostrarMas()"
+                >
+                  Buscar hasta
+                  {{ siguienteRadioKm }} km
+                </button>
+              } @else {
+                <p class="limite-busqueda">
+                  Se alcanzó el límite máximo.
+                </p>
+              }
+            </div>
+          }
+
+          <!-- LISTA -->
+          @if (
+            !cargandoUbicacion &&
+            !cargandoCentros &&
+            !error &&
+            centros.length > 0
+          ) {
+            <div class="lista-centros">
+
+              @for (
+                centro of centros;
+                track centro.id
+              ) {
+                <article class="tarjeta-centro">
+
+                  <div class="tarjeta-cabecera">
+                    <div class="icono-centro">
+                      <span class="material-symbols-outlined">
+                        pets
+                      </span>
+                    </div>
+
+                    <div class="nombre-centro">
+                      <h3>{{ centro.nombre }}</h3>
+
+                      <span class="tipo-centro">
+                        Refugio de animales
+                      </span>
+                    </div>
+
+                    <span class="distancia-centro">
+                      {{ centro.distanciaKm }} km
+                    </span>
+                  </div>
+
+                  @if (
+                    centro.direccion ||
+                    centro.horario ||
+                    centro.telefono
+                  ) {
+                    <div class="datos-centro">
+
+                      @if (centro.direccion) {
+                        <div class="dato-centro">
+                          <span class="material-symbols-outlined">
+                            location_on
+                          </span>
+
+                          <span>
+                            {{ centro.direccion }}
+                          </span>
+                        </div>
+                      }
+
+                      @if (centro.horario) {
+                        <div class="dato-centro">
+                          <span class="material-symbols-outlined">
+                            schedule
+                          </span>
+
+                          <span>
+                            {{ centro.horario }}
+                          </span>
+                        </div>
+                      }
+
+                      @if (centro.telefono) {
+                        <div class="dato-centro">
+                          <span class="material-symbols-outlined">
+                            call
+                          </span>
+
+                          <a
+                            [href]="'tel:' + centro.telefono"
+                          >
+                            {{ centro.telefono }}
+                          </a>
+                        </div>
+                      }
+
+                    </div>
+                  }
+
+                  <div
+                    class="acciones-centro"
+                    [class.una-accion]="!centro.sitioWeb"
+                  >
+                    <button
+                      type="button"
+                      class="boton-mapa"
+                      [attr.aria-label]="'Ver en mapa ' + centro.nombre"
+                      (click)="verEnMapa(centro)"
+                    >
+                      <span class="material-symbols-outlined">
+                        map
+                      </span>
+
+                      Ver en mapa
+                    </button>
+
+                    @if (centro.sitioWeb) {
+                      <a
+                        [href]="centro.sitioWeb"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="boton-secundario"
+                      >
+                        <span class="material-symbols-outlined">
+                          open_in_new
+                        </span>
+
+                        Sitio web
+                      </a>
+                    }
+                  </div>
+
+                </article>
+              }
+
+            </div>
+
+            <div class="pie-resultados">
+              @if (puedeMostrarMas) {
+                <button
+                  type="button"
+                  class="boton-principal boton-ampliar"
+                  (click)="mostrarMas()"
+                >
+                  <span class="material-symbols-outlined">
+                    travel_explore
+                  </span>
+
+                  Buscar hasta
+                  {{ siguienteRadioKm }} km
+                </button>
+              } @else {
+                <p>
+                  Se alcanzó el límite máximo de
+                  {{ radioActualKm }} km.
+                </p>
+              }
+            </div>
+          }
+
+        </section>
+
+        <!-- MAPA PARA ESCRITORIO -->
+        <aside class="panel-mapa">
+
+          <header class="mapa-encabezado">
+            <div>
+              <span>Mapa</span>
+
+              <h2>Ubicación de refugios</h2>
+
+              <p>
+                Selecciona un centro para localizarlo.
+              </p>
+            </div>
+
+            <div class="mapa-icono">
+              <span class="material-symbols-outlined">
+                map
+              </span>
+            </div>
+          </header>
+
+          <div
+            id="mapa-refugios-escritorio"
+            class="mapa-leaflet-escritorio"
+            role="region"
+            aria-label="Mapa de refugios cercanos"
+          ></div>
+
+          <div class="leyenda-mapa">
+            <span>
+              <i class="punto-leyenda punto-usuario"></i>
+              Tu ubicación
+            </span>
+
+            <span>
+              <i class="punto-leyenda punto-refugio"></i>
+              Refugios
+            </span>
+          </div>
+
+        </aside>
+
+      </div>
+    </main>
+
+    <!-- FOOTER WEB -->
+    <footer class="footer-escritorio">
+      <app-footer-web></app-footer-web>
+    </footer>
+
+  </div>
+</ion-content>
+
+<ion-modal
+  class="modal-mapa-refugio"
+  [isOpen]="modalMapaAbierto"
+  [backdropDismiss]="true"
+  (didPresent)="mapaModalPresentado()"
+  (didDismiss)="mapaModalCerrado()"
+>
+  <ng-template>
+
+    @if (centroSeleccionado; as centro) {
+      <section class="modal-mapa-contenido">
+
+        <header class="modal-mapa-cabecera">
+          <div>
+            <span class="modal-mapa-etiqueta">
+              Refugio seleccionado
+            </span>
+
+            <h2>{{ centro.nombre }}</h2>
+
+            <p>
+              A {{ centro.distanciaKm }} km de tu ubicación
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="modal-mapa-cerrar"
+            aria-label="Cerrar mapa"
+            (click)="cerrarMapaModal()"
+          >
+            <span class="material-symbols-outlined">
+              close
+            </span>
+          </button>
+        </header>
+
+        <div
+          id="mapa-refugio-modal"
+          class="mapa-leaflet-modal"
+          role="region"
+          [attr.aria-label]="'Mapa de ' + centro.nombre"
+        ></div>
+
+        <footer class="modal-mapa-pie">
+          <div class="modal-mapa-leyenda">
+            <span>
+              <i class="punto-leyenda punto-usuario"></i>
+              Tu ubicación
+            </span>
+
+            <span>
+              <i class="punto-leyenda punto-refugio"></i>
+              Refugio
+            </span>
+          </div>
+
+          @if (centro.direccion) {
+            <p>
+              <span class="material-symbols-outlined">
+                location_on
+              </span>
+
+              {{ centro.direccion }}
+            </p>
+          }
+        </footer>
+
+      </section>
+    }
+
+  </ng-template>
+</ion-modal>

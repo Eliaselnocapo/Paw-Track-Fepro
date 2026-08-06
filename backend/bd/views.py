@@ -210,6 +210,15 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     serializer_class = IncidenciaSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+
+    def get_queryset(self):
+        return Incidencia.objects.select_related(
+            'animal', 
+            'usuario_reporta', 
+            'rescatista_asignado', 
+            'rescatista_asignado__usuario'
+        ).order_by('-id')
+
     def get_permissions(self):
         if self.action == 'destroy':
             return [IsAdminUser()]
