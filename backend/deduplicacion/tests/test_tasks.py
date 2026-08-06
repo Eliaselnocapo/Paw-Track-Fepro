@@ -4,6 +4,8 @@ from django.contrib.gis.geos import Point
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
+from deduplicacion.tasks import calcular_embedding_borrador
+
 from bd.models import Animal, Incidencia
 from deduplicacion.tasks import aprender_incidencia
 
@@ -87,3 +89,52 @@ class AprenderIncidenciaTests(TestCase):
     def test_incidencia_inexistente_no_truena(self):
         resultado = aprender_incidencia(999999)
         self.assertEqual(resultado, "Incidencia no encontrada")
+
+class CalcularEmbeddingBorradorTests(TestCase):
+    """Pruebas para la tarea de Celery que precarga el embedding en Redis."""
+
+    @mock.patch("deduplicacion.tasks.os.remove")
+    @mock.patch("django.core.cache.cache")
+    @mock.patch("deduplicacion.tasks.VisionService")
+    def test_calcula_embedding_guarda_en_cache_y_borra_temporal(self, MockVision, mock_cache, mock_remove):
+        # Configuramos el mock para simular la respuesta de la IA
+        instancia = MockVision.return_value
+        mock_emb = mock.MagicMock()
+        mock_emb.astype.return_value.tobytes.return_value = b"fake_vector_bytes"
+        instancia._get_embedding.return_value = mock_emb
+
+        borrador_id = "test-uuid-123"
+        ruta = "/app/media/borradores_temp/foto.jpg"
+        
+        # Ejecutamos la tarea
+        calcular_embedding_borrador(borrador_id, ruta, "PERRO")
+
+        # Verificamos que se llamó a la IA con los datos correctos
+        instancia._get_embedding.assert_called_once_with(ruta, "PERRO")
+        
+        # Verificamos que se guardó en Redis con un TTL de 30 mins (1800s)
+        mock_cache.set.assert_called_once_with(
+            f"embedding_borrador:{borrador_id}", 
+            b"fake_vector_bytes", 
+            timeout=1800
+        )
+        
+        # Verificamos que se limpió el archivo del disco para no saturar el servidor
+        mock_remove.assert_called_once_with(ruta)
+
+    @mock.patch("deduplicacion.tasks.os.remove")
+    @mock.patch("django.core.cache.cache")
+    @mock.patch("deduplicacion.tasks.VisionService")
+    def test_falla_vision_service_pero_siempre_borra_archivo(self, MockVision, mock_cache, mock_remove):
+        # Simulamos que el modelo de IA arroja un error (ej. especie no soportada)
+        instancia = MockVision.return_value
+        instancia._get_embedding.side_effect = ValueError("Error de IA")
+
+        ruta = "/app/media/borradores_temp/error.jpg"
+        calcular_embedding_borrador("error-uuid", ruta, "DRAGON")
+
+        # Redis no debe ser llamado porque no hay embedding
+        mock_cache.set.assert_not_called()
+        
+        # El archivo temporal DEBE borrarse de todas formas
+        mock_remove.assert_called_once_with(ruta)
