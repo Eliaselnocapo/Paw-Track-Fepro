@@ -1,42 +1,70 @@
 from django.db import transaction
 from django.utils import timezone
-from .models import Recurso
-from bd.models import PerfilPatrocinador, Incidencia # Ajustar al import real
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 
-def asignar_recurso(patrocinador_id, incidencia_id, tipo, descripcion):
-    patrocinador = PerfilPatrocinador.objects.get(id=patrocinador_id)
-    incidencia = Incidencia.objects.get(id=incidencia_id)
-    
-    if not patrocinador.aprobado: # PATROCINADOR requiere aprobación
-        raise ValueError({"code": "patrocinador_invalido", "detail": "El patrocinador no está aprobado."})
-        
+from .models import Recurso
+from bd.models import Incidencia, PerfilPatrocinador
+
+
+def asignar_recurso(usuario, incidencia_id, tipo, descripcion=''):
+    try:
+        patrocinador = PerfilPatrocinador.objects.get(usuario=usuario)
+    except PerfilPatrocinador.DoesNotExist:
+        raise PermissionDenied(
+            'El usuario no tiene un perfil de patrocinador.',
+            code='wrong_role',
+        )
+
+    if patrocinador.estado != 'APROBADO':
+        raise PermissionDenied(
+            'El patrocinador no está aprobado.',
+            code='sponsor_not_approved',
+        )
+
+    try:
+        incidencia = Incidencia.objects.get(id=incidencia_id)
+    except Incidencia.DoesNotExist:
+        raise NotFound('La incidencia no existe.', code='not_found')
+
+    if incidencia.estado == 'CERRADO':
+        raise ValidationError(
+            'No se pueden asignar recursos a una incidencia cerrada.',
+            code='resource_not_assignable',
+        )
+
     return Recurso.objects.create(
         patrocinador=patrocinador,
         incidencia=incidencia,
         tipo=tipo,
-        descripcion=descripcion
+        descripcion=descripcion,
     )
+
 
 @transaction.atomic
 def liberar_recurso(recurso_id, usuario_solicitante):
-    # Bloqueo de fila para evitar condiciones de carrera
-    recurso = Recurso.objects.select_for_update().get(id=recurso_id)
+    try:
+        recurso = Recurso.objects.select_for_update().get(id=recurso_id)
+    except Recurso.DoesNotExist:
+        raise NotFound('El recurso no existe.', code='not_found')
 
-    # Comprobar ownership
-    if recurso.patrocinador.usuario != usuario_solicitante:
-        raise PermissionError({"code": "forbidden", "detail": "No eres propietario del recurso."})
+    if recurso.patrocinador.usuario_id != usuario_solicitante.id:
+        raise PermissionDenied(
+            'No eres propietario del recurso.',
+            code='not_owner',
+        )
 
-    # Validación de estado CERRADO
-    if recurso.incidencia.estado != 'CERRADO':
-        raise ValueError({"code": "incidencia_abierta", "detail": "La incidencia debe estar CERRADO."})
+    incidencia = Incidencia.objects.select_for_update().get(id=recurso.incidencia_id)
+    if incidencia.estado != 'CERRADO':
+        raise PermissionDenied(
+            'La incidencia debe estar cerrada para liberar el recurso.',
+            code='resource_not_releasable',
+        )
 
-    # Idempotencia: si ya está liberado, devolver sin alterar
     if recurso.estado == 'LIBERADO':
         return recurso
 
-    # Cambio de estado
     recurso.estado = 'LIBERADO'
     recurso.released_at = timezone.now()
     recurso.save(update_fields=['estado', 'released_at'])
-    
+
     return recurso

@@ -1,38 +1,43 @@
-from rest_framework import viewsets, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from core.permissions import IsPatrocinador
+
 from .models import Recurso
 from .serializers import RecursoSerializer
-from .services import liberar_recurso, asignar_recurso
+from .services import asignar_recurso, liberar_recurso
 
-class RecursoViewSet(viewsets.ModelViewSet):
+
+class RecursoViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = RecursoSerializer
+    permission_classes = [IsAuthenticated, IsPatrocinador]
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
 
     def get_queryset(self):
         return Recurso.objects.filter(
             patrocinador__usuario=self.request.user
-        ).select_related('patrocinador', 'patrocinador__usuario', 'incidencia', 'incidencia__animal')
+        ).select_related(
+            'patrocinador', 'patrocinador__usuario', 'incidencia', 'incidencia__animal'
+        ).order_by('-created_at')
 
     def create(self, request, *args, **kwargs):
-        # POST /api/recursos/ propios
-        try:
-            recurso = asignar_recurso(
-                patrocinador_id=request.data.get('patrocinador_id'),
-                incidencia_id=request.data.get('incidencia_id'),
-                tipo=request.data.get('tipo'),
-                descripcion=request.data.get('descripcion')
-            )
-            return Response(self.get_serializer(recurso).data, status=status.HTTP_201_CREATED)
-        except ValueError as e:
-            return Response(e.args[0], status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        recurso = asignar_recurso(
+            usuario=request.user,
+            incidencia_id=serializer.validated_data['incidencia'].id,
+            tipo=serializer.validated_data['tipo'],
+            descripcion=serializer.validated_data.get('descripcion', ''),
+        )
+        return Response(self.get_serializer(recurso).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['patch'])
     def liberar(self, request, pk=None):
-        # PATCH /api/recursos/{id}/liberar/
-        try:
-            recurso = liberar_recurso(recurso_id=pk, usuario_solicitante=request.user)
-            return Response(self.get_serializer(recurso).data, status=status.HTTP_200_OK)
-        except PermissionError as e:
-            return Response(e.args[0], status=status.HTTP_403_FORBIDDEN)
-        except ValueError as e:
-            return Response(e.args[0], status=status.HTTP_400_BAD_REQUEST)
+        recurso = liberar_recurso(recurso_id=pk, usuario_solicitante=request.user)
+        return Response(self.get_serializer(recurso).data, status=status.HTTP_200_OK)

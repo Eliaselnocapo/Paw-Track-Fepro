@@ -1,120 +1,162 @@
 import threading
-from django.urls import reverse
-from rest_framework.test import APITestCase
-from rest_framework import status
+
 from django.contrib.auth import get_user_model
-from bd.models import PerfilPatrocinador, Incidencia
-from .models import Recurso
+from django.contrib.gis.geos import Point
+from django.db import close_old_connections
+from django.test import TransactionTestCase
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from bd.models import Animal, Incidencia, PerfilPatrocinador
+
+from recursos.models import Recurso
+from recursos.services import liberar_recurso
+
 
 Usuario = get_user_model()
 
+
+def crear_incidencia(estado='PENDIENTE'):
+    animal = Animal.objects.create(
+        nombre='Luna', color='negro', tamano='mediano', tipo='perro',
+        raza='mestizo', agresividad='baja', salud='estable',
+    )
+    return Incidencia.objects.create(
+        animal=animal,
+        ubicacion=Point(-99.1332, 19.4326, srid=4326),
+        estado=estado,
+    )
+
+
 class RecursoTests(APITestCase):
     def setUp(self):
-        # 1. Preparar usuarios
-        self.user_patrocinador = Usuario.objects.create_user(username='patrocinador', password='123')
-        self.user_sin_rol = Usuario.objects.create_user(username='sinrol', password='123')
-        self.user_otro = Usuario.objects.create_user(username='otro', password='123')
-
-        # 2. Preparar perfiles (aprobados)
-        self.perfil = PerfilPatrocinador.objects.create(
-            usuario=self.user_patrocinador, nombre_entidad='Empresa A', aprobado=True
+        self.usuario = Usuario.objects.create_user(
+            email='patrocinador@example.com', password='segura123',
+            roles=['PATROCINADOR'],
         )
-        self.perfil_otro = PerfilPatrocinador.objects.create(
-            usuario=self.user_otro, nombre_entidad='Empresa B', aprobado=True
+        self.otro_usuario = Usuario.objects.create_user(
+            email='otro@example.com', password='segura123',
+            roles=['PATROCINADOR'],
         )
-
-        # 3. Preparar incidencias en distintos estados
-        self.incidencia_abierta = Incidencia.objects.create(titulo='Incidencia 1', estado='ABIERTA')
-        self.incidencia_cerrada = Incidencia.objects.create(titulo='Incidencia 2', estado='CERRADO')
-
-        # 4. Preparar recursos
-        self.recurso_propio_abierto = Recurso.objects.create(
-            patrocinador=self.perfil, incidencia=self.incidencia_abierta, tipo='Dinero', descripcion='100 USD'
+        self.no_patrocinador = Usuario.objects.create_user(
+            email='reportero@example.com', password='segura123',
+            roles=['REPORTERO'],
         )
-        self.recurso_propio_cerrado = Recurso.objects.create(
-            patrocinador=self.perfil, incidencia=self.incidencia_cerrada, tipo='Alimento', descripcion='10 kg'
+        self.patrocinador = PerfilPatrocinador.objects.create(
+            usuario=self.usuario,
+            nombre='Refugio A', direccion='CDMX',
+            telefono='5555555555',
+            horario='9 a 17', correo='contacto@refugioa.example', estado='APROBADO',
+        )
+        self.otro_patrocinador = PerfilPatrocinador.objects.create(
+            usuario=self.otro_usuario,
+            nombre='Refugio B', direccion='CDMX',
+            telefono='5555555556',
+            horario='9 a 17', correo='contacto@refugiob.example', estado='APROBADO',
+        )
+        self.incidencia_abierta = crear_incidencia()
+        self.incidencia_cerrada = crear_incidencia('CERRADO')
+        self.recurso_abierto = Recurso.objects.create(
+            patrocinador=self.patrocinador, incidencia=self.incidencia_abierta,
+            tipo='alimento',
+        )
+        self.recurso_cerrado = Recurso.objects.create(
+            patrocinador=self.patrocinador, incidencia=self.incidencia_cerrada,
+            tipo='veterinario',
         )
         self.recurso_ajeno = Recurso.objects.create(
-            patrocinador=self.perfil_otro, incidencia=self.incidencia_cerrada, tipo='Medicina', descripcion='Caja'
+            patrocinador=self.otro_patrocinador, incidencia=self.incidencia_cerrada,
+            tipo='transporte',
         )
 
-    def test_usuario_sin_rol_no_ve_recursos(self):
-        """Usuario sin rol solo obtiene una lista vacía y no rompe el endpoint."""
-        self.client.force_authenticate(user=self.user_sin_rol)
+    def test_requiere_patrocinador_autenticado(self):
+        self.assertEqual(self.client.get(reverse('recursos-list')).status_code, status.HTTP_401_UNAUTHORIZED)
+        self.client.force_authenticate(self.no_patrocinador)
+        self.assertEqual(self.client.get(reverse('recursos-list')).status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_lista_solo_recursos_propios(self):
+        self.client.force_authenticate(self.usuario)
         response = self.client.get(reverse('recursos-list'))
-        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Soporta paginación si DRF la tiene activa ('results') o lista plana
-        data = response.data.get('results', response.data) if isinstance(response.data, dict) else response.data
-        self.assertEqual(len(data), 0)
+        self.assertEqual(response.data['count'], 2)
 
-    def test_patrocinador_ve_solo_sus_recursos(self):
-        """Patrocinador válido obtiene exactamente los recursos que le pertenecen (paginación implícita probada en la longitud)."""
-        self.client.force_authenticate(user=self.user_patrocinador)
-        response = self.client.get(reverse('recursos-list'))
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.data.get('results', response.data) if isinstance(response.data, dict) else response.data
-        self.assertEqual(len(data), 2)
+    def test_crea_recurso_bloqueado_para_caso_activo(self):
+        self.client.force_authenticate(self.usuario)
+        response = self.client.post(reverse('recursos-list'), {
+            'incidencia': self.incidencia_abierta.id,
+            'tipo': 'medicina',
+            'descripcion': 'Antibiotico',
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['estado'], 'BLOQUEADO')
+        self.assertEqual(response.data['patrocinador'], self.patrocinador.id)
 
-    def test_recurso_ajeno_denegado(self):
-        """Bloquear intentos de liberar recursos de otro patrocinador."""
-        self.client.force_authenticate(user=self.user_patrocinador)
-        url = reverse('recursos-liberar', kwargs={'pk': self.recurso_ajeno.id})
-        response = self.client.patch(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertIn('code', response.data)
-
-    def test_liberacion_prematura(self):
-        """Evitar que se libere un recurso si la incidencia no está CERRADO."""
-        self.client.force_authenticate(user=self.user_patrocinador)
-        url = reverse('recursos-liberar', kwargs={'pk': self.recurso_propio_abierto.id})
-        response = self.client.patch(url)
-        
+    def test_no_crea_recurso_para_caso_cerrado(self):
+        self.client.force_authenticate(self.usuario)
+        response = self.client.post(reverse('recursos-list'), {
+            'incidencia': self.incidencia_cerrada.id,
+            'tipo': 'medicina',
+        })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('code', response.data)
+        self.assertEqual(response.data['code'], 'resource_not_assignable')
 
-    def test_liberacion_correcta_y_doble_liberacion(self):
-        """Validar liberación exitosa y comprobar que el endpoint sea idempotente ante llamadas repetidas."""
-        self.client.force_authenticate(user=self.user_patrocinador)
-        url = reverse('recursos-liberar', kwargs={'pk': self.recurso_propio_cerrado.id})
-        
-        # 1. Primera liberación (Debe ser OK)
-        response = self.client.patch(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['estado'], 'LIBERADO')
-        self.assertIsNotNone(response.data['released_at'])
+    def test_no_libera_recurso_ajeno_ni_prematuro(self):
+        self.client.force_authenticate(self.usuario)
+        ajeno = self.client.patch(reverse('recursos-liberar', kwargs={'pk': self.recurso_ajeno.id}))
+        prematuro = self.client.patch(reverse('recursos-liberar', kwargs={'pk': self.recurso_abierto.id}))
+        self.assertEqual(ajeno.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(ajeno.data['code'], 'not_owner')
+        self.assertEqual(prematuro.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(prematuro.data['code'], 'resource_not_releasable')
 
-        # 2. Doble liberación (Debe ser OK y devolver el mismo recurso sin crashear)
-        response_doble = self.client.patch(url)
-        self.assertEqual(response_doble.status_code, status.HTTP_200_OK)
-        self.assertEqual(response_doble.data['estado'], 'LIBERADO')
+    def test_liberacion_es_idempotente(self):
+        self.client.force_authenticate(self.usuario)
+        url = reverse('recursos-liberar', kwargs={'pk': self.recurso_cerrado.id})
+        primera = self.client.patch(url)
+        segunda = self.client.patch(url)
+        self.assertEqual(primera.status_code, status.HTTP_200_OK)
+        self.assertEqual(segunda.status_code, status.HTTP_200_OK)
+        self.assertEqual(primera.data['released_at'], segunda.data['released_at'])
 
-    def test_liberacion_concurrente_idempotente(self):
-        """Simula múltiples hilos intentando liberar el mismo recurso simultáneamente."""
-        url = reverse('recursos-liberar', kwargs={'pk': self.recurso_propio_cerrado.id})
-        resultados = []
 
-        def hacer_peticion():
-            client = self.client_class()
-            client.force_authenticate(user=self.user_patrocinador)
-            response = client.patch(url)
-            resultados.append(response.status_code)
+class RecursoConcurrenciaTests(TransactionTestCase):
+    def setUp(self):
+        self.usuario = Usuario.objects.create_user(
+            email='concurrencia@example.com', password='segura123',
+            roles=['PATROCINADOR'],
+        )
+        patrocinador = PerfilPatrocinador.objects.create(
+            usuario=self.usuario,
+            nombre='Refugio Concurrente', direccion='CDMX',
+            telefono='5555555557',
+            horario='9 a 17', correo='concurrencia@refugio.example', estado='APROBADO',
+        )
+        self.recurso = Recurso.objects.create(
+            patrocinador=patrocinador,
+            incidencia=crear_incidencia('CERRADO'),
+            tipo='transporte',
+        )
 
-        # Lanzamos 5 hilos concurrentes intentando liberar el recurso al mismo tiempo
-        hilos = [threading.Thread(target=hacer_peticion) for _ in range(5)]
-        
-        for h in hilos:
-            h.start()
-        for h in hilos:
-            h.join()
+    def test_liberacion_concurrente_es_idempotente(self):
+        errores = []
 
-        # Todos los hilos deben recibir un código exitoso sin romper la base de datos (idempotencia y locks)
-        for status_code in resultados:
-            self.assertEqual(status_code, status.HTTP_200_OK)
+        def liberar():
+            close_old_connections()
+            try:
+                liberar_recurso(self.recurso.id, self.usuario)
+            except Exception as error:  # pragma: no cover - solo captura fallas del hilo
+                errores.append(error)
+            finally:
+                close_old_connections()
 
-        # Verificamos el estado final en la base de datos
-        self.recurso_propio_cerrado.refresh_from_db()
-        self.assertEqual(self.recurso_propio_cerrado.estado, 'LIBERADO')
-        self.assertIsNotNone(self.recurso_propio_cerrado.released_at)
+        hilos = [threading.Thread(target=liberar) for _ in range(5)]
+        for hilo in hilos:
+            hilo.start()
+        for hilo in hilos:
+            hilo.join()
+
+        self.assertEqual(errores, [])
+        self.recurso.refresh_from_db()
+        self.assertEqual(self.recurso.estado, 'LIBERADO')
+        self.assertIsNotNone(self.recurso.released_at)

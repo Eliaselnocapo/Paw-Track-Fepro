@@ -1,5 +1,5 @@
 import logging
-
+import os
 from celery import shared_task
 
 from bd.models import Incidencia
@@ -61,3 +61,27 @@ def aprender_incidencia(incidencia_id):
 
     vision_ai.aprender_embedding(emb, especie, incidencia.id)
     return f"Incidencia {incidencia_id} aprendida en el índice."
+
+@shared_task(queue='dedup')
+def calcular_embedding_borrador(borrador_id, ruta_temporal, especie):
+    """
+    Precarga del wizard (paso 2→3): calcula el embedding de la foto ANTES
+    de que el usuario llegue al paso 4, mientras llena mapa/revisión. El
+    resultado se cachea en Redis con TTL de 30 min; verificar_duplicado()
+    lo busca ahí primero y solo recalcula si no lo encuentra (usuario muy
+    rápido, o esta tarea aún no terminó) -- nunca bloquea, solo acelera.
+    """
+    from django.core.cache import cache
+
+    vision_ai = VisionService()
+    try:
+        emb = vision_ai._get_embedding(ruta_temporal, especie)
+        cache.set(f'embedding_borrador:{borrador_id}', emb.astype('float32').tobytes(), timeout=1800)
+        logger.info("Embedding de borrador %s precalculado y cacheado.", borrador_id)
+    except ValueError as e:
+        logger.warning("calcular_embedding_borrador: %s", e)
+    finally:
+        try:
+            os.remove(ruta_temporal)
+        except OSError:
+            pass

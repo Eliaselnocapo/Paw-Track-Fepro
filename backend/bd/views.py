@@ -10,6 +10,7 @@ from core.permissions import IsAuthorOrRescatistaAsignado, IsSelf
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed, ValidationError, NotFound
 from django.contrib.auth import authenticate
@@ -147,6 +148,12 @@ class AnimalViewSet(viewsets.ModelViewSet):
 class ProcesarCartelPDFView(APIView):
     permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser)
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'pdf_import'
+
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+    MAX_PAGES = 10
+    MAX_TEXT_LENGTH = 50_000
 
     # Palabras que razonablemente aparecen en un cartel de mascota perdida/
     # encontrada. Si el texto no toca NINGUNA de estas, casi seguro es un
@@ -163,13 +170,39 @@ class ProcesarCartelPDFView(APIView):
         pdf_file = request.FILES.get('file')
         if not pdf_file:
             return Response({"error": "No hay archivo"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if pdf_file.size > self.MAX_FILE_SIZE:
+            return Response(
+                {"error": "El PDF no puede superar 10 MB."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # MIME type and filename can be forged; verify the PDF header before
+        # handing untrusted input to the parser.
+        if pdf_file.read(5) != b'%PDF-':
+            return Response(
+                {"error": "El archivo no es un PDF válido."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        pdf_file.seek(0)
+
         texto_extraido = ""
         try:
             with pdfplumber.open(pdf_file) as pdf:
+                if len(pdf.pages) > self.MAX_PAGES:
+                    return Response(
+                        {"error": "El PDF no puede tener más de 10 páginas."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 for page in pdf.pages:
                     text = page.extract_text()
                     if text:
                         texto_extraido += text + "\n"
+                        if len(texto_extraido) > self.MAX_TEXT_LENGTH:
+                            return Response(
+                                {"error": "El PDF contiene demasiado texto para procesarlo."},
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
         except Exception:
             return Response({"error": "No se pudo leer el PDF."}, status=status.HTTP_400_BAD_REQUEST)
         if not texto_extraido.strip():
@@ -319,6 +352,48 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         )
         return None
 
+    @action(detail=False, methods=['post'], url_path='precargar-imagen', permission_classes=[AllowAny])
+    def precargar_imagen(self, request):
+        """
+        MODO 1 -- solo imagen (se llama al salir del paso 1, ANTES de saber la
+        especie): sube el archivo a un temporal y regresa `imagen_borrador_id`,
+        sin calcular nada todavía -- la subida ocurre mientras el usuario llena
+        el resto del paso 2, en vez de sumarse después.
+    
+        MODO 2 -- imagen_borrador_id + tipo_animal (se llama en el instante
+        exacto en que se elige la especie, vía seleccionarTipo()): no vuelve a
+        subir el archivo, solo dispara el cómputo del embedding sobre el que ya
+        está en disco, y regresa `borrador_id` -- este es el que después viaja
+        a verificar_duplicado().
+        """
+        import uuid
+        from django.core.files.storage import default_storage
+        from django.core.cache import cache
+        from deduplicacion.tasks import calcular_embedding_borrador
+    
+        imagen_borrador_id = request.data.get('imagen_borrador_id')
+        tipo = (request.data.get('tipo_animal') or '').strip()
+    
+        if imagen_borrador_id and tipo:
+            ruta_absoluta = cache.get(f'imagen_borrador_path:{imagen_borrador_id}')
+            if not ruta_absoluta or not os.path.exists(ruta_absoluta):
+                return Response({'error': 'Borrador de imagen no encontrado o expirado.'}, status=status.HTTP_404_NOT_FOUND)
+    
+            borrador_id = str(uuid.uuid4())
+            calcular_embedding_borrador.delay(borrador_id, ruta_absoluta, tipo)
+            return Response({'borrador_id': borrador_id}, status=status.HTTP_202_ACCEPTED)
+    
+        imagen = request.FILES.get('imagen')
+        if not imagen:
+            return Response({'error': 'Falta la imagen.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        imagen_borrador_id = str(uuid.uuid4())
+        ruta_relativa = default_storage.save(f'borradores_temp/{imagen_borrador_id}_{imagen.name}', imagen)
+        ruta_absoluta = default_storage.path(ruta_relativa)
+        cache.set(f'imagen_borrador_path:{imagen_borrador_id}', ruta_absoluta, timeout=1800)
+    
+        return Response({'imagen_borrador_id': imagen_borrador_id}, status=status.HTTP_202_ACCEPTED)
+
     @action(detail=False, methods=['post'], url_path='verificar-duplicado', permission_classes=[AllowAny])
     def verificar_duplicado(self, request):
         """
@@ -341,13 +416,14 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         from deduplicacion.ranking import RankingService
         from deduplicacion.services import VisionService
 
+        
+
         imagen = request.FILES.get('imagen')
         tipo = (request.data.get('tipo_animal') or '').strip()
         lat = request.data.get('latitud')
         lng = request.data.get('longitud')
 
-        if not imagen or not tipo or lat is None or lng is None:
-            return Response({'candidato': None})
+                
 
         try:
             lat, lng = float(lat), float(lng)
@@ -362,15 +438,34 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         )
         incidencia_temp = Incidencia(animal=animal_temp, ubicacion=Point(lng, lat, srid=4326), caracteristicas='')
 
+
         candidatos = [c for c in candidatos_por_metadatos(incidencia_temp) if c.imagen]
+        
+        if not imagen or not tipo or lat is None or lng is None:
+            return Response({'candidato': None})
+
         if not candidatos:
             return Response({'candidato': None})
 
+        import numpy as np
+        from django.core.cache import cache
+
+
+        emb = None
+        borrador_id = request.data.get('borrador_id')
+        if borrador_id:
+            emb_bytes = cache.get(f'embedding_borrador:{borrador_id}')
+            if emb_bytes is not None:
+                emb = np.frombuffer(emb_bytes, dtype=np.float32)
+
         vision_ai = VisionService()
-        try:
-            emb = vision_ai._get_embedding(imagen, tipo)
-        except ValueError:
-            return Response({'candidato': None})  # especie no soportada para IA visual
+        if emb is None:
+            try:
+                emb = vision_ai._get_embedding(imagen, tipo)
+            except ValueError:
+                return Response({'candidato': None})
+
+
 
         candidatos_ids = [c.id for c in candidatos]
         similitud_visual = vision_ai.buscar_similares(emb, tipo, candidatos_ids)

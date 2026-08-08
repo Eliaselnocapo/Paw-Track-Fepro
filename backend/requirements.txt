@@ -27,7 +27,5 @@ django-redis>=5.4.0
 numpy==1.26.4
 onnxruntime==1.18.1
 hnswlib==0.8.0
-torchvision==0.17.1
-Pillow==10.2.0
 
 pdfplumber
