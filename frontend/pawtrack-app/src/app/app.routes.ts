@@ -153,13 +153,11 @@ export const routes: Routes = [
       .then(m => m.PerfilCentroPage),
   },
   {
-  path: 'mi-centro/:id',
-  loadComponent: () =>
-    import('./features/patrocinadores/center-dashboard/center-dashboard.page')
-      .then(m => m.CenterDashboardPage),
-  // TODO backend/auth: agregar un guard aquí cuando exista verificación
-  // real de "eres el dueño de este centro" — por ahora cualquiera con
-  // el link puede entrar.
-},
+    path: 'mi-centro',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/patrocinadores/center-dashboard/center-dashboard.page')
+        .then(m => m.CenterDashboardPage),
+  },
 
 ];

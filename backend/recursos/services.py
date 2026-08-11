@@ -2,10 +2,11 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 
-from .models import Recurso
+from .models import HistorialRecurso, Recurso
 from bd.models import Incidencia, PerfilPatrocinador
 
 
+@transaction.atomic
 def asignar_recurso(usuario, incidencia_id, tipo, descripcion=''):
     try:
         patrocinador = PerfilPatrocinador.objects.get(usuario=usuario)
@@ -32,12 +33,14 @@ def asignar_recurso(usuario, incidencia_id, tipo, descripcion=''):
             code='resource_not_assignable',
         )
 
-    return Recurso.objects.create(
+    recurso = Recurso.objects.create(
         patrocinador=patrocinador,
         incidencia=incidencia,
         tipo=tipo,
         descripcion=descripcion,
     )
+    HistorialRecurso.objects.create(recurso=recurso, tipo_evento='ASIGNADO', actor=usuario)
+    return recurso
 
 
 @transaction.atomic
@@ -66,5 +69,22 @@ def liberar_recurso(recurso_id, usuario_solicitante):
     recurso.estado = 'LIBERADO'
     recurso.released_at = timezone.now()
     recurso.save(update_fields=['estado', 'released_at'])
+    HistorialRecurso.objects.create(recurso=recurso, tipo_evento='LIBERADO', actor=usuario_solicitante)
 
     return recurso
+
+
+def listar_recursos_de_incidencia(usuario, folio):
+    try:
+        incidencia = Incidencia.objects.get(folio=folio)
+    except Incidencia.DoesNotExist:
+        raise NotFound('La incidencia no existe.', code='not_found')
+
+    perfil = getattr(usuario, 'perfil_rescatista', None)
+    if perfil is None or incidencia.rescatista_asignado_id != perfil.id:
+        raise PermissionDenied(
+            'Solo el rescatista asignado a este caso puede ver sus recursos.',
+            code='not_assigned_rescatista',
+        )
+
+    return Recurso.objects.filter(incidencia=incidencia).prefetch_related('historial').order_by('created_at')

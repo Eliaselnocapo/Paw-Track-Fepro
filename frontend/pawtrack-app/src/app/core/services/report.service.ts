@@ -537,9 +537,9 @@ export class ReportService {
     );
   }
 
-    cancelarReporte(incidenciaId: number, motivo: string): Observable<MensajeResponse> {
+  cancelarReporte(folio: string, motivo: string): Observable<MensajeResponse> {
     return this.http.post<MensajeResponse>(
-      `${this.apiUrl}${incidenciaId}/cancelar/`,
+      `${this.apiUrl}${folio}/cancelar/`,
       { motivo: motivo.trim() },
     );
   }

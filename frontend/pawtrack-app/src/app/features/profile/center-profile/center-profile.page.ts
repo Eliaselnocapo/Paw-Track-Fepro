@@ -3,14 +3,51 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+import { forkJoin } from 'rxjs';
 
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
-// TODO backend: reemplazar por el servicio real cuando exista
-// GET /api/centros-apoyo/{id}/perfil/
-import { CentroApoyoMockService, PerfilCentroCompleto, ResenaCentro } from '../../../features/auth/register-center/center-support-mock.service';
 import { SolicitudCentroApoyo } from '../../../core/models/centro-animal.model';
+import {
+  CentrosAnimalesService,
+  PublicacionCentro as PublicacionCentroApi,
+  ResenaCentro as ResenaCentroApi,
+} from '../../../core/services/centros-animales.service';
+
+// ── Interfaces "de vista" — mismo shape que usaba el mock, para no
+// tener que tocar el .html. Se llenan con datos reales mapeados. ──
+
+interface PublicacionCentro {
+  id: number;
+  texto: string;
+  fecha: string;
+  imagenUrl?: string;
+}
+
+interface ResenaCentro {
+  id: number;
+  autorNombre: string;
+  autorFotoUrl?: string;
+  calificacion: number;
+  comentario: string;
+  fecha: string;
+  respuestaCentro?: string;
+}
+
+interface EstadisticasCentro {
+  seguidores: number;
+  totalPublicaciones: number;
+  calificacionPromedio: number;
+  totalResenas: number;
+}
+
+interface PerfilCentroCompleto {
+  centro: SolicitudCentroApoyo;
+  estadisticas: EstadisticasCentro;
+  publicaciones: PublicacionCentro[];
+  resenas: ResenaCentro[];
+}
 
 /**
  * Vista PÚBLICA del perfil de un centro — la ve cualquier usuario,
@@ -19,8 +56,7 @@ import { SolicitudCentroApoyo } from '../../../core/models/centro-animal.model';
  *
  * Para administrar el centro (publicar, editar datos, ver estadísticas
  * a detalle) existe una vista APARTE: CenterDashboardPage — esa sí
- * requiere ser el dueño del centro. No se mezclan en un mismo
- * componente con un "if esDueño" — son responsabilidades distintas.
+ * requiere ser el dueño del centro.
  */
 @Component({
   selector: 'app-perfil-centro',
@@ -35,13 +71,14 @@ export class PerfilCentroPage implements OnInit {
   error: string | null = null;
   perfil: PerfilCentroCompleto | null = null;
 
-  /** Mock local — Fase 4 (seguir) no tiene backend todavía. */
+  private centroIdNumerico: number | null = null;
+
   siguiendoLocal = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private centroApoyoMock: CentroApoyoMockService,
+    private centrosAnimalesService: CentrosAnimalesService,
   ) {}
 
   ngOnInit(): void {
@@ -49,20 +86,46 @@ export class PerfilCentroPage implements OnInit {
   }
 
   cargarPerfil(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-
-    if (!id) {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (!idParam) {
       this.error = 'No se encontró el centro solicitado.';
       this.cargando = false;
       return;
     }
 
+    const idReal = idParam.replace('verificado-', '');
+    if (!/^\d+$/.test(idReal)) {
+      // Es un centro de OSM (no verificado), no tiene perfil propio en tu backend.
+      this.error = 'Este refugio no tiene un perfil detallado disponible.';
+      this.cargando = false;
+      return;
+    }
+
+    this.centroIdNumerico = Number(idReal);
     this.cargando = true;
     this.error = null;
 
-    this.centroApoyoMock.obtenerPerfilMock(id).subscribe({
-      next: (data) => {
-        this.perfil = data;
+    forkJoin({
+      centro: this.centrosAnimalesService.obtenerPerfilBasico(this.centroIdNumerico),
+      publicaciones: this.centrosAnimalesService.listarPublicaciones(this.centroIdNumerico),
+      resenas: this.centrosAnimalesService.listarResenas(this.centroIdNumerico),
+      seguidores: this.centrosAnimalesService.listarSeguidores(this.centroIdNumerico),
+    }).subscribe({
+      next: ({ centro, publicaciones, resenas, seguidores }) => {
+        const publicacionesVM = publicaciones.map((p) => this.mapearPublicacion(p));
+        const resenasVM = resenas.map((r) => this.mapearResena(r));
+
+        this.perfil = {
+          centro,
+          estadisticas: {
+            seguidores: seguidores.length,
+            totalPublicaciones: publicacionesVM.length,
+            calificacionPromedio: this.calcularPromedio(resenasVM),
+            totalResenas: resenasVM.length,
+          },
+          publicaciones: publicacionesVM,
+          resenas: resenasVM,
+        };
         this.cargando = false;
       },
       error: () => {
@@ -70,6 +133,34 @@ export class PerfilCentroPage implements OnInit {
         this.cargando = false;
       },
     });
+  }
+
+  private mapearPublicacion(p: PublicacionCentroApi): PublicacionCentro {
+    return {
+      id: p.id,
+      texto: p.contenido,
+      fecha: p.createdAt,
+      imagenUrl: p.imagenUrl ?? undefined,
+    };
+  }
+
+  private mapearResena(r: ResenaCentroApi): ResenaCentro {
+    const nombre = `${r.usuario.firstName} ${r.usuario.lastName}`.trim();
+    return {
+      id: r.id,
+      autorNombre: nombre || 'Usuario de PawTrack',
+      autorFotoUrl: r.usuario.fotoPerfil ?? undefined,
+      calificacion: r.calificacion,
+      comentario: r.comentario,
+      fecha: r.createdAt,
+      respuestaCentro: r.respuesta ?? undefined,
+    };
+  }
+
+  private calcularPromedio(resenas: ResenaCentro[]): number {
+    if (resenas.length === 0) return 0;
+    const suma = resenas.reduce((acc, r) => acc + r.calificacion, 0);
+    return Math.round((suma / resenas.length) * 10) / 10;
   }
 
   get centro(): SolicitudCentroApoyo | null {
@@ -88,10 +179,10 @@ export class PerfilCentroPage implements OnInit {
   readonly estrellasBase = [1, 2, 3, 4, 5];
 
   // ─────────────────────────────────────────
-  // PAGINACIÓN DE RESEÑAS: se muestran 3 a la vez, con flechas y puntitos
+  // PAGINACIÓN DE RESEÑAS: se muestran 1 a la vez, con flechas y puntitos
   // ─────────────────────────────────────────
 
-  readonly resenasPorPagina = 1; // 1 a la vez: vive en la sidebar angosta, no en la columna principal
+  readonly resenasPorPagina = 1;
   paginaResenaActual = 0;
 
   get resenasPaginadas(): ResenaCentro[] {
@@ -130,7 +221,7 @@ export class PerfilCentroPage implements OnInit {
   }
 
   // ─────────────────────────────────────────
-  // MODAL: ver todas las reseñas a detalle (estilo Facebook)
+  // MODAL: ver todas las reseñas a detalle
   // ─────────────────────────────────────────
 
   mostrarModalResenas = false;
@@ -143,18 +234,25 @@ export class PerfilCentroPage implements OnInit {
     this.mostrarModalResenas = false;
   }
 
-  /** A partir de qué tan largo un comentario amerita mostrar "Ver más" en vez de todo el texto. */
   comentarioEsLargo(comentario: string): boolean {
     return comentario.length > 110;
   }
 
   toggleSeguir(): void {
-    // TODO backend: POST /api/centros-apoyo/{id}/seguir/
-    this.siguiendoLocal = !this.siguiendoLocal;
+    if (this.centroIdNumerico === null) return;
+
+    this.centrosAnimalesService.toggleSeguir(this.centroIdNumerico).subscribe({
+      next: ({ siguiendo }) => {
+        this.siguiendoLocal = siguiendo;
+        if (this.perfil) {
+          this.perfil.estadisticas.seguidores += siguiendo ? 1 : -1;
+        }
+      },
+    });
   }
 
   // ─────────────────────────────────────────
-  // FORMULARIO: dejar una reseña (esto SÍ es del visitante, se queda aquí)
+  // FORMULARIO: dejar una reseña
   // ─────────────────────────────────────────
 
   mostrarFormularioResena = false;
@@ -184,28 +282,24 @@ export class PerfilCentroPage implements OnInit {
       this.errorResena = 'Selecciona una calificación de 1 a 5 estrellas.';
       return;
     }
-    if (!this.perfil || this.enviandoResena) return;
+    if (!this.perfil || this.enviandoResena || this.centroIdNumerico === null) return;
 
     this.enviandoResena = true;
     this.errorResena = null;
 
-    const id = this.route.snapshot.paramMap.get('id') ?? '';
-
-    this.centroApoyoMock
-      .crearResenaMock(id, this.calificacionSeleccionada, this.comentarioResena.trim())
+    this.centrosAnimalesService
+      .crearResena(this.centroIdNumerico, this.calificacionSeleccionada, this.comentarioResena.trim())
       .subscribe({
-        next: (nuevaResena) => {
+        next: (nuevaResenaApi) => {
           this.enviandoResena = false;
           this.mostrarFormularioResena = false;
 
           if (!this.perfil) return;
 
+          const nuevaResena = this.mapearResena(nuevaResenaApi);
           this.perfil.resenas = [nuevaResena, ...this.perfil.resenas];
           this.perfil.estadisticas.totalResenas++;
-
-          const suma = this.perfil.resenas.reduce((acc, r) => acc + r.calificacion, 0);
-          this.perfil.estadisticas.calificacionPromedio =
-            Math.round((suma / this.perfil.resenas.length) * 10) / 10;
+          this.perfil.estadisticas.calificacionPromedio = this.calcularPromedio(this.perfil.resenas);
         },
         error: () => {
           this.enviandoResena = false;

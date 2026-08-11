@@ -48,6 +48,37 @@ interface OverpassResponse {
   elements: OverpassElement[];
 }
 
+export interface UsuarioResumen {
+  id: number;
+  firstName: string;
+  lastName: string;
+  fotoPerfil: string | null;
+}
+
+export interface PublicacionCentro {
+  id: number;
+  contenido: string;
+  imagenUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResenaCentro {
+  id: number;
+  usuario: UsuarioResumen;
+  calificacion: number;
+  comentario: string;
+  respuesta: string | null;
+  respuestaFecha: string | null;
+  createdAt: string;
+}
+
+export interface SeguidorCentro {
+  id: number;
+  usuario: UsuarioResumen;
+  createdAt: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -295,7 +326,7 @@ export class CentrosAnimalesService {
       .set('radio_km', radioKm);
  
     return this.http
-      .get<any[]>(`${environment.apiUrl}/centros-apoyo/cercanos/`, { params })
+      .get<any[]>(`${environment.apiUrl}/centros/cercanos/`, { params })
       .pipe(
         map((resultados) =>
           resultados.map((c) => ({
@@ -325,7 +356,9 @@ export class CentrosAnimalesService {
     radioKm: number
   ): Observable<CentroAnimal[]> {
     return forkJoin({
-      osm: this.buscarRefugios(ubicacion, radioKm),
+      osm: this.buscarRefugios(ubicacion, radioKm).pipe(
+        catchError(() => of([] as CentroAnimal[]))
+      ),
       verificados: this.buscarCentrosVerificados(ubicacion, radioKm).pipe(
         catchError(() => of([] as CentroAnimal[]))
       ),
@@ -369,15 +402,151 @@ export class CentrosAnimalesService {
     }
  
     return this.http
-      .post<any>(`${environment.apiUrl}/centros-apoyo/`, formData)
+      .post<any>(`${environment.apiUrl}/centros/`, formData)
       .pipe(map((r) => this.mapearSolicitud(r)));
   }
  
   /** Las solicitudes que ha hecho el usuario logueado (para ver su estado). */
   misSolicitudesCentro(): Observable<SolicitudCentroApoyo[]> {
     return this.http
-      .get<any[]>(`${environment.apiUrl}/centros-apoyo/mis-solicitudes/`)
+      .get<any[]>(`${environment.apiUrl}/centros/mis-solicitudes/`)
       .pipe(map((lista) => lista.map((r) => this.mapearSolicitud(r))));
+  }
+
+  // ── Edición del centro ─────────────────────────────────────────────
+
+  editarCentro(id: number, cambios: Partial<NuevaSolicitudCentro>): Observable<SolicitudCentroApoyo> {
+    const formData = new FormData();
+
+    if (cambios.nombre !== undefined) formData.append('nombre', cambios.nombre);
+    if (cambios.tipo !== undefined) formData.append('tipo', cambios.tipo);
+    if (cambios.telefono !== undefined) formData.append('telefono', cambios.telefono);
+    if (cambios.horario !== undefined) formData.append('horario', cambios.horario);
+    if (cambios.sitioWeb !== undefined) formData.append('sitio_web', cambios.sitioWeb);
+    if (cambios.descripcion !== undefined) formData.append('descripcion', cambios.descripcion);
+    if (cambios.mision !== undefined) formData.append('mision', cambios.mision);
+    if (cambios.vision !== undefined) formData.append('vision', cambios.vision);
+    if (cambios.banner) formData.append('banner', cambios.banner);
+    if (cambios.logo) formData.append('logo', cambios.logo);
+    if (cambios.formasAyuda) formData.append('formas_ayuda', JSON.stringify(cambios.formasAyuda));
+    if (cambios.redesSociales) formData.append('redes_sociales', JSON.stringify(cambios.redesSociales));
+
+    return this.http
+      .patch<any>(`${environment.apiUrl}/centros/${id}/`, formData)
+      .pipe(map((r) => this.mapearSolicitud(r)));
+  }
+
+  // ── Publicaciones ───────────────────────────────────────────────────
+
+  listarPublicaciones(centroId: number): Observable<PublicacionCentro[]> {
+    return this.http
+      .get<any[]>(`${environment.apiUrl}/centros/${centroId}/publicaciones/`)
+      .pipe(map((lista) => lista.map((p) => this.mapearPublicacion(p))));
+  }
+
+  crearPublicacion(centroId: number, contenido: string, imagen?: File): Observable<PublicacionCentro> {
+    const formData = new FormData();
+    formData.append('contenido', contenido);
+    if (imagen) formData.append('imagen', imagen);
+
+    return this.http
+      .post<any>(`${environment.apiUrl}/centros/${centroId}/publicaciones/`, formData)
+      .pipe(map((p) => this.mapearPublicacion(p)));
+  }
+
+  editarPublicacion(centroId: number, postId: number, contenido: string, imagen?: File): Observable<PublicacionCentro> {
+    const formData = new FormData();
+    formData.append('contenido', contenido);
+    if (imagen) formData.append('imagen', imagen);
+
+    return this.http
+      .patch<any>(`${environment.apiUrl}/centros/${centroId}/publicaciones/${postId}/`, formData)
+      .pipe(map((p) => this.mapearPublicacion(p)));
+  }
+
+  eliminarPublicacion(centroId: number, postId: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/centros/${centroId}/publicaciones/${postId}/`);
+  }
+
+  // ── Reseñas ─────────────────────────────────────────────────────────
+
+  listarResenas(centroId: number): Observable<ResenaCentro[]> {
+    return this.http
+      .get<any[]>(`${environment.apiUrl}/centros/${centroId}/resenas/`)
+      .pipe(map((lista) => lista.map((r) => this.mapearResena(r))));
+  }
+
+  crearResena(centroId: number, calificacion: number, comentario: string): Observable<ResenaCentro> {
+    return this.http
+      .post<any>(`${environment.apiUrl}/centros/${centroId}/resenas/`, { calificacion, comentario })
+      .pipe(map((r) => this.mapearResena(r)));
+  }
+
+  responderResena(centroId: number, resenaId: number, respuesta: string): Observable<ResenaCentro> {
+    return this.http
+      .patch<any>(`${environment.apiUrl}/centros/${centroId}/resenas/${resenaId}/responder/`, { respuesta })
+      .pipe(map((r) => this.mapearResena(r)));
+  }
+
+  // ── Seguidores ──────────────────────────────────────────────────────
+
+  listarSeguidores(centroId: number): Observable<SeguidorCentro[]> {
+    return this.http
+      .get<any[]>(`${environment.apiUrl}/centros/${centroId}/seguidores/`)
+      .pipe(map((lista) => lista.map((s) => this.mapearSeguidor(s))));
+  }
+
+  toggleSeguir(centroId: number): Observable<{ siguiendo: boolean }> {
+    return this.http.post<{ siguiendo: boolean }>(`${environment.apiUrl}/centros/${centroId}/seguir/`, {});
+  }
+
+  // ── Mapeos privados ─────────────────────────────────────────────────
+
+  private mapearPublicacion(p: any): PublicacionCentro {
+    return {
+      id: p.id,
+      contenido: p.contenido,
+      imagenUrl: p.imagen ?? null,
+      createdAt: p.created_at,
+      updatedAt: p.updated_at,
+    };
+  }
+
+  private mapearUsuarioResumen(u: any): UsuarioResumen {
+    return {
+      id: u.id,
+      firstName: u.first_name ?? '',
+      lastName: u.last_name ?? '',
+      fotoPerfil: u.foto_perfil ?? null,
+    };
+  }
+
+  private mapearResena(r: any): ResenaCentro {
+    return {
+      id: r.id,
+      usuario: this.mapearUsuarioResumen(r.usuario),
+      calificacion: r.calificacion,
+      comentario: r.comentario,
+      respuesta: r.respuesta ?? null,
+      respuestaFecha: r.respuesta_fecha ?? null,
+      createdAt: r.created_at,
+    };
+  }
+
+  private mapearSeguidor(s: any): SeguidorCentro {
+    return {
+      id: s.id,
+      usuario: this.mapearUsuarioResumen(s.usuario),
+      createdAt: s.created_at,
+    };
+  }
+    
+
+    /** Perfil básico de un centro específico (vista pública /centro/:id). */
+  obtenerPerfilBasico(id: number): Observable<SolicitudCentroApoyo> {
+    return this.http
+      .get<any>(`${environment.apiUrl}/centros/${id}/perfil/`)
+      .pipe(map((r) => this.mapearSolicitud(r)));
   }
  
   private mapearSolicitud(r: any): SolicitudCentroApoyo {

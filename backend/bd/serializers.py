@@ -11,7 +11,7 @@ class PerfilRescatistaSerializer(serializers.ModelSerializer):
 class PerfilPatrocinadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerfilPatrocinador
-        fields = ('direccion', 'horario', 'redes_sociales', 'nivel', 'total_donado', 'casos_soportados', 'estado', 'tipo')
+        fields = ('id', 'nombre', 'logo', 'direccion', 'horario', 'redes_sociales', 'nivel', 'total_donado', 'casos_soportados', 'estado', 'tipo')
 
 class UsuarioSerializer(serializers.ModelSerializer):
     perfil_rescatista = PerfilRescatistaSerializer(read_only=True)

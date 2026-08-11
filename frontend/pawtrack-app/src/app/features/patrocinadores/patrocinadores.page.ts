@@ -103,10 +103,13 @@ export class PatrocinadoresPage
   cargandoUbicacion = false;
   cargandoCentros = false;
 
+  yaTieneCentro: boolean | undefined = undefined;
+
   error = '';
 
   ngOnInit(): void {
     void this.inicializarBusqueda();
+    this.verificarMiCentro();
   }
 
   ngAfterViewInit(): void {
@@ -215,6 +218,25 @@ export class PatrocinadoresPage
 
   reintentar(): void {
     void this.inicializarBusqueda();
+  }
+
+  private verificarMiCentro(): void {
+    // Sin sesión no tiene sentido preguntar — misSolicitudesCentro() daría 401.
+    if (!localStorage.getItem('pawtrack_access')) {
+      this.yaTieneCentro = false;
+      return;
+    }
+
+    this.centrosService.misSolicitudesCentro().subscribe({
+      next: (solicitudes) => {
+        this.yaTieneCentro = solicitudes.length > 0;
+      },
+      error: () => {
+        // Si falla la consulta, no bloqueamos la pantalla — solo asumimos
+        // que no tiene centro y dejamos el CTA de registro por defecto.
+        this.yaTieneCentro = false;
+      },
+    });
   }
 
   verEnMapa(centro: CentroAnimal): void {

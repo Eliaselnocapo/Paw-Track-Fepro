@@ -129,7 +129,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 
         from .serializers import UsuarioSerializer
         return Response(UsuarioSerializer(usuario).data)
-        
+    
+    @action(detail=True, methods=['get'], url_path='reputacion', permission_classes=[IsAuthenticated])
+    def reputacion(self, request, pk=None):
+        from .services import calcular_reputacion
+        usuario = self.get_object()
+        return Response(calcular_reputacion(usuario))
 
 
 class GoogleLogin(SocialLoginView):

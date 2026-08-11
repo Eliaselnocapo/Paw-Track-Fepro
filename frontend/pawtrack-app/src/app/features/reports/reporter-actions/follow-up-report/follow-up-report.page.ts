@@ -340,7 +340,7 @@ ${this.reporte.observaciones.trim() || 'Sin comentarios adicionales.'}
 
     this.cancelando = true;
 
-    this.reportService.cancelarReporte(this.reporteNumericId, this.textoMotivoFinal).subscribe({
+    this.reportService.cancelarReporte(this.reporte.folio, this.textoMotivoFinal).subscribe({
       next: () => {
         this.cancelando = false;
         this.reporteCancelado = true;

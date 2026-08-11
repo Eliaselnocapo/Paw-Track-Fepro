@@ -260,7 +260,9 @@ private cargarMisReportesDeCuenta(): void {
     next: (resp) => {
       console.log('MIS REPORTES DE CUENTA:', resp);
 
-      this.reports = resp.map((incidencia) => this.mapearReporte(incidencia));
+      this.reports = resp
+        .filter((incidencia) => incidencia.estado !== 'CANCELADO')
+        .map((incidencia) => this.mapearReporte(incidencia));
       this.totalCount = this.reports.length;
       this.cargando = false;
     },
@@ -407,9 +409,9 @@ private cargarMisReportesDeCuenta(): void {
       ASIGNADO: 'Asignado',
       EN_CAMINO: 'Rescatista en camino',
       CERRADO: 'Rescatado',
-      COMPLETADO: 'Completado'
+      COMPLETADO: 'Completado',
+      CANCELADO: 'Cancelado',
     };
-
     return labels[status] || 'Pendiente';
   }
 
@@ -422,9 +424,9 @@ private cargarMisReportesDeCuenta(): void {
       ASIGNADO: 'bg-blue-100 text-blue-700 border-blue-200',
       EN_CAMINO: 'bg-blue-100 text-blue-700 border-blue-200',
       CERRADO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      COMPLETADO: 'bg-slate-100 text-slate-600 border-slate-200'
+      COMPLETADO: 'bg-slate-100 text-slate-600 border-slate-200',
+      CANCELADO: 'bg-red-100 text-red-700 border-red-200',
     };
-
     return classes[status] || 'bg-slate-100 text-slate-600 border-slate-200';
   }
 

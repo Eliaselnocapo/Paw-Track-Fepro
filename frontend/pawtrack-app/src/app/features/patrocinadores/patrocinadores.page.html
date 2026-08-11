@@ -50,18 +50,27 @@
     <!-- FONDO DECORATIVO ESCRITORIO -->
     <div class="hidden md:block absolute inset-0 pointer-events-none overflow-hidden z-0">
       <div class="absolute top-[25px] left-[-50px] w-[450px] h-[450px] bg-fuchsia-200/55 rotate-[8deg]"></div>
-      <div class="absolute top-[30%] left-[8%] w-[210px] h-[210px] bg-amber-200/35 rotate-[5deg]"></div>
-      <div class="absolute top-[20%] left-[48%] w-[100px] h-[100px] bg-emerald-200/50 rotate-[22deg]"></div>
+      <div class="absolute top-[42%] left-[7%] w-[190px] h-[190px] bg-amber-200/35 rotate-[5deg]"></div>
+      <div class="absolute top-[16%] left-[46%] w-[90px] h-[90px] bg-emerald-200/50 rotate-[22deg]"></div>
       <div class="absolute top-[14%] right-[-70px] w-[280px] h-[280px] bg-violet-200/50 rounded-full"></div>
-      <div class="absolute top-[52%] right-[-50px] w-[170px] h-[170px] bg-violet-100/40 rotate-[-6deg]"></div>
+      <div class="absolute top-[54%] right-[-50px] w-[170px] h-[170px] bg-violet-200/40 rotate-[-6deg]"></div>
       <div class="absolute bottom-[-80px] left-[-60px] w-[280px] h-[280px] bg-indigo-200/50 rotate-[8deg]"></div>
       <div class="absolute bottom-[-60px] right-[-50px] w-[240px] h-[240px] bg-purple-200/45 rounded-full"></div>
+
+      <!-- acentos nuevos, para variar forma sin saturar -->
+      <div class="absolute top-[46%] left-[30%] w-14 h-14 bg-rose-200/40 rotate-[-15deg]"></div>
+      <div class="absolute top-[68%] left-[16%] w-0 h-0
+        border-l-[22px] border-l-transparent
+        border-r-[22px] border-r-transparent
+        border-b-[38px] border-b-cyan-200/40 rotate-[12deg]"></div>
+      <div class="absolute top-[38%] right-[18%] w-10 h-10 bg-sky-200/40 rotate-[25deg]"></div>
     </div>
 
     <!-- FONDO DECORATIVO MÓVIL -->
     <div class="md:hidden absolute inset-0 pointer-events-none overflow-hidden z-0">
       <div class="absolute top-[10px] left-[-40px] w-[220px] h-[220px] bg-fuchsia-200/55 rotate-[8deg]"></div>
       <div class="absolute top-[24%] right-[-50px] w-[150px] h-[150px] bg-violet-200/50 rounded-full"></div>
+      <div class="absolute top-[46%] left-[10%] w-9 h-9 bg-rose-200/40 rotate-[-15deg]"></div>
       <div class="absolute bottom-[-50px] left-[-40px] w-[180px] h-[180px] bg-indigo-200/50 rotate-[8deg]"></div>
       <div class="absolute bottom-[-40px] right-[-40px] w-[160px] h-[160px] bg-purple-200/45 rounded-full"></div>
     </div>
@@ -301,25 +310,38 @@
 
         </section>
 
-          <!-- Tarjeta de apoyo -->
-          <div class="bg-white border border-slate-300 shadow-md p-6 rounded">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="w-10 h-10 shrink-0 bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center rounded-full">
-                <span class="material-symbols-outlined text-[20px]">volunteer_activism</span>
-              </div>
-              <h3 class="font-bold text-slate-900 text-base">¿No hay refugios cerca?</h3>
+        <!-- Tarjeta de apoyo -->
+        <div class="bg-white border border-slate-300 shadow-md p-6 rounded">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 shrink-0 bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center rounded-full">
+              <span class="material-symbols-outlined text-[20px]">
+                {{ yaTieneCentro ? 'storefront' : 'volunteer_activism' }}
+              </span>
             </div>
-            <p class="text-sm text-slate-500 leading-relaxed mb-4">
+            <h3 class="font-bold text-slate-900 text-base">
+              {{ yaTieneCentro ? 'Tu centro de apoyo' : '¿No hay refugios cerca?' }}
+            </h3>
+          </div>
+
+          <p class="text-sm text-slate-500 leading-relaxed mb-4">
+          
+            @if (yaTieneCentro) {
+              Administra tu perfil, publica novedades y responde a las reseñas de tu centro.
+            } @else {
               Puedes ampliar el radio de búsqueda o registrar tu propio centro de apoyo animal
               para que otros usuarios lo encuentren.
-            </p>
-            <a
-              routerLink="/registrar-centro"
-              class="w-full bg-blue-50 border border-blue-100 text-blue-700 font-bold text-sm py-3 hover:bg-blue-100 transition-colors flex rounded-lg items-center justify-center gap-2 active:scale-95">
-              <span class="material-symbols-outlined text-[18px]">add_business</span>
-              Registrar mi centro
-            </a>
-          </div>
+            }
+          </p>
+
+          <a
+            [routerLink]="yaTieneCentro ? '/mi-centro' : '/registrar-centro'"
+            class="w-full bg-blue-50 border border-blue-100 text-blue-700 font-bold text-sm py-3 hover:bg-blue-100 transition-colors flex rounded-lg items-center justify-center gap-2 active:scale-95">
+            <span class="material-symbols-outlined text-[18px]">
+              {{ yaTieneCentro ? 'dashboard' : 'add_business' }}
+            </span>
+            {{ yaTieneCentro ? 'Administrar mi centro' : 'Registrar mi centro' }}
+          </a>
+        </div>
 
         </div>
         <aside class="lg:col-span-7 hidden lg:block">
@@ -339,7 +361,7 @@
 
             <div
               id="mapa-refugios-escritorio"
-              class="w-full h-[calc(100vh-260px)] min-h-[520px] max-h-[760px] bg-slate-100"
+              class="w-full h-[calc(100vh-260px)] min-h-[520px] max-h-[560px] bg-slate-100"
               role="region"
               aria-label="Mapa de refugios cercanos"
             ></div>

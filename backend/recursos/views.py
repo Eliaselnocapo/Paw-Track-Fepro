@@ -2,12 +2,13 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from core.permissions import IsPatrocinador
 
 from .models import Recurso
-from .serializers import RecursoSerializer
-from .services import asignar_recurso, liberar_recurso
+from .serializers import RecursoDeIncidenciaSerializer, RecursoSerializer
+from .services import asignar_recurso, liberar_recurso, listar_recursos_de_incidencia
 
 
 class RecursoViewSet(
@@ -41,3 +42,14 @@ class RecursoViewSet(
     def liberar(self, request, pk=None):
         recurso = liberar_recurso(recurso_id=pk, usuario_solicitante=request.user)
         return Response(self.get_serializer(recurso).data, status=status.HTTP_200_OK)
+
+
+class RecursosDeIncidenciaView(APIView):
+    """GET /api/incidencias/{folio}/recursos/ — solo lectura, solo para el
+    rescatista asignado a ese caso (ver core.permissions y
+    recursos.services.listar_recursos_de_incidencia)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, folio):
+        recursos = listar_recursos_de_incidencia(usuario=request.user, folio=folio)
+        return Response(RecursoDeIncidenciaSerializer(recursos, many=True).data)

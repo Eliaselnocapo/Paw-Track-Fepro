@@ -1,18 +1,15 @@
+// core/guards/auth.guard.ts
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { CanActivateFn } from '@angular/router';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
-  const auth = inject(AuthService);
+  const haySesion = !!localStorage.getItem('pawtrack_access');
 
-  if (auth.isLoggedIn()) {
-    return true;
+  if (!haySesion) {
+    router.navigate(['/login']);
+    return false;
   }
-
-  return router.createUrlTree(['/login'], {
-    queryParams: {
-      returnUrl: state.url,
-    },
-  });
+  return true;
 };

@@ -1,22 +1,62 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+import { forkJoin } from 'rxjs';
 
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
-import { CentroApoyoMockService, PerfilCentroCompleto, SeguidorCentro } from '../../../features/auth/register-center/center-support-mock.service';
 import { SolicitudCentroApoyo, TipoCentro, FormaAyuda, RedesSociales } from '../../../core/models/centro-animal.model';
+import { CentrosAnimalesService, PublicacionCentro as PublicacionCentroApi, ResenaCentro as ResenaCentroApi, SeguidorCentro as SeguidorCentroApi } from '../../../core/services/centros-animales.service';
+import { ToastService } from '../../../core/services/toast.service';
+
+// ── Interfaces "de vista" — mismo shape que usaba el mock ──
+
+interface PublicacionCentro {
+  id: number;
+  texto: string;
+  fecha: string;
+  imagenUrl?: string;
+}
+
+interface ResenaCentro {
+  id: number;
+  autorNombre: string;
+  autorFotoUrl?: string;
+  calificacion: number;
+  comentario: string;
+  fecha: string;
+  respuestaCentro?: string;
+}
+
+interface SeguidorCentro {
+  id: number;
+  nombre: string;
+  fotoUrl?: string;
+  desde: string;
+}
+
+interface EstadisticasCentro {
+  seguidores: number;
+  totalPublicaciones: number;
+  calificacionPromedio: number;
+  totalResenas: number;
+}
+
+interface PerfilCentroCompleto {
+  centro: SolicitudCentroApoyo;
+  estadisticas: EstadisticasCentro;
+  publicaciones: PublicacionCentro[];
+  resenas: ResenaCentro[];
+  seguidoresLista: SeguidorCentro[];
+}
 
 /**
- * Panel de ADMINISTRACIÓN del centro — vista privada, distinta a
- * perfil-centro.page.ts (esa es pública). Aquí el dueño puede ver
- * estadísticas, publicar, y EDITAR toda su información de perfil.
- *
- * TODO backend/auth: falta un guard que verifique que request.user es
- * el dueño real de este centro.
+ * Panel de ADMINISTRACIÓN del centro — vista privada. El backend ya
+ * filtra por dueño (misSolicitudesCentro filtra por request.user, y
+ * cada endpoint de edición/publicación valida propiedad server-side).
  */
 @Component({
   selector: 'app-center-dashboard',
@@ -30,11 +70,15 @@ export class CenterDashboardPage implements OnInit {
   cargando = true;
   error: string | null = null;
   perfil: PerfilCentroCompleto | null = null;
+  subiendoBanner = false;
+  subiendoLogo = false;
+
+  private centroIdNumerico: number | null = null;
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
-    private centroApoyoMock: CentroApoyoMockService,
+    private centrosAnimalesService: CentrosAnimalesService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -42,20 +86,61 @@ export class CenterDashboardPage implements OnInit {
   }
 
   cargarPerfil(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-
-    if (!id) {
-      this.error = 'No se encontró el centro solicitado.';
-      this.cargando = false;
-      return;
-    }
-
     this.cargando = true;
     this.error = null;
 
-    this.centroApoyoMock.obtenerPerfilMock(id).subscribe({
-      next: (data) => {
-        this.perfil = data;
+    this.centrosAnimalesService.misSolicitudesCentro().subscribe({
+      next: (solicitudes) => {
+        const miCentro = solicitudes[0]; // OneToOne: solo puede tener uno
+
+        if (!miCentro) {
+          this.error = 'Todavía no has registrado un centro de apoyo.';
+          this.cargando = false;
+          return;
+        }
+
+        if (miCentro.estado !== 'APROBADO') {
+          this.error = `Tu solicitud está en estado "${miCentro.estado}". El panel se habilita cuando se apruebe.`;
+          this.cargando = false;
+          return;
+        }
+
+        this.centroIdNumerico = miCentro.id;
+        this.cargarDatosCompletos(miCentro);
+      },
+      error: () => {
+        this.error = 'No se pudo cargar la información de tu centro.';
+        this.cargando = false;
+      },
+    });
+  }
+
+
+  private cargarDatosCompletos(centro: SolicitudCentroApoyo): void {
+    if (this.centroIdNumerico === null) return;
+
+    forkJoin({
+      publicaciones: this.centrosAnimalesService.listarPublicaciones(this.centroIdNumerico),
+      resenas: this.centrosAnimalesService.listarResenas(this.centroIdNumerico),
+      seguidores: this.centrosAnimalesService.listarSeguidores(this.centroIdNumerico),
+    }).subscribe({
+      next: ({ publicaciones, resenas, seguidores }) => {
+        const publicacionesVM = publicaciones.map((p) => this.mapearPublicacion(p));
+        const resenasVM = resenas.map((r) => this.mapearResena(r));
+        const seguidoresVM = seguidores.map((s) => this.mapearSeguidor(s));
+
+        this.perfil = {
+          centro,
+          estadisticas: {
+            seguidores: seguidoresVM.length,
+            totalPublicaciones: publicacionesVM.length,
+            calificacionPromedio: this.calcularPromedio(resenasVM),
+            totalResenas: resenasVM.length,
+          },
+          publicaciones: publicacionesVM,
+          resenas: resenasVM,
+          seguidoresLista: seguidoresVM,
+        };
         this.cargando = false;
       },
       error: () => {
@@ -63,6 +148,44 @@ export class CenterDashboardPage implements OnInit {
         this.cargando = false;
       },
     });
+  }
+
+  private mapearPublicacion(p: PublicacionCentroApi): PublicacionCentro {
+    return {
+      id: p.id,
+      texto: p.contenido,
+      fecha: p.createdAt,
+      imagenUrl: p.imagenUrl ?? undefined,
+    };
+  }
+
+  private mapearResena(r: ResenaCentroApi): ResenaCentro {
+    const nombre = `${r.usuario.firstName} ${r.usuario.lastName}`.trim();
+    return {
+      id: r.id,
+      autorNombre: nombre || 'Usuario de PawTrack',
+      autorFotoUrl: r.usuario.fotoPerfil ?? undefined,
+      calificacion: r.calificacion,
+      comentario: r.comentario,
+      fecha: r.createdAt,
+      respuestaCentro: r.respuesta ?? undefined,
+    };
+  }
+
+  private mapearSeguidor(s: SeguidorCentroApi): SeguidorCentro {
+    const nombre = `${s.usuario.firstName} ${s.usuario.lastName}`.trim();
+    return {
+      id: s.id,
+      nombre: nombre || 'Usuario de PawTrack',
+      fotoUrl: s.usuario.fotoPerfil ?? undefined,
+      desde: s.createdAt,
+    };
+  }
+
+  private calcularPromedio(resenas: ResenaCentro[]): number {
+    if (resenas.length === 0) return 0;
+    const suma = resenas.reduce((acc, r) => acc + r.calificacion, 0);
+    return Math.round((suma / resenas.length) * 10) / 10;
   }
 
   get centro(): SolicitudCentroApoyo | null {
@@ -75,8 +198,6 @@ export class CenterDashboardPage implements OnInit {
 
   editando = false;
 
-  // Campos del formulario de edición (copia editable, no se toca
-  // "perfil.centro" directo hasta que se guarde).
   formNombre = '';
   formTipo: TipoCentro = 'veterinaria';
   formTelefono = '';
@@ -107,7 +228,6 @@ export class CenterDashboardPage implements OnInit {
   activarEdicion(): void {
     if (!this.centro) return;
 
-    // Precarga el formulario con lo que ya existe.
     this.formNombre = this.centro.nombre;
     this.formTipo = this.centro.tipo;
     this.formTelefono = this.centro.telefono;
@@ -149,10 +269,45 @@ export class CenterDashboardPage implements OnInit {
   }
 
   onLogoSeleccionado(event: Event): void {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      this.formLogoArchivo = file;
+      this.formLogoPreview = URL.createObjectURL(file);
+    }
+    onBannerClickDirecto(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    this.formLogoArchivo = file;
-    this.formLogoPreview = URL.createObjectURL(file);
+    if (!file || this.centroIdNumerico === null) return;
+
+    this.subiendoBanner = true;
+    this.centrosAnimalesService.editarCentro(this.centroIdNumerico, { banner: file }).subscribe({
+      next: (centroActualizado) => {
+        if (this.perfil) this.perfil.centro = centroActualizado;
+        this.subiendoBanner = false;
+        this.toastService.mostrar('Portada actualizada.', 'exito');
+      },
+      error: () => {
+        this.subiendoBanner = false;
+        this.toastService.mostrar('No se pudo actualizar la portada.', 'error');
+      },
+    });
+}
+
+  onLogoClickDirecto(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file || this.centroIdNumerico === null) return;
+
+    this.subiendoLogo = true;
+    this.centrosAnimalesService.editarCentro(this.centroIdNumerico, { logo: file }).subscribe({
+      next: (centroActualizado) => {
+        if (this.perfil) this.perfil.centro = centroActualizado;
+        this.subiendoLogo = false;
+        this.toastService.mostrar('Logo actualizado.', 'exito');
+      },
+      error: () => {
+        this.subiendoLogo = false;
+        this.toastService.mostrar('No se pudo actualizar el logo.', 'error');
+      },
+    });
   }
 
   guardarEdicion(): void {
@@ -160,36 +315,38 @@ export class CenterDashboardPage implements OnInit {
       this.errorEdicion = 'El nombre debe tener al menos 3 caracteres.';
       return;
     }
-    if (!this.perfil || !this.centro || this.guardandoEdicion) return;
+    if (!this.perfil || !this.centro || this.guardandoEdicion || this.centroIdNumerico === null) return;
 
     this.guardandoEdicion = true;
     this.errorEdicion = null;
 
-    // TODO backend: PATCH /api/centros-apoyo/{id}/ con FormData (igual
-    // que el registro — hay banner/logo de por medio). Por ahora solo
-    // actualizamos el objeto local para simular el guardado.
-    setTimeout(() => {
-      if (!this.perfil) return;
-
-      this.perfil.centro = {
-        ...this.perfil.centro,
+    this.centrosAnimalesService
+      .editarCentro(this.centroIdNumerico, {
         nombre: this.formNombre.trim(),
         tipo: this.formTipo,
         telefono: this.formTelefono.trim(),
-        horario: this.formHorario.trim() || undefined,
-        sitioWeb: this.formSitioWeb.trim() || undefined,
-        descripcion: this.formDescripcion.trim() || undefined,
-        mision: this.formMision.trim() || undefined,
-        vision: this.formVision.trim() || undefined,
-        formasAyuda: this.formFormasAyuda.length ? this.formFormasAyuda : undefined,
+        horario: this.formHorario.trim(),
+        sitioWeb: this.formSitioWeb.trim(),
+        descripcion: this.formDescripcion.trim(),
+        mision: this.formMision.trim(),
+        vision: this.formVision.trim(),
+        formasAyuda: this.formFormasAyuda,
         redesSociales: this.formRedesSociales,
-        bannerUrl: this.formBannerPreview ?? undefined,
-        logoUrl: this.formLogoPreview ?? undefined,
-      };
-
-      this.guardandoEdicion = false;
-      this.editando = false;
-    }, 400);
+        banner: this.formBannerArchivo,
+        logo: this.formLogoArchivo,
+      })
+      .subscribe({
+        next: (centroActualizado) => {
+          if (this.perfil) this.perfil.centro = centroActualizado;
+          this.guardandoEdicion = false;
+          this.editando = false;
+          this.toastService.mostrar('Cambios guardados correctamente.', 'exito');
+        },
+        error: () => {
+          this.guardandoEdicion = false;
+          this.errorEdicion = 'No se pudo guardar el cambio. Intenta de nuevo.';
+        },
+      });
   }
 
   // ─────────────────────────────────────────
@@ -203,7 +360,6 @@ export class CenterDashboardPage implements OnInit {
   enviandoPost = false;
   errorPost: string | null = null;
 
-  /** Si tiene valor, el formulario está en modo "editar" en vez de "crear nuevo". */
   editandoPostId: number | null = null;
 
   abrirFormularioPost(): void {
@@ -249,17 +405,14 @@ export class CenterDashboardPage implements OnInit {
       this.errorPost = 'Escribe al menos unas palabras antes de publicar.';
       return;
     }
-    if (!this.perfil || this.enviandoPost) return;
+    if (!this.perfil || this.enviandoPost || this.centroIdNumerico === null) return;
 
     this.enviandoPost = true;
     this.errorPost = null;
 
-    const id = this.route.snapshot.paramMap.get('id') ?? '';
-
     if (this.editandoPostId !== null) {
-      // TODO backend: cambiar por this.centrosApoyoService.editarPublicacion(...)
-      this.centroApoyoMock
-        .editarPublicacionMock(this.editandoPostId, this.textoNuevoPost.trim(), this.fotoPostPreview ?? undefined)
+      this.centrosAnimalesService
+        .editarPublicacion(this.centroIdNumerico, this.editandoPostId, this.textoNuevoPost.trim(), this.fotoPostArchivo ?? undefined)
         .subscribe({
           next: (actualizado) => {
             this.enviandoPost = false;
@@ -269,8 +422,8 @@ export class CenterDashboardPage implements OnInit {
 
             const post = this.perfil.publicaciones.find((p) => p.id === actualizado.id);
             if (post) {
-              post.texto = actualizado.texto;
-              post.imagenUrl = actualizado.imagenUrl;
+              post.texto = actualizado.contenido;
+              post.imagenUrl = actualizado.imagenUrl ?? undefined;
             }
           },
           error: () => {
@@ -281,17 +434,16 @@ export class CenterDashboardPage implements OnInit {
       return;
     }
 
-    // TODO backend: cambiar por this.centrosApoyoService.crearPublicacion(...)
-    this.centroApoyoMock
-      .crearPublicacionMock(id, this.textoNuevoPost.trim(), this.fotoPostPreview ?? undefined)
+    this.centrosAnimalesService
+      .crearPublicacion(this.centroIdNumerico, this.textoNuevoPost.trim(), this.fotoPostArchivo ?? undefined)
       .subscribe({
-        next: (nuevoPost) => {
+        next: (nuevoPostApi) => {
           this.enviandoPost = false;
           this.mostrarFormularioPost = false;
 
           if (!this.perfil) return;
 
-          this.perfil.publicaciones = [nuevoPost, ...this.perfil.publicaciones];
+          this.perfil.publicaciones = [this.mapearPublicacion(nuevoPostApi), ...this.perfil.publicaciones];
           this.perfil.estadisticas.totalPublicaciones++;
         },
         error: () => {
@@ -302,10 +454,15 @@ export class CenterDashboardPage implements OnInit {
   }
 
   eliminarPost(id: number): void {
-    // TODO backend: DELETE /api/centros-apoyo/{centroId}/publicaciones/{id}/
-    if (!this.perfil) return;
-    this.perfil.publicaciones = this.perfil.publicaciones.filter((p) => p.id !== id);
-    this.perfil.estadisticas.totalPublicaciones = Math.max(0, this.perfil.estadisticas.totalPublicaciones - 1);
+    if (!this.perfil || this.centroIdNumerico === null) return;
+
+    this.centrosAnimalesService.eliminarPublicacion(this.centroIdNumerico, id).subscribe({
+      next: () => {
+        if (!this.perfil) return;
+        this.perfil.publicaciones = this.perfil.publicaciones.filter((p) => p.id !== id);
+        this.perfil.estadisticas.totalPublicaciones = Math.max(0, this.perfil.estadisticas.totalPublicaciones - 1);
+      },
+    });
   }
 
   // ─────────────────────────────────────────
@@ -350,21 +507,20 @@ export class CenterDashboardPage implements OnInit {
       this.errorRespuesta = 'Escribe una respuesta antes de enviar.';
       return;
     }
-    if (!this.perfil || this.enviandoRespuesta) return;
+    if (!this.perfil || this.enviandoRespuesta || this.centroIdNumerico === null) return;
 
     this.enviandoRespuesta = true;
     this.errorRespuesta = null;
 
-    // TODO backend: cambiar por this.centrosApoyoService.responderResena(...)
-    this.centroApoyoMock.responderResenaMock(resenaId, this.textoRespuesta.trim()).subscribe({
-      next: ({ respuesta }) => {
+    this.centrosAnimalesService.responderResena(this.centroIdNumerico, resenaId, this.textoRespuesta.trim()).subscribe({
+      next: (resenaActualizada) => {
         this.enviandoRespuesta = false;
         this.respondiendoResenaId = null;
 
         if (!this.perfil) return;
 
         const resena = this.perfil.resenas.find((r) => r.id === resenaId);
-        if (resena) resena.respuestaCentro = respuesta;
+        if (resena) resena.respuestaCentro = resenaActualizada.respuesta ?? undefined;
       },
       error: () => {
         this.enviandoRespuesta = false;

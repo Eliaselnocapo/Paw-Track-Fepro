@@ -8,7 +8,7 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 
 // TODO backend: reemplazar por el servicio real cuando exista
 // GET /api/usuarios/{id}/reputacion/
-import { ReputacionMockService, ReputacionResponse, LogroTimeline, HistorialCaso, EstadoValidacion } from './reputation-mock.service';
+import { ReputacionService, ReputacionResponse, LogroTimeline, HistorialCaso, EstadoValidacion } from '../../../core/services/reputation.service';
 // (mismo import, sin cambios — se deja explícito para claridad)
 
 interface NivelReputacion {
@@ -89,18 +89,26 @@ export class ReputationPage implements OnInit {
     },
   ];
 
-  constructor(private reputacionService: ReputacionMockService) {}
+  constructor(private reputacionService: ReputacionService) {}
 
   ngOnInit(): void {
     this.cargarReputacion();
   }
 
+  
+
   cargarReputacion(): void {
     this.cargando = true;
     this.error = null;
 
-    // TODO backend: cambiar por this.reputacionService.obtenerReputacion(userId).subscribe(...)
-    this.reputacionService.obtenerReputacionMock().subscribe({
+    const userId = this.getUserIdFromToken();
+    if (!userId) {
+      this.error = 'Debes iniciar sesión para ver tu reputación.';
+      this.cargando = false;
+      return;
+    }
+
+    this.reputacionService.obtenerReputacion(userId).subscribe({
       next: (data) => {
         this.datos = data;
         this.cargando = false;
@@ -214,5 +222,14 @@ export class ReputationPage implements OnInit {
   get dashOffsetGauge(): number {
     const progreso = this.scoreGaugePorcentaje / 100;
     return this.circunferenciaGauge * (1 - progreso);
+  }
+
+  private getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('pawtrack_access');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.user_id ?? null;
+    } catch { return null; }
   }
 }

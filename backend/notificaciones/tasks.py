@@ -7,10 +7,23 @@ from notificaciones.services import broadcast_urgency_update, notify_user
 from core.zona import compute_zona_key
 
 
+CONDICION_MAP = {"critico": 100, "herido": 70, "estable": 20}
+
+
+def calcular_condicion(salud_texto):
+    """Animal.salud puede traer varios valores separados por coma (ej.
+    "herido, callejero"), asi que se busca por substring en vez de match
+    exacto — en orden de gravedad descendente para que gane la condicion
+    mas grave si el texto trae varias."""
+    texto = (salud_texto or "estable").lower()
+    for clave, valor in CONDICION_MAP.items():
+        if clave in texto:
+            return valor
+    return 20
+
+
 @shared_task
 def recalc_urgency_score():
-    CONDICION_MAP = {"estable": 20, "herido": 70, "critico": 100}
-
     incidencias = (
         Incidencia.objects.filter(estado__in=["PENDIENTE", "EN_PROCESO"])
         .select_related("animal")
@@ -18,7 +31,7 @@ def recalc_urgency_score():
 
     for inc in incidencias:
         salud = (inc.animal.salud or "estable").lower() if inc.animal else "estable"
-        condicion = CONDICION_MAP.get(salud, 20)
+        condicion = calcular_condicion(salud)
 
         horas = (timezone.now() - inc.created_at).total_seconds() / 3600
         tiempo = min(100, horas * 8)

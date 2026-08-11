@@ -87,9 +87,40 @@ export class CartelPdf {
         altoPagina
       );
 
+      // ── Capa de texto invisible ──────────────────────────────────────────
+      // El cartel visual es una imagen (html2canvas), así que un PDF externo
+      // que intente leer su texto (ej. la función "Reporte desde PDF" de
+      // PawTrack, o cualquier extractor de terceros) no encuentra nada.
+      // Superponemos aquí el mismo contenido como texto real con opacidad 0:
+      // invisible al ojo, pero extraíble por pdfplumber/OCR.
+      doc.setFontSize(9);
+      doc.setGState(new (doc as any).GState({ opacity: 0 }));
+
+      const lineasTexto = [
+        `PawTrack - Reporte de mascota`,
+        `Folio: ${datos.folio ?? ''}`,
+        datos.nombreCaso ? `Nombre del caso: ${datos.nombreCaso}` : null,
+        datos.tipoAnimal ? `Tipo de animal: ${datos.tipoAnimal}` : null,
+        datos.tamanoAnimal ? `Tamano: ${datos.tamanoAnimal}` : null,
+        datos.condicionAnimal ? `Condicion: ${datos.condicionAnimal}` : null,
+        datos.direccion ? `Direccion: ${datos.direccion}` : null,
+        datos.caracteristicas ? `Caracteristicas: ${datos.caracteristicas}` : null,
+        datos.notasAnimal ? `Notas: ${datos.notasAnimal}` : null,
+        datos.nombreContacto ? `Contacto: ${datos.nombreContacto}` : null,
+        datos.telefonoContacto ? `Telefono: ${datos.telefonoContacto}` : null,
+        datos.tipoIncidencia ? `Tipo de incidencia: ${datos.tipoIncidencia}` : null,
+        datos.fechaReporte ? `Fecha: ${datos.fechaReporte}` : null,
+      ].filter((linea): linea is string => linea !== null);
+
+      doc.text(lineasTexto, 5, 8, { maxWidth: anchoPagina - 10 });
+
+      doc.setGState(new (doc as any).GState({ opacity: 1 }));
+      // ────────────────────────────────────────────────────────────────────
+
       const folioArchivo = this.limpiarNombreArchivo(datos.folio || 'reporte');
 
       doc.save(`cartel-${folioArchivo}.pdf`);
+
     } finally {
       // Limpieza: el componente y su contenedor eran solo temporales.
       this.appRef.detachView(componentRef.hostView);
