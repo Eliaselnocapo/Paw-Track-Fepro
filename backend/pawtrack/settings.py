@@ -198,7 +198,11 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
     ],
-    'DEFAULT_THROTTLE_RATES': THROTTLE_RATES,
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/minute',  # Protege tu API de ataques de fuerza bruta
+        'user': '1000/day',
+	'vision_anon': '10/minute'
+    }
 }
 
 REST_AUTH = {
