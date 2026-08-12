@@ -42,6 +42,15 @@ interface UsuarioPerfil {
   reportesRecientes: ReporteReciente[];
   casosAceptadosRecientes: ReporteReciente[];
   seguimientosRecientes: ReporteReciente[];
+
+  centroApoyo: {
+    id: number;
+    nombre: string;
+    estado: string;
+    tipo: string;
+    direccion: string;
+    logoUrl: string | null;
+  } | null
 }
 
 @Component({
@@ -80,7 +89,8 @@ export class ProfilePage implements OnInit {
 
     reportesRecientes: [],
     casosAceptadosRecientes: [],
-    seguimientosRecientes: []
+    seguimientosRecientes: [],
+    centroApoyo: null
   };
 
   constructor(
@@ -173,7 +183,19 @@ export class ProfilePage implements OnInit {
       reportesRecientes,
       casosAceptadosRecientes: aceptados.slice(0, 3),
       seguimientosRecientes: resueltos.slice(0, 3),
-    };
+      centroApoyo: usuarioBackend.perfil_patrocinador
+      ? {
+          id: usuarioBackend.perfil_patrocinador.id,
+          nombre: usuarioBackend.perfil_patrocinador.nombre,
+          estado: usuarioBackend.perfil_patrocinador.estado,
+          tipo: usuarioBackend.perfil_patrocinador.tipo,
+          direccion: usuarioBackend.perfil_patrocinador.direccion,
+          logoUrl: usuarioBackend.perfil_patrocinador.logo
+            ? this.resolverUrlMedia(usuarioBackend.perfil_patrocinador.logo, usuarioBackend.perfil_patrocinador.nombre)
+            : null,
+        }
+      : null,
+      };
   }
 
   private mapearReporte(reporte: IncidenciaResponse): ReporteReciente {
@@ -255,9 +277,13 @@ export class ProfilePage implements OnInit {
   }
 
   private formatearTituloReporte(reporte: IncidenciaResponse): string {
-    if (reporte.tipo_incidencia) {
-      return reporte.tipo_incidencia;
-    }
+    const nombreCaso = (reporte as any).nombre_caso?.trim();
+    if (nombreCaso) return nombreCaso;
+
+    const tipoAnimal = (reporte as any).tipo_animal;
+    if (tipoAnimal) return `${tipoAnimal} en incidencia`;
+
+    if (reporte.tipo_incidencia) return reporte.tipo_incidencia;
 
     return `Reporte #${reporte.id}`;
   }

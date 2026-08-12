@@ -1,302 +1,51 @@
 ion-content { --background: transparent; }
 
-:host {
-  display: flex; flex-direction: column;
-  min-height: 100vh; height: auto; overflow-y: auto;
-  background: #f4f7fe;
-  font-family: 'Montserrat', sans-serif;
-  padding-bottom: 16px;
+/* Barra de scroll delgada y de color, en vez del scrollbar negro
+   default del navegador — Tailwind no puede tocar esto sin plugin. */
+.lista-con-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #bfdbfe transparent;
 }
-
-.page-shell {
-  position: relative; min-height: 100vh;
-  display: flex; flex-direction: column;
-  background: #f4f7fe; overflow: hidden;
+.lista-con-scroll::-webkit-scrollbar {
+  width: 6px;
 }
-.page-shell::before {
-  content: ""; position: absolute;
-  width: 600px; height: 600px; border-radius: 50%;
-  background: rgba(173, 198, 255, 0.22);
-  top: 60px; left: -220px; z-index: 0; pointer-events: none;
+.lista-con-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
-.page-shell::after {
-  content: ""; position: absolute;
-  width: 540px; height: 540px; border-radius: 50%;
-  background: rgba(167, 243, 208, 0.24);
-  top: 340px; right: -180px; z-index: 0; pointer-events: none;
-}
-
-.page-content, app-navbar-web, app-footer-web { position: relative; z-index: 1; }
-.page-content { flex: 1; width: 100%; padding: 32px 28px 52px; background: transparent; }
-app-navbar-web, app-footer-web { flex-shrink: 0; }
-
-/* ===== Layout: mapa grande ===== */
-.layout-dashboard {
-  width: 100%; max-width: 1260px; margin: 0 auto;
-  display: grid; gap: 24px;
-  grid-template-columns: minmax(0, 1fr) 400px;
-  grid-template-rows: 660px auto;
-  grid-template-areas:
-    "mapa-general alertas-recientes"
-    "estadisticas estadisticas";
-}
-
-/* Sombra suave compartida (clave del look pulido) */
-%card-soft {
-  background: #fff;
-  border: 1px solid #e8edf6;
-  box-shadow: 0 1px 3px rgba(16, 42, 92, 0.04), 0 8px 24px rgba(16, 42, 92, 0.06);
-}
-
-/* ===== MAPA ===== */
-.mapa-general {
-  grid-area: mapa-general;
-  padding: 0; overflow: hidden;
-  @extend %card-soft;
-}
-#mapa-casos { width: 100%; height: 100%; min-height: 660px; background: #e2e8f0; }
-
-/* ===== ALERTAS ===== */
-.alertas-recientes {
-  grid-area: alertas-recientes;
-  @extend %card-soft;
-  display: flex; flex-direction: column; overflow: hidden;
-}
-.alertas-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 22px 24px 18px;
-  border-bottom: 1px solid #f1f5fb;
-}
-.alertas-title { font-size: 19px; font-weight: 800; color: #0f1f3d; margin: 0; letter-spacing: -0.01em; }
-.live-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 10px; font-weight: 800; letter-spacing: .06em;
-  color: #e11d48; background: #fff1f3; border: 1px solid #fecdd6;
-  padding: 5px 10px;
-}
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #e11d48; box-shadow: 0 0 0 0 rgba(225,29,72,.5); animation: livePulse 1.6s infinite; }
-@keyframes livePulse {
-  0% { box-shadow: 0 0 0 0 rgba(225,29,72,.5); }
-  70% { box-shadow: 0 0 0 6px rgba(225,29,72,0); }
-  100% { box-shadow: 0 0 0 0 rgba(225,29,72,0); }
-}
-
-.alertas-lista {
-  flex: 1; overflow-y: auto; max-height: 574px;
-  padding: 16px; display: flex; flex-direction: column; gap: 14px;
-}
-.alertas-lista::-webkit-scrollbar { width: 6px; }
-.alertas-lista::-webkit-scrollbar-thumb { background: #d6e0f0; }
-
-/* ===== Genéricos usados por el HTML actual (hero + tarjetas-alertas) ===== */
-.container { width: 100%; }
-
-.hero {
-  padding: 22px 24px 18px;
-  border-bottom: 1px solid #f1f5fb;
-}
-.hero .title {
-  font-size: 19px; font-weight: 800; color: #0f1f3d;
-  margin: 0; letter-spacing: -0.01em;
-}
-.hero .subtitle {
-  font-size: 13px; color: #64748b; margin: 6px 0 0; line-height: 1.5;
-}
-
-/* Encabezado de alertas con botón móvil */
-.alertas-hero-contenido {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.alertas-hero-texto {
-  flex: 1;
-  min-width: 0;
-}
-
-/* En escritorio el botón no aparece */
-.alertas-toggle-mobile {
-  display: none;
-}
-
-/* ===== FILTROS DE ALERTAS ===== */
-.alertas-filtros {
-  display: flex; gap: 8px;
-  padding: 0 16px 16px;
-  border-bottom: 1px solid #f1f5fb;
-  overflow-x: auto;
-}
-.alertas-filtros::-webkit-scrollbar { display: none; }
-
-.filtro-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 14px;
-  font-size: 12.5px; font-weight: 700; color: #64748b;
-  background: #f4f7fe; border: 1px solid #e8edf6;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
-}
-.filtro-pill:hover { background: #eaf0ff; color: #2E5BD8; }
-
-.filtro-pill-activo,
-.filtro-pill-activo:hover {
-  background: #2E5BD8; border-color: #2E5BD8; color: #fff;
-}
-
-.filtro-conteo {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 18px; height: 18px; padding: 0 5px;
-  font-size: 10.5px; font-weight: 800;
-  background: rgba(255,255,255,.25); color: inherit;
+.lista-con-scroll::-webkit-scrollbar-thumb {
+  background: #bfdbfe;
   border-radius: 999px;
 }
-.filtro-pill:not(.filtro-pill-activo) .filtro-conteo {
-  background: #e8edf6; color: #475569;
+.lista-con-scroll::-webkit-scrollbar-thumb:hover {
+  background: #93c5fd;
 }
 
-.tarjetas-alertas {
-  flex: 1; overflow-y: auto; max-height: 574px;
+/* Punto pulsante del badge "En tiempo real" */
+.pulso-vivo {
+  animation: pulsoVivo 1.6s infinite;
 }
-.tarjetas-alertas .container {
-  padding: 16px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-.tarjetas-alertas::-webkit-scrollbar { width: 6px; }
-.tarjetas-alertas::-webkit-scrollbar-thumb { background: #d6e0f0; }
-
-.alerta-estado {
-  display: flex; align-items: center; gap: 14px;
-  padding: 20px; background: #f8fafd; border: 1px solid #eef2f9;
-}
-.alerta-estado h3 { font-size: 14px; font-weight: 700; color: #334155; margin: 0; }
-.alerta-estado p { font-size: 13px; color: #64748b; margin: 2px 0 0; }
-.estado-icon { font-size: 30px; color: #94a3b8; }
-.alerta-estado-error .estado-icon { color: #dc2626; }
-.pulse { animation: pulse 1.4s ease-in-out infinite; }
-@keyframes pulse { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
-
-/* Tarjeta horizontal PULIDA */
-.alerta-card {
-  display: flex !important;
-  align-items: center;
-  gap: 14px;
-  background: #fff;
-  border: 1px solid #eaeff8;
-  padding: 12px;
-  cursor: pointer;
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-}
-.alerta-card:hover {
-  border-color: #c7d7f5;
-  box-shadow: 0 8px 22px rgba(46, 91, 216, 0.12);
-  transform: translateY(-2px);
+@keyframes pulsoVivo {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, .5); }
+  70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
 }
 
-/* Foto con margen, alto completo de la tarjeta */
-.alerta-thumb {
-  width: 76px; height: 76px; flex: 0 0 76px;
-  overflow: hidden; background: #eef2fb;
-}
-.alerta-thumb img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block; }
-.alerta-thumb-ph { width: 100%; height: 100%; display: grid; place-items: center; font-size: 30px; background: #eef2fb; }
+/* =====================================================
+   PINES Y POPUPS DE LEAFLET — el .ts construye estos
+   elementos por JavaScript con estas clases exactas
+   (L.divIcon / L.popup), Tailwind no llega hasta ahí
+   porque Leaflet los inyecta fuera del árbol de Angular.
+===================================================== */
 
-.alerta-info {
-  flex: 1; min-width: 0;
-  display: flex; flex-direction: column; gap: 5px;
-}
-.alerta-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.alerta-nombre {
-  font-size: 14.5px; font-weight: 800; color: #0f1f3d; margin: 0; line-height: 1.25;
-  letter-spacing: -0.01em;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.estado-badge {
-  flex-shrink: 0;
-  font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
-  padding: 4px 8px; border: 1px solid;
-}
-.eb-urgente { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
-.eb-media { color: #d97706; background: #fffbeb; border-color: #fde68a; }
-.eb-baja { color: #2563eb; background: #eff6ff; border-color: #bfdbfe; }
-
-.alerta-meta {
-  font-size: 12.5px; color: #64748b; font-weight: 500;
-  margin: 0; display: flex; align-items: center; gap: 4px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.alerta-meta .material-symbols-outlined { font-size: 15px; color: #f43f5e; flex-shrink: 0; }
-
-.alerta-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; }
-.alerta-folio {
-  font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: .02em;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.alerta-link {
-  font-size: 12px; color: #2E5BD8; font-weight: 800; flex-shrink: 0;
-  display: inline-flex; align-items: center; gap: 2px;
-}
-.alerta-link::after { content: "chevron_right"; font-family: 'Material Symbols Outlined'; font-size: 15px; transition: transform .18s; }
-.alerta-card:hover .alerta-link::after { transform: translateX(2px); }
-
-/* ===== ESTADISTICAS ===== */
-.estadisticas {
-  grid-area: estadisticas;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-}
-
-.estadisticas .texto {
-  grid-column: 1 / -1;
-}
-.estadisticas .texto .title {
-  font-size: 26px; font-weight: 800; color: #0f1f3d;
-  margin: 0; letter-spacing: -0.02em;
-}
-.estadisticas .texto .subtitle {
-  font-size: 14px; color: #64748b; margin: 6px 0 0;
-}
-
-.animales-salvados,
-.voluntarios-activos {
-  @extend %card-soft;
-  padding: 24px 26px;
-  display: flex; flex-direction: column; justify-content: center;
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-.animales-salvados:hover,
-.voluntarios-activos:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(16, 42, 92, 0.10);
-}
-
-.stat-box {
-  @extend %card-soft;
-  padding: 24px 26px;
-  display: flex; align-items: center; gap: 18px;
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-.stat-box:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(16, 42, 92, 0.10); }
-.stat-icon-box { width: 54px; height: 54px; display: grid; place-items: center; flex-shrink: 0; color: #fff; }
-.stat-icon-box .material-symbols-outlined { font-size: 27px; }
-.sib-blue { background: #2E5BD8; }
-.sib-emerald { background: #059669; }
-.sib-amber { background: #d97706; }
-.stat-number { font-size: 32px; font-weight: 800; color: #0f1f3d; margin: 0; line-height: 1; letter-spacing: -0.02em; }
-.statistic { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; margin: 5px 0 0; }
-
-/* ===== PINES LEAFLET ===== */
 :host ::ng-deep .pin-caso-activo { background: transparent; border: none; }
 :host ::ng-deep .pin-paw {
   width: 42px; height: 42px; display: grid; place-items: center; font-size: 20px;
-  background: #2E5BD8; color: #fff; border: 3px solid #fff;
+  background: #0058be; color: #fff; border: 3px solid #fff;
   border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-  box-shadow: 0 5px 14px rgba(46,91,216,.45);
+  box-shadow: 0 5px 14px rgba(0, 88, 190, .45);
 }
 :host ::ng-deep .pin-paw > * { transform: rotate(45deg); }
 
-/* ===== POPUP LEAFLET ===== */
 :host ::ng-deep .popup-caso-activo .leaflet-popup-content-wrapper {
   border-radius: 0; padding: 0; overflow: hidden;
   border: 1px solid #e8edf6; box-shadow: 0 12px 40px rgba(16,42,92,.18);
@@ -314,7 +63,7 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
 }
 :host ::ng-deep .popup-content { padding: 15px 17px; }
 :host ::ng-deep .popup-content h3 { font-size: 16px; font-weight: 800; color: #0f1f3d; margin: 0 0 6px; letter-spacing: -0.01em; }
-:host ::ng-deep .popup-type { font-size: 13px; font-weight: 700; color: #2E5BD8; margin: 0 0 8px; }
+:host ::ng-deep .popup-type { font-size: 13px; font-weight: 700; color: #0058be; margin: 0 0 8px; }
 :host ::ng-deep .popup-location { font-size: 13px; color: #475569; margin: 0 0 8px; }
 :host ::ng-deep .popup-description {
   font-size: 12px; color: #64748b; line-height: 1.55; margin: 0 0 8px;
@@ -322,7 +71,6 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
 }
 :host ::ng-deep .popup-folio { font-size: 11px; font-weight: 700; color: #94a3b8; margin: 0; padding-top: 9px; border-top: 1px solid #eef2f9; }
 
-/* En vista de escritorio no mostramos el folio en la tarjeta del popup */
 @media (min-width: 641px) {
   :host ::ng-deep .popup-folio {
     display: none;
@@ -330,245 +78,9 @@ app-navbar-web, app-footer-web { flex-shrink: 0; }
 }
 :host ::ng-deep .popup-cta {
   width: 100%; margin-top: 10px; padding: 9px 0;
-  background: #2E5BD8; color: #fff; border: none;
+  background: #0058be; color: #fff; border: none;
   font-size: 12.5px; font-weight: 800; letter-spacing: .01em;
   cursor: pointer;
   transition: background .15s ease;
 }
-:host ::ng-deep .popup-cta:hover { background: #1f47b8; }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 980px) {
-  .layout-dashboard {
-    grid-template-columns: 1fr;
-    grid-template-rows: 440px auto auto;
-    grid-template-areas:
-      "mapa-general"
-      "alertas-recientes"
-      "estadisticas";
-  }
-
-  .mapa-general,
-  #mapa-casos {
-    min-height: 420px;
-  }
-
-  .alertas-recientes {
-    min-height: 320px;
-  }
-
-  .estadisticas {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .estadisticas .texto {
-    grid-column: 1 / -1;
-  }
-
-  .page-shell::before {
-    width: 480px;
-    height: 480px;
-    top: 120px;
-    left: -220px;
-  }
-
-  .page-shell::after {
-    width: 440px;
-    height: 440px;
-    top: 520px;
-    right: -220px;
-  }
-}
-/* Encabezado de alertas: base para todas las vistas */
-.alertas-hero-contenido {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.alertas-hero-texto {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Oculto por defecto en escritorio */
-.alertas-toggle-mobile {
-  display: none;
-}
-
-/* Responsive móvil */
-@media (max-width: 640px) {
-  .page-content {
-    padding: 20px 14px 36px;
-  }
-
-  .layout-dashboard {
-    gap: 18px;
-  }
-
-  .mapa-general,
-  #mapa-casos {
-    min-height: 360px;
-  }
-
-  .estadisticas {
-    grid-template-columns: 1fr;
-  }
-
-  .estadisticas > section {
-    min-height: 120px;
-  }
-
-  .estadisticas .texto .title {
-    font-size: 1.5rem;
-  }
-
-  .stat-number {
-    font-size: 1.7rem;
-  }
-
-  .page-shell::before {
-    width: 340px;
-    height: 340px;
-    top: 100px;
-    left: -180px;
-  }
-
-  .page-shell::after {
-    width: 320px;
-    height: 320px;
-    top: 560px;
-    right: -180px;
-  }
-
-  /* ===== Mostrar y ocultar alertas en móvil ===== */
-
-  .alertas-hero-contenido {
-    align-items: center;
-  }
-
-  .alertas-toggle-mobile {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-
-    flex-shrink: 0;
-
-    min-height: 36px;
-    padding: 7px 10px;
-
-    border: 1px solid #c7d7f5;
-    border-radius: 10px;
-
-    background: #ffffff;
-    color: #2e5bd8;
-
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 800;
-
-    cursor: pointer;
-  }
-
-  .alertas-toggle-mobile ion-icon {
-    font-size: 17px;
-  }
-
-  /*
-   * Quita la altura mínima de 320px aplicada
-   * en el breakpoint de 980px.
-   */
-  .alertas-recientes--colapsada {
-    min-height: 0 !important;
-    height: auto;
-  }
-
-  /*
-   * Oculta descripción, filtros y tarjetas.
-   */
-  .alertas-recientes--colapsada .alertas-filtros,
-  .alertas-recientes--colapsada .tarjetas-alertas,
-  .alertas-recientes--colapsada .hero .subtitle {
-    display: none;
-  }
-
-  /*
-   * Reduce el encabezado al estar cerrado.
-   */
-  .alertas-recientes--colapsada .hero {
-    padding: 16px 18px;
-    border-bottom: none;
-  }
-}
-
-/* Tarjetas de alertas con imagen */
-.alerta-card-con-imagen {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 0;
-  overflow: hidden;
-}
-
-.alerta-img-wrapper {
-  position: relative;
-  width: 100%;
-  height: 130px;
-  background: #e2e8f0;
-  overflow: hidden;
-}
-
-.alerta-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.alerta-img-placeholder {
-  width: 100%;
-  height: 100%;
-
-  display: grid;
-  place-items: center;
-
-  background: linear-gradient(
-    135deg,
-    #dbeafe 0%,
-    #ecfeff 100%
-  );
-
-  color: #0058be;
-  font-size: 2.4rem;
-}
-
-.alerta-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-
-  padding: 5px 9px;
-  border-radius: 999px;
-
-  background: rgba(0, 88, 190, 0.92);
-  color: #ffffff;
-
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.alerta-info {
-  padding: 14px;
-}
-
-.mapa-general {
-  scroll-margin-top: 90px;
-}
-
-.alerta-card[role="button"] {
-  cursor: pointer;
-}
+:host ::ng-deep .popup-cta:hover { background: #004a9f; }

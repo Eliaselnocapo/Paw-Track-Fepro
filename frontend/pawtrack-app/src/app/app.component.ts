@@ -16,6 +16,9 @@ import {
 import { filter } from 'rxjs/operators';
 import { AuthService } from './core/services/auth.service';
 
+import { ToastContainerComponent } from './shared/toast/toast-container.component';
+
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -28,7 +31,8 @@ import { AuthService } from './core/services/auth.service';
     IonContent,
     IonMenuToggle,
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    ToastContainerComponent
   ],
 })
 export class AppComponent implements OnDestroy {

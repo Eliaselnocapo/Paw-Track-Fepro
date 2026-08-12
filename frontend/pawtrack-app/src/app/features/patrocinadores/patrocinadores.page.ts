@@ -8,7 +8,7 @@ import {
   OnDestroy,
   OnInit
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import {
   IonButtons,
@@ -71,6 +71,9 @@ export class PatrocinadoresPage
   private readonly ngZone =
     inject(NgZone);
 
+  private readonly router =
+    inject(Router);
+
   private mapaEscritorio: any = null;
   private capaMarcadoresEscritorio: any = null;
 
@@ -100,10 +103,13 @@ export class PatrocinadoresPage
   cargandoUbicacion = false;
   cargandoCentros = false;
 
+  yaTieneCentro: boolean | undefined = undefined;
+
   error = '';
 
   ngOnInit(): void {
     void this.inicializarBusqueda();
+    this.verificarMiCentro();
   }
 
   ngAfterViewInit(): void {
@@ -177,7 +183,7 @@ export class PatrocinadoresPage
 
     try {
       this.centros = await firstValueFrom(
-        this.centrosService.buscarRefugios(
+        this.centrosService.buscarTodosLosCentros(
           this.ubicacionUsuario,
           this.radioActualKm
         )
@@ -212,6 +218,25 @@ export class PatrocinadoresPage
 
   reintentar(): void {
     void this.inicializarBusqueda();
+  }
+
+  private verificarMiCentro(): void {
+    // Sin sesión no tiene sentido preguntar — misSolicitudesCentro() daría 401.
+    if (!localStorage.getItem('pawtrack_access')) {
+      this.yaTieneCentro = false;
+      return;
+    }
+
+    this.centrosService.misSolicitudesCentro().subscribe({
+      next: (solicitudes) => {
+        this.yaTieneCentro = solicitudes.length > 0;
+      },
+      error: () => {
+        // Si falla la consulta, no bloqueamos la pantalla — solo asumimos
+        // que no tiene centro y dejamos el CTA de registro por defecto.
+        this.yaTieneCentro = false;
+      },
+    });
   }
 
   verEnMapa(centro: CentroAnimal): void {
@@ -376,10 +401,10 @@ export class PatrocinadoresPage
         L.circleMarker(
           coordenadasCentro,
           {
-            radius: 10,
+            radius: centro.verificado ? 11 : 9,
             color: '#ffffff',
             weight: 3,
-            fillColor: '#2563eb',
+            fillColor: centro.verificado ? '#2563eb' : '#94a3b8',
             fillOpacity: 1
           }
         )
@@ -501,10 +526,10 @@ export class PatrocinadoresPage
     L.circleMarker(
       coordenadasCentro,
       {
-        radius: 11,
+        radius: centro.verificado ? 12 : 10,
         color: '#ffffff',
         weight: 3,
-        fillColor: '#2563eb',
+        fillColor: centro.verificado ? '#2563eb' : '#94a3b8',
         fillOpacity: 1
       }
     )
@@ -568,6 +593,11 @@ export class PatrocinadoresPage
   private crearPopupCentro(
     centro: CentroAnimal
   ): HTMLElement {
+    if (centro.verificado) {
+      return this.crearPopupCentroVerificado(centro);
+    }
+
+    // Sin verificar (OpenStreetMap): popup simple, como ya estaba.
     const contenedor =
       document.createElement('div');
 
@@ -593,7 +623,7 @@ export class PatrocinadoresPage
     distancia.style.marginBottom = '5px';
     distancia.style.fontSize = '12px';
     distancia.style.fontWeight = '700';
-    distancia.style.color = '#2563eb';
+    distancia.style.color = '#64748b';
 
     contenedor.appendChild(titulo);
     contenedor.appendChild(distancia);
@@ -612,6 +642,116 @@ export class PatrocinadoresPage
 
       contenedor.appendChild(direccion);
     }
+
+    const sinVerificar =
+      document.createElement('span');
+
+    sinVerificar.textContent = 'Sin verificar por PawTrack';
+    sinVerificar.style.display = 'block';
+    sinVerificar.style.marginTop = '6px';
+    sinVerificar.style.fontSize = '10px';
+    sinVerificar.style.fontWeight = '700';
+    sinVerificar.style.textTransform = 'uppercase';
+    sinVerificar.style.color = '#94a3b8';
+
+    contenedor.appendChild(sinVerificar);
+
+    return contenedor;
+  }
+
+  /**
+   * Popup enriquecido para centros verificados — misma info clave que
+   * ves al registrar tu perfil (tipo, contacto), más un link directo
+   * a la página de perfil público completa.
+   */
+  private crearPopupCentroVerificado(
+    centro: CentroAnimal
+  ): HTMLElement {
+    const contenedor = document.createElement('div');
+    contenedor.style.minWidth = '220px';
+    contenedor.style.padding = '2px';
+    contenedor.style.fontFamily = 'inherit';
+
+    // Badge "Verificado"
+    const badge = document.createElement('div');
+    badge.textContent = '✓ Verificado';
+    badge.style.display = 'inline-block';
+    badge.style.fontSize = '10px';
+    badge.style.fontWeight = '800';
+    badge.style.textTransform = 'uppercase';
+    badge.style.letterSpacing = '0.02em';
+    badge.style.color = '#059669';
+    badge.style.background = '#ecfdf5';
+    badge.style.padding = '2px 8px';
+    badge.style.borderRadius = '999px';
+    badge.style.marginBottom = '6px';
+    contenedor.appendChild(badge);
+
+    // Nombre
+    const titulo = document.createElement('strong');
+    titulo.textContent = centro.nombre;
+    titulo.style.display = 'block';
+    titulo.style.fontSize = '14px';
+    titulo.style.color = '#0f172a';
+    titulo.style.marginBottom = '3px';
+    contenedor.appendChild(titulo);
+
+    // Tipo (veterinaria / refugio)
+    const tipo = document.createElement('span');
+    tipo.textContent = centro.tipo === 'veterinaria' ? '🏥 Veterinaria' : '🐾 Refugio';
+    tipo.style.display = 'block';
+    tipo.style.fontSize = '12px';
+    tipo.style.fontWeight = '700';
+    tipo.style.color = '#2563eb';
+    tipo.style.marginBottom = '6px';
+    contenedor.appendChild(tipo);
+
+    // Teléfono
+    if (centro.telefono) {
+      const telefono = document.createElement('span');
+      telefono.textContent = `📞 ${centro.telefono}`;
+      telefono.style.display = 'block';
+      telefono.style.fontSize = '12px';
+      telefono.style.color = '#334155';
+      telefono.style.marginBottom = '3px';
+      contenedor.appendChild(telefono);
+    }
+
+    // Dirección
+    if (centro.direccion) {
+      const direccion = document.createElement('span');
+      direccion.textContent = centro.direccion;
+      direccion.style.display = 'block';
+      direccion.style.fontSize = '12px';
+      direccion.style.lineHeight = '1.4';
+      direccion.style.color = '#64748b';
+      direccion.style.marginBottom = '8px';
+      contenedor.appendChild(direccion);
+    }
+
+    // Botón "Ver perfil completo"
+    const boton = document.createElement('button');
+    boton.textContent = 'Ver perfil completo →';
+    boton.style.width = '100%';
+    boton.style.background = '#1d4ed8';
+    boton.style.color = '#ffffff';
+    boton.style.fontSize = '12px';
+    boton.style.fontWeight = '700';
+    boton.style.border = 'none';
+    boton.style.borderRadius = '6px';
+    boton.style.padding = '7px 10px';
+    boton.style.cursor = 'pointer';
+
+    boton.addEventListener('click', () => {
+      this.ngZone.run(() => {
+        // El id de un centro verificado viene como "verificado-{id}" desde
+        // buscarCentrosVerificados() — se le quita el prefijo para navegar.
+        const idNumerico = centro.id.replace('verificado-', '');
+        this.router.navigate(['/centro', idNumerico]);
+      });
+    });
+
+    contenedor.appendChild(boton);
 
     return contenedor;
   }

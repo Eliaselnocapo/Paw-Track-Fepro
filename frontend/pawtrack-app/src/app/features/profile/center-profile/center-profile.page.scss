@@ -1,0 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────────
+// AGREGAR en center-profile.page.scss (créalo si no existe, o agrégalo
+// al final si ya tiene algo)
+// ─────────────────────────────────────────────────────────────────────────
+
+.no-scrollbar {
+  // Firefox
+  scrollbar-width: none;
+  // IE / viejo Edge
+  -ms-overflow-style: none;
+
+  // Chrome / Safari / Edge nuevo
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

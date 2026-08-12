@@ -10,6 +10,7 @@ from core.permissions import IsAuthorOrRescatistaAsignado, IsSelf
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed, ValidationError, NotFound
 from django.contrib.auth import authenticate
@@ -128,7 +129,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 
         from .serializers import UsuarioSerializer
         return Response(UsuarioSerializer(usuario).data)
-        
+    
+    @action(detail=True, methods=['get'], url_path='reputacion', permission_classes=[IsAuthenticated])
+    def reputacion(self, request, pk=None):
+        from .services import calcular_reputacion
+        usuario = self.get_object()
+        return Response(calcular_reputacion(usuario))
 
 
 class GoogleLogin(SocialLoginView):
@@ -147,6 +153,12 @@ class AnimalViewSet(viewsets.ModelViewSet):
 class ProcesarCartelPDFView(APIView):
     permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser)
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'pdf_import'
+
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+    MAX_PAGES = 10
+    MAX_TEXT_LENGTH = 50_000
 
     # Palabras que razonablemente aparecen en un cartel de mascota perdida/
     # encontrada. Si el texto no toca NINGUNA de estas, casi seguro es un
@@ -163,13 +175,39 @@ class ProcesarCartelPDFView(APIView):
         pdf_file = request.FILES.get('file')
         if not pdf_file:
             return Response({"error": "No hay archivo"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if pdf_file.size > self.MAX_FILE_SIZE:
+            return Response(
+                {"error": "El PDF no puede superar 10 MB."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # MIME type and filename can be forged; verify the PDF header before
+        # handing untrusted input to the parser.
+        if pdf_file.read(5) != b'%PDF-':
+            return Response(
+                {"error": "El archivo no es un PDF válido."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        pdf_file.seek(0)
+
         texto_extraido = ""
         try:
             with pdfplumber.open(pdf_file) as pdf:
+                if len(pdf.pages) > self.MAX_PAGES:
+                    return Response(
+                        {"error": "El PDF no puede tener más de 10 páginas."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 for page in pdf.pages:
                     text = page.extract_text()
                     if text:
                         texto_extraido += text + "\n"
+                        if len(texto_extraido) > self.MAX_TEXT_LENGTH:
+                            return Response(
+                                {"error": "El PDF contiene demasiado texto para procesarlo."},
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
         except Exception:
             return Response({"error": "No se pudo leer el PDF."}, status=status.HTTP_400_BAD_REQUEST)
         if not texto_extraido.strip():

@@ -18,8 +18,8 @@
       </main>
     }
 
-    <!-- ERROR -->
-    @if (!cargando && error && !mensajeExito) {
+    <!-- ERROR (solo si truena la carga inicial) -->
+    @if (!cargando && error && !reporte.folio) {
       <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
         <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
         <p class="text-slate-600 text-center">{{ error }}</p>
@@ -27,18 +27,18 @@
     }
 
     <!-- FORMULARIO -->
-    @if (!cargando && !error) {
+    @if (!cargando && reporte.folio) {
       <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-10 relative z-10">
 
         <!-- HERO -->
-        <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-10 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <section class="bg-white border border-slate-300 shadow-md p-6 md:p-10 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 rounded">
           <div class="max-w-2xl">
             <p class="text-blue-700 font-bold text-sm mb-3">Seguimiento del reportante</p>
             <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3 leading-tight">Agregar seguimiento al reporte</h1>
-            <p class="text-slate-600 leading-relaxed">Actualiza la situación del animal si cambió de lugar, empeoró, ya fue auxiliado o si tienes nueva información útil para el equipo de rescate.</p>
+            <p class="text-slate-600 leading-relaxed">Actualiza la situación del animal, o cancela el reporte si ya no necesita ayuda de un voluntario.</p>
             <div class="flex flex-wrap gap-2 mt-5">
               <span class="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-bold">{{ reporte.folio }}</span>
-              <span class="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs font-bold">Reporte activo</span>
+              <span class="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 text-xs font-bold">{{ reporte.estado }}</span>
             </div>
           </div>
 
@@ -61,175 +61,295 @@
           </section>
         }
 
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        @if (!reporteCancelado) {
 
-          <!-- COLUMNA PRINCIPAL -->
-          <div class="lg:col-span-8 flex flex-col gap-6">
+          <!-- TOGGLE DE MODO -->
+          <section class="bg-white border border-slate-300 shadow-md mb-4 grid grid-cols-2 divide-x divide-slate-200 overflow-hidden rounded">
+            <button
+              type="button"
+              (click)="cambiarModo('actualizar')"
+              class="h-11 sm:h-14 font-bold text-[11px] sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors px-1"
+              [ngClass]="modo === 'actualizar' ? 'bg-blue-700 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'"
+            >
+              <span class="material-symbols-outlined text-[16px] sm:text-[20px] shrink-0">update</span>
+              <span class="truncate">Actualizar</span>
+            </button>
 
-            <!-- SITUACIÓN ACTUAL -->
-            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
-              <div class="flex items-start justify-between gap-4 mb-6">
-                <div>
-                  <h2 class="text-xl font-bold text-slate-900">Situación actual</h2>
-                  <p class="text-sm text-slate-500 mt-1">Selecciona qué cambió desde que hiciste el reporte.</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100 shrink-0">
-                  <span class="material-symbols-outlined">update</span>
-                </div>
-              </div>
+            <button
+              type="button"
+              (click)="cambiarModo('cancelar')"
+              [disabled]="!puedeCancelar"
+              class="h-11 sm:h-14 font-bold text-[11px] sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed px-1"
+              [ngClass]="modo === 'cancelar' ? 'bg-red-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'"
+            >
+              <span class="material-symbols-outlined text-[16px] sm:text-[20px] shrink-0">cancel</span>
+              <span class="truncate">Cancelar</span>
+            </button>
+          </section>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <button type="button" (click)="reporte.situacionActual = 'sigue_en_lugar'" class="text-left border p-4 transition-all hover:shadow-sm" [ngClass]="reporte.situacionActual === 'sigue_en_lugar' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
-                  <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-blue-700">location_on</span>
+          @if (!puedeCancelar) {
+            <section class="mb-4 bg-amber-50 border border-amber-200 px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-700 mt-0.5 text-[20px]">info</span>
+              <p class="text-sm text-slate-700">
+                Este caso ya tiene un voluntario asignado, así que no se puede cancelar desde aquí.
+                Puedes seguir agregando actualizaciones de seguimiento.
+              </p>
+            </section>
+          }
+
+          <!-- ══════════════════ MODO: ACTUALIZAR ══════════════════ -->
+          @if (modo === 'actualizar') {
+
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+              <div class="lg:col-span-8 flex flex-col gap-6">
+
+                <section class="bg-white border border-slate-300 shadow-md p-4 sm:p-6 md:p-8 rounded">
+                  <div class="flex items-start justify-between gap-4 mb-5 sm:mb-6">
                     <div>
-                      <p class="font-bold text-slate-900">Sigue en el mismo lugar</p>
-                      <p class="text-xs text-slate-500 mt-1">El animal continúa en la ubicación reportada.</p>
+                      <h2 class="text-lg sm:text-xl font-bold text-slate-900">Situación actual</h2>
+                      <p class="text-xs sm:text-sm text-slate-500 mt-1">Selecciona qué cambió desde que hiciste el reporte.</p>
+                    </div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100 shrink-0">
+                      <span class="material-symbols-outlined text-[20px] sm:text-[24px]">update</span>
                     </div>
                   </div>
-                </button>
 
-                <button type="button" (click)="reporte.situacionActual = 'se_movio'" class="text-left border p-4 transition-all hover:shadow-sm" [ngClass]="reporte.situacionActual === 'se_movio' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'">
-                  <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-blue-700">moving</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    @for (opcion of situacionesDisponibles; track opcion.valor) {
+                      <button
+                        type="button"
+                        (click)="reporte.situacionActual = opcion.valor"
+                        class="text-left border p-3.5 sm:p-4 transition-all hover:shadow-sm"
+                        [ngClass]="reporte.situacionActual === opcion.valor ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'"
+                      >
+                        <div class="flex items-start gap-3">
+                          <span class="material-symbols-outlined text-blue-700 text-[20px] sm:text-[24px]">{{ opcion.icono }}</span>
+                          <div>
+                            <p class="font-bold text-slate-900 text-sm sm:text-base">{{ opcion.texto }}</p>
+                            <p class="text-xs text-slate-500 mt-1">{{ opcion.descripcion }}</p>
+                          </div>
+                        </div>
+                      </button>
+                    }
+                  </div>
+                </section>
+
+                <!-- 1. INTERVENCIÓN CIUDADANA -->
+                <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
+                  <h2 class="text-lg font-bold text-slate-900 mb-2">1. Intervención Ciudadana</h2>
+                  <p class="text-sm text-slate-500 mb-4">¿Qué acciones has tomado hasta el momento?</p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                      <span class="text-sm font-semibold text-slate-700">Le di agua o comida</span>
+                      <input type="checkbox" [(ngModel)]="reporte.intervencion.aguaComida">
+                    </label>
+                    <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                      <span class="text-sm font-semibold text-slate-700">Logré resguardarlo temporalmente</span>
+                      <input type="checkbox" [(ngModel)]="reporte.intervencion.resguardado">
+                    </label>
+                    <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                      <span class="text-sm font-semibold text-slate-700">Intenté acercarme pero huyó</span>
+                      <input type="checkbox" [(ngModel)]="reporte.intervencion.huyo">
+                    </label>
+                    <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                      <span class="text-sm font-semibold text-slate-700">No interactué, solo observo</span>
+                      <input type="checkbox" [(ngModel)]="reporte.intervencion.soloObservando">
+                    </label>
+                  </div>
+                </section>
+
+                <!-- 2. RIESGO DEL ENTORNO -->
+                <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
+                  <h2 class="text-lg font-bold text-slate-900 mb-2">2. Riesgo del Entorno</h2>
+                  <p class="text-sm text-slate-500 mb-4">¿Dónde se encuentra exactamente?</p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                      <span class="text-sm font-semibold text-slate-700">Tráfico / Avenida</span>
+                      <input type="checkbox" [(ngModel)]="reporte.riesgoEntorno.trafico">
+                    </label>
+                    <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                      <span class="text-sm font-semibold text-slate-700">Clima extremo</span>
+                      <input type="checkbox" [(ngModel)]="reporte.riesgoEntorno.climaExtremo">
+                    </label>
+                    <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
+                      <span class="text-sm font-semibold text-slate-700">Difícil acceso</span>
+                      <input type="checkbox" [(ngModel)]="reporte.riesgoEntorno.dificilAcceso">
+                    </label>
+                  </div>
+                </section>
+
+              </div>
+
+              <!-- PANEL LATERAL: actualizar -->
+              <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
+
+                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                  <h2 class="text-xl font-bold text-slate-900 mb-5">Caso original</h2>
+                  <div class="space-y-4">
                     <div>
-                      <p class="font-bold text-slate-900">Se movió de lugar</p>
-                      <p class="text-xs text-slate-500 mt-1">La ubicación cambió o el animal avanzó a otra zona.</p>
+                      <p class="text-xs font-bold text-slate-400 uppercase">Folio</p>
+                      <p class="font-bold text-blue-700">{{ reporte.folio }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-slate-400 uppercase">Animal</p>
+                      <p class="font-semibold text-slate-900 capitalize">{{ reporte.tipoAnimal || 'Perro' }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-slate-400 uppercase">Última ubicación registrada</p>
+                      <p class="text-sm text-slate-600">{{ reporte.ubicacion || 'Ubicación registrada en el reporte original' }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-slate-400 uppercase">Estado del caso</p>
+                      <span class="inline-flex bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 text-xs font-bold">{{ reporte.estado || 'Pendiente' }}</span>
                     </div>
                   </div>
-                </button>
+                </section>
 
-                <button type="button" (click)="reporte.situacionActual = 'ya_no_esta'" class="text-left border p-4 transition-all hover:shadow-sm" [ngClass]="reporte.situacionActual === 'ya_no_esta' ? 'border-amber-500 bg-amber-50' : 'border-slate-200 bg-white hover:border-slate-300'">
+                <section class="bg-blue-700 text-white shadow-md p-6 rounded">
                   <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-amber-600">visibility_off</span>
+                    <span class="material-symbols-outlined mt-0.5">edit_note</span>
                     <div>
-                      <p class="font-bold text-slate-900">Ya no está en la zona</p>
-                      <p class="text-xs text-slate-500 mt-1">No lo encuentras en el lugar donde fue reportado.</p>
+                      <h3 class="font-bold mb-2">¿Qué se guardará?</h3>
+                      <p class="text-sm text-blue-50 leading-relaxed">Se añadirá una bitácora detallada al historial del caso, avisando a los rescatistas de las condiciones reales del animal y su entorno.</p>
                     </div>
                   </div>
-                </button>
+                </section>
 
-                <button type="button" (click)="reporte.situacionActual = 'empeoro'" class="text-left border p-4 transition-all hover:shadow-sm" [ngClass]="reporte.situacionActual === 'empeoro' ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white hover:border-slate-300'">
-                  <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-red-600">warning</span>
+                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                  @if (error) {
+                    <p class="text-red-600 text-sm mb-4">{{ error }}</p>
+                  }
+                  <button (click)="enviarActualizacion()" [disabled]="guardando || !reporte.situacionActual"
+                    class="w-full h-12 bg-blue-700 text-white font-bold shadow-sm hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    @if (guardando) {
+                      <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                    }
+                    {{ guardando ? 'Guardando...' : 'Guardar seguimiento' }}
+                  </button>
+                  <button routerLink="/dashboards/reporter" type="button" class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">Volver al dashboard</button>
+                </section>
+
+              </aside>
+            </section>
+          }
+
+          <!-- ══════════════════ MODO: CANCELAR ══════════════════ -->
+          @if (modo === 'cancelar' && puedeCancelar) {
+
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+              <div class="lg:col-span-8 flex flex-col gap-6">
+
+                <section class="bg-white border border-slate-300 shadow-md p-4 sm:p-6 md:p-8 rounded">
+                  <div class="flex items-center gap-3 mb-5 sm:mb-6">
+                    <span class="material-symbols-outlined text-red-600 text-[24px] sm:text-[28px]">cancel</span>
                     <div>
-                      <p class="font-bold text-slate-900">Su estado empeoró</p>
-                      <p class="text-xs text-slate-500 mt-1">Se ve más herido, débil o en peligro.</p>
+                      <h2 class="text-lg sm:text-xl font-bold text-slate-900">¿Por qué quieres cancelar?</h2>
+                      <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Selecciona el motivo que mejor describa la situación.</p>
                     </div>
                   </div>
-                </button>
 
-                <button type="button" (click)="reporte.situacionActual = 'alguien_ayudo'" class="text-left border p-4 transition-all hover:shadow-sm md:col-span-2" [ngClass]="reporte.situacionActual === 'alguien_ayudo' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'">
-                  <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-emerald-700">volunteer_activism</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    @for (motivo of motivosCancelacion; track motivo.valor) {
+                      <button
+                        type="button"
+                        (click)="motivoSeleccionado = motivo.valor"
+                        class="text-left border p-3.5 sm:p-4 transition-all hover:shadow-sm"
+                        [ngClass]="motivoSeleccionado === motivo.valor
+                          ? claseMotivoSeleccionado(motivo.color)
+                          : 'border-slate-200 bg-white hover:border-slate-300'"
+                      >
+                        <div class="flex items-start gap-3">
+                          <span class="material-symbols-outlined text-[20px] sm:text-[24px]" [ngClass]="claseIconoMotivo(motivo.color, motivoSeleccionado === motivo.valor)">{{ motivo.icono }}</span>
+                          <div>
+                            <p class="font-bold text-slate-900 text-sm sm:text-base">{{ motivo.texto }}</p>
+                            <p class="text-xs text-slate-500 mt-1">{{ motivo.descripcion }}</p>
+                          </div>
+                        </div>
+                      </button>
+                    }
+                  </div>
+
+                  @if (motivoSeleccionado === 'otro') {
+                    <textarea
+                      [(ngModel)]="motivoOtroTexto"
+                      rows="3"
+                      placeholder="Cuéntanos brevemente qué pasó..."
+                      class="w-full border border-slate-200 p-3 text-sm text-slate-700 mt-4 focus:outline-none focus:border-red-400"
+                    ></textarea>
+                  }
+                </section>
+
+              </div>
+
+              <!-- PANEL LATERAL: cancelar -->
+              <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
+
+                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                  <h2 class="text-xl font-bold text-slate-900 mb-5">Caso original</h2>
+                  <div class="space-y-4">
                     <div>
-                      <p class="font-bold text-slate-900">Alguien ya lo ayudó</p>
-                      <p class="text-xs text-slate-500 mt-1">Un vecino, rescatista o tú pudieron auxiliarlo.</p>
+                      <p class="text-xs font-bold text-slate-400 uppercase">Folio</p>
+                      <p class="font-bold text-blue-700">{{ reporte.folio }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-slate-400 uppercase">Animal</p>
+                      <p class="font-semibold text-slate-900 capitalize">{{ reporte.tipoAnimal || 'Perro' }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold text-slate-400 uppercase">Estado del caso</p>
+                      <span class="inline-flex bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 text-xs font-bold">{{ reporte.estado }}</span>
                     </div>
                   </div>
-                </button>
-              </div>
+                </section>
+
+                <section class="bg-red-600 text-white shadow-md p-6 rounded">
+                  <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined mt-0.5">warning</span>
+                    <div>
+                      <h3 class="font-bold mb-2">Esta acción es permanente</h3>
+                      <p class="text-sm text-red-50 leading-relaxed">El caso dejará de estar disponible para los voluntarios de inmediato. No se puede deshacer.</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                  @if (error) {
+                    <p class="text-red-600 text-sm mb-4">{{ error }}</p>
+                  }
+                  <button (click)="enviarCancelacion()" [disabled]="cancelando || !motivoSeleccionado"
+                    class="w-full h-12 bg-red-600 text-white font-bold shadow-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    @if (cancelando) {
+                      <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                    }
+                    {{ cancelando ? 'Cancelando...' : 'Confirmar cancelación' }}
+                  </button>
+                  <button (click)="cambiarModo('actualizar')" type="button" class="w-full h-12 mt-3 border rounded-lg border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">Ya no, regresar</button>
+                </section>
+
+              </aside>
             </section>
+          }
 
-            <!-- 1. INTERVENCIÓN CIUDADANA -->
-            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
-              <h2 class="text-lg font-bold text-slate-900 mb-2">1. Intervención Ciudadana</h2>
-              <p class="text-sm text-slate-500 mb-4">¿Qué acciones has tomado hasta el momento?</p>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                  <span class="text-sm font-semibold text-slate-700">Le di agua o comida</span>
-                  <input type="checkbox" [(ngModel)]="reporte.intervencion.aguaComida">
-                </label>
-                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                  <span class="text-sm font-semibold text-slate-700">Logré resguardarlo temporalmente</span>
-                  <input type="checkbox" [(ngModel)]="reporte.intervencion.resguardado">
-                </label>
-                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                  <span class="text-sm font-semibold text-slate-700">Intenté acercarme pero huyó</span>
-                  <input type="checkbox" [(ngModel)]="reporte.intervencion.huyo">
-                </label>
-                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                  <span class="text-sm font-semibold text-slate-700">No interactué, solo observo</span>
-                  <input type="checkbox" [(ngModel)]="reporte.intervencion.soloObservando">
-                </label>
-              </div>
-            </section>
+        }
 
-            <!-- 2. RIESGO DEL ENTORNO -->
-            <section class="bg-white border border-slate-300 shadow-sm p-6 md:p-8">
-              <h2 class="text-lg font-bold text-slate-900 mb-2">2. Riesgo del Entorno</h2>
-              <p class="text-sm text-slate-500 mb-4">¿Dónde se encuentra exactamente?</p>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                  <span class="text-sm font-semibold text-slate-700">Tráfico / Avenida</span>
-                  <input type="checkbox" [(ngModel)]="reporte.riesgoEntorno.trafico">
-                </label>
-                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                  <span class="text-sm font-semibold text-slate-700">Clima extremo</span>
-                  <input type="checkbox" [(ngModel)]="reporte.riesgoEntorno.climaExtremo">
-                </label>
-                <label class="border border-slate-200 p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50">
-                  <span class="text-sm font-semibold text-slate-700">Difícil acceso</span>
-                  <input type="checkbox" [(ngModel)]="reporte.riesgoEntorno.dificilAcceso">
-                </label>
-              </div>
-            </section>
+        <!-- ESTADO: reporte ya cancelado -->
+        @if (reporteCancelado) {
+          <section class="bg-white border border-slate-300 shadow-sm p-10 text-center flex flex-col items-center">
+            <div class="w-16 h-16 bg-slate-100 text-slate-500 flex items-center justify-center mb-4">
+              <span class="material-symbols-outlined text-[32px]">cancel</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Reporte cancelado</h2>
+            <p class="text-sm text-slate-500 max-w-md mb-6">
+              Este caso ya no está disponible para los voluntarios. Gracias por mantenernos informados.
+            </p>
+            <button routerLink="/dashboard/reporter" type="button" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors">
+              Volver al dashboard
+            </button>
+          </section>
+        }
 
-          </div>
-
-          <!-- PANEL LATERAL -->
-          <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
-
-            <!-- RESUMEN -->
-            <section class="bg-white border border-slate-300 shadow-sm p-6">
-              <h2 class="text-xl font-bold text-slate-900 mb-5">Caso original</h2>
-              <div class="space-y-4">
-                <div>
-                  <p class="text-xs font-bold text-slate-400 uppercase">Folio</p>
-                  <p class="font-bold text-blue-700">{{ reporte.folio }}</p>
-                </div>
-                <div>
-                  <p class="text-xs font-bold text-slate-400 uppercase">Animal</p>
-                  <p class="font-semibold text-slate-900 capitalize">{{ reporte.tipoAnimal || 'Perro' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs font-bold text-slate-400 uppercase">Última ubicación registrada</p>
-                  <p class="text-sm text-slate-600">{{ reporte.ubicacion || 'Ubicación registrada en el reporte original' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs font-bold text-slate-400 uppercase">Estado del caso</p>
-                  <span class="inline-flex bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 text-xs font-bold">{{ reporte.estado || 'Pendiente' }}</span>
-                </div>
-              </div>
-            </section>
-
-            <!-- AYUDA -->
-            <section class="bg-blue-700 text-white shadow-sm p-6">
-              <div class="flex items-start gap-3">
-                <span class="material-symbols-outlined mt-0.5">edit_note</span>
-                <div>
-                  <h3 class="font-bold mb-2">¿Qué se guardará?</h3>
-                  <p class="text-sm text-blue-50 leading-relaxed">Se añadirá una bitácora detallada al historial del caso, avisando a los rescatistas de las condiciones reales del animal y su entorno.</p>
-                </div>
-              </div>
-            </section>
-
-            <!-- BOTÓN -->
-            <section class="bg-white border border-slate-300 shadow-sm p-6">
-              @if (error && !cargando) {
-                <p class="text-red-600 text-sm mb-4">{{ error }}</p>
-              }
-              <button (click)="enviar()" [disabled]="guardando || !reporte.situacionActual" class="w-full h-12 bg-blue-700 text-white font-bold shadow-sm hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                @if (guardando) {
-                  <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                }
-                {{ guardando ? 'Guardando...' : 'Guardar seguimiento' }}
-              </button>
-              <button routerLink="/dashboards/reporter" type="button" class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">Volver al dashboard</button>
-            </section>
-
-          </aside>
-        </section>
       </main>
     }
 

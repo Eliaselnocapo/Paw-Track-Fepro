@@ -35,6 +35,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Información Extra', {'fields': ('first_name', 'last_name', 'telefono', 'foto_perfil', 'roles')}),
+        ('Reputación', {'fields': ('fraud_flags',)}),
         ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Fechas', {'fields': ('last_login', 'date_joined')}),
     )
@@ -68,9 +69,20 @@ class AnimalAdmin(admin.ModelAdmin):
 # -------------------------------------------------------------------
 @admin.register(Incidencia)
 class IncidenciaAdmin(GISModelAdmin):
-    # GISModelAdmin 
+    # GISModelAdmin
     list_display = ('id', 'tipo_incidencia', 'estado', 'usuario_reporta', 'animal')
     list_filter = ('estado', 'tipo_incidencia')
     search_fields = ('caracteristicas',)
-    # Usar OpenStreetMap 
+    # Usar OpenStreetMap
+    gis_widget_kwargs = {'attrs': {'default_zoom': 12, 'default_lon': -98.2, 'default_lat': 19.0}}
+
+# -------------------------------------------------------------------
+# 5. CENTRO DE APOYO (PerfilPatrocinador) — registro standalone para
+#    poder aprobar/rechazar solicitudes de centro sin entrar al Usuario.
+# -------------------------------------------------------------------
+@admin.register(PerfilPatrocinador)
+class PerfilPatrocinadorAdmin(GISModelAdmin):
+    list_display = ('nombre', 'tipo', 'estado', 'usuario', 'created_at')
+    list_filter = ('estado', 'tipo')
+    search_fields = ('nombre', 'direccion', 'usuario__email')
     gis_widget_kwargs = {'attrs': {'default_zoom': 12, 'default_lon': -98.2, 'default_lat': 19.0}}

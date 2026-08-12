@@ -101,7 +101,7 @@
       <!-- BARRA DE FILTROS POR ESTADO + HISTORIAL -->
       <div class="bg-white p-4 shadow-md border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 rounded">
         <div class="flex flex-wrap items-center gap-2">
-          @for (estado of filtros; track estado) {
+          @for (estado of filtrosVisibles; track estado) {
             <button type="button"
               (click)="seleccionarFiltro(estado)"
               class="text-sm font-bold px-4 py-2 transition-all active:scale-95 rounded"
@@ -117,7 +117,7 @@
         </div>
         <button type="button"
           routerLink="/reports-history"
-          class="text-sm font-bold text-slate-600 bg-slate-50 border rounded border-slate-200 px-4 py-2 hover:bg-slate-100 transition-colors flex items-center gap-1.5 shrink-0">
+          class="self-start sm:self-auto text-sm font-bold text-slate-600 bg-slate-50 border rounded border-slate-200 px-4 py-2 hover:bg-slate-100 transition-colors flex items-center gap-1.5 shrink-0">
           <span class="material-symbols-outlined text-[16px]">history</span>
           Ver historial
         </button>
@@ -202,9 +202,19 @@
                         <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors leading-tight mb-1.5">
                           {{ caso.titulo }}
                         </h3>
-                        <p class="text-xs font-semibold text-slate-400 flex items-center gap-1">
-                          <span class="material-symbols-outlined text-[14px] text-red-400">location_on</span>
-                          {{ caso.ubicacion }}
+                        <p class="text-xs font-semibold text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px] text-red-400">location_on</span>
+                            {{ caso.ubicacion }}
+                          </span>
+                          <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px] text-slate-400">tag</span>
+                            {{ caso.folio }}
+                          </span>
+                          <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px] text-amber-400">schedule</span>
+                            {{ caso.tiempo }}
+                          </span>
                         </p>
                       </div>
                       @if (!esTerminado(caso)) {
@@ -229,20 +239,6 @@
                         {{ caso.tamano }}
                       </span>
 
-                      @if (caso.color) {
-                        <span class="text-xs px-2.5 py-1 bg-slate-50 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded capitalize">
-                          <span class="material-symbols-outlined text-[13px]">palette</span>
-                          {{ caso.color }}
-                        </span>
-                      }
-
-                      @if (caso.raza) {
-                        <span class="text-xs px-2.5 py-1 bg-slate-50 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded capitalize">
-                          <span class="material-symbols-outlined text-[13px]">sell</span>
-                          {{ caso.raza }}
-                        </span>
-                      }
-
                       <!-- Advertencia: como reacciono el animal -->
                       @if (chipAgresividad(caso); as chip) {
                         <span class="text-xs px-2.5 py-1 border font-bold flex items-center gap-1 rounded" [ngClass]="chip.clase">
@@ -250,15 +246,6 @@
                           {{ chip.texto }}
                         </span>
                       }
-
-                      <span class="text-xs px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 font-semibold flex items-center gap-1 rounded">
-                        <span class="material-symbols-outlined text-[13px]">tag</span>
-                        {{ caso.folio }}
-                      </span>
-                      <span class="text-xs px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 font-semibold flex items-center gap-1 rounded">
-                        <span class="material-symbols-outlined text-[13px]">schedule</span>
-                        {{ caso.tiempo }}
-                      </span>
                     </div>
 
                     <!-- Descripción -->

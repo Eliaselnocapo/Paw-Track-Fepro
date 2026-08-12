@@ -11,7 +11,7 @@ class PerfilRescatistaSerializer(serializers.ModelSerializer):
 class PerfilPatrocinadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerfilPatrocinador
-        fields = ('ubicacion', 'capacidad', 'horario', 'redes', 'nivel', 'total_donado', 'casos_soportados')
+        fields = ('id', 'nombre', 'logo', 'direccion', 'horario', 'redes_sociales', 'nivel', 'total_donado', 'casos_soportados', 'estado', 'tipo')
 
 class UsuarioSerializer(serializers.ModelSerializer):
     perfil_rescatista = PerfilRescatistaSerializer(read_only=True)
@@ -43,7 +43,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if 'PATROCINADOR' in roles:
             PerfilPatrocinador.objects.get_or_create(
                 usuario=usuario,
-                defaults={'nombre_entidad': 'Registro Interno (Por Actualizar)'}
+                defaults={'nombre': 'Registro Interno (Por Actualizar)'}
             )
         return usuario
 
@@ -122,7 +122,7 @@ class CustomRegisterSerializer(RegisterSerializer):
             nombre = cleaned.get('nombre_entidad', '')
             PerfilPatrocinador.objects.get_or_create(
                 usuario=user,
-                defaults={'nombre_entidad': nombre}
+                defaults={'nombre': nombre}
             )
 
         return user
