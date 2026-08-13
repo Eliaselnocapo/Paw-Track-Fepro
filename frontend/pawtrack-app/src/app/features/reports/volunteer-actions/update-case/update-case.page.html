@@ -148,7 +148,7 @@
                   class="w-full h-12 border border-slate-300 bg-slate-50 px-4 rounded text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
                   placeholder="Ej. 12.5">
               </div>
-              
+
               <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">Edad estimada</label>
                 <select [(ngModel)]="ficha.edad"
@@ -225,6 +225,18 @@
                 placeholder="Heridas detectadas, parasitos, deshidratacion, medicacion aplicada..."></textarea>
             </div>
 
+            <!-- Aviso: si el animal esta delicado o critico, apuntar al traslado -->
+            @if (ficha.salud === 'critico' || ficha.salud === 'delicado') {
+              <div class="mt-4 rounded border border-amber-200 bg-amber-50 p-3 flex items-start gap-2 animate-fade-in-up">
+                <span class="material-symbols-outlined text-amber-600 text-[18px] shrink-0">local_hospital</span>
+                <p class="text-sm text-amber-900 leading-relaxed">
+                  Este animal necesita atencion. Al registrar
+                  <strong>Trasladando al animal</strong> en la bitacora te mostramos las
+                  veterinarias y refugios cercanos.
+                </p>
+              </div>
+            }
+
             @if (errorFicha) {
               <p class="mt-3 text-sm text-red-600 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-[18px]">error</span>{{ errorFicha }}
@@ -289,8 +301,16 @@
               </div>
               <div class="p-5 flex flex-col gap-3 text-sm text-slate-600">
                 <p class="flex gap-2">
-                  <span class="material-symbols-outlined text-[18px] text-blue-500 shrink-0">directions_car</span>
-                  <span><strong>En sitio:</strong> registra cuando llegues al punto del animal.</span>
+                  <span class="material-symbols-outlined text-[18px] text-blue-500 shrink-0">my_location</span>
+                  <span><strong>Llegue al punto:</strong> registra cuando estes en la ubicacion del reporte.</span>
+                </p>
+                <p class="flex gap-2">
+                  <span class="material-symbols-outlined text-[18px] text-blue-500 shrink-0">pending_actions</span>
+                  <span><strong>Trabajando el caso:</strong> buscando, esperando o asegurando al animal.</span>
+                </p>
+                <p class="flex gap-2">
+                  <span class="material-symbols-outlined text-[18px] text-blue-500 shrink-0">local_shipping</span>
+                  <span><strong>Trasladando:</strong> vas a una veterinaria o refugio. Puedes elegir cual.</span>
                 </p>
                 <p class="flex gap-2">
                   <span class="material-symbols-outlined text-[18px] text-emerald-500 shrink-0">verified</span>
@@ -298,7 +318,7 @@
                 </p>
                 <p class="flex gap-2">
                   <span class="material-symbols-outlined text-[18px] text-red-500 shrink-0">cancel</span>
-                  <span><strong>Cancelado:</strong> liberas el caso y vuelve a estar disponible.</span>
+                  <span><strong>Cancelar rescate:</strong> liberas el caso y vuelve a estar disponible.</span>
                 </p>
                 <p class="flex gap-2">
                   <span class="material-symbols-outlined text-[18px] text-slate-400 shrink-0">edit_note</span>
@@ -326,9 +346,9 @@
         </div>
 
         <!-- ============ BLOQUE 2: BITACORA (centro de mando unico) ============ -->
-        <section class="bg-white border border-slate-300 shadow-md overflow-hidden order-1 lg:order-2 mb-8 lg:mb-0 rounded">
+        <section class="bg-white border border-slate-300 shadow-md order-1 lg:order-2 mb-8 lg:mb-0 rounded">
         <button type="button" (click)="toggleBitacora()"
-            class="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-slate-50 active:bg-slate-100 transition-colors">
+            class="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-slate-50 active:bg-slate-100 transition-colors rounded-t">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
                 <span class="material-symbols-outlined">history</span>
@@ -362,6 +382,12 @@
                         <span class="text-sm font-bold text-slate-900">{{ estadoLegible(entrada.estado) }}</span>
                         <span class="text-xs text-slate-400">{{ entrada.timestamp | date:'dd MMM, HH:mm' }}</span>
                       </div>
+                      @if (entrada.centro) {
+                        <p class="text-sm text-blue-800 mt-1.5 bg-blue-50 border border-blue-100 p-3 flex items-start gap-1.5">
+                          <span class="material-symbols-outlined text-[16px] text-blue-600 shrink-0 mt-0.5">local_shipping</span>
+                          <span>Destino: <strong>{{ entrada.centro }}</strong></span>
+                        </p>
+                      }
                       @if (entrada.nota) {
                         <p class="text-sm text-slate-600 mt-1.5 bg-slate-50 border border-slate-100 p-3">{{ entrada.nota }}</p>
                       }
@@ -408,31 +434,168 @@
                     Registrar nuevo avance
                   </h3>
 
-                  <!-- 1. SELECT DE ESTADO -->
-                  <div class="mb-5">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Nuevo estado</label>
-                    <select [(ngModel)]="avance.estado" (ngModelChange)="onCambioEstado()"
-                      class="w-full md:max-w-md h-12 border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all">
-                      <option value="">Selecciona...</option>
-                      <option value="EN_SITIO">En sitio (llegue al punto)</option>
-                      <option value="COMPLETADO">Rescatado (cerrar el caso)</option>
-                      <option value="CANCELADO">Cancelado (liberar el caso)</option>
-                    </select>
+                  <!-- 1. DROPDOWN DE ESTADO -->
+                  <div class="relative mb-5" data-dropdown-estado>
+
+                    <label class="block text-sm font-bold text-slate-700 mb-2">
+                      Nuevo estado
+                    </label>
+
+                    <!-- Disparador -->
+                    <button
+                      type="button"
+                      (click)="toggleDropdown($event)"
+                      [disabled]="procesando || casoTerminado"
+                      [attr.aria-expanded]="dropdownAbierto"
+                      aria-haspopup="listbox"
+                      class="w-full h-14 px-4 rounded border bg-white flex items-center gap-3 text-left
+                            transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      [ngClass]="dropdownAbierto ? 'border-blue-500' : 'border-slate-300 hover:border-slate-400'">
+
+                      @if (opcionActual) {
+                        <span class="material-symbols-outlined text-[22px]"
+                              [ngClass]="claseOpcion(opcionActual.tono)">
+                          {{ opcionActual.icono }}
+                        </span>
+                        <span class="flex-1 min-w-0">
+                          <span class="block text-sm font-bold text-slate-900 truncate">
+                            {{ opcionActual.titulo }}
+                          </span>
+                          <span class="block text-xs text-slate-500 truncate">
+                            {{ opcionActual.ayuda }}
+                          </span>
+                        </span>
+                      } @else {
+                        <span class="material-symbols-outlined text-[22px] text-slate-400">
+                          arrow_drop_down_circle
+                        </span>
+                        <span class="flex-1 text-sm text-slate-400">
+                          Elige que paso con el caso
+                        </span>
+                      }
+
+                      <span class="material-symbols-outlined text-[20px] text-slate-400 transition-transform"
+                            [class.rotate-180]="dropdownAbierto">
+                        expand_more
+                      </span>
+                    </button>
+
+                    <!-- Menu -->
+                    @if (dropdownAbierto) {
+                      <div role="listbox"
+                        class="absolute z-40 w-full rounded border border-slate-300 bg-white shadow-xl
+                              overflow-y-auto max-h-[min(400px,60vh)]"
+                        [ngClass]="abrirHaciaArriba ? 'bottom-full mb-2' : 'mt-2'">
+
+                        @for (opcion of opciones; track opcion.valor) {
+                          <!-- Separador antes de las acciones definitivas -->
+                          @if (opcion.valor === 'COMPLETADO') {
+                            <div class="h-px bg-slate-200 mx-3"></div>
+                          }
+
+                          <button
+                            type="button"
+                            role="option"
+                            [attr.aria-selected]="avance.estado === opcion.valor"
+                            (click)="seleccionar(opcion)"
+                            class="w-full px-4 py-3 flex items-start gap-3 text-left transition-colors
+                                  hover:bg-slate-50 focus:outline-none focus:bg-slate-50"
+                            [ngClass]="avance.estado === opcion.valor ? 'bg-slate-50' : ''">
+
+                            <span class="material-symbols-outlined text-[20px] mt-0.5 shrink-0"
+                                  [ngClass]="claseOpcion(opcion.tono)">
+                              {{ opcion.icono }}
+                            </span>
+
+                            <span class="flex-1 min-w-0">
+                              <span class="block text-sm font-bold"
+                                    [ngClass]="opcion.tono === 'cancelar' ? 'text-red-700' : 'text-slate-900'">
+                                {{ opcion.titulo }}
+                              </span>
+                              <span class="block text-xs text-slate-500 leading-snug">
+                                {{ opcion.ayuda }}
+                              </span>
+                            </span>
+
+                            @if (avance.estado === opcion.valor) {
+                              <span class="material-symbols-outlined text-[18px] text-blue-600 shrink-0">
+                                check
+                              </span>
+                            }
+                          </button>
+                        }
+                      </div>
+                    }
                   </div>
+
+                  <!-- 1.5 TRASLADO: a que centro lo lleva -->
+                  @if (esTraslado) {
+                    <div class="mb-5 rounded border border-blue-200 bg-blue-50 p-4 animate-fade-in-up">
+                      <p class="text-sm font-bold text-blue-900 mb-1">A donde lo llevas?</p>
+                      <p class="text-xs text-blue-700 mb-3">
+                        Opcional. Queda registrado en la bitacora del caso.
+                      </p>
+
+                      @if (cargandoCentrosCercanos) {
+                        <p class="text-xs text-blue-600">Buscando centros cercanos...</p>
+                      } @else if (centrosCercanos.length > 0) {
+
+                        @if (centrosCercanos[0].distanciaKm > 15) {
+                          <p class="text-xs text-amber-700 mb-2 flex items-start gap-1">
+                            <span class="material-symbols-outlined text-[14px] shrink-0 mt-0.5">info</span>
+                            <span>No hay centros registrados cerca. Estos son los más próximos.</span>
+                          </p>
+                        }
+                        <div class="flex flex-col gap-2"> 
+                          @for (centro of centrosCercanos; track centro.id) {
+                            <div class="w-full px-3 py-2.5 rounded border bg-white flex items-center gap-3 transition-colors"
+                              [ngClass]="centroDestino === centro.nombre
+                                ? 'border-blue-500 ring-1 ring-blue-500'
+                                : 'border-slate-300'">
+
+                              <button type="button" (click)="centroDestino = centro.nombre"
+                                class="flex-1 min-w-0 text-left">
+                                <span class="flex items-center gap-1.5">
+                                  <span class="text-sm font-bold text-slate-900 truncate">{{ centro.nombre }}</span>
+                                  @if (centro.verificado) {
+                                    <span class="material-symbols-outlined text-emerald-600 text-[15px] shrink-0">verified</span>
+                                  }
+                                </span>
+                                <span class="block text-xs text-slate-500 mt-0.5">
+                                  {{ centro.distanciaKm }} km · {{ centro.tipo === 'veterinaria' ? 'Veterinaria' : 'Refugio' }}
+                                </span>
+                              </button>
+
+                              <button type="button" (click)="abrirDetalleCentro(centro, $event)"
+                                class="w-8 h-8 rounded grid place-items-center text-slate-400 hover:text-blue-700 hover:bg-slate-100 transition-colors shrink-0"
+                                aria-label="Ver detalles del centro">
+                                <span class="material-symbols-outlined text-[20px]">info</span>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <input type="text" [(ngModel)]="centroDestino"
+                          placeholder="Nombre del lugar"
+                          class="w-full h-11 px-3 rounded border border-slate-300 bg-white text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all">
+                      }
+                    </div>
+                  }
 
                   <!-- 2. NOTA (solo para avance normal) -->
                   @if (!esDefinitivo) {
                     <div class="mb-2 animate-fade-in-up">
                       <label class="block text-sm font-bold text-slate-700 mb-2">Nota del avance</label>
                       <textarea [(ngModel)]="avance.nota" rows="4"
-                        class="w-full border border-slate-300 bg-white p-4 text-sm resize-none outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                        class="w-full border border-slate-300 bg-white p-4 rounded text-sm resize-none outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
                         placeholder="Describe que hiciste: donde esta el animal, a que veterinaria lo llevaste, etc."></textarea>
                     </div>
                   }
 
                   <!-- 3. CIERRE: foto + aviso de GPS -->
                   @if (esCierre) {
-                    <div class="border border-emerald-200 bg-white p-5 animate-fade-in-up">
+                    <div class="border border-emerald-200 bg-white p-5 rounded animate-fade-in-up">
                       <div class="flex items-center gap-2 pb-4 mb-4 border-b border-slate-100">
                         <span class="material-symbols-outlined text-emerald-600">task_alt</span>
                         <h4 class="font-bold text-slate-800">Evidencia de cierre</h4>
@@ -440,7 +603,7 @@
 
                       <label class="block mb-4">
                         <span class="text-sm font-bold text-slate-700 mb-2 block">Foto del animal asegurado <span class="text-red-600">*</span></span>
-                        <div class="border-2 border-dashed border-slate-300 p-4 hover:border-emerald-400 transition-colors cursor-pointer bg-slate-50">
+                        <div class="border-2 border-dashed border-slate-300 p-4 rounded hover:border-emerald-400 transition-colors cursor-pointer bg-slate-50">
                           @if (fotoPreview) {
                             <img [src]="fotoPreview" alt="Evidencia" class="w-full max-h-72 object-contain">
                             <p class="text-xs text-slate-500 text-center mt-2">Toca para cambiar la foto</p>
@@ -454,95 +617,67 @@
                         </div>
                       </label>
 
-                      <div class="border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800">
+                      <div class="border border-emerald-100 bg-emerald-50 p-4 rounded text-sm text-emerald-800">
                         <p class="font-bold mb-1 flex items-center gap-1.5">
                           <span class="material-symbols-outlined text-[18px]">my_location</span> Ubicacion automatica
                         </p>
                         <p class="text-emerald-700 leading-relaxed">
-                          Al confirmar tomaremos tu ubicacion actual como evidencia de donde quedo el animal.
-                          Activa el GPS y permite el acceso.
+                          Al confirmar tomaremos tu ubicacion actual como evidencia.
                         </p>
                       </div>
+
                       @if (cargandoCentrosCercanos || centrosCercanos.length > 0) {
-                      <div class="mt-4 border border-blue-100 bg-blue-50 p-4">
-                        <p class="font-bold text-blue-800 text-sm mb-1 flex items-center gap-1.5">
-                          <span class="material-symbols-outlined text-[18px]">volunteer_activism</span>
-                          Centros de apoyo cerca del animal
-                        </p>
-                        <p class="text-xs text-blue-700 mb-3">
-                          Por si necesitas llevarlo a revisión antes de terminar.
-                        </p>
-                    
-                        @if (cargandoCentrosCercanos) {
-                          <p class="text-xs text-blue-600">Buscando centros cercanos...</p>
-                        } @else {
-                        <div class="flex flex-col gap-2">
-                          @for (centro of centrosCercanos; track centro.id) {
-                            <div class="bg-white border border-blue-100 p-3">
-                        
-                              <div class="flex items-start justify-between gap-3">
-                                <div class="min-w-0 flex-1">
-                                  <p class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                                    <span class="truncate">{{ centro.nombre }}</span>
-                                    @if (centro.verificado) {
-                                      <span class="material-symbols-outlined text-emerald-600 text-[15px] shrink-0">verified</span>
-                                    }
-                                  </p>
-                                  <p class="text-xs text-slate-500 mt-0.5">
-                                    {{ centro.distanciaKm }} km · {{ centro.tipo === 'veterinaria' ? 'Veterinaria' : 'Refugio' }}
-                                  </p>
-                        
-                                  @if (centro.direccion) {
-                                    <p class="text-xs text-slate-500 mt-1.5 flex items-start gap-1">
-                                      <span class="material-symbols-outlined text-[13px] text-slate-400 shrink-0 mt-0.5">location_on</span>
-                                      <span class="truncate">{{ centro.direccion }}</span>
+                        <div class="mt-4 border border-blue-100 bg-blue-50 p-4 rounded">
+                          <p class="font-bold text-blue-800 text-sm mb-1 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px]">volunteer_activism</span>
+                            Centros de apoyo cerca del animal
+                          </p>
+                          <p class="text-xs text-blue-700 mb-3">
+                            Por si necesitas llevarlo a revision antes de terminar.
+                          </p>
+
+                          @if (cargandoCentrosCercanos) {
+                            <p class="text-xs text-blue-600">Buscando centros cercanos...</p>
+                          } @else {
+                            <div class="flex flex-col gap-2">
+                              @for (centro of centrosCercanos; track centro.id) {
+                                <div class="w-full px-3 py-2.5 rounded border border-slate-300 bg-white flex items-center gap-3">
+
+                                  <div class="flex-1 min-w-0">
+                                    <p class="flex items-center gap-1.5">
+                                      <span class="text-sm font-bold text-slate-900 truncate">{{ centro.nombre }}</span>
+                                      @if (centro.verificado) {
+                                        <span class="material-symbols-outlined text-emerald-600 text-[15px] shrink-0">verified</span>
+                                      }
                                     </p>
-                                  }
-                        
-                                  @if (centro.horario) {
-                                    <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                      <span class="material-symbols-outlined text-[13px] text-slate-400 shrink-0">schedule</span>
-                                      {{ centro.horario }}
+                                    <p class="text-xs text-slate-500 mt-0.5">
+                                      {{ centro.distanciaKm }} km · {{ centro.tipo === 'veterinaria' ? 'Veterinaria' : 'Refugio' }}
                                     </p>
-                                  }
+                                  </div>
+
+                                  <button type="button" (click)="abrirDetalleCentro(centro, $event)"
+                                    class="w-8 h-8 rounded grid place-items-center text-slate-400 hover:text-blue-700 hover:bg-slate-100 transition-colors shrink-0"
+                                    aria-label="Ver detalles del centro">
+                                    <span class="material-symbols-outlined text-[20px]">info</span>
+                                  </button>
                                 </div>
-                              </div>
-                        
-                              <div class="flex items-center gap-2 mt-3">
-                                @if (centro.telefono) {
-                                  <a [href]="'tel:' + centro.telefono"
-                                    class="flex-1 h-8 px-3 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold flex items-center justify-center gap-1 transition-colors">
-                                    <span class="material-symbols-outlined text-[14px]">call</span>
-                                    Llamar
-                                  </a>
-                                }
-                        
-                                @if (centro.verificado) {
-                                  <a [routerLink]="['/centro', centro.id]" target="_blank" rel="noopener noreferrer"
-                                    class="flex-1 h-8 px-3 border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 hover:bg-blue-100 transition-colors">
-                                    <span class="material-symbols-outlined text-[14px]">badge</span>
-                                    Ver perfil
-                                  </a>
-                                }
-                              </div>
+                              }
                             </div>
                           }
                         </div>
-                        }
-                      </div>
-                    }
+                      }
                     </div>
                   }
 
                   <!-- 4. CANCELACION: motivo obligatorio -->
                   @if (esCancelacion) {
-                    <div class="border border-red-200 bg-white p-5 animate-fade-in-up">
+                    <div class="border border-red-200 bg-white p-5 rounded animate-fade-in-up">
                       <div class="flex items-center gap-2 pb-4 mb-4 border-b border-slate-100">
                         <span class="material-symbols-outlined text-red-600">cancel</span>
                         <h4 class="font-bold text-slate-800">Cancelar el rescate</h4>
                       </div>
 
-                      <div class="border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800 mb-4">
+                      <div class="border border-amber-100 bg-amber-50 p-4 rounded text-sm text-amber-800 mb-4">
                         <p class="leading-relaxed">
                           Al cancelar, el caso <strong>vuelve a estar disponible</strong> para que otro
                           voluntario lo tome. Dejara de aparecer en tus casos aceptados.
@@ -553,7 +688,7 @@
                         Motivo de la cancelacion <span class="text-red-600">*</span>
                       </label>
                       <textarea [(ngModel)]="motivoCancelacion" rows="4"
-                        class="w-full border border-slate-300 bg-slate-50 p-4 text-sm resize-none outline-none focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all"
+                        class="w-full border border-slate-300 bg-slate-50 p-4 rounded text-sm resize-none outline-none focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all"
                         placeholder="Ej. Se me complico el traslado / el animal ya no estaba en el punto / surgio una emergencia."></textarea>
                     </div>
                   }
@@ -573,7 +708,7 @@
                   <!-- BOTON (cambia segun el estado) -->
                   <div class="mt-5 flex justify-end">
                   <button type="button" (click)="enviar()" [disabled]="procesando"
-                      class="w-full sm:w-auto h-12 px-8 disabled:opacity-60 text-white font-bold shadow-md transition-all active:scale-95 flex items-center justify-center gap-2  rounded-lg"
+                      class="w-full sm:w-auto h-12 px-8 disabled:opacity-60 text-white font-bold shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 rounded-lg"
                       [ngClass]="claseBoton">
                       @if (procesando) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
                       {{ procesando ? 'Procesando...' : textoBoton }}
@@ -591,7 +726,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60"
           (click)="cerrarModalConfirmar()">
 
-          <div class="w-full max-w-lg bg-white border border-slate-300 shadow-xl animate-fade-in-up" (click)="$event.stopPropagation()">
+          <div class="w-full max-w-lg bg-white border border-slate-300 shadow-xl rounded animate-fade-in-up" (click)="$event.stopPropagation()">
 
             <div class="p-6 border-b border-slate-100 flex items-start gap-4">
               <div class="w-12 h-12 text-white grid place-items-center shrink-0 shadow-sm"
@@ -622,16 +757,99 @@
 
             <div class="p-6 pt-0 flex flex-col sm:flex-row sm:justify-end gap-3">
             <button type="button" (click)="cerrarModalConfirmar()" [disabled]="procesando"
-                class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 active:bg-slate-100 active:scale-95 disabled:opacity-60 transition-all">
+                class="h-12 px-6 border border-slate-300 bg-white text-slate-700 font-bold text-sm rounded hover:bg-slate-50 active:bg-slate-100 active:scale-95 disabled:opacity-60 transition-all">
                 Volver al caso
               </button>
 
               <button type="button" (click)="confirmarAccion()" [disabled]="procesando"
-                class="h-12 px-6 disabled:opacity-60 text-white font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                class="h-12 px-6 disabled:opacity-60 text-white font-bold text-sm rounded shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
                 [ngClass]="esCierre ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-emerald-600/25' : 'bg-red-600 hover:bg-red-700 active:bg-red-800 shadow-red-600/25'">
                 @if (procesando) { <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> }
                 {{ procesando ? 'Procesando...' : (esCierre ? 'Si, cerrar el caso' : 'Si, cancelar rescate') }}
               </button>
+            </div>
+
+          </div>
+        </div>
+      }
+
+      <!-- ============ MODAL: DETALLE DEL CENTRO ============ -->
+      @if (centroDetalle) {
+        <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/60"
+          (click)="cerrarDetalleCentro()">
+
+          <div class="w-full sm:max-w-md bg-white sm:border sm:border-slate-300 shadow-xl rounded-t-2xl sm:rounded animate-fade-in-up"
+            (click)="$event.stopPropagation()">
+
+            <div class="p-5 border-b border-slate-100 flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-50 grid place-items-center shrink-0">
+                <span class="material-symbols-outlined text-[20px] text-blue-600">
+                  {{ centroDetalle.tipo === 'veterinaria' ? 'medical_services' : 'home' }}
+                </span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-slate-900 flex items-center gap-1.5">
+                  <span class="truncate">{{ centroDetalle.nombre }}</span>
+                  @if (centroDetalle.verificado) {
+                    <span class="material-symbols-outlined text-emerald-600 text-[16px] shrink-0">verified</span>
+                  }
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  {{ centroDetalle.distanciaKm }} km · {{ centroDetalle.tipo === 'veterinaria' ? 'Veterinaria' : 'Refugio' }}
+                </p>
+              </div>
+              <button type="button" (click)="cerrarDetalleCentro()"
+                class="w-8 h-8 rounded grid place-items-center text-slate-400 hover:bg-slate-100 shrink-0"
+                aria-label="Cerrar">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <div class="p-5 flex flex-col gap-3">
+              @if (centroDetalle.direccion) {
+                <p class="flex items-start gap-2 text-sm text-slate-600">
+                  <span class="material-symbols-outlined text-[18px] text-slate-400 shrink-0 mt-0.5">location_on</span>
+                  <span>{{ centroDetalle.direccion }}</span>
+                </p>
+              }
+              @if (centroDetalle.horario) {
+                <p class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-symbols-outlined text-[18px] text-slate-400 shrink-0">schedule</span>
+                  {{ centroDetalle.horario }}
+                </p>
+              }
+              @if (centroDetalle.telefono) {
+                <p class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-symbols-outlined text-[18px] text-slate-400 shrink-0">call</span>
+                  {{ centroDetalle.telefono }}
+                </p>
+              }
+            </div>
+
+            <div class="p-5 pt-0 flex flex-col gap-2">
+              @if (esTraslado) {
+                <button type="button" (click)="elegirCentro(centroDetalle)"
+                  class="w-full h-11 rounded bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold transition-colors">
+                  Llevar el animal aqui
+                </button>
+              }
+
+              <div class="flex gap-2">
+                @if (centroDetalle.telefono) {
+                  <a [href]="'tel:' + centroDetalle.telefono"
+                    class="flex md:hidden flex-1 h-10 rounded border border-slate-300 bg-white text-slate-700 text-sm font-bold items-center justify-center gap-1.5 hover:bg-slate-50 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">call</span>
+                    Llamar
+                  </a>
+                }
+                @if (centroDetalle.verificado) {
+                  <a [routerLink]="['/centro', centroDetalle.id]" target="_blank" rel="noopener"
+                    class="flex-1 h-10 rounded border border-slate-300 bg-white text-slate-700 text-sm font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">badge</span>
+                    Ver perfil
+                  </a>
+                }
+              </div>
             </div>
 
           </div>

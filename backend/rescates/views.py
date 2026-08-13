@@ -1,5 +1,3 @@
-import os
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -21,11 +19,18 @@ from django.utils import timezone
 from core.pagination import StandardPagination
 from bd.serializers import IncidenciaSerializer
 
+
 # Excepción personalizada para el handler global (409 Conflict)
 class CaseAlreadyTaken(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = 'Este caso ya fue aceptado por otro rescatista.'
     default_code = 'case_already_taken'
+
+
+class MissingCoordsError(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Se requieren las coordenadas lat y lng en los parámetros.'
+    default_code = 'missing_coords'
 
 
 class AceptarRescateView(APIView):
@@ -44,11 +49,14 @@ class AceptarRescateView(APIView):
 
         # 3. Validación de estado con raise ValidationError
         if incidencia.estado != 'PENDIENTE':
-            raise ValidationError(f"La incidencia ya no está disponible. Estado actual: {incidencia.estado}")
+            raise ValidationError(
+                f"La incidencia ya no está disponible. Estado actual: {incidencia.estado}"
+            )
 
         # 4. Manejo de Condición de Carrera (Dos rescatistas al mismo tiempo).
-        # Savepoint propio: si el create() truena, no debe tumbar la transacción atómica
-        # de toda la vista, solo revertir hasta aquí para poder lanzar CaseAlreadyTaken.
+        # Savepoint propio: si el create() truena, no debe tumbar la transacción
+        # atómica de toda la vista, solo revertir hasta aquí para poder lanzar
+        # CaseAlreadyTaken.
         try:
             with transaction.atomic():
                 # Rescate.incidencia es un OneToOneField: un rescate CANCELADO sigue
@@ -65,6 +73,9 @@ class AceptarRescateView(APIView):
                     rescate_previo.estado = 'EN_CAMINO'
                     rescate_previo.fecha_aceptacion = timezone.now()
                     rescate_previo.fecha_cierre = None
+                    # Un caso retomado arranca sin evidencia de cierre previa.
+                    rescate_previo.closure_photo = None
+                    rescate_previo.closure_location = None
                     rescate_previo.historial.append({
                         "estado": "EN_CAMINO",
                         "timestamp": timezone.now().isoformat(),
@@ -98,34 +109,6 @@ class AceptarRescateView(APIView):
             "field_errors": {}
         }, status=status.HTTP_201_CREATED)
 
-class MissingCoordsError(APIException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = 'Se requieren las coordenadas lat y lng en los parámetros.'
-    default_code = 'missing_coords'
-
-class GpsTooFarError(APIException):
-    status_code = status.HTTP_403_FORBIDDEN
-    default_code = 'gps_too_far'
-
-    def __init__(self, radio_metros):
-        super().__init__(detail=f'Debes estar a menos de {radio_metros:.0f}m del reporte para cerrarlo.')
-
-
-def _radio_maximo_cierre_metros():
-    """Radio máximo (en metros) permitido entre el punto del reporte y el punto
-    de cierre. El GPS del cierre es evidencia de a dónde fue el animal, no un
-    candado por defecto: sin la variable de entorno no se valida distancia.
-    Configurable vía RESCATE_CIERRE_RADIO_METROS para reactivar el límite."""
-    valor = os.environ.get('RESCATE_CIERRE_RADIO_METROS')
-    if not valor:
-        return None
-    try:
-        return float(valor)
-    except ValueError:
-        return None
-
-
-# --- Nuevas Vistas ---
 
 class DisponiblesView(ListAPIView):
     permission_classes = [IsRescatista]
@@ -144,21 +127,25 @@ class DisponiblesView(ListAPIView):
         except ValueError:
             raise ValidationError("Coordenadas inválidas. Deben ser numéricas.")
 
-        # Magia PostGIS: filtramos PENDIENTE y calculamos la distancia geométrica en un solo query
+        # Magia PostGIS: filtramos PENDIENTE y calculamos la distancia
+        # geométrica en un solo query
         return Incidencia.objects.filter(
-        estado='PENDIENTE',
-        ubicacion__distance_lte=(punto, Distance(km=10))
-    ).select_related('animal', 'usuario_reporta').order_by('-urgency_score')
+            estado='PENDIENTE',
+            ubicacion__distance_lte=(punto, Distance(km=10))
+        ).select_related('animal', 'usuario_reporta').order_by('-urgency_score')
 
 
 class ActualizarEstadoView(APIView):
     permission_classes = [IsRescatista]
 
-    # CANCELADO ya NO se acepta aquí — tiene su propio endpoint
-    # (CancelarRescateView) porque cancelar requiere efectos secundarios
-    # (revertir la Incidencia a PENDIENTE, desasignar rescatista) que este
-    # PATCH genérico no debe hacer.
-    ESTADOS_PERMITIDOS = ['EN_SITIO', 'COMPLETADO']
+    # Solo EN_SITIO. COMPLETADO se removió a propósito:
+    #   - CANCELADO tiene su propio endpoint (CancelarRescateView) porque
+    #     requiere efectos secundarios sobre la Incidencia.
+    #   - COMPLETADO tiene su propio endpoint (CerrarRescateView) porque
+    #     exige foto de evidencia y GPS. Si se permitiera aquí, cualquiera
+    #     podría cerrar un caso con un PATCH y sin evidencia alguna,
+    #     dejando toda la validación del cierre en decorativa.
+    ESTADOS_PERMITIDOS = ['EN_SITIO', 'EN_PROCESO', 'EN_TRASLADO']
 
     def patch(self, request, rescate_id):
         try:
@@ -169,24 +156,36 @@ class ActualizarEstadoView(APIView):
         if rescate.rescatista != request.user:
             raise PermissionDenied("No tienes permiso para actualizar este rescate.")
 
+        if rescate.estado in ('COMPLETADO', 'CANCELADO'):
+            raise ValidationError(
+                f"Este rescate ya está {rescate.get_estado_display().lower()}. "
+                "No admite más avances."
+            )
+
         nuevo_estado = request.data.get('estado')
         if nuevo_estado not in self.ESTADOS_PERMITIDOS:
             raise ValidationError(
-                "Estado inválido. Las opciones son EN_SITIO o COMPLETADO "
-                "(para cancelar usa POST /api/rescates/{id}/cancelar/)."
+                "Estado inválido. Para registrar avance usa EN_SITIO; "
+                "para cerrar usa POST /api/rescates/{id}/cerrar/; "
+                "para cancelar usa POST /api/rescates/{id}/cancelar/."
             )
 
         # Guardamos en el campo JSONField inyectado en la Fase 1
         entrada_historial = {
             "estado": nuevo_estado,
-            "timestamp": timezone.now().isoformat()
+            "timestamp": timezone.now().isoformat(),
         }
         nota = request.data.get('nota')
         if nota:
             entrada_historial["nota"] = nota
+            
+        centro = request.data.get('centro')
+        if centro and nuevo_estado == 'EN_TRASLADO':
+            entrada_historial["centro"] = centro
+            
         rescate.historial.append(entrada_historial)
         rescate.estado = nuevo_estado
-        rescate.save()
+        rescate.save(update_fields=['estado', 'historial'])
 
         broadcast_status_changed(rescate.incidencia)
 
@@ -198,57 +197,77 @@ class ActualizarEstadoView(APIView):
 
 
 class CerrarRescateView(APIView):
+    """Cierre verificado: exige foto de evidencia y registra el GPS del
+    voluntario en ese momento.
+
+    NO se valida distancia contra el punto del reporte. El animal se mueve y
+    el voluntario lo traslada — a una clínica, a un refugio, a su casa. Exigir
+    cercanía al punto original obligaría a regresar a la calle donde estaba el
+    animal para poder cerrar, lo cual no corresponde al flujo real. Además el
+    GPS en interiores es poco confiable, así que el geocerco produciría falsos
+    rechazos sobre cierres legítimos.
+
+    El GPS se guarda como evidencia de a dónde fue el animal, no como candado.
+    """
     permission_classes = [IsRescatista]
 
+    @transaction.atomic
     def post(self, request, rescate_id):
         try:
-            rescate = Rescate.objects.get(id=rescate_id)
+            rescate = Rescate.objects.select_related('incidencia').get(id=rescate_id)
         except Rescate.DoesNotExist:
             raise NotFound("Rescate no encontrado.")
 
         if rescate.rescatista != request.user:
             raise PermissionDenied("No tienes permiso para cerrar este rescate.")
 
+        if rescate.estado == 'COMPLETADO':
+            raise ValidationError("Este rescate ya fue cerrado.")
+        if rescate.estado == 'CANCELADO':
+            raise ValidationError("No se puede cerrar un rescate cancelado.")
+
         lat = request.data.get('lat')
         lng = request.data.get('lng')
         foto = request.FILES.get('foto')
 
-        if not lat or not lng:
+        if lat in (None, '') or lng in (None, ''):
             raise ValidationError("Faltan coordenadas GPS actuales para cerrar el caso.")
         if not foto:
             raise ValidationError("La foto de evidencia es obligatoria para el cierre.")
 
         try:
             punto_cierre = Point(float(lng), float(lat), srid=4326)
-        except ValueError:
+        except (TypeError, ValueError):
             raise ValidationError("Coordenadas inválidas.")
 
-        # El GPS del cierre queda como evidencia de a dónde fue el animal
-        # (clínica, refugio, casa del voluntario), no como candado por
-        # distancia. Por defecto no se valida; solo si se configura
-        # RESCATE_CIERRE_RADIO_METROS se vuelve a exigir cercanía al reporte.
-        radio_maximo = _radio_maximo_cierre_metros()
-        if radio_maximo is not None:
-            # .distance() en SRID 4326 devuelve grados, factorizamos a metros
-            distancia = punto_cierre.distance(rescate.incidencia.ubicacion) * 111320
-            if distancia > radio_maximo:
-                raise GpsTooFarError(radio_maximo)
+        # ── Evidencia en el Rescate ───────────────────────────────────────
+        # La foto de cierre va aquí, NO sobre incidencia.imagen. Pisar la
+        # imagen original destruiría la foto del reportante, dejaría el
+        # índice de deduplicación apuntando a una imagen que ya no existe,
+        # y eliminaría el insumo de la validación EXIF.
+        rescate.closure_photo = foto
+        rescate.closure_location = punto_cierre
+        rescate.estado = 'COMPLETADO'
+        rescate.fecha_cierre = timezone.now()
 
-        # Actualizamos Incidencia
-        rescate.incidencia.imagen = foto
-        rescate.incidencia.estado = 'CERRADO'
-        rescate.incidencia.save()
-
-        # Actualizamos Rescate
+        rescate.save(update_fields=[
+            'closure_photo', 'closure_location', 'estado', 'fecha_cierre', 'historial',
+        ])
+        
         rescate.historial.append({
             "estado": "COMPLETADO",
             "timestamp": timezone.now().isoformat(),
             "ubicacion_cierre": {"lat": float(lat), "lng": float(lng)},
-            "foto_cierre": request.build_absolute_uri(rescate.incidencia.imagen.url) if rescate.incidencia.imagen else None,
+            # Ruta relativa a propósito: guardar una URL absoluta congelaría
+            # el dominio actual dentro del JSON y rompería el historial al
+            # migrar de host o a S3. El serializer arma la URL completa.
+            "foto_cierre": rescate.closure_photo.url,
         })
-        rescate.estado = 'COMPLETADO'
-        rescate.fecha_cierre = timezone.now()
-        rescate.save()
+        rescate.save(update_fields=['historial'])
+
+        # La incidencia solo cambia de estado. Su imagen queda intacta.
+        rescate.incidencia.estado = 'CERRADO'
+        rescate.incidencia.save(update_fields=['estado'])
 
         broadcast_status_changed(rescate.incidencia)
 
@@ -267,6 +286,7 @@ class CancelarRescateView(APIView):
     el caso vuelva a aparecer en /disponibles/."""
     permission_classes = [IsRescatista]
 
+    @transaction.atomic
     def post(self, request, rescate_id):
         try:
             rescate = Rescate.objects.select_related('incidencia').get(id=rescate_id)
@@ -289,7 +309,7 @@ class CancelarRescateView(APIView):
         })
         rescate.estado = 'CANCELADO'
         rescate.fecha_cierre = timezone.now()
-        rescate.save()
+        rescate.save(update_fields=['estado', 'fecha_cierre', 'historial'])
 
         incidencia = rescate.incidencia
         incidencia.estado = 'PENDIENTE'
@@ -311,6 +331,10 @@ class MisRescatesView(ListAPIView):
     permission_classes = [IsRescatista]
     serializer_class = RescateSerializer
     pagination_class = StandardPagination
+
+    def get_serializer_context(self):
+        # Necesario para que el serializer arme URLs absolutas de closure_photo
+        return {**super().get_serializer_context(), 'request': self.request}
 
     def get_queryset(self):
         return Rescate.objects.filter(
@@ -334,7 +358,9 @@ class RescateDetailView(APIView):
         if rescate.rescatista != request.user:
             raise PermissionDenied("No tienes permiso para ver este rescate.")
 
-        return Response(RescateSerializer(rescate).data)
+        return Response(
+            RescateSerializer(rescate, context={'request': request}).data
+        )
 
 
 class SeguimientoHistorialView(APIView):
@@ -354,8 +380,13 @@ class SeguimientoHistorialView(APIView):
         except Rescate.DoesNotExist:
             rescate = None
 
+        foto_cierre = None
+        if rescate and rescate.closure_photo:
+            foto_cierre = request.build_absolute_uri(rescate.closure_photo.url)
+
         return Response({
             "folio": incidencia.folio,
             "estado": incidencia.estado,
             "historial": rescate.historial if rescate else [],
+            "foto_cierre": foto_cierre,
         })

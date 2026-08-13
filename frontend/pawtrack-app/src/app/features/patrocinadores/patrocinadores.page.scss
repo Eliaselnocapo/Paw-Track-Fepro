@@ -128,3 +128,16 @@ ion-modal.modal-mapa-refugio {
     --border-radius: 12px;
   }
 }
+
+.lista-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+}
