@@ -14,7 +14,9 @@ export type EstadoIncidencia = 'PENDIENTE' | 'ATENDIENDOSE' | 'CERRADO';
  * Estados posibles de un Rescate (la "misión" del rescatista).
  * EN_SITIO es el paso intermedio que el back agregó (En camino → En sitio → Rescatado).
  */
-export type EstadoRescate = 'EN_CAMINO' | 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO';
+export type EstadoRescate =
+  | 'EN_CAMINO' | 'EN_SITIO' | 'EN_PROCESO'
+  | 'EN_TRASLADO' | 'COMPLETADO' | 'CANCELADO';
 
 export interface ReportePayload {
   nombre_caso: string;
@@ -189,6 +191,7 @@ export interface EntradaHistorial {
   motivo?:   string;
   ubicacion_cierre?: { lat: number; lng: number };
   foto_cierre?: string | null;
+  centro?: string;
 }
 
 /**
@@ -223,6 +226,8 @@ export interface RescateResponse {
   fecha_aceptacion: string | null;
   fecha_cierre:     string | null;
   incidencia:       IncidenciaEnRescate;
+  closure_photo: string | null;
+  closure_location: { lat: number; lng: number } | null;
 }
 
 /** Envoltura de paginación de DRF (PageNumberPagination). */
@@ -472,11 +477,13 @@ export class ReportService {
    */
   actualizarEstadoRescate(
     rescateId: number,
-    estado: Extract<EstadoRescate, 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO'>,
+    estado: Extract<EstadoRescate, 'EN_SITIO' | 'EN_PROCESO' | 'EN_TRASLADO'>,
     nota?: string,
+    centro?: string,
   ): Observable<MensajeResponse> {
-    const body: { estado: string; nota?: string } = { estado };
+    const body: { estado: string; nota?: string; centro?: string } = { estado };
     if (nota != null && nota.trim() !== '') body.nota = nota.trim();
+    if (centro != null && centro.trim() !== '') body.centro = centro.trim();
 
     return this.http.patch<MensajeResponse>(`${this.rescatesUrl}${rescateId}/estado/`, body);
   }

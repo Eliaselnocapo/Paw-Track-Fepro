@@ -101,25 +101,24 @@
       <!-- BARRA DE FILTROS POR ESTADO + HISTORIAL -->
       <div class="bg-white p-4 shadow-md border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 rounded">
         <div class="flex flex-wrap items-center gap-2">
-          @for (estado of filtrosVisibles; track estado) {
+          @for (estado of filtrosVisiblesActuales; track estado) {
             <button type="button"
               (click)="seleccionarFiltro(estado)"
               class="text-sm font-bold px-4 py-2 transition-all active:scale-95 rounded"
-              [ngClass]="{
-                'bg-emerald-600 text-white shadow-md shadow-emerald-600/25': filtroEstado === estado && estado === 'Rescatado',
-                'bg-red-600 text-white shadow-md shadow-red-600/25':         filtroEstado === estado && estado === 'Cancelado',
-                'bg-blue-700 text-white shadow-md shadow-blue-700/25':       filtroEstado === estado && estado !== 'Rescatado' && estado !== 'Cancelado',
-                'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-50': filtroEstado !== estado
-              }">
+              [ngClass]="claseChip(estado)">
               {{ estado }}
             </button>
           }
         </div>
-        <button type="button"
-          routerLink="/reports-history"
-          class="self-start sm:self-auto text-sm font-bold text-slate-600 bg-slate-50 border rounded border-slate-200 px-4 py-2 hover:bg-slate-100 transition-colors flex items-center gap-1.5 shrink-0">
-          <span class="material-symbols-outlined text-[16px]">history</span>
-          Ver historial
+        <button type="button" (click)="toggleHistorial()"
+          class="h-10 px-4 rounded-lg border text-sm font-bold transition-colors flex items-center gap-1.5"
+          [ngClass]="modoHistorial
+            ? 'border-blue-600 bg-blue-600 text-white'
+            : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'">
+          <span class="material-symbols-outlined text-[18px]">
+            {{ modoHistorial ? 'arrow_back' : 'history' }}
+          </span>
+          {{ modoHistorial ? 'Volver a activas' : 'Ver historial' }}
         </button>
       </div>
 
@@ -162,17 +161,11 @@
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-slate-900/10 pointer-events-none"></div>
 
                     <!-- Badge estado del rescate -->
-                    <div class="absolute top-3 left-3">
+                    <div class="absolute top-2 left-2">
                       <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide shadow-lg backdrop-blur-md"
-                        [ngClass]="{
-                          'bg-slate-600/90 text-white border border-slate-400/50': caso.estadoRescate === 'Aceptado',
-                          'bg-amber-500/90 text-white border border-amber-400/50': caso.estadoRescate === 'En camino',
-                          'bg-blue-600/90 text-white border border-blue-400/50': caso.estadoRescate === 'En sitio',
-                          'bg-emerald-600/90 text-white border border-emerald-400/50': caso.estadoRescate === 'Rescatado',
-                          'bg-red-600/90 text-white border border-red-400/50': caso.estadoRescate === 'Cancelado'
-                        }">
-                        <span class="material-symbols-outlined text-[14px]">{{ iconoEstado(caso.estadoRescate) }}</span>
+                        class="inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide shadow-lg backdrop-blur-md rounded"
+                        [ngClass]="claseBadgeEstado(caso.estadoRescate)">
+                        <span class="material-symbols-outlined text-[12px]">{{ iconoEstado(caso.estadoRescate) }}</span>
                         {{ caso.estadoRescate }}
                       </span>
                     </div>
