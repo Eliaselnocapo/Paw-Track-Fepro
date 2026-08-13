@@ -22,7 +22,15 @@ def pawtrack_exception_handler(exc, context):
         # clase, p.ej. 'permission_denied'), ignorando el code explícito.
         detail_code = _extraer_code(exc.detail) if hasattr(exc, 'detail') else None
         code = detail_code or getattr(exc, 'default_code', 'error')
-        detail = str(exc.detail) if hasattr(exc, 'detail') else str(exc)
+        raw_detail = exc.detail if hasattr(exc, 'detail') else exc
+        if isinstance(raw_detail, list):
+            # ValidationError('mensaje', code='x') llega aqui como una lista
+            # de un ErrorDetail (asi lo envuelve DRF internamente) — sin este
+            # join, str(raw_detail) mostraba el repr crudo de la lista
+            # ("[ErrorDetail(string='mensaje', code='x')]") en vez del mensaje.
+            detail = ' '.join(str(item) for item in raw_detail)
+        else:
+            detail = str(raw_detail)
         field_errors = {}
         if isinstance(exc.detail, dict):
             field_errors = {k: [str(e) for e in v] for k, v in exc.detail.items()}

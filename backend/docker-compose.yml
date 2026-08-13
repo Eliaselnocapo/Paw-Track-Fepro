@@ -13,11 +13,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      
-  redis:  
+
+  redis:
     image: redis:7-alpine
     # PUERTOS ELIMINADOS POR SEGURIDAD
-  
+
   # Servicio de la Aplicación Django
   backend:
     build: .
@@ -26,6 +26,8 @@ services:
     command: daphne -b 0.0.0.0 -p 8000 pawtrack.asgi:application
     volumes:
       - .:/app
+    ports:
+      - "8000:8000"
     # PUERTOS ELIMINADOS POR SEGURIDAD - Todo el tráfico debe pasar por Nginx
     environment:
       - DB_NAME=${DB_NAME}
@@ -34,6 +36,9 @@ services:
       - DB_HOST=db
       - DB_PORT=${DB_PORT}
       - REDIS_URL=redis://redis:6379/1
+      # Opcional: radio máximo en metros entre el reporte y el punto de cierre
+      # del rescate. Sin definir, el GPS de cierre queda solo como evidencia
+      # (no bloquea el cierre por distancia).
       - RESCATE_CIERRE_RADIO_METROS=${RESCATE_CIERRE_RADIO_METROS:-}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
@@ -61,8 +66,10 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
   
   celery-beat:
     build: .
@@ -79,14 +86,16 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80" # EL ÚNICO PUERTO EXPUESTO AL MUNDO
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
     volumes:
       - ./nginx/logs:/var/log/nginx
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
@@ -96,7 +105,7 @@ services:
       - ./staticfiles:/opt/pawtrack/staticfiles:ro
       - ./media:/opt/pawtrack/media:ro
     depends_on:
-      - backend   
+      - backend
 
 volumes:
   postgres_data:

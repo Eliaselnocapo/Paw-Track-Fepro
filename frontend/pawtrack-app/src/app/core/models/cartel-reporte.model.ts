@@ -17,4 +17,6 @@ export interface CartelReporte {
 
   tipoIncidencia?: string;
   fechaReporte?: string;
+
+  incluirTalonPrivado?: boolean;
 }

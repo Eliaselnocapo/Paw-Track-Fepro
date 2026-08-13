@@ -16,6 +16,7 @@ import { environment } from 'src/environments/environment';
 type EstadoRescate = 'Aceptado' | 'En camino' | 'En sitio' | 'Rescatado' | 'Cancelado';
 type FiltroEstado  = EstadoRescate | 'Todos';
 
+
 interface ItemProtocolo {
   titulo: string;
   descripcion: string;
@@ -82,6 +83,7 @@ export class AcceptedCasesPage implements OnInit {
 
   filtros = FILTROS;
   filtroEstado: FiltroEstado = 'Todos';
+  filtrosVisibles: FiltroEstado[] = ['Todos', 'En camino', 'En sitio', 'Cancelado'];
 
   paginaActualCasos = 1;
   casosPorPagina = 5;

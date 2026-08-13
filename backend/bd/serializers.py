@@ -11,7 +11,7 @@ class PerfilRescatistaSerializer(serializers.ModelSerializer):
 class PerfilPatrocinadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerfilPatrocinador
-        fields = ('ubicacion', 'capacidad', 'horario', 'redes', 'nivel', 'total_donado', 'casos_soportados')
+        fields = ('id', 'nombre', 'logo', 'direccion', 'horario', 'redes_sociales', 'nivel', 'total_donado', 'casos_soportados', 'estado', 'tipo')
 
 class UsuarioSerializer(serializers.ModelSerializer):
     perfil_rescatista = PerfilRescatistaSerializer(read_only=True)
@@ -41,7 +41,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if 'RESCATISTA' in roles:
             PerfilRescatista.objects.get_or_create(usuario=usuario)
         if 'PATROCINADOR' in roles:
-            PerfilPatrocinador.objects.get_or_create(usuario=usuario)
+            PerfilPatrocinador.objects.get_or_create(
+                usuario=usuario,
+                defaults={'nombre': 'Registro Interno (Por Actualizar)'}
+            )
         return usuario
 
 class EditarPerfilSerializer(serializers.ModelSerializer):
@@ -59,10 +62,11 @@ class EditarPerfilSerializer(serializers.ModelSerializer):
 
 
 class CustomRegisterSerializer(RegisterSerializer):
-    """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name."""
+    """Extiende el registro de dj-rest-auth: agrega roles, first_name, last_name y nombre_entidad."""
     username   = None
     first_name = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
     last_name  = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
+    nombre_entidad = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
     roles = serializers.ListField(
         child=serializers.CharField(),
         required=False,
@@ -85,12 +89,22 @@ class CustomRegisterSerializer(RegisterSerializer):
         if 'PATROCINADOR' in value:
             roles.append('PATROCINADOR')
         return roles
+        
+    def validate(self, data):
+        # FIX: Llamar a super() restaura la validación de contraseñas de dj-rest-auth
+        data = super().validate(data)
+        
+        roles = data.get('roles', [])
+        if 'PATROCINADOR' in roles and not data.get('nombre_entidad'):
+            raise serializers.ValidationError({"nombre_entidad": "Este campo es requerido para registrarse como patrocinador."})
+        return data
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
         data['first_name'] = self.validated_data.get('first_name', '')
         data['last_name']  = self.validated_data.get('last_name', '')
         data['roles']      = self.validated_data.get('roles', ['REPORTERO', 'RESCATISTA'])
+        data['nombre_entidad'] = self.validated_data.get('nombre_entidad', '')
         return data
 
     def save(self, request):
@@ -105,7 +119,11 @@ class CustomRegisterSerializer(RegisterSerializer):
         if 'RESCATISTA' in roles:
             PerfilRescatista.objects.get_or_create(usuario=user)
         if 'PATROCINADOR' in roles:
-            PerfilPatrocinador.objects.get_or_create(usuario=user)
+            nombre = cleaned.get('nombre_entidad', '')
+            PerfilPatrocinador.objects.get_or_create(
+                usuario=user,
+                defaults={'nombre': nombre}
+            )
 
         return user
 
@@ -134,9 +152,6 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     lng_out  = serializers.SerializerMethodField(read_only=True)
     coincidencias_visuales = serializers.SerializerMethodField()
 
-    # Campos del animal, aplanados en la incidencia (evita un segundo request
-    # desde el front). Son ESCRIBIBLES: el voluntario los llena desde
-    # update-case al registrar la ficha clinica del animal.
     tipo_animal      = serializers.CharField(source='animal.tipo',           required=False, allow_blank=True, default='')
     tamano_animal    = serializers.CharField(source='animal.tamano',         required=False, allow_blank=True, default='')
     condicion_animal = serializers.CharField(source='animal.salud',          required=False, allow_blank=True, default='')
@@ -144,8 +159,6 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     edad_estimada    = serializers.CharField(source='animal.edad_estimada',  required=False, allow_blank=True, default='')
     peso_estimado    = serializers.CharField(source='animal.peso_estimado',  required=False, allow_blank=True, default='')
 
-    # Existian en el modelo Animal pero no se exponian en la incidencia,
-    # asi que desde el front eran invisibles.
     color_animal       = serializers.CharField(source='animal.color',        required=False, allow_blank=True, default='')
     raza_animal        = serializers.CharField(source='animal.raza',         required=False, allow_blank=True, default='')
     agresividad_animal = serializers.CharField(source='animal.agresividad',  required=False, allow_blank=True, default='')
@@ -207,24 +220,12 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         }
     
     def get_coincidencias_visuales(self, obj):
-        # Fix P0-5: Retorna directamente la lista persistida desde la BD.
-        # Cero llamadas a IA bloqueando la petición del cliente y total aislamiento de módulos.
         return obj.coincidencias_visuales_ids
 
-    # Los campos declarados con source='animal.x' llegan a validated_data
-    # agrupados bajo la llave 'animal'. Pero 'animal' TAMBIEN es la FK, que
-    # puede venir como PK (un entero) desde el front. Este helper distingue
-    # los dos casos para no confundirlos.
     def _extraer_datos_animal(self, validated_data):
-        """
-        Saca la llave 'animal' de validated_data y devuelve (campos_anidados, fk).
-        - campos_anidados: dict con {tipo, tamano, salud, ...} o None
-        - fk: instancia/PK de Animal si vino como FK directa, o None
-        """
         animal_data = validated_data.pop('animal', None)
 
         if isinstance(animal_data, dict):
-            # Ignoramos strings vacios para no borrar datos ya guardados
             campos = {k: v for k, v in animal_data.items() if v not in (None, '')}
             return (campos or None), None
 
@@ -235,10 +236,8 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         lng = validated_data.pop('longitud')
         validated_data['ubicacion'] = Point(lng, lat, srid=4326)
 
-        # Los campos con source='animal.x' llegan agrupados bajo 'animal'.
         campos_animal = validated_data.pop('animal', {})
 
-        # El modelo Animal exige varios campos sin default: los rellenamos.
         base = {
             'nombre': 'Sin nombre', 'color': '', 'tamano': '', 'tipo': '',
             'raza': '', 'agresividad': '', 'salud': '', 'otros': '',
@@ -258,8 +257,6 @@ class IncidenciaSerializer(serializers.ModelSerializer):
 
         campos_animal = validated_data.pop('animal', {})
 
-        # Ficha clinica: actualizamos el animal existente.
-        # Ignoramos vacios para no borrar datos ya guardados.
         if campos_animal and instance.animal:
             for campo, valor in campos_animal.items():
                 if valor not in (None, ''):

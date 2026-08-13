@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink  } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
@@ -9,6 +9,9 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 
 import { ReportService, RescateResponse, EntradaHistorial } from '../../../../core/services/report.service';
 import { environment } from 'src/environments/environment';
+
+import { CentrosAnimalesService } from '../../../../core/services/centros-animales.service';
+import { CentroAnimal } from '../../../../core/models/centro-animal.model';
 
 type EstadoAvance = '' | 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO';
 
@@ -19,6 +22,7 @@ type EstadoAvance = '' | 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO';
     CommonModule,
     FormsModule,
     IonContent,
+    RouterLink,
     NavbarWebComponent,
     FooterWebComponent,
   ],
@@ -64,6 +68,9 @@ export class UpdateCasePage implements OnInit {
   // Cierre (solo aplica si estado === COMPLETADO)
   foto: File | null = null;
   fotoPreview: string | null = null;
+  centrosCercanos: CentroAnimal[] = [];
+  cargandoCentrosCercanos = false;
+  private centrosYaConsultados = false;
 
   // Cancelación (solo aplica si estado === CANCELADO)
   motivoCancelacion = '';
@@ -79,6 +86,7 @@ export class UpdateCasePage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private reportService: ReportService,
+    private centrosService: CentrosAnimalesService, // <-- NUEVO
   ) {}
 
   ngOnInit(): void {
@@ -220,13 +228,17 @@ export class UpdateCasePage implements OnInit {
   onCambioEstado(): void {
     this.errorAvance = null;
     this.avanceOk = false;
-
+ 
     if (!this.esCierre) {
       this.foto = null;
       this.fotoPreview = null;
     }
     if (!this.esCancelacion) {
       this.motivoCancelacion = '';
+    }
+ 
+    if (this.esCierre) {
+      this.cargarCentrosCercanos();
     }
   }
 
@@ -235,6 +247,43 @@ export class UpdateCasePage implements OnInit {
     const archivo = input.files?.[0] ?? null;
     this.foto = archivo;
     this.fotoPreview = archivo ? URL.createObjectURL(archivo) : null;
+  }
+
+  private cargarCentrosCercanos(): void {
+    if (this.centrosYaConsultados) return;
+ 
+    if (!navigator.geolocation) {
+      return; // sin soporte de geolocalización, simplemente no mostramos la sugerencia
+    }
+ 
+    this.centrosYaConsultados = true;
+    this.cargandoCentrosCercanos = true;
+ 
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.centrosService
+          .buscarTodosLosCentros(
+            { latitud: pos.coords.latitude, longitud: pos.coords.longitude },
+            10
+          )
+          .subscribe({
+            next: (centros) => {
+              this.centrosCercanos = centros.slice(0, 3);
+              this.cargandoCentrosCercanos = false;
+            },
+            error: () => {
+              this.cargandoCentrosCercanos = false;
+            },
+          });
+      },
+      () => {
+        // El usuario no dio permiso de ubicación, o falló el GPS.
+        // No es un error grave — simplemente no mostramos la sugerencia,
+        // el flujo de cerrar el caso sigue funcionando normal.
+        this.cargandoCentrosCercanos = false;
+      },
+      { enableHighAccuracy: true, timeout: 8000 },
+    );
   }
 
   // ─────────────────────────────────────────

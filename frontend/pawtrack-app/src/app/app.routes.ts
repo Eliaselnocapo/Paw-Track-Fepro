@@ -134,4 +134,30 @@ export const routes: Routes = [
   loadComponent: () =>
     import('./features/coming-soon/cooming-soon.page').then(m => m.ComingSoonPage),
   },
+  {
+    path: 'patrocinadores',
+    loadComponent: () => import('./features/patrocinadores/patrocinadores.page').then( m => m.PatrocinadoresPage)
+  },
+  {
+    path: 'reputation',
+    loadComponent: () => import('./features/profile/reputation/reputation.page').then( m => m.ReputationPage)
+  },
+  {
+    path: 'registrar-centro',
+    loadComponent: () => import('./features/auth/register-center/register-center.page').then( m => m.RegisterCenterPage)
+  },
+  {
+  path: 'centro/:id',
+  loadComponent: () =>
+    import('./features/profile/center-profile/center-profile.page')
+      .then(m => m.PerfilCentroPage),
+  },
+  {
+    path: 'mi-centro',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/patrocinadores/center-dashboard/center-dashboard.page')
+        .then(m => m.CenterDashboardPage),
+  },
+
 ];

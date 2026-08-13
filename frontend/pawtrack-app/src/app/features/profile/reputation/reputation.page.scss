@@ -1,0 +1,17 @@
+// La mayoría del diseño se resuelve con clases de Tailwind directo en el HTML,
+// siguiendo el mismo patrón que el resto de páginas del proyecto.
+// Aquí solo van ajustes que Tailwind no cubre limpio.
+
+details > summary {
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

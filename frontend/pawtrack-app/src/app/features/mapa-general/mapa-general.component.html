@@ -1,485 +1,444 @@
 <ion-content #contenidoPagina>
-  <div class="page-shell">
-    <app-navbar-web></app-navbar-web>
+  <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
 
-    <main class="page-content layout-dashboard">
+<!-- FONDO DECORATIVO — paleta distinta a patrocinadores/profile (rosa/cian/cielo) -->
+<div class="hidden md:block absolute inset-0 pointer-events-none overflow-hidden z-0">
+  <!-- esquina superior izquierda -->
+  <div class="absolute top-[-40px] left-[-70px] w-[420px] h-[420px] bg-rose-200/50 rotate-[10deg]"></div>
 
-      <!-- MAPA -->
-      <section
-        #seccionMapa
-        class="mapa-general glass-card"
-      >
-        <div id="mapa-casos"></div>
+  <!-- zona superior centro-izquierda, separada del círculo grande -->
+  <div class="absolute top-[38%] left-[5%] w-[130px] h-[130px] bg-cyan-200/45 rotate-[18deg]"></div>
+
+  <!-- zona superior centro, más abajo para no chocar con la derecha -->
+  <div class="absolute top-[6%] left-[42%] w-[70px] h-[70px] bg-sky-200/45 rotate-[25deg]"></div>
+
+  <!-- esquina superior derecha -->
+  <div class="absolute top-[8%] right-[-70px] w-[260px] h-[260px] bg-blue-200/45 rounded-full"></div>
+
+  <!-- zona media derecha -->
+  <div class="absolute top-[55%] right-[-50px] w-[190px] h-[190px] bg-cyan-100/50 rotate-[-8deg]"></div>
+
+  <!-- esquina inferior izquierda -->
+  <div class="absolute bottom-[-80px] left-[-60px] w-[260px] h-[260px] bg-sky-200/45 rotate-[6deg]"></div>
+
+  <!-- esquina inferior derecha -->
+  <div class="absolute bottom-[-60px] right-[-50px] w-[220px] h-[220px] bg-rose-100/45 rounded-full"></div>
+
+  <!-- piezas nuevas: variedad de forma sin amontonar -->
+  <div class="absolute top-[30%] right-[16%] w-14 h-14 bg-indigo-200/40 rotate-[-15deg]"></div>
+  <div class="absolute bottom-[22%] left-[24%] w-10 h-10 bg-rose-200/45 rotate-[22deg]"></div>
+  <div class="absolute top-[62%] left-[14%] w-0 h-0
+    border-l-[26px] border-l-transparent
+    border-r-[26px] border-r-transparent
+    border-b-[45px] border-b-cyan-200/40 rotate-[-10deg]"></div>
+</div>
+
+<div class="md:hidden absolute inset-0 pointer-events-none overflow-hidden z-0">
+  <div class="absolute top-[-20px] left-[-50px] w-[200px] h-[200px] bg-rose-200/50 rotate-[10deg]"></div>
+  <div class="absolute top-[24%] right-[-40px] w-[130px] h-[130px] bg-sky-200/45 rounded-full"></div>
+  <div class="absolute top-[45%] left-[8%] w-9 h-9 bg-indigo-200/40 rotate-[-15deg]"></div>
+  <div class="absolute bottom-[-50px] left-[-40px] w-[160px] h-[160px] bg-cyan-200/45 rotate-[6deg]"></div>
+  <div class="absolute bottom-[-40px] right-[-40px] w-[140px] h-[140px] bg-rose-100/45 rounded-full"></div>
+</div>
+
+    <app-navbar-web class="relative z-30"></app-navbar-web>
+
+    <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-8 py-6 md:py-10 relative z-10 flex flex-col gap-6">
+
+      <!-- HERO / ENCABEZADO -->
+      <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded p-6 md:p-8">
+        <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase bg-red-50 text-red-600 border border-red-100 px-2.5 py-1 mb-3">
+          Actualizado ahora
+        </span>
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">Mapa General</h1>
+        <p class="text-sm md:text-base text-slate-500 mt-2 max-w-xl">
+          Todos los casos activos de la red, geolocalizados en un solo lugar.
+        </p>
       </section>
 
-      <!-- ALERTAS RECIENTES -->
-      <section class="alertas-recientes glass-card">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <section class="hero">
-          <div class="container">
-            <h1 class="title">
-              Alertas recientes
-            </h1>
+        <!-- MAPA -->
+        <section #seccionMapa class="lg:col-span-7 bg-white border border-slate-300 shadow-md overflow-hidden rounded scroll-mt-24">
+          <div id="mapa-casos" class="w-full h-[420px] lg:h-[660px] bg-slate-100"></div>
+        </section>
 
-            <p class="subtitle">
-              Aquí puedes ver las alertas más recientes de casos
-              reportados en la zona.
-            </p>
+        <!-- ALERTAS RECIENTES -->
+        <section
+          class="lg:col-span-5 bg-white border border-slate-300 shadow-md overflow-hidden rounded flex flex-col"
+          [class.max-h-[64px]]="!mostrarAlertasMobile"
+        >
+
+          <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-start justify-between gap-4">
+            <div>
+              <p class="text-xs font-bold uppercase text-blue-700 mb-1">Actividad</p>
+              <h2 class="text-xl font-bold text-slate-900">Alertas recientes</h2>
+              @if (mostrarAlertasMobile) {
+                <p class="text-sm text-slate-500 mt-0.5 hidden md:block">
+                  Aquí puedes ver las alertas más recientes de casos reportados en la zona.
+                </p>
+              }
+            </div>
+
+            <button
+              type="button"
+              class="md:hidden shrink-0 h-9 px-3 border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold flex items-center gap-1.5 rounded"
+              [attr.aria-expanded]="mostrarAlertasMobile"
+              (click)="alternarAlertasMobile()"
+            >
+              {{ mostrarAlertasMobile ? 'Ocultar' : 'Mostrar' }}
+              <ion-icon
+                [name]="mostrarAlertasMobile ? 'chevron-up-outline' : 'chevron-down-outline'"
+              ></ion-icon>
+            </button>
           </div>
-        </section>
 
-        <!-- FILTROS -->
-        <section class="alertas-filtros">
-          <button
-            type="button"
-            class="filtro-pill rounded-lg"
-            [class.filtro-pill-activo]="filtro === 'pendientes'"
-            (click)="seleccionarFiltro('pendientes')"
-          >
-            Pendientes
-            <span class="filtro-conteo">{{ conteoFiltro('pendientes') }}</span>
-          </button>
+          @if (mostrarAlertasMobile) {
 
-          <button
-            type="button"
-            class="filtro-pill rounded-lg"
-            [class.filtro-pill-activo]="filtro === 'aceptados'"
-            (click)="seleccionarFiltro('aceptados')"
-          >
-            Aceptados
-            <span class="filtro-conteo">{{ conteoFiltro('aceptados') }}</span>
-          </button>
-
-          <button
-            type="button"
-            class="filtro-pill rounded-lg"
-            [class.filtro-pill-activo]="filtro === 'todos'"
-            (click)="seleccionarFiltro('todos')"
-          >
-            Todos
-            <span class="filtro-conteo">{{ conteoFiltro('todos') }}</span>
-          </button>
-        </section>
-
-        <section class="tarjetas-alertas">
-          <div class="container">
-
-            @if (cargandoCasos) {
-              <article class="alerta-card">
-                <h3>Cargando casos...</h3>
-
-                <p>
-                  Consultando reportes activos.
-                </p>
-              </article>
-            }
-
-            @if (errorCasos) {
-              <article class="alerta-card">
-                <h3>Error al cargar</h3>
-
-                <p>
-                  {{ errorCasos }}
-                </p>
-              </article>
-            }
-
-            @if (
-              !cargandoCasos &&
-              !errorCasos &&
-              casosActivos.length === 0
-            ) {
-              <article class="alerta-card">
-                <h3>Sin alertas activas</h3>
-
-                <p>
-                  No hay casos reportados por ahora.
-                </p>
-              </article>
-            }
-
-            @for (caso of casosActivos; track caso.id) {
-              <article
-                class="alerta-card alerta-card-con-imagen"
-                tabindex="0"
-                role="button"
-                (click)="centrarCaso(caso)"
-                (keydown.enter)="centrarCaso(caso)"
-                (keydown.space)="centrarCaso(caso)"
+            <!-- FILTROS -->
+            <div class="grid grid-cols-3 border-b border-slate-100">
+              <button
+                type="button"
+                class="h-11 text-sm font-bold transition-colors flex items-center justify-center gap-1.5"
+                [ngClass]="filtro === 'pendientes' ? 'bg-cyan-600 text-white' : 'bg-white text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'"
+                (click)="seleccionarFiltro('pendientes')"
               >
-                <div class="alerta-img-wrapper">
+                Pendientes
+                <span
+                  class="min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold rounded-full"
+                  [ngClass]="filtro === 'pendientes' ? 'bg-white/25' : 'bg-slate-100 text-slate-600'"
+                >{{ conteoFiltro('pendientes') }}</span>
+              </button>
 
+              <button
+                type="button"
+                class="h-11 text-sm font-bold transition-colors flex items-center justify-center gap-1.5 border-x border-slate-100"
+                [ngClass]="filtro === 'aceptados' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'"
+                (click)="seleccionarFiltro('aceptados')"
+              >
+                Aceptados
+                <span
+                  class="min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold rounded-full"
+                  [ngClass]="filtro === 'aceptados' ? 'bg-white/25' : 'bg-slate-100 text-slate-600'"
+                >{{ conteoFiltro('aceptados') }}</span>
+              </button>
+
+              <button
+                type="button"
+                class="h-11 text-sm font-bold transition-colors flex items-center justify-center gap-1.5"
+                [ngClass]="filtro === 'todos' ? 'bg-blue-700 text-white' : 'bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700'"
+                (click)="seleccionarFiltro('todos')"
+              >
+                Todos
+                <span
+                  class="min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold rounded-full"
+                  [ngClass]="filtro === 'todos' ? 'bg-white/25' : 'bg-slate-100 text-slate-600'"
+                >{{ conteoFiltro('todos') }}</span>
+              </button>
+            </div>
+
+            <!-- LISTA DE CASOS -->
+            <div class="flex-1 overflow-y-auto max-h-[490px] p-4 flex flex-col gap-3 lista-con-scroll">
+
+              @if (cargandoCasos) {
+                <div class="py-10 text-center">
+                  <div class="w-9 h-9 mx-auto border-4 border-blue-100 border-t-blue-700 rounded-full animate-spin mb-3"></div>
+                  <h3 class="font-bold text-slate-900 text-sm">Cargando casos...</h3>
+                  <p class="text-xs text-slate-500 mt-1">Consultando reportes activos.</p>
+                </div>
+              }
+
+              @if (errorCasos) {
+                <div class="py-10 text-center">
+                  <h3 class="font-bold text-red-600 text-sm">Error al cargar</h3>
+                  <p class="text-xs text-slate-500 mt-1">{{ errorCasos }}</p>
+                </div>
+              }
+
+              @if (!cargandoCasos && !errorCasos && casosActivos.length === 0) {
+                <div class="py-10 text-center">
+                  <h3 class="font-bold text-slate-900 text-sm">Sin alertas activas</h3>
+                  <p class="text-xs text-slate-500 mt-1">No hay casos reportados por ahora.</p>
+                </div>
+              }
+
+              @for (caso of casosActivos; track caso.id) {
+                <article
+                  class="group relative border border-slate-200 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer p-4 rounded bg-white flex gap-3.5"
+                  tabindex="0"
+                  role="button"
+                  (click)="centrarCaso(caso)"
+                  (keydown.enter)="centrarCaso(caso)"
+                  (keydown.space)="centrarCaso(caso)"
+                >
                   @if (caso.imagen) {
                     <img
-                      class="alerta-img"
+                      class="w-20 h-20 shrink-0 object-cover rounded bg-slate-100"
                       [src]="obtenerUrlImagen(caso.imagen)"
                       [alt]="obtenerTituloCaso(caso)"
                     />
-                  } @else {
-                    <div class="alerta-img-placeholder">
-                      🐾
-                    </div>
                   }
 
-                  <span class="alerta-badge">
-                    {{
-                      caso.tipo_incidencia
-                        | sentenceCase
-                    }}
-                  </span>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                      <span class="inline-block text-[10px] font-bold uppercase bg-blue-700 text-white px-2 py-0.5 rounded-full">
+                        {{ caso.tipo_incidencia | sentenceCase }}
+                      </span>
 
-                </div>
+                      <span class="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all material-symbols-outlined text-[20px] shrink-0">
+                        chevron_right
+                      </span>
+                    </div>
 
-                <div class="alerta-info">
+                    <h3 class="font-bold text-slate-900 text-base leading-tight truncate">
+                      {{ obtenerTituloCaso(caso) | sentenceCase }}
+                    </h3>
 
-                  <h3>
-                    {{
-                      obtenerTituloCaso(caso)
-                        | sentenceCase
-                    }}
-                  </h3>
+                    <div class="flex flex-wrap gap-1.5 mt-2.5">
+                      @if (caso.tipo_animal) {
+                        <span class="text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded">
+                          {{ caso.tipo_animal | sentenceCase }}
+                        </span>
+                      }
+                      @if (caso.tamano_animal) {
+                        <span class="text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded">
+                          {{ caso.tamano_animal | sentenceCase }}
+                        </span>
+                      }
+                      @if (caso.condicion_animal) {
+                        <span class="text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded">
+                          {{ caso.condicion_animal | sentenceCase }}
+                        </span>
+                      }
+                    </div>
 
-                  <p>
-                    {{
-                      (caso.tipo_animal || 'Animal')
-                        | sentenceCase
-                    }}
+                    @if (caso.direccion) {
+                      <p class="flex items-center gap-1.5 text-xs text-slate-500 mt-2.5 truncate">
+                        <span class="material-symbols-outlined text-[15px] text-slate-400 shrink-0">location_on</span>
+                        {{ caso.direccion }}
+                      </p>
+                    }
+                  </div>
+                </article>
+              }
 
-                    ·
+            </div>
+          }
 
-                    {{
-                      (
-                        caso.condicion_animal ||
-                        caso.tipo_incidencia
-                      ) | sentenceCase
-                    }}
-                  </p>
+        </section>
 
-                  <p class="alerta-folio">
-                    Folio: {{ caso.folio }}
-                  </p>
-
-                </div>
-              </article>
-            }
-
-        </div>
-      </section>
-
-      </section>
+      </div>
 
       <!-- ESTADÍSTICAS -->
-      <section class="estadisticas glass-card">
+      <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-slate-900">Impacto en vivo.</h2>
+        <p class="text-sm text-slate-500 mt-1 mb-5">Datos en tiempo real sobre nuestra red de rescate.</p>
 
-        <section class="texto">
-          <div class="container">
-            <h1 class="title">
-              Impacto en vivo.
-            </h1>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-            <p class="subtitle">
-              Datos en tiempo real sobre nuestra red de rescate.
-            </p>
+          <div class="border border-blue-100 bg-blue-50/60 p-5 flex items-center gap-4">
+            <div class="w-14 h-14 shrink-0 bg-blue-700 grid place-items-center text-white">
+              <img
+                src="assets/icon/stats/casos-activos.png"
+                alt="Casos activos"
+                class="w-7 h-7 object-contain"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+              />
+              <span class="material-symbols-outlined text-[27px]" style="display:none;">pets</span>
+            </div>
+            <div>
+              <h3 class="text-3xl font-bold text-slate-900 leading-none">{{ casosActivos.length }}</h3>
+              <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Casos activos</p>
+            </div>
           </div>
-        </section>
 
-        <section class="animales-salvados">
-          <div class="container">
-            <h2 class="stat-number">
-              {{ casosActivos.length }}
-            </h2>
-
-            <p class="statistic">
-              Casos activos
-            </p>
+          <div class="border border-emerald-100 bg-emerald-50/60 p-5 flex items-center gap-4">
+            <div class="w-14 h-14 shrink-0 bg-emerald-600 grid place-items-center text-white">
+              <img
+                src="assets/icon/stats/voluntarios.png"
+                alt="Voluntarios activos"
+                class="w-7 h-7 object-contain"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+              />
+              <span class="material-symbols-outlined text-[27px]" style="display:none;">volunteer_activism</span>
+            </div>
+            <div>
+              <h3 class="text-3xl font-bold text-slate-900 leading-none">1</h3>
+              <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Voluntarios activos</p>
+            </div>
           </div>
-        </section>
 
-        <section class="voluntarios-activos">
-          <div class="container">
-            <h2 class="stat-number">
-              1
-            </h2>
+          <div class="border border-amber-100 bg-amber-50/60 p-5 flex items-center gap-4">
+            <div class="w-14 h-14 shrink-0 bg-amber-500 grid place-items-center text-white">
+              <img
+                src="assets/icon/stats/cobertura.png"
+                alt="Cobertura activa"
+                class="w-7 h-7 object-contain"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+              />
+              <span class="material-symbols-outlined text-[27px]" style="display:none;">emergency</span>
+            </div>
+            <div>
+              <h3 class="text-3xl font-bold text-slate-900 leading-none">24/7</h3>
+              <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Cobertura activa</p>
+            </div>
+          </div>
 
-            <p class="statistic">
-              Voluntarios activos
-            </p>
-          </div>
-        </section>
-
-        <div class="stat-box">
-          <div class="stat-icon-box sib-amber">
-            <span class="material-symbols-outlined">emergency</span>
-          </div>
-          <div>
-            <h2 class="stat-number">24/7</h2>
-            <p class="statistic">Cobertura activa</p>
-          </div>
         </div>
       </section>
 
     </main>
 
-    <app-footer-web></app-footer-web>
+    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+      <app-footer-web></app-footer-web>
+    </footer>
+
   </div>
 
-  <!-- MODAL MÓVIL DEL CASO -->
+  <!-- MODAL DEL CASO -->
   <ion-modal
-  #modalCaso
-  class="modal-caso-animal"
-  [isOpen]="modalCasoAbierto"
-  [backdropDismiss]="true"
-  (didDismiss)="cerrarModalCaso()"
+    #modalCaso
+    class="modal-caso-animal"
+    [isOpen]="modalCasoAbierto"
+    [backdropDismiss]="true"
+    (didDismiss)="cerrarModalCaso()"
   >
     <ng-template>
 
       @if (casoSeleccionado; as caso) {
+        <article class="w-full h-full flex flex-col bg-[#f7f9ff]">
 
-        <article class="detalle-caso">
-
-          <!-- IMAGEN A TODO ANCHO CON CIERRE FLOTANTE -->
-          <div class="detalle-caso__imagen-contenedor">
+          <!-- Imagen superior -->
+          <div class="relative w-full h-56 shrink-0 bg-slate-200">
 
             @if (caso.imagen) {
               <img
-                class="detalle-caso__imagen"
+                class="absolute inset-0 w-full h-full object-cover"
                 [src]="obtenerUrlImagen(caso.imagen)"
                 [alt]="obtenerTituloCaso(caso)"
               />
             } @else {
-              <div class="detalle-caso__placeholder">
-                🐾
-              </div>
+              <div class="absolute inset-0 grid place-items-center text-6xl bg-gradient-to-br from-blue-50 to-blue-100">🐾</div>
             }
 
             <button
               type="button"
-              class="detalle-caso__cerrar"
+              class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 grid place-items-center shadow-sm"
               aria-label="Cerrar"
               (click)="cerrarModalCaso()"
             >
-              <ion-icon name="close-outline"></ion-icon>
+              <ion-icon name="close-outline" class="text-[20px] text-slate-700"></ion-icon>
             </button>
 
-            <span class="detalle-caso__badge">
-              {{
-                caso.tipo_incidencia
-                  | sentenceCase
-              }}
+            <span class="absolute top-3 left-3 text-[10px] font-bold uppercase bg-blue-700 text-white px-2.5 py-1 rounded-full">
+              {{ caso.tipo_incidencia | sentenceCase }}
             </span>
 
-            <div class="detalle-caso__degradado"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
 
-            <div class="detalle-caso__titulo-flotante">
-              <p class="detalle-caso__tipo">
-                {{
-                  caso.tipo_animal
-                    | sentenceCase
-                }}
-              </p>
+            <div class="absolute bottom-4 left-4 right-4 text-white">
+              <p class="text-xs font-bold uppercase text-white/80">{{ caso.tipo_animal | sentenceCase }}</p>
+              <h2 class="text-2xl font-bold leading-tight">{{ obtenerTituloCaso(caso) | sentenceCase }}</h2>
+            </div>
+          </div>
 
-              <h2>
-                {{
-                  obtenerTituloCaso(caso)
-                    | sentenceCase
-                }}
-              </h2>
+          <!-- Cuerpo del modal -->
+          <div class="flex-1 flex flex-col overflow-hidden">
+
+            <div class="flex-1 overflow-y-auto p-5">
+
+              <ion-chip color="warning" class="mb-4">
+                {{ caso.estado | sentenceCase }}
+              </ion-chip>
+
+              <section class="mb-5">
+                <h3 class="text-xs font-bold uppercase text-blue-700 mb-1.5">Características</h3>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                  {{ caso.caracteristicas || caso.notas_animal || 'Sin características adicionales.' }}
+                </p>
+              </section>
+
+              <ion-list lines="full">
+
+                <ion-item>
+                  <ion-icon name="paw-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <p>Tipo de animal</p>
+                    <h3>{{ (caso.tipo_animal || 'Sin especificar') | sentenceCase }}</h3>
+                  </ion-label>
+                </ion-item>
+
+                <ion-item>
+                  <ion-icon name="medkit-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <p>Condición</p>
+                    <h3>{{ (caso.condicion_animal || 'Sin especificar') | sentenceCase }}</h3>
+                  </ion-label>
+                </ion-item>
+
+                <ion-item>
+                  <ion-icon name="resize-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <p>Tamaño</p>
+                    <h3>{{ (caso.tamano_animal || 'Sin especificar') | sentenceCase }}</h3>
+                  </ion-label>
+                </ion-item>
+
+                @if (caso.edad_estimada) {
+                  <ion-item>
+                    <ion-icon name="calendar-outline" slot="start"></ion-icon>
+                    <ion-label>
+                      <p>Edad estimada</p>
+                      <h3>{{ caso.edad_estimada | sentenceCase }}</h3>
+                    </ion-label>
+                  </ion-item>
+                }
+
+                @if (caso.peso_estimado) {
+                  <ion-item>
+                    <ion-icon name="barbell-outline" slot="start"></ion-icon>
+                    <ion-label>
+                      <p>Peso estimado</p>
+                      <h3>{{ caso.peso_estimado }}</h3>
+                    </ion-label>
+                  </ion-item>
+                }
+
+                @if (caso.recompensa !== null && caso.recompensa > 0) {
+                  <ion-item>
+                    <ion-icon name="cash-outline" slot="start"></ion-icon>
+                    <ion-label>
+                      <p>Recompensa</p>
+                      <h3>{{ caso.recompensa | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</h3>
+                    </ion-label>
+                  </ion-item>
+                }
+
+              </ion-list>
+            </div>
+
+            <!-- Botones fijos abajo -->
+            <div class="p-4 border-t border-slate-200 bg-white flex gap-3 shrink-0">
+              <button
+                type="button"
+                class="flex-1 h-11 border border-slate-300 text-slate-700 font-bold rounded-lg"
+                (click)="cerrarModalCaso()"
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                class="flex-1 h-11 bg-blue-700 hover:bg-blue-800 text-white font-bold shadow-md transition-colors rounded-lg"
+                (click)="irADetalleCaso(caso.folio)"
+              >
+                Ver ficha
+              </button>
             </div>
 
           </div>
 
-          <ion-content class="ion-padding detalle-caso__scroll">
-
-            <ion-chip color="warning" class="detalle-caso__chip-estado">
-              {{
-                caso.estado
-                  | sentenceCase
-              }}
-            </ion-chip>
-
-            <!-- DESCRIPCIÓN -->
-            <section class="detalle-caso__seccion">
-
-              <h3>
-                Características
-              </h3>
-
-              <p class="detalle-caso__descripcion">
-                {{
-                  caso.caracteristicas ||
-                  caso.notas_animal ||
-                  'Sin características adicionales.'
-                }}
-              </p>
-
-            </section>
-
-            <!-- INFORMACIÓN DEL CASO -->
-            <ion-list lines="full">
-
-              <ion-item>
-                <ion-icon
-                  name="paw-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Tipo de animal</p>
-
-                  <h3>
-                    {{
-                      (
-                        caso.tipo_animal ||
-                        'Sin especificar'
-                      ) | sentenceCase
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              <ion-item>
-                <ion-icon
-                  name="medkit-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Condición</p>
-
-                  <h3>
-                    {{
-                      (
-                        caso.condicion_animal ||
-                        'Sin especificar'
-                      ) | sentenceCase
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              <ion-item>
-                <ion-icon
-                  name="resize-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Tamaño</p>
-
-                  <h3>
-                    {{
-                      (
-                        caso.tamano_animal ||
-                        'Sin especificar'
-                      ) | sentenceCase
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              @if (caso.edad_estimada) {
-                <ion-item>
-                  <ion-icon
-                    name="calendar-outline"
-                    slot="start"
-                  ></ion-icon>
-
-                  <ion-label>
-                    <p>Edad estimada</p>
-
-                    <h3>
-                      {{
-                        caso.edad_estimada
-                          | sentenceCase
-                      }}
-                    </h3>
-                  </ion-label>
-                </ion-item>
-              }
-
-              @if (caso.peso_estimado) {
-                <ion-item>
-                  <ion-icon
-                    name="barbell-outline"
-                    slot="start"
-                  ></ion-icon>
-
-                  <ion-label>
-                    <p>Peso estimado</p>
-
-                    <h3>
-                      {{ caso.peso_estimado }}
-                    </h3>
-                  </ion-label>
-                </ion-item>
-              }
-
-              <ion-item>
-                <ion-icon
-                  name="document-text-outline"
-                  slot="start"
-                ></ion-icon>
-
-                <ion-label>
-                  <p>Folio</p>
-
-                  <h3>
-                    {{
-                      caso.folio ||
-                      'Sin folio'
-                    }}
-                  </h3>
-                </ion-label>
-              </ion-item>
-
-              @if (
-                caso.recompensa !== null &&
-                caso.recompensa > 0
-              ) {
-                <ion-item>
-                  <ion-icon
-                    name="cash-outline"
-                    slot="start"
-                  ></ion-icon>
-
-                  <ion-label>
-                    <p>Recompensa</p>
-
-                    <h3>
-                      {{
-                        caso.recompensa
-                          | currency:
-                            'MXN':
-                            'symbol-narrow':
-                            '1.0-0'
-                      }}
-                    </h3>
-                  </ion-label>
-                </ion-item>
-              }
-
-            </ion-list>
-
-            <ion-button
-              expand="block"
-              class="detalle-caso__boton detalle-caso__boton-primario"
-              (click)="irADetalleCaso(caso.folio)"
-            >
-              Ver ficha del caso
-            </ion-button>
-
-            <ion-button
-              expand="block"
-              fill="outline"
-              class="detalle-caso__boton detalle-caso__boton-secundario"
-              (click)="cerrarModalCaso()"
-            >
-              Cerrar
-            </ion-button>
-
-          </ion-content>
         </article>
-
       }
 
     </ng-template>

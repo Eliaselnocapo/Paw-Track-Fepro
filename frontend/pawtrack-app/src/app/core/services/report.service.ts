@@ -58,6 +58,13 @@ export interface SeguimientoHistorial {
   historial: EntradaHistorial[];
 }
 
+export const MOTIVOS_CANCELACION_REPORTE = [
+  'Alguien externo a la app ya ayudó al animal',
+  'El animal ya no está en el lugar reportado',
+  'Reporté por error / duplicado',
+  'Otro motivo',
+] as const;
+
 /**
  * Candidato a duplicado que verificarDuplicado() encontró para los datos que
  * el reportante lleva capturados hasta el paso 4 del wizard (imagen +
@@ -80,6 +87,15 @@ export interface VerificarDuplicadoPayload {
   latitud: number;
   longitud: number;
   imagen: File;
+  borrador_id?: string;
+}
+
+export interface ImagenBorradorResponse {
+  imagen_borrador_id: string;
+}
+
+export interface PrecargaEmbeddingResponse {
+  borrador_id: string;
 }
 
 export interface SeguimientoResponse {
@@ -297,9 +313,26 @@ export class ReportService {
     form.append('latitud',  String(payload.latitud));
     form.append('longitud', String(payload.longitud));
     form.append('imagen', payload.imagen, payload.imagen.name);
+    if (payload.borrador_id) form.append('borrador_id', payload.borrador_id);
 
     return this.http.post<{ candidato: CandidatoDuplicado | null }>(`${this.apiUrl}verificar-duplicado/`, form);
   }
+
+  subirImagenBorrador(imagen: File): Observable<ImagenBorradorResponse> {
+    const form = new FormData();
+    form.append('imagen', imagen, imagen.name);
+
+    return this.http.post<ImagenBorradorResponse>(`${this.apiUrl}precargar-imagen/`, form);
+  }
+
+  activarPrecargaEmbedding(imagenBorradorId: string, tipoAnimal: string): Observable<PrecargaEmbeddingResponse> {
+    const form = new FormData();
+    form.append('imagen_borrador_id', imagenBorradorId);
+    form.append('tipo_animal', tipoAnimal);
+    
+    return this.http.post<PrecargaEmbeddingResponse>(`${this.apiUrl}precargar-imagen/`, form);
+  }
+
 
   /**
    * Lista TODOS los reportes (AllowAny). Útil para el mapa general.
@@ -527,6 +560,13 @@ export class ReportService {
     return this.http.post<MensajeResponse>(
       `${this.rescatesUrl}${rescateId}/cancelar/`,
       { motivo: motivo?.trim() || '' },
+    );
+  }
+
+  cancelarReporte(folio: string, motivo: string): Observable<MensajeResponse> {
+    return this.http.post<MensajeResponse>(
+      `${this.apiUrl}${folio}/cancelar/`,
+      { motivo: motivo.trim() },
     );
   }
 }

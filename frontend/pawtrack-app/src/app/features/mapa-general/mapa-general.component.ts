@@ -33,6 +33,8 @@ import {
   barbellOutline,
   calendarOutline,
   cashOutline,
+  chevronDownOutline,
+  chevronUpOutline,
   closeOutline,
   documentTextOutline,
   medkitOutline,
@@ -47,7 +49,7 @@ import { SentenceCasePipe } from '../../shared/pipes/sentence-case-pipe';
 
 import { environment } from 'src/environments/environment';
 
-declare let L: any;
+import * as L from 'leaflet';
 
 interface RespuestaIncidencias {
   count: number;
@@ -185,6 +187,12 @@ export class MapaGeneralComponent
     this.pintarCasosActivos();
   }
 
+  mostrarAlertasMobile = true;
+
+  alternarAlertasMobile(): void {
+    this.mostrarAlertasMobile = !this.mostrarAlertasMobile;
+  }
+
   conteoFiltro(filtro: 'pendientes' | 'aceptados' | 'todos'): number {
     const terminados = ['CERRADO', 'COMPLETADO', 'CANCELADO'];
     const base = this.todosLosCasos.filter(
@@ -218,7 +226,9 @@ export class MapaGeneralComponent
       calendarOutline,
       barbellOutline,
       documentTextOutline,
-      cashOutline
+      cashOutline,
+      chevronUpOutline,
+      chevronDownOutline
     });
   }
 

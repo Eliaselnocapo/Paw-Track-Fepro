@@ -1,0 +1,130 @@
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: #f7f9ff;
+}
+
+ion-content::part(scroll) {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+/* =====================================================
+   NAVBAR MÓVIL (Ionic — no se puede hacer 100% en Tailwind
+   por los custom properties --background/--color de ion-toolbar)
+===================================================== */
+
+.navbar-mobile {
+  --background: #0058be;
+  --color: #ffffff;
+  --border-color: transparent;
+  --min-height: 62px;
+
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
+}
+
+ion-menu-button {
+  --color: #ffffff;
+  font-size: 27px;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.mobile-logo {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #20c6ed;
+
+  img {
+    width: 29px;
+    height: 29px;
+    object-fit: contain;
+  }
+}
+
+.boton-emergencia-mobile {
+  min-height: 39px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 8px;
+  padding: 5px 9px;
+  background: #ef2f36;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-decoration: none;
+  box-shadow: 0 5px 12px rgba(239, 47, 54, 0.3);
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  span:last-child {
+    display: flex;
+    flex-direction: column;
+  }
+
+  small {
+    font-size: 9px;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 370px) {
+  .boton-emergencia-mobile {
+    padding: 5px 7px;
+
+    .material-symbols-outlined {
+      display: none;
+    }
+  }
+
+  .mobile-brand {
+    gap: 6px;
+    font-size: 15px;
+  }
+
+  .mobile-logo {
+    width: 31px;
+    height: 31px;
+
+    img {
+      width: 26px;
+      height: 26px;
+    }
+  }
+}
+
+/* =====================================================
+   MODAL DEL MAPA MÓVIL (custom properties de ion-modal,
+   Tailwind no llega hasta ahí)
+===================================================== */
+
+ion-modal.modal-mapa-refugio {
+  --width: min(94vw, 580px);
+  --height: min(82vh, 720px);
+  --border-radius: 12px;
+  --box-shadow: 0 24px 65px rgba(15, 23, 42, 0.25);
+}
+
+@media (max-width: 767px) {
+  ion-modal.modal-mapa-refugio {
+    --width: calc(100% - 20px);
+    --height: 84vh;
+    --border-radius: 12px;
+  }
+}

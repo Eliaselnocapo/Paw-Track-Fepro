@@ -1,0 +1,153 @@
+<div class="w-[800px] bg-[#f7f9ff] relative overflow-hidden" style="font-family: Montserrat, sans-serif;">
+
+  <!-- formas decorativas de fondo, mismo lenguaje que el resto de la app -->
+  <div class="absolute -top-16 -left-16 w-64 h-64 bg-rose-200/45 rounded-full pointer-events-none"></div>
+  <div class="absolute top-[10%] left-[38%] w-24 h-24 bg-amber-200/35 rotate-[20deg] pointer-events-none"></div>
+  <div class="absolute top-32 -right-20 w-72 h-72 bg-violet-200/35 rounded-full pointer-events-none"></div>
+  <div class="absolute top-[26%] left-[6%] w-16 h-16 bg-cyan-200/40 rotate-[30deg] pointer-events-none"></div>
+  <div class="absolute top-[38%] right-[10%] w-20 h-20 bg-sky-200/35 rounded-full pointer-events-none"></div>
+  <div class="absolute top-[52%] left-[3%] w-16 h-16 bg-purple-200/35 rotate-[25deg] pointer-events-none"></div>
+  <div class="absolute bottom-[26%] -left-20 w-56 h-56 bg-amber-200/30 rounded-full pointer-events-none"></div>
+  <div class="absolute bottom-[18%] right-[6%] w-20 h-20 bg-fuchsia-200/35 rotate-[18deg] pointer-events-none"></div>
+  <div class="absolute bottom-0 -right-16 w-64 h-64 bg-emerald-200/30 rounded-full pointer-events-none"></div>
+  <div class="absolute bottom-10 left-[30%] w-16 h-16 bg-indigo-200/35 rotate-[-15deg] pointer-events-none"></div>
+
+  <!-- mini cuadros dispersos, textura fina -->
+  <div class="absolute top-[8%] left-[16%] w-3.5 h-3.5 bg-rose-300/55 rotate-12 pointer-events-none"></div>
+  <div class="absolute top-[20%] right-[22%] w-3 h-3 bg-cyan-300/55 -rotate-6 pointer-events-none"></div>
+  <div class="absolute top-[44%] left-[48%] w-2.5 h-2.5 bg-amber-300/55 rotate-45 pointer-events-none"></div>
+  <div class="absolute top-[62%] right-[14%] w-3.5 h-3.5 bg-violet-300/50 -rotate-12 pointer-events-none"></div>
+  <div class="absolute bottom-[12%] left-[10%] w-3 h-3 bg-emerald-300/50 rotate-6 pointer-events-none"></div>
+  <div class="absolute bottom-[30%] right-[30%] w-3 h-3 bg-purple-300/50 rotate-45 pointer-events-none"></div>
+
+  <div class="relative px-8 pt-8 pb-10">
+
+    <!-- encabezado -->
+    <div class="flex flex-col items-center text-center gap-1.5 mb-6">
+      <img src="assets/icon/pawtrack-logo.png" class="w-11 h-11" onerror="this.style.display='none'" crossorigin="anonymous" />
+      <div>
+        <p class="text-blue-700 font-extrabold text-2xl leading-none tracking-tight">PAW TRACK</p>
+        <p class="text-slate-500 text-xs mt-1 font-medium">Ayudamos a reunir animales con quienes los buscan</p>
+      </div>
+    </div>
+
+    <!-- ══════════ FOTO HERO con mensaje superpuesto ══════════ -->
+    <div class="relative w-full h-[500px] rounded-3xl overflow-hidden shadow-xl">
+      @if (imagenResuelta) {
+        <div
+          class="absolute inset-0 bg-slate-200"
+          [style.background-image]="'url(' + imagenResuelta + ')'"
+          style="background-size: cover; background-position: center;"
+        ></div>
+      } @else {
+        <div class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+          <span class="material-symbols-outlined text-7xl text-slate-400">photo_camera</span>
+          <p class="font-bold mt-2 text-slate-400">Fotografía no disponible</p>
+        </div>
+      }
+
+      <!-- degradado para que el texto se lea encima de la foto -->
+      <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(10,20,40,0.55) 75%, rgba(5,12,28,0.85) 100%);"></div>
+
+      <div class="absolute bottom-0 left-0 right-0 p-7 text-white text-center flex flex-col items-center">
+        <span
+          class="inline-flex items-center justify-center leading-none px-4 py-2 rounded-full text-xs font-extrabold mb-3 tracking-wide"
+          [ngClass]="{
+            'bg-red-500 text-white': colorCondicion === 'rojo',
+            'bg-amber-400 text-slate-900': colorCondicion === 'ambar',
+            'bg-blue-500 text-white': colorCondicion === 'azul'
+          }"
+        >
+          <span class="-translate-y-[1.5px]">{{ mensaje.etiqueta }}</span>
+        </span>
+        <h1 class="text-4xl font-extrabold leading-[1.05] drop-shadow-sm max-w-lg mx-auto">{{ mensaje.titulo }}</h1>
+        <p class="text-lg text-white/85 mt-2 font-semibold">{{ nombreCasoFormateado }}</p>
+      </div>
+    </div>
+
+    <!-- badges rápidos, superpuestos a caballo entre foto y contenido -->
+    <div class="flex justify-center gap-2.5 mt-6 flex-wrap">
+      <span class="inline-flex items-center justify-center leading-none gap-1 px-4 py-2.5 rounded-full bg-white shadow-md border border-blue-100 text-blue-700 text-sm font-bold">
+        <span class="material-symbols-outlined text-[16px] -translate-y-[1.5px]">pets</span>
+        <span class="-translate-y-[1.5px]">{{ formatoTitulo(datos.tipoAnimal) }}</span>
+      </span>
+      <span class="inline-flex items-center justify-center leading-none px-4 py-2.5 rounded-full bg-white shadow-md border border-blue-100 text-blue-700 text-sm font-bold">
+        <span class="-translate-y-[1.5px]">{{ formatoTitulo(datos.tamanoAnimal) }}</span>
+      </span>
+      <span
+        class="inline-flex items-center justify-center leading-none px-4 py-2.5 rounded-full bg-white shadow-md border text-sm font-bold"
+        [ngClass]="{
+          'border-red-200 text-red-700': colorCondicion === 'rojo',
+          'border-amber-200 text-amber-700': colorCondicion === 'ambar',
+          'border-blue-200 text-blue-700': colorCondicion === 'azul'
+        }"
+      >
+        <span class="-translate-y-[1.5px]">{{ formatoTitulo(datos.condicionAnimal) }}</span>
+      </span>
+    </div>
+
+    <!-- ubicación + descripción, lado a lado -->
+    <div class="grid grid-cols-2 gap-4 mt-7">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 text-center">
+        <p class="text-blue-700 text-[11px] font-extrabold uppercase tracking-wide mb-1.5 inline-flex items-center justify-center gap-1 leading-none">
+          <span class="material-symbols-outlined text-[14px] -translate-y-[1.5px]">location_on</span>
+          <span class="-translate-y-[1.5px]">Última ubicación</span>
+        </p>
+        <p class="text-slate-700 text-sm leading-relaxed">{{ datos.direccion || 'Ubicación no especificada' }}</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 text-center">
+        <p class="text-blue-700 text-[11px] font-extrabold uppercase tracking-wide mb-1.5 inline-flex items-center justify-center gap-1 leading-none">
+          <span class="material-symbols-outlined text-[14px] -translate-y-[1.5px]">description</span>
+          <span class="-translate-y-[1.5px]">Información del caso</span>
+        </p>
+        <p class="text-slate-700 text-sm leading-relaxed">{{ descripcionTexto }}</p>
+      </div>
+    </div>
+
+    <!-- contacto: banner grande, protagonista -->
+    <div class="mt-6 rounded-2xl overflow-hidden shadow-lg" style="background: linear-gradient(120deg, #0058be 0%, #1e40af 100%);">
+      <div class="px-7 py-6 flex flex-col items-center text-center text-white">
+        <p class="text-[11px] font-extrabold uppercase tracking-wide text-blue-100 mb-1 inline-flex items-center justify-center gap-1 leading-none">
+          <span class="material-symbols-outlined text-[14px] -translate-y-[1.5px]">call</span>
+          <span class="-translate-y-[1.5px]">Información de contacto</span>
+        </p>
+        <p class="text-xl font-extrabold">{{ nombreContactoFormateado }}</p>
+        <p class="text-3xl font-extrabold tracking-tight mt-1">{{ datos.telefonoContacto || 'Sin teléfono' }}</p>
+      </div>
+    </div>
+
+    <!-- talón recortable: SOLO si quien genera el cartel es el dueño del
+         reporte. El folio de aquí es lo que se usa para reclamar el caso —
+         exponerlo a cualquiera que descargue el cartel sería un hueco de
+         seguridad (ver reporter.page.ts → reclamarReporte()). -->
+    @if (datos.incluirTalonPrivado) {
+      <div class="mt-8 pt-4" style="border-top: 2px dashed #cbd5e1;">
+        <p class="text-center text-blue-700 text-[10px] font-extrabold uppercase tracking-wide mb-3 inline-flex items-center justify-center gap-1 leading-none w-full">
+          <span class="material-symbols-outlined text-[13px] -translate-y-[1.5px]">content_cut</span>
+          <span class="-translate-y-[1.5px]">Retira esta sección antes de publicar el cartel</span>
+        </p>
+        <div class="flex bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="flex-1 p-4">
+            <p class="text-blue-700 text-[9px] font-extrabold uppercase">Comprobante privado del reportante</p>
+            <p class="text-slate-500 text-[9px] mt-1">Conserva este folio para consultar, editar y dar seguimiento a tu reporte.</p>
+            <p class="text-red-600 text-[9px] font-bold mt-1">NO COMPARTAS ESTE FOLIO CON OTRAS PERSONAS</p>
+          </div>
+          <div class="w-px" style="background: #e2e8f0;"></div>
+          <div class="flex-1 p-4 flex flex-col items-center justify-center bg-blue-50/50">
+            <p class="text-slate-500 text-[9px] font-extrabold uppercase">Folio de seguimiento</p>
+            <p class="text-blue-700 text-xl font-extrabold">{{ datos.folio }}</p>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <!-- Versión pública: solo un folio de referencia, sin mencionar que
+           sirve para reclamar el caso ni el aviso de "no compartir" (eso
+           delataría que es sensible). -->
+      <div class="mt-8 pt-4 text-center" style="border-top: 2px dashed #cbd5e1;">
+        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wide">Folio de referencia</p>
+        <p class="text-slate-500 text-sm font-bold mt-1">{{ datos.folio }}</p>
+      </div>
+    }
+
+  </div>
+</div>

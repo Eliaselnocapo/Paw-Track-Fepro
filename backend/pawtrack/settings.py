@@ -2,6 +2,7 @@
 Django settings for pawtrack project.
 """
 import os
+import sys
 from pathlib import Path
 from celery.schedules import crontab
 
@@ -46,6 +47,8 @@ INSTALLED_APPS = [
     'rescates',
     'notificaciones',
     'deduplicacion',
+    'recursos',
+    'centros',
     'django_celery_beat',
 ]
 
@@ -153,6 +156,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+SOCIALACCOUNT_ADAPTER = 'bd.adapters.CustomSocialAccountAdapter'
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -165,6 +171,18 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
+
+THROTTLE_RATES = {
+    'anon': '10/minute',
+    'user': '1000/day',
+    'pdf_import': '5/minute',
+    'vision_anon': '10/minute',
+}
+
+# La suite comparte Redis para probar locks de deduplicacion, pero no debe
+# compartir el limite de 10 requests anonimos entre casos de prueba aislados.
+if 'test' in sys.argv:
+    THROTTLE_RATES['anon'] = '100000/minute'
 
 REST_FRAMEWORK = {
     'NUM_PROXIES': 1,
@@ -248,7 +266,3 @@ CSRF_TRUSTED_ORIGINS = [
     "https://pawtrack.me",
     "https://www.pawtrack.me",
 ]
-
-
-
-

@@ -71,11 +71,20 @@ class PerfilRescatista(models.Model):
     esta_certificado = models.BooleanField(default=False) 
 
 class PerfilPatrocinador(models.Model):
-    TIPO_ENTIDAD_CHOICES = [
-        ('EMPRESA',    'Empresa'),
-        ('REFUGIO',    'Refugio Animal'),
-        ('ASOCIACION', 'Asociación Protectora'),
-        ('OTRO',       'Otro'),
+    """Entidad de apoyo (veterinaria, refugio, etc.) que puede coordinar
+    recursos para casos (ver app `recursos`) y tener un perfil público en el
+    directorio de "centros de apoyo" (ver app `centros`) — es el mismo
+    registro para ambas cosas: quien dona/coordina recursos y quien aparece
+    en el mapa de centros cercanos es la misma organización."""
+    TIPO_CHOICES = [
+        ('veterinaria', 'Veterinaria'),
+        ('refugio',     'Refugio Animal'),
+        ('otro',        'Otro'),
+    ]
+    ESTADO_CHOICES = [
+        ('PENDIENTE', 'Pendiente'),
+        ('APROBADO',  'Aprobado'),
+        ('RECHAZADO', 'Rechazado'),
     ]
     NIVEL_CHOICES = [
         ('SILVER',   'Silver'),
@@ -86,16 +95,29 @@ class PerfilPatrocinador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil_patrocinador')
 
     # Datos de la entidad (base del prototipo BD)
-    nombre_entidad    = models.CharField(max_length=255)
-    ubicacion         = models.CharField(max_length=255)
-    telefono_contacto = models.CharField(max_length=20, default='')
-    capacidad         = models.CharField(max_length=255, help_text='Descripción de recursos disponibles (alimento, transporte, veterinaria, etc.)')
-    horario           = models.CharField(max_length=100)
-    redes             = models.CharField(max_length=255, blank=True)
-    correo            = models.EmailField(help_text='Correo oficial de la entidad')
+    nombre    = models.CharField(max_length=255)
+    direccion = models.CharField(max_length=255)
+    # Coordenadas reales para búsquedas geoespaciales (mapa de centros
+    # cercanos). `direccion` sigue siendo el texto libre que se muestra al
+    # usuario; esto es lo que se usa para consultas PostGIS de distancia.
+    ubicacion_geo = models.PointField(srid=4326, null=True, blank=True)
+    telefono  = models.CharField(max_length=20, default='')
+    horario   = models.CharField(max_length=100)
+    correo    = models.EmailField(help_text='Correo oficial de la entidad')
+    sitio_web = models.CharField(max_length=255, blank=True)
+    descripcion = models.TextField(blank=True)
+
+    formas_ayuda   = models.JSONField(default=list, blank=True, help_text='Ej. ["dinero", "comida", "voluntariado"]')
+    redes_sociales = models.JSONField(default=dict, blank=True, help_text='Ej. {"facebook": "url", "whatsapp": "numero"}')
+
+    # Perfil público (Fase 2 del directorio de centros)
+    banner = models.ImageField(upload_to='centros/banners/', blank=True, null=True)
+    logo   = models.ImageField(upload_to='centros/logos/', blank=True, null=True)
+    mision = models.TextField(blank=True)
+    vision = models.TextField(blank=True)
 
     # Campos adicionales para verificación y clasificación
-    tipo_entidad   = models.CharField(max_length=50, choices=TIPO_ENTIDAD_CHOICES, default='OTRO')
+    tipo           = models.CharField(max_length=50, choices=TIPO_CHOICES, default='otro')
     rfc_o_registro = models.CharField(max_length=100, blank=True, help_text='RFC o número de registro legal de la entidad')
 
     # Métricas de participación (calculadas por el sistema)
@@ -104,8 +126,23 @@ class PerfilPatrocinador(models.Model):
     casos_soportados         = models.IntegerField(default=0)
     fecha_inicio_coordinacion = models.DateField(auto_now_add=True)
 
+    estado          = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')  # Bloquea self-service
+    motivo_rechazo  = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Restricción a nivel BD para datos parcialmente válidos
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(nombre__isnull=False) & ~models.Q(nombre=''),
+                name='datos_entidad_requeridos'
+            )
+        ]
+
+
     def __str__(self):
-        return f"{self.nombre_entidad} ({self.tipo_entidad})"
+        return f"{self.nombre} ({self.tipo})"
 
 # 2. Tabla Animal 
 class Animal(models.Model):

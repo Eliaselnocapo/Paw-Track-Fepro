@@ -150,3 +150,101 @@
   text-align: center;
   margin: 0;
 }
+
+.refresh-indicator {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  background: #ffffff;
+  color: #0058be;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  box-shadow: 0 4px 16px rgba(0, 27, 61, 0.18);
+
+  pointer-events: none;
+}
+
+.refresh-paw {
+  width: 40px;
+  height: 40px;
+  overflow: visible;
+
+  transform-origin: 50% 50%;
+  will-change: transform;
+
+  animation:
+    girar-huella 0.4s linear 0.65s forwards;
+}
+
+.paw-part {
+  fill: #0058be;
+  stroke: #0058be;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  opacity: 0;
+  transform: scale(0.75);
+  transform-origin: center;
+
+  will-change: transform, opacity;
+
+  animation:
+    rellenar-huella 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Hace que se rellenen una por una */
+.paw-part:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.paw-part:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.paw-part:nth-child(3) {
+  animation-delay: 0.19s;
+}
+
+.paw-part:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+@keyframes rellenar-huella {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes girar-huella {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

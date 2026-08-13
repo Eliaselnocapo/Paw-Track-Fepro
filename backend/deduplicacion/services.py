@@ -53,11 +53,11 @@ class VisionService:
 
         
         self.dog_session = ort.InferenceSession(
-            os.path.join(base_dir, 'dog_embedding_model_osnet_v5.onnx'), 
+            os.path.join(base_dir, 'dog_model_clean_150.onnx'), 
             providers=['CPUExecutionProvider']
         )
         self.cat_session = ort.InferenceSession(
-            os.path.join(base_dir, 'cat_embedding_model_v5.onnx'), 
+            os.path.join(base_dir, 'cat_model_osnet_v5.onnx'), 
             providers=['CPUExecutionProvider']
         )
         self.input_name = self.dog_session.get_inputs()[0].name
@@ -89,7 +89,57 @@ class VisionService:
         self.dog_index, self.dog_map = cargar_indice('embedding_index_v5.bin', 'embedding_index_v5_map.json')
         self.cat_index, self.cat_map = cargar_indice('cat_embedding_index_v5.bin', 'cat_embedding_index_v5_map.json')
 
+        # mtime del .bin al momento de cargarlo, para poder detectar despues
+        # si OTRO proceso (ej. celery-worker) escribio una version mas nueva
+        # -- ver _refrescar_si_cambio().
+        self._mtimes = {}
+        for especie, bin_name in (('perro', 'embedding_index_v5.bin'), ('gato', 'cat_embedding_index_v5.bin')):
+            bin_path = os.path.join(base_dir, bin_name)
+            self._mtimes[especie] = os.path.getmtime(bin_path) if os.path.exists(bin_path) else 0
+
         logger.info("VisionService: modelos v5 listos para producción.")
+
+    def _refrescar_si_cambio(self, especie):
+        """
+        VisionService es un Singleton POR PROCESO -- si celery-worker
+        aprende un embedding nuevo (aprender_embedding), ese proceso
+        actualiza SU copia en RAM y la guarda en disco, pero el proceso
+        'web' (que atiende verificar_duplicado de forma sincrona) tiene su
+        PROPIA copia en RAM, cargada una sola vez al arrancar, que nunca se
+        entera de esa escritura -- buscar_similares() terminaba comparando
+        contra un mapping desactualizado, sin los candidatos mas recientes,
+        y devolvia {} (todo FOTO Raw=0.00) sin ningun error visible.
+
+        Este chequeo es barato (un stat() del archivo) y solo recarga el
+        indice completo si el mtime en disco cambio desde la ultima carga
+        de ESTE proceso -- no reconstruye nada en cada request.
+        """
+        recursos = self._index_para(especie)
+        if recursos is None:
+            return
+        _, _, _, bin_name, map_name = recursos
+        base_dir = settings.DEDUP_MODELS_DIR
+        bin_path = os.path.join(base_dir, bin_name)
+
+        if not os.path.exists(bin_path):
+            return
+
+        mtime_actual = os.path.getmtime(bin_path)
+        especie_key = especie.lower()
+        if mtime_actual == self._mtimes.get(especie_key):
+            return  # sin cambios desde la ultima carga de este proceso, no hacer nada
+
+        logger.info("VisionService: %s cambio en disco, recargando indice para '%s'.", bin_name, especie_key)
+        map_path = os.path.join(base_dir, map_name)
+        nuevo_map = self._parse_json_map(map_path) if os.path.exists(map_path) else {}
+        nuevo_index = hnswlib.Index(space='l2', dim=128)
+        nuevo_index.load_index(bin_path, max_elements=100000)
+
+        if especie_key == 'perro':
+            self.dog_index, self.dog_map = nuevo_index, nuevo_map
+        else:
+            self.cat_index, self.cat_map = nuevo_index, nuevo_map
+        self._mtimes[especie_key] = mtime_actual
 
     def _index_para(self, especie):
         """Resuelve session/index/mapping/nombres de archivo según especie. None si no es perro/gato."""
@@ -144,6 +194,11 @@ class VisionService:
         return session.run(None, {self.input_name: tensor})[0][0]
 
     def buscar_similares(self, emb, especie, candidatos_ids):
+        # Solo lectura, pero corre potencialmente en un proceso distinto
+        # (web) al que escribio el ultimo cambio (celery-worker) -- refresca
+        # la copia en RAM de este proceso si el archivo en disco cambio.
+        self._refrescar_si_cambio(especie)
+
         recursos = self._index_para(especie)
         if recursos is None:
             raise ValueError(f"Especie no soportada para deduplicación visual: {especie}")

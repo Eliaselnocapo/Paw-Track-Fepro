@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, OnDestroy  } from '@angular/core';
+import { CommonModule, DecimalPipe} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
@@ -8,8 +8,9 @@ import { ReportService, CandidatoDuplicado } from '../../../../core/services/rep
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 import { CartelPdf } from '../../../../core/services/cartel-pdf';
 import { IonContent, IonModal } from '@ionic/angular/standalone';
+import { AuthService } from '../../../../core/services/auth.service';
 
-declare let L: any;
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-create-report',
@@ -27,7 +28,7 @@ declare let L: any;
   ],
   standalone: true,
 })
-export class CreateReportPage implements OnInit, AfterViewInit {
+export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
 
   pasoActual: number = 1;
 
@@ -46,6 +47,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   // Datos de contacto del usuario
   nombreUsuario: string = '';
   telefonoUsuario: string = '';
+  contactoDesdePerfil = false;
+  editandoContactoManualmente = false;
 
   // Datos de ubicación
   direccionActual: string = 'Av. San Manuel, Puebla (Cerca de CU)';
@@ -68,6 +71,11 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   verificandoDuplicado = false;
   candidatoDuplicado: CandidatoDuplicado | null = null;
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
+  imagenBorradorId: string | null = null;
+  borradorId: string | null = null;
+  private subiendoImagenBorrador = false;
+  private precargandoEmbedding = false;
+
 
   descargandoCartelManual = false;
 
@@ -88,28 +96,84 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     private reportService: ReportService,
     private localReportCache: LocalReportCacheService,
     private cartelPdf: CartelPdf,
+    private auth: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     const state = this.router.getCurrentNavigation()?.extras.state
       ?? history.state;
-
+ 
     const datos = state?.['datosAutocompletar'];
-
+ 
     if (datos) {
       if (datos.telefono_contacto) {
         this.telefonoUsuario = datos.telefono_contacto;
       }
-
+ 
       if (datos.descripcion_bruta) {
-        // El PDF solo trae texto plano, lo mandamos a notas adicionales
-        // recortado al límite que ya valida descripcionValida() (250 caracteres).
         this.notasAdicionales = datos.descripcion_bruta.slice(0, 250);
       }
     }
+ 
+    this.autocompletarContactoDesdePerfil();
+  }
+ 
+  /**
+   * Si hay sesión iniciada y el perfil ya tiene nombre + teléfono
+   * guardados, se usan aquí y se muestran como resumen (no se le vuelve
+   * a pedir escribirlos). Si le falta el teléfono — típico de quien entró
+   * con Google, que no lo da — se deja el formulario normal, editable,
+   * igual que a un invitado.
+   *
+   * OJO: si datosAutocompletar (import de PDF) ya puso un teléfono, no lo
+   * pisamos — se respeta lo que vino del PDF.
+   */
+  private autocompletarContactoDesdePerfil(): void {
+    if (!this.auth.isLoggedIn()) return;
+ 
+    const usuario = this.auth.getCurrentUser();
+    if (!usuario) return;
+ 
+    const nombreCompleto = `${usuario.first_name ?? ''} ${usuario.last_name ?? ''}`.trim();
+    const telefonoPerfil = usuario.telefono?.trim();
+ 
+    if (!this.telefonoUsuario && telefonoPerfil) {
+      this.telefonoUsuario = telefonoPerfil;
+    }
+ 
+    if (!this.nombreUsuario && nombreCompleto) {
+      this.nombreUsuario = nombreCompleto;
+    }
+ 
+    // Solo se muestra como "resumen de solo lectura" si AMBOS datos
+    // quedaron completos. Si falta el teléfono, sigue como formulario
+    // editable normal (nombreUsuario puede haber quedado prellenado,
+    // pero el usuario todavía tiene que confirmar/poner el teléfono).
+    this.contactoDesdePerfil = !!(this.nombreUsuario && this.telefonoContactoValido());
+  }
+ 
+  /** El reportante quiere usar un contacto distinto al de su perfil, solo para este reporte. */
+  usarOtroContacto(): void {
+    this.editandoContactoManualmente = true;
+  }
+ 
+  /** Regresa al resumen del perfil (descarta lo que haya escrito manualmente). */
+  usarContactoDePerfil(): void {
+    this.editandoContactoManualmente = false;
+    this.autocompletarContactoDesdePerfil();
+  }
+ 
+  /** El HTML usa esto para decidir: ¿muestro el resumen, o los inputs editables? */
+  get mostrarResumenContacto(): boolean {
+    return this.contactoDesdePerfil && !this.editandoContactoManualmente;
   }
 
+  ngOnDestroy(): void {
+    this.destroyInteractiveMap();
+    this.destroyPreviewMap();
+  }
+  
   ngAfterViewInit() {}
 
   // === INICIALIZACIÓN DE MAPA INTERACTIVO (PASO 3) ===
@@ -223,12 +287,13 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     if (!this.folioGenerado || this.descargandoCartelManual) {
       return;
     }
-
+ 
     this.descargandoCartelManual = true;
-
+ 
     try {
       await this.cartelPdf.descargarCartel({
         folio: this.folioGenerado,
+        incluirTalonPrivado: true, // <-- AGREGAR
         imagen: this.archivosSeleccionados[0]?.archivoFisico ?? null,
         nombreCaso: this.nombreCaso.trim() || undefined,
         tipoAnimal: this.tipoAnimal.trim() || undefined,
@@ -274,6 +339,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
 
       this.pasoActual++;
 
+      if (this.pasoActual === 2) this.subirImagenBorrador();
       if (this.pasoActual === 3) this.initInteractiveMap();
       if (this.pasoActual === 4) { this.initPreviewMap(); this.verificarDuplicado(); }
       if (this.pasoActual === 5) this.guardarBaseDatosLocal(); // Corregido el nombre aquí
@@ -301,6 +367,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       latitud: this.latActual,
       longitud: this.lngActual,
       imagen,
+      borrador_id: this.borradorId ?? undefined,
     });
   }
 
@@ -331,6 +398,36 @@ export class CreateReportPage implements OnInit, AfterViewInit {
       },
     });
   }
+
+  /** Fase A: sube la foto sola, apenas se sale del paso 1. */
+  subirImagenBorrador(): void {
+    const imagen = this.archivosSeleccionados[0]?.archivoFisico;
+    if (!imagen || this.subiendoImagenBorrador || this.imagenBorradorId) return;
+
+    this.subiendoImagenBorrador = true;
+    this.reportService.subirImagenBorrador(imagen).subscribe({
+      next: (res) => {
+        this.imagenBorradorId = res.imagen_borrador_id;
+        this.subiendoImagenBorrador = false;
+        // Si el usuario ya eligió especie mientras esto subía, dispara ya la Fase B
+        if (this.tipoAnimal) this.activarPrecargaEmbedding();
+      },
+      error: () => { this.subiendoImagenBorrador = false; },
+    });
+  }
+
+  /** Fase B: dispara el cómputo en el instante en que se conoce la especie. */
+  activarPrecargaEmbedding(): void {
+    if (!this.imagenBorradorId || !this.tipoAnimal || this.precargandoEmbedding || this.borradorId) return;
+
+    this.precargandoEmbedding = true;
+    this.reportService.activarPrecargaEmbedding(this.imagenBorradorId, this.tipoAnimal).subscribe({
+      next: (res) => { this.borradorId = res.borrador_id; this.precargandoEmbedding = false; },
+      error: () => { this.precargandoEmbedding = false; },
+    });
+  }
+
+
 
   /**
    * Se llama al hacer clic en "Enviar reporte" (en vez de siguientePaso()
@@ -410,7 +507,7 @@ export class CreateReportPage implements OnInit, AfterViewInit {
     this.guardarEnBaseDeDatos();
   }
   seleccionarColor(color: string) { this.colorAnimal = color; }
-  seleccionarTipo(tipo: string) { this.tipoAnimal = tipo; }
+  seleccionarTipo(tipo: string) { this.tipoAnimal = tipo; this.borradorId = null; if (this.imagenBorradorId) this.activarPrecargaEmbedding(); }
   seleccionarTamano(tamano: string) { this.tamanoAproximado = tamano; }
   seleccionarAgresividad(valor: string) { this.agresividadAnimal = valor; }
   
@@ -518,6 +615,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   onFileSelected(event: any) {
     const files = event.target.files;
     if (files && files.length > 0) {
+      this.imagenBorradorId = null;
+      this.borradorId = null;
       Array.from(files).forEach((file: any) => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
@@ -535,6 +634,8 @@ export class CreateReportPage implements OnInit, AfterViewInit {
   eliminarArchivo(archivo: any) {
     const index = this.archivosSeleccionados.indexOf(archivo);
     if (index > -1) this.archivosSeleccionados.splice(index, 1);
+    this.imagenBorradorId = null;
+    this.borradorId = null;
   }
 
   guardarEnBaseDeDatos() {
@@ -574,7 +675,6 @@ export class CreateReportPage implements OnInit, AfterViewInit {
         }
 
         this.folioGenerado = res.folio ?? `#${res.id}`;
-
         const haySesion = !!localStorage.getItem('pawtrack_access');
 
         /*

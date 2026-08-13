@@ -223,12 +223,25 @@
               </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-2 gap-3">
-              <button class="flex items-center justify-center h-11 rounded border border-slate-400 bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm shadow-sm">
-                <span class="material-symbols-outlined mr-2 text-[18px]">account_circle</span> Google
-              </button>
-              <button class="flex items-center justify-center h-11 rounded border border-slate-400 bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm shadow-sm">
-                <span class="material-symbols-outlined mr-2 text-[18px]">group</span> Facebook
+            <div class="mt-6">
+              <!-- Google inyecta su propio botón real aquí adentro (vía
+                   renderButton() en el .ts). No le pongas tu <button>
+                   personalizado encima, este div es solo el contenedor. -->
+              <div id="google-signin-button" class="w-full flex justify-center"></div>
+
+              <p *ngIf="cargandoGoogle" class="text-center text-sm text-slate-500 mt-2">
+                Iniciando sesión con Google...
+              </p>
+
+              <!-- Facebook: sin backend confirmado todavía, lo dejamos
+                   deshabilitado por ahora en vez de un botón muerto. -->
+              <button
+                type="button"
+                disabled
+                class="mt-3 w-full flex items-center justify-center h-11 rounded border border-slate-200 bg-slate-50 text-slate-400 text-sm font-bold cursor-not-allowed"
+              >
+                <span class="material-symbols-outlined mr-2 text-[18px]">group</span>
+                Facebook (próximamente)
               </button>
             </div>
           </div>
