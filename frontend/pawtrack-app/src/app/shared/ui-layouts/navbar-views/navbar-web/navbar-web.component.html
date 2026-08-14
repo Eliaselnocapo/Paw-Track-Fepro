@@ -26,7 +26,8 @@
           <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Apoyo</a>
           <a routerLink="/patrocinadores" routerLinkActive="nav-active" class="nav-link">Refugios</a>
         } @else {
-          <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Asistir</a>
+          <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Apoyo</a>
+          <a routerLink="/patrocinadores" routerLinkActive="nav-active" class="nav-link">Refugios</a>
         }
 
       </nav>
@@ -57,7 +58,7 @@
 
       <!-- Boton movil rojo -->
       <button
-        class="flex md:hidden bg-red-600 text-white px-2.5 py-1.5 font-bold hover:bg-red-700 transition-colors items-center gap-1.5 shadow-sm active:scale-95"
+        class="flex md:hidden bg-red-600 text-white px-2.5 py-1.5 font-bold hover:bg-red-700 transition-colors items-center gap-1.5 shadow-sm active:scale-95 rounded-lg"
         routerLink="/reports/create-report">
         <span class="w-4 h-4 rounded-full bg-white flex items-center justify-center overflow-hidden">
           <img src="assets/icon/warning.png" alt="Emergencia" class="w-4 h-4 object-contain" />

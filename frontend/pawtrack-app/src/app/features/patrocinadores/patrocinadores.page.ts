@@ -265,6 +265,10 @@ get centrosVisibles(): CentroAnimal[] {
   reintentar(): void {
     void this.inicializarBusqueda();
   }
+  
+  get haySesion(): boolean {
+    return !!localStorage.getItem('pawtrack_access');
+  }
 
   private verificarMiCentro(): void {
     // Sin sesión no tiene sentido preguntar — misSolicitudesCentro() daría 401.
