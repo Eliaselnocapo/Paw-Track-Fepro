@@ -337,22 +337,26 @@
 
         </section>
 
-        <!-- Tarjeta de apoyo -->
+      <!-- Tarjeta de apoyo -->
         <div class="bg-white border border-slate-300 shadow-md p-6 rounded">
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 shrink-0 bg-blue-50 text-blue-700 border border-blue-100 grid place-items-center rounded-full">
               <span class="material-symbols-outlined text-[20px]">
-                {{ yaTieneCentro ? 'storefront' : 'volunteer_activism' }}
+                {{ !haySesion ? 'account_circle' : (yaTieneCentro ? 'storefront' : 'volunteer_activism') }}
               </span>
             </div>
             <h3 class="font-bold text-slate-900 text-base">
-              {{ yaTieneCentro ? 'Tu centro de apoyo' : '¿No hay refugios cerca?' }}
+              {{ !haySesion
+                  ? '¿Tienes un refugio o veterinaria?'
+                  : (yaTieneCentro ? 'Tu centro de apoyo' : '¿No hay refugios cerca?') }}
             </h3>
           </div>
 
           <p class="text-sm text-slate-500 leading-relaxed mb-4">
-          
-            @if (yaTieneCentro) {
+            @if (!haySesion) {
+              Crea una cuenta para registrar tu centro y que aparezca en las búsquedas
+              de los voluntarios de la zona.
+            } @else if (yaTieneCentro) {
               Administra tu perfil, publica novedades y responde a las reseñas de tu centro.
             } @else {
               Puedes ampliar el radio de búsqueda o registrar tu propio centro de apoyo animal
@@ -361,12 +365,14 @@
           </p>
 
           <a
-            [routerLink]="yaTieneCentro ? '/mi-centro' : '/registrar-centro'"
+            [routerLink]="!haySesion ? '/login' : (yaTieneCentro ? '/mi-centro' : '/registrar-centro')"
             class="w-full bg-blue-50 border border-blue-100 text-blue-700 font-bold text-sm py-3 hover:bg-blue-100 transition-colors flex rounded-lg items-center justify-center gap-2 active:scale-95">
             <span class="material-symbols-outlined text-[18px]">
-              {{ yaTieneCentro ? 'dashboard' : 'add_business' }}
+              {{ !haySesion ? 'login' : (yaTieneCentro ? 'dashboard' : 'add_business') }}
             </span>
-            {{ yaTieneCentro ? 'Administrar mi centro' : 'Registrar mi centro' }}
+            {{ !haySesion
+                ? 'Iniciar sesión para registrar'
+                : (yaTieneCentro ? 'Administrar mi centro' : 'Registrar mi centro') }}
           </a>
         </div>
 
