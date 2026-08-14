@@ -39,6 +39,9 @@ import {
   FooterWebComponent
 } from '../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
+import { FormsModule } from '@angular/forms';
+import { SentenceCasePipe } from '../../shared/pipes/sentence-case-pipe';
+
 declare let L: any;
 
 @Component({
@@ -48,6 +51,7 @@ declare let L: any;
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
 
     IonContent,
@@ -59,7 +63,8 @@ declare let L: any;
     IonModal,
 
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    SentenceCasePipe
   ]
 })
 export class PatrocinadoresPage
@@ -93,6 +98,8 @@ export class PatrocinadoresPage
   ubicacionUsuario?: UbicacionUsuario;
 
   centros: CentroAnimal[] = [];
+  paginaActual = 1;
+  private readonly POR_PAGINA = 3;
 
   centroSeleccionado: CentroAnimal | null = null;
 
@@ -102,6 +109,8 @@ export class PatrocinadoresPage
 
   cargandoUbicacion = false;
   cargandoCentros = false;
+
+  filtroNombre = '';
 
   yaTieneCentro: boolean | undefined = undefined;
 
@@ -132,6 +141,41 @@ export class PatrocinadoresPage
     }
   }
 
+get centrosVisibles(): CentroAnimal[] {
+    return this.centrosFiltrados;
+  }
+
+  get centrosFiltrados(): CentroAnimal[] {
+    const q = this.filtroNombre.trim().toLowerCase();
+    if (!q) return this.centros;
+    return this.centros.filter(c =>
+      c.nombre.toLowerCase().includes(q) ||
+      (c.direccion ?? '').toLowerCase().includes(q)
+    );
+  }
+  
+
+  get totalPaginas(): number {
+    return Math.ceil(this.centros.length / this.POR_PAGINA) || 1;
+  }
+
+  get paginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
+
+  get inicioRango(): number {
+    return (this.paginaActual - 1) * this.POR_PAGINA + 1;
+  }
+
+  get finRango(): number {
+    return Math.min(this.paginaActual * this.POR_PAGINA, this.centros.length);
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaActual = pagina;
+  }
+
   get radioActualKm(): number {
     return this.radiosBusquedaKm[
       this.indiceRadioActual
@@ -151,6 +195,7 @@ export class PatrocinadoresPage
   async inicializarBusqueda(): Promise<void> {
     this.error = '';
     this.centros = [];
+    this.paginaActual = 1;
     this.indiceRadioActual = 0;
     this.cargandoUbicacion = true;
 
@@ -188,6 +233,7 @@ export class PatrocinadoresPage
           this.radioActualKm
         )
       );
+      this.paginaActual = 1;
 
       this.programarMapaEscritorio();
     } catch (error) {
@@ -267,6 +313,21 @@ export class PatrocinadoresPage
     this.destruirMapaModal();
 
     this.centroSeleccionado = null;
+  }
+
+  estaAbierto(centro: CentroAnimal): boolean | null {
+    if (!centro.horario) return null;
+    if (/24\/7/.test(centro.horario)) return true;
+
+    const m = centro.horario.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+    if (!m) return null;
+
+    const ahora = new Date();
+    const minutos = ahora.getHours() * 60 + ahora.getMinutes();
+    const desde = +m[1] * 60 + +m[2];
+    const hasta = +m[3] * 60 + +m[4];
+
+    return minutos >= desde && minutos <= hasta;
   }
 
   private programarMapaEscritorio(

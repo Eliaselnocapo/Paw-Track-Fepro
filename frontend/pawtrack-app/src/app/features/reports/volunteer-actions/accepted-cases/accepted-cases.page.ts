@@ -13,7 +13,7 @@ import { environment } from 'src/environments/environment';
 // Tipos
 // ─────────────────────────────────────────
 
-type EstadoRescate = 'Aceptado' | 'En camino' | 'En sitio' | 'Rescatado' | 'Cancelado';
+type EstadoRescate = 'Aceptado' | 'En camino' | 'En sitio' | 'En proceso' | 'En traslado' | 'Rescatado' | 'Cancelado';
 type FiltroEstado  = EstadoRescate | 'Todos';
 
 
@@ -50,11 +50,13 @@ interface CasoAceptado {
 // Orden de prioridad para el caso enfocado en el aside.
 // Los terminados nunca se enfocan, pero los dejamos al final por completitud.
 const ORDEN_PRIORIDAD_FOCO: Record<EstadoRescate, number> = {
-  'En sitio':  0,
-  'En camino': 1,
-  Aceptado:    2,
-  Rescatado:   3,
-  Cancelado:   4,
+  'En traslado': 0,
+  'En sitio':    1,
+  'En proceso':  2,
+  'En camino':   3,
+  Aceptado:      4,
+  Rescatado:     5,
+  Cancelado:     6,
 };
 
 // Los filtros que se pintan en la barra, en orden.
@@ -83,10 +85,10 @@ export class AcceptedCasesPage implements OnInit {
 
   filtros = FILTROS;
   filtroEstado: FiltroEstado = 'Todos';
-  filtrosVisibles: FiltroEstado[] = ['Todos', 'En camino', 'En sitio', 'Cancelado'];
 
   paginaActualCasos = 1;
   casosPorPagina = 5;
+  modoHistorial = false;
 
   protocolo: ItemProtocolo[] = [
     {
@@ -183,6 +185,22 @@ export class AcceptedCasesPage implements OnInit {
       raw:             r,
     };
   }
+  
+  private readonly FILTROS_ACTIVOS: FiltroEstado[] =
+    ['Todos', 'En camino', 'En sitio', 'En proceso', 'En traslado'];
+
+  private readonly FILTROS_HISTORIAL: FiltroEstado[] =
+    ['Rescatado', 'Cancelado'];
+
+  get filtrosVisiblesActuales(): FiltroEstado[] {
+    return this.modoHistorial ? this.FILTROS_HISTORIAL : this.FILTROS_ACTIVOS;
+  }
+
+  toggleHistorial(): void {
+    this.modoHistorial = !this.modoHistorial;
+    this.filtroEstado = this.modoHistorial ? 'Rescatado' : 'Todos';
+    this.paginaActualCasos = 1;
+  }
 
   // ─────────────────────────────────────────
   // Clasificación de estados
@@ -210,6 +228,26 @@ export class AcceptedCasesPage implements OnInit {
                 clase: 'bg-slate-100 text-slate-600 border-slate-200' };
       default:
         return null;
+    }
+  }
+  claseChip(estado: FiltroEstado): string {
+    if (this.filtroEstado !== estado) {
+      return 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-50';
+    }
+    if (estado === 'Rescatado') return 'bg-emerald-600 text-white shadow-md';
+    if (estado === 'Cancelado') return 'bg-red-600 text-white shadow-md';
+    return 'bg-blue-700 text-white shadow-md';
+  }
+
+  claseBadgeEstado(estado: EstadoRescate): string {
+    switch (estado) {
+      case 'En camino':   return 'bg-amber-500 text-white border border-amber-500';
+      case 'En sitio':    return 'bg-blue-600 text-white border border-blue-600';
+      case 'En proceso':  return 'bg-indigo-600 text-white border border-indigo-600';
+      case 'En traslado': return 'bg-cyan-600 text-white border border-cyan-600';
+      case 'Rescatado':   return 'bg-emerald-600 text-white border border-emerald-600';
+      case 'Cancelado':   return 'bg-red-600 text-white border border-red-600';
+      default:            return 'bg-slate-600 text-white border border-slate-600';
     }
   }
 
@@ -260,6 +298,10 @@ export class AcceptedCasesPage implements OnInit {
         return { titulo: 'Caso cerrado', descripcion: 'Esta misión ya fue completada exitosamente.' };
       case 'Cancelado':
         return { titulo: 'Caso liberado', descripcion: 'Cancelaste esta misión. El caso volvió a estar disponible para otro voluntario.' };
+      case 'En proceso':
+        return { titulo: 'Asegurar al animal', descripcion: 'Registra tu avance mientras lo capturas o esperas.' };
+      case 'En traslado':
+        return { titulo: 'Cerrar el caso', descripcion: 'Al llegar al centro, cierra con foto de evidencia.' };
     }
   }
 
@@ -363,6 +405,8 @@ export class AcceptedCasesPage implements OnInit {
       case 'En sitio':  return 'location_on';
       case 'Rescatado': return 'check_circle';
       case 'Cancelado': return 'cancel';
+      case 'En proceso':  return 'pending_actions';
+      case 'En traslado': return 'local_shipping';
       default:          return 'assignment_turned_in';
     }
   }
@@ -381,11 +425,13 @@ export class AcceptedCasesPage implements OnInit {
 
   private inferirEstadoRescate(estado: string): EstadoRescate {
     switch (estado) {
-      case 'EN_CAMINO':  return 'En camino';
-      case 'EN_SITIO':   return 'En sitio';
-      case 'COMPLETADO': return 'Rescatado';
-      case 'CANCELADO':  return 'Cancelado';
-      default:           return 'Aceptado';
+      case 'EN_CAMINO':   return 'En camino';
+      case 'EN_SITIO':    return 'En sitio';
+      case 'EN_PROCESO':  return 'En proceso';
+      case 'EN_TRASLADO': return 'En traslado';
+      case 'COMPLETADO':  return 'Rescatado';
+      case 'CANCELADO':   return 'Cancelado';
+      default:            return 'Aceptado';
     }
   }
 }

@@ -40,6 +40,8 @@ export class CronologyCasePage implements OnInit {
   cargando = true;
   errorCarga: string | null = null;
 
+  fotoCierreApi: string | null = null;
+
   // Direcciones resueltas con reverse-geocoding: el cierre solo guarda coords,
   // y los reportes viejos tampoco guardaron 'direccion'.
   direccionCierre: string | null = null;
@@ -86,6 +88,7 @@ export class CronologyCasePage implements OnInit {
         this.reportService.seguimientoHistorialPorFolio(folio).subscribe({
           next: (resp) => {
             this.historial = resp.historial || [];
+            this.fotoCierreApi = (resp as any).foto_cierre || null;
             this.cargando = false;
             this.resolverDireccionCierre();
           },
@@ -361,7 +364,8 @@ get fichaVoluntario(): { etiqueta: string; valor: string }[] {
   }
 
   get fotoEvidencia(): string | null {
-    const foto = this.puntoCierre?.fotoCierre || this.incidencia?.imagen;
+    if (this.fotoCierreApi) return this.fotoCierreApi;
+    const foto = this.puntoCierre?.fotoCierre;
     return foto ? this.imagenUrl(foto) : null;
   }
 

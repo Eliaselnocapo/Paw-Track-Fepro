@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink  } from '@angular/router';
@@ -13,7 +13,15 @@ import { environment } from 'src/environments/environment';
 import { CentrosAnimalesService } from '../../../../core/services/centros-animales.service';
 import { CentroAnimal } from '../../../../core/models/centro-animal.model';
 
-type EstadoAvance = '' | 'EN_SITIO' | 'COMPLETADO' | 'CANCELADO';
+type EstadoAvance = '' | 'EN_SITIO' | 'EN_PROCESO' | 'EN_TRASLADO'| 'COMPLETADO' | 'CANCELADO';
+
+interface OpcionEstado {
+  valor: Exclude<EstadoAvance, ''>;
+  titulo: string;
+  ayuda: string;
+  icono: string;
+  tono: 'avance' | 'cierre' | 'cancelar';
+}
 
 @Component({
   selector: 'app-update-case',
@@ -49,6 +57,44 @@ export class UpdateCasePage implements OnInit {
     notas: '',
   };
 
+    readonly opciones: OpcionEstado[] = [
+    {
+      valor: 'EN_SITIO',
+      titulo: 'Llegué al punto',
+      ayuda: 'Estás en la ubicación del reporte.',
+      icono: 'my_location',
+      tono: 'avance',
+    },
+    {
+      valor: 'EN_PROCESO',
+      titulo: 'Trabajando el caso',
+      ayuda: 'Buscando, esperando o intentando asegurar al animal.',
+      icono: 'pending_actions',
+      tono: 'avance',
+    },
+    {
+      valor: 'EN_TRASLADO',
+      titulo: 'Trasladando al animal',
+      ayuda: 'Vas en camino a una veterinaria o refugio.',
+      icono: 'local_shipping',
+      tono: 'avance',
+    },
+    {
+      valor: 'COMPLETADO',
+      titulo: 'Rescatado',
+      ayuda: 'Cierra el caso. Requiere foto de evidencia.',
+      icono: 'verified',
+      tono: 'cierre',
+    },
+    {
+      valor: 'CANCELADO',
+      titulo: 'Cancelar rescate',
+      ayuda: 'Liberas el caso para que otro voluntario lo tome.',
+      icono: 'cancel',
+      tono: 'cancelar',
+    },
+  ];
+
   guardandoFicha = false;
   fichaOk = false;
   errorFicha: string | null = null;
@@ -59,6 +105,9 @@ export class UpdateCasePage implements OnInit {
   //   COMPLETADO → POST  /rescates/{id}/cerrar/   (foto + GPS)
   //   CANCELADO  → POST  /rescates/{id}/cancelar/ (motivo obligatorio)
   bitacoraAbierta = true;
+  dropdownAbierto = false;
+  abrirHaciaArriba = false;
+  centroDetalle: CentroAnimal | null = null;
 
   avance = {
     estado: '' as EstadoAvance,
@@ -74,6 +123,7 @@ export class UpdateCasePage implements OnInit {
 
   // Cancelación (solo aplica si estado === CANCELADO)
   motivoCancelacion = '';
+  centroDestino = '';
 
   procesando = false;         // cubre avance, cierre y cancelación
   avanceOk = false;
@@ -220,6 +270,58 @@ export class UpdateCasePage implements OnInit {
     return 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-600/30';
   }
 
+  get opcionActual(): OpcionEstado | null {
+    return this.opciones.find(o => o.valor === this.avance.estado) ?? null;
+  }
+
+  get esTraslado(): boolean {
+    return this.avance.estado === 'EN_TRASLADO';
+  }
+
+  toggleDropdown(event: MouseEvent): void {
+    if (this.procesando || this.casoTerminado) return;
+
+    if (!this.dropdownAbierto) {
+      const boton = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const espacioAbajo = window.innerHeight - boton.bottom;
+      const espacioArriba = boton.top;
+      const alto = 400; // el menú con 5 opciones
+
+      // Solo abre arriba si no cabe abajo Y sí cabe arriba
+      this.abrirHaciaArriba = espacioAbajo < alto && espacioArriba > espacioAbajo;
+    }
+    this.dropdownAbierto = !this.dropdownAbierto;
+  }
+
+  seleccionar(opcion: OpcionEstado): void {
+    this.avance.estado = opcion.valor;
+    this.dropdownAbierto = false;
+    this.onCambioEstado();
+  }
+
+  // Cierra el dropdown al hacer clic fuera
+  @HostListener('document:click', ['$event'])
+  onClickFuera(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('[data-dropdown-estado]')) {
+      this.dropdownAbierto = false;
+    }
+  }
+
+  // Cierra con Escape
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.dropdownAbierto = false;
+  }
+
+  claseOpcion(tono: OpcionEstado['tono']): string {
+    switch (tono) {
+      case 'cierre':   return 'text-emerald-700';
+      case 'cancelar': return 'text-red-600';
+      default:         return 'text-blue-700';
+    }
+  }
+
   toggleBitacora(): void {
     this.bitacoraAbierta = !this.bitacoraAbierta;
   }
@@ -228,7 +330,7 @@ export class UpdateCasePage implements OnInit {
   onCambioEstado(): void {
     this.errorAvance = null;
     this.avanceOk = false;
- 
+
     if (!this.esCierre) {
       this.foto = null;
       this.fotoPreview = null;
@@ -236,8 +338,11 @@ export class UpdateCasePage implements OnInit {
     if (!this.esCancelacion) {
       this.motivoCancelacion = '';
     }
- 
-    if (this.esCierre) {
+    if (!this.esTraslado) {
+      this.centroDestino = '';
+    }
+
+    if (this.esCierre || this.esTraslado) {
       this.cargarCentrosCercanos();
     }
   }
@@ -262,10 +367,7 @@ export class UpdateCasePage implements OnInit {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         this.centrosService
-          .buscarTodosLosCentros(
-            { latitud: pos.coords.latitude, longitud: pos.coords.longitude },
-            10
-          )
+          .buscarCentrosEnCascada({ latitud: pos.coords.latitude, longitud: pos.coords.longitude })
           .subscribe({
             next: (centros) => {
               this.centrosCercanos = centros.slice(0, 3);
@@ -284,6 +386,20 @@ export class UpdateCasePage implements OnInit {
       },
       { enableHighAccuracy: true, timeout: 8000 },
     );
+  }
+
+  abrirDetalleCentro(centro: CentroAnimal, event: Event): void {
+    event.stopPropagation();
+    this.centroDetalle = centro;
+  }
+
+  cerrarDetalleCentro(): void {
+    this.centroDetalle = null;
+  }
+
+  elegirCentro(centro: CentroAnimal): void {
+    this.centroDestino = centro.nombre;
+    this.centroDetalle = null;
   }
 
   // ─────────────────────────────────────────
@@ -346,7 +462,12 @@ export class UpdateCasePage implements OnInit {
   // EN_SITIO → PATCH estado
   private ejecutarAvance(rescateId: number): void {
     this.reportService
-      .actualizarEstadoRescate(rescateId, this.avance.estado as 'EN_SITIO', this.avance.nota)
+      .actualizarEstadoRescate(
+        rescateId,
+        this.avance.estado as 'EN_SITIO' | 'EN_PROCESO' | 'EN_TRASLADO',
+        this.avance.nota,
+        this.esTraslado ? this.centroDestino : undefined,
+      )
       .subscribe({
         next: () => {
           this.procesando = false;
@@ -383,9 +504,8 @@ export class UpdateCasePage implements OnInit {
             error: (err) => {
               this.procesando = false;
               this.modalConfirmarAbierto = false;
-              this.errorAvance = err?.error?.code === 'gps_too_far'
-                ? 'Estás demasiado lejos del punto reportado para cerrar el caso.'
-                : (err?.error?.detail || 'No se pudo cerrar el caso. Verifica la foto y tu ubicación.');
+              this.errorAvance = err?.error?.detail
+                || 'No se pudo cerrar el caso. Verifica la foto y tu ubicación.';
             },
           });
       },
@@ -421,6 +541,7 @@ export class UpdateCasePage implements OnInit {
     this.foto = null;
     this.fotoPreview = null;
     this.motivoCancelacion = '';
+    this.centroDestino = '';
   }
 
   // ─────────────────────────────────────────
@@ -443,6 +564,8 @@ export class UpdateCasePage implements OnInit {
       case 'EN_SITIO':   return 'En sitio';
       case 'COMPLETADO': return 'Rescatado';
       case 'CANCELADO':  return 'Cancelado';
+      case 'EN_PROCESO':  return 'En proceso';
+      case 'EN_TRASLADO': return 'En traslado';
       default:           return estado;
     }
   }
