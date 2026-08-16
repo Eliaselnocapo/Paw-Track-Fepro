@@ -66,16 +66,15 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
   // "es el mismo caso ¿si o no?".
   duplicadoDescartado = false;
   folioExistente: string | null = null;
-
-  // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
-  verificandoDuplicado = false;
-  candidatoDuplicado: CandidatoDuplicado | null = null;
-  duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
   imagenBorradorId: string | null = null;
   borradorId: string | null = null;
   private subiendoImagenBorrador = false;
   private precargandoEmbedding = false;
 
+  // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
+  verificandoDuplicado = false;
+  candidatoDuplicado: CandidatoDuplicado | null = null;
+  duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
 
   descargandoCartelManual = false;
 
@@ -342,7 +341,6 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
 
       this.pasoActual++;
 
-      if (this.pasoActual === 2) this.subirImagenBorrador();
       if (this.pasoActual === 3) this.initInteractiveMap();
       if (this.pasoActual === 4) { this.initPreviewMap(); this.verificarDuplicado(); }
       if (this.pasoActual === 5) this.guardarBaseDatosLocal(); // Corregido el nombre aquí
@@ -370,7 +368,7 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
       latitud: this.latActual,
       longitud: this.lngActual,
       imagen,
-      borrador_id: this.borradorId ?? undefined,
+      borrador_id: this.borradorId ?? undefined, // ← NUEVO
     });
   }
 
@@ -402,7 +400,7 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     });
   }
 
-  /** Fase A: sube la foto sola, apenas se sale del paso 1. */
+    /** Fase A: sube la foto sola, apenas se selecciona (antes de conocer la especie). */
   subirImagenBorrador(): void {
     const imagen = this.archivosSeleccionados[0]?.archivoFisico;
     if (!imagen || this.subiendoImagenBorrador || this.imagenBorradorId) return;
@@ -412,14 +410,14 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
       next: (res) => {
         this.imagenBorradorId = res.imagen_borrador_id;
         this.subiendoImagenBorrador = false;
-        // Si el usuario ya eligió especie mientras esto subía, dispara ya la Fase B
+        // Si el usuario ya había elegido especie mientras esto subía, dispara Fase B ya.
         if (this.tipoAnimal) this.activarPrecargaEmbedding();
       },
       error: () => { this.subiendoImagenBorrador = false; },
     });
   }
 
-  /** Fase B: dispara el cómputo en el instante en que se conoce la especie. */
+  /** Fase B: dispara el cómputo async en el instante en que se conoce la especie. */
   activarPrecargaEmbedding(): void {
     if (!this.imagenBorradorId || !this.tipoAnimal || this.precargandoEmbedding || this.borradorId) return;
 
@@ -429,8 +427,6 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
       error: () => { this.precargandoEmbedding = false; },
     });
   }
-
-
 
   /**
    * Se llama al hacer clic en "Enviar reporte" (en vez de siguientePaso()
@@ -510,7 +506,11 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     this.guardarEnBaseDeDatos();
   }
   seleccionarColor(color: string) { this.colorAnimal = color; }
-  seleccionarTipo(tipo: string) { this.tipoAnimal = tipo; this.borradorId = null; if (this.imagenBorradorId) this.activarPrecargaEmbedding(); }
+  seleccionarTipo(tipo: string) {
+    this.tipoAnimal = tipo;
+    this.borradorId = null;
+    if (this.imagenBorradorId) this.activarPrecargaEmbedding();
+  }
   seleccionarTamano(tamano: string) { this.tamanoAproximado = tamano; }
   seleccionarAgresividad(valor: string) { this.agresividadAnimal = valor; }
   
@@ -615,37 +615,40 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
   }
 
 
-  onFileSelected(event: any) {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+onFileSelected(event: any) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file: any) => {
-      // Validación de cortesía: el backend revisa los magic bytes de todas
-      // formas. Esto evita que el usuario espere una subida que va a
-      // rechazarse.
-      if (!this.TIPOS_IMAGEN.includes(file.type)) {
-        this.errorEnvio = 'Selecciona una imagen (JPG, PNG, GIF o WEBP).';
-        return;
+  Array.from(files).forEach((file: any) => {
+    if (!this.TIPOS_IMAGEN.includes(file.type)) {
+      this.errorEnvio = 'Selecciona una imagen (JPG, PNG, GIF o WEBP).';
+      return;
+    }
+
+    if (file.size > this.MAX_MB * 1024 * 1024) {
+      this.errorEnvio = `La imagen no puede superar ${this.MAX_MB} MB.`;
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.archivosSeleccionados.push({
+        archivoFisico: file,
+        preview: e.target.result,
+        nombre: file.name
+      });
+
+      // Dispara Fase A en cuanto se tiene la primera imagen — no espera
+      // a que el usuario avance de paso.
+      if (this.archivosSeleccionados.length === 1) {
+        this.subirImagenBorrador();
       }
+    };
+    reader.readAsDataURL(file);
+  });
 
-      if (file.size > this.MAX_MB * 1024 * 1024) {
-        this.errorEnvio = `La imagen no puede superar ${this.MAX_MB} MB.`;
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.archivosSeleccionados.push({
-          archivoFisico: file,
-          preview: e.target.result,
-          nombre: file.name
-        });
-      };
-      reader.readAsDataURL(file);
-    });
-
-    event.target.value = '';
-  }
+  event.target.value = '';
+}
 
   
 
@@ -693,6 +696,7 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
         }
 
         this.folioGenerado = res.folio ?? `#${res.id}`;
+
         const haySesion = !!localStorage.getItem('pawtrack_access');
 
         /*

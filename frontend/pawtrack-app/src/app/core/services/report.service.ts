@@ -94,14 +94,6 @@ export interface VerificarDuplicadoPayload {
   borrador_id?: string;
 }
 
-export interface ImagenBorradorResponse {
-  imagen_borrador_id: string;
-}
-
-export interface PrecargaEmbeddingResponse {
-  borrador_id: string;
-}
-
 export interface SeguimientoResponse {
   folio: string;
   estado: string;
@@ -249,6 +241,14 @@ export interface Paginated<T> {
   results:  T[];
 }
 
+export interface ImagenBorradorResponse {
+  imagen_borrador_id: string;
+}
+
+export interface PrecargaEmbeddingResponse {
+  borrador_id: string;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SERVICIO
 // ─────────────────────────────────────────────────────────────────────────────
@@ -320,10 +320,35 @@ export class ReportService {
     form.append('latitud',  String(payload.latitud));
     form.append('longitud', String(payload.longitud));
     form.append('imagen', payload.imagen, payload.imagen.name);
-    if (payload.borrador_id) form.append('borrador_id', payload.borrador_id);
+    if (payload.borrador_id) form.append('borrador_id', payload.borrador_id); // ← NUEVO
 
     return this.http.post<{ candidato: CandidatoDuplicado | null }>(`${this.apiUrl}verificar-duplicado/`, form);
   }
+
+  /**
+ * Endpoint dividido en 2 modos (mismo endpoint, mismo action de Django):
+ *
+ * MODO 1 — subirImagenBorrador(imagen): apenas se selecciona la foto, se
+ * sube sola (todavía no se conoce la especie). Regresa imagen_borrador_id.
+ *
+ * MODO 2 — activarPrecargaEmbedding(imagenBorradorId, tipoAnimal): en el
+ * instante en que se elige la especie, dispara el cálculo async (Celery)
+ * del embedding sobre la imagen ya subida. Regresa borrador_id, que luego
+ * viaja a verificarDuplicado() para reusar el embedding precalculado en
+ * vez de recalcularlo.
+ */
+subirImagenBorrador(imagen: File): Observable<ImagenBorradorResponse> {
+  const form = new FormData();
+  form.append('imagen', imagen, imagen.name);
+  return this.http.post<ImagenBorradorResponse>(`${this.apiUrl}precargar-imagen/`, form);
+}
+
+activarPrecargaEmbedding(imagenBorradorId: string, tipoAnimal: string): Observable<PrecargaEmbeddingResponse> {
+  const form = new FormData();
+  form.append('imagen_borrador_id', imagenBorradorId);
+  form.append('tipo_animal', tipoAnimal);
+  return this.http.post<PrecargaEmbeddingResponse>(`${this.apiUrl}precargar-imagen/`, form);
+}
 
 /**
    * Lista de reportes.
