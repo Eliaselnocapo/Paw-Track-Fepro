@@ -5,6 +5,8 @@ PUNTOS_REPORTE_VALIDO = 4
 PUNTOS_RESCATE_COMPLETADO = 10
 PUNTOS_SEGUIMIENTO = 2
 PUNTOS_POR_FRAUD_FLAG = -15
+MAX_FRAUD_FLAGS_CONFIABLE = 0
+MAX_FRAUD_FLAGS_REVISION = 2
 
 ESTADOS_INCIDENCIA_INVALIDOS = {'CANCELADO'}
 
@@ -100,3 +102,30 @@ def calcular_reputacion(usuario) -> dict:
         'timeline': timeline,
         'historialCasos': historial_casos,
     }
+def evaluar_confianza_reporte(usuario) -> tuple[str, float]:
+    """Decide el estado inicial de una incidencia y su trust_score, según el
+    historial de fraude de quien la reporta.
+
+    Devuelve (estado, trust_score).
+
+    Un reporte NUNCA se oculta por esto: PENDIENTE sigue siendo visible para
+    los voluntarios. Lo que cambia es si puede escalar en urgencia y disparar
+    notificaciones — un animal real no debe quedarse sin ayuda por el
+    historial de quien lo reportó (ver §11 del documento, riesgo de falsos
+    positivos marcado como probabilidad alta).
+    """
+    # Anónimo: no hay historial que consultar. Entra sin escalar hasta que
+    # alguien lo reclame con el cartel PDF (ver IncidenciaViewSet.reclamar).
+    if usuario is None or not getattr(usuario, 'is_authenticated', False):
+        return 'PENDIENTE', 50.0
+
+    flags = usuario.fraud_flags or 0
+
+    if flags <= MAX_FRAUD_FLAGS_CONFIABLE:
+        return 'VALIDADO', 80.0
+
+    if flags <= MAX_FRAUD_FLAGS_REVISION:
+        return 'PENDIENTE', 40.0
+
+    # Historial de fraude confirmado: entra, pero marcado.
+    return 'PENDIENTE', 15.0

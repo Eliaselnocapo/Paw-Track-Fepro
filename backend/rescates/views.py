@@ -19,6 +19,8 @@ from django.utils import timezone
 from core.pagination import StandardPagination
 from bd.serializers import IncidenciaSerializer
 
+from core.validators import validar_imagen
+
 
 # Excepción personalizada para el handler global (409 Conflict)
 class CaseAlreadyTaken(APIException):
@@ -48,7 +50,9 @@ class AceptarRescateView(APIView):
             raise NotFound("Incidencia no encontrada.")
 
         # 3. Validación de estado con raise ValidationError
-        if incidencia.estado != 'PENDIENTE':
+        ESTADOS_ACEPTABLES = ('PENDIENTE', 'VALIDADO')
+
+        if incidencia.estado not in ESTADOS_ACEPTABLES:
             raise ValidationError(
                 f"La incidencia ya no está disponible. Estado actual: {incidencia.estado}"
             )
@@ -101,6 +105,14 @@ class AceptarRescateView(APIView):
 
         # 5. Disparar el WebSocket para que el mapa en F4 se actualice en tiempo real
         broadcast_status_changed(incidencia)
+        from notificaciones.services import crear_notificacion
+        crear_notificacion(
+            incidencia.usuario_reporta_id,
+            tipo='reporte_aceptado',
+            titulo='Un voluntario tomó tu caso',
+            mensaje=f'{user.first_name or "Un voluntario"} va en camino.',
+            enlace=f'/view-follow-up/{incidencia.folio}',
+        )
 
         # 6. Respuesta con el contrato exacto esperado
         return Response({
@@ -130,7 +142,7 @@ class DisponiblesView(ListAPIView):
         # Magia PostGIS: filtramos PENDIENTE y calculamos la distancia
         # geométrica en un solo query
         return Incidencia.objects.filter(
-            estado='PENDIENTE',
+            estado__in=('PENDIENTE', 'VALIDADO'),
             ubicacion__distance_lte=(punto, Distance(km=10))
         ).select_related('animal', 'usuario_reporta').order_by('-urgency_score')
 
@@ -234,7 +246,7 @@ class CerrarRescateView(APIView):
             raise ValidationError("Faltan coordenadas GPS actuales para cerrar el caso.")
         if not foto:
             raise ValidationError("La foto de evidencia es obligatoria para el cierre.")
-
+        validar_imagen(foto)
         try:
             punto_cierre = Point(float(lng), float(lat), srid=4326)
         except (TypeError, ValueError):
@@ -251,7 +263,7 @@ class CerrarRescateView(APIView):
         rescate.fecha_cierre = timezone.now()
 
         rescate.save(update_fields=[
-            'closure_photo', 'closure_location', 'estado', 'fecha_cierre', 'historial',
+            'closure_photo', 'closure_location', 'estado', 'fecha_cierre',
         ])
         
         rescate.historial.append({
@@ -270,6 +282,14 @@ class CerrarRescateView(APIView):
         rescate.incidencia.save(update_fields=['estado'])
 
         broadcast_status_changed(rescate.incidencia)
+        from notificaciones.services import crear_notificacion
+        crear_notificacion(
+            rescate.incidencia.usuario_reporta_id,
+            tipo='reporte_cerrado',
+            titulo='Tu caso fue resuelto',
+            mensaje='El voluntario cerró el rescate con evidencia fotográfica.',
+            enlace=f'/cronology-case/{rescate.incidencia.folio}',
+        )
 
         return Response({
             "code": "rescate_cerrado",
@@ -317,6 +337,14 @@ class CancelarRescateView(APIView):
         incidencia.save(update_fields=['estado', 'rescatista_asignado'])
 
         broadcast_status_changed(incidencia)
+        from notificaciones.services import crear_notificacion
+        crear_notificacion(
+            incidencia.usuario_reporta_id,
+            tipo='reporte_cancelado',
+            titulo='Tu caso volvió a estar disponible',
+            mensaje='El voluntario liberó el rescate. Otro puede tomarlo.',
+            enlace=f'/view-report/{incidencia.folio}',
+        )
 
         return Response({
             "code": "rescate_cancelado",

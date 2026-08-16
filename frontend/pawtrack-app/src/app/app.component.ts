@@ -15,7 +15,7 @@ import {
 
 import { filter } from 'rxjs/operators';
 import { AuthService } from './core/services/auth.service';
-
+import { NotificacionesService } from './core/services/notificaciones.service';
 import { ToastContainerComponent } from './shared/toast/toast-container.component';
 
 
@@ -37,6 +37,7 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
 })
 export class AppComponent implements OnDestroy {
 
+  readonly notifService = inject(NotificacionesService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private inicioX = 0;
@@ -44,17 +45,20 @@ export class AppComponent implements OnDestroy {
   private puedeRefrescar = false;
   refrescando = false;
 
-private readonly touchStartHandler = (
-  event: TouchEvent
-): void => {
-  void this.iniciarDeslizamiento(event);
-};
+  private readonly touchStartHandler = (
+    event: TouchEvent
+  ): void => {
+    void this.iniciarDeslizamiento(event);
+  };
 
-private readonly touchEndHandler = (
-  event: TouchEvent
-): void => {
-  this.terminarDeslizamiento(event);
-};
+  private readonly touchEndHandler = (
+    event: TouchEvent
+  ): void => {
+    this.terminarDeslizamiento(event);
+  };
+  ngOnInit(): void {
+    this.notifService.refrescarContador();
+  }
 
   constructor() {
     this.router.events
