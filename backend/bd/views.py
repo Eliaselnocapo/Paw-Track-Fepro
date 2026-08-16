@@ -1,4 +1,6 @@
 import re
+from django.contrib.gis.measure import Distance
+from django.contrib.gis.measure import Distance
 import pdfplumber
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import viewsets, status
@@ -26,6 +28,9 @@ from notificaciones.services import notify_user
 
 from .models import Usuario, Animal, Incidencia
 from .serializers import UsuarioSerializer, AnimalSerializer, IncidenciaSerializer, EditarPerfilSerializer
+from notificaciones.tasks import calcular_trafico
+from .services import evaluar_confianza_reporte
+
 
 def _jwt_response(user):
     """Genera el response estándar {access, refresh, user} con simplejwt."""
@@ -40,6 +45,8 @@ def _jwt_response(user):
 class LoginView(APIView):
     """Login por email/contraseña — bypasses dj_rest_auth para control total del JWT."""
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'login'
 
     def post(self, request):
         email = request.data.get('email', '').strip()
@@ -248,14 +255,42 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
     serializer_class = IncidenciaSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def get_throttles(self):
+        # El límite solo aplica a la creación: consultar casos no se limita.
+        if self.action == 'create':
+            self.throttle_scope = 'crear_reporte'
+            return [ScopedRateThrottle()]
+        return super().get_throttles()
 
     def get_queryset(self):
-        return Incidencia.objects.select_related(
-            'animal', 
-            'usuario_reporta', 
-            'rescatista_asignado', 
+        qs = Incidencia.objects.select_related(
+            'animal',
+            'usuario_reporta',
+            'rescatista_asignado',
             'rescatista_asignado__usuario'
         ).order_by('-id')
+
+        # Filtro geográfico opcional: si no vienen lat/lng, se devuelven
+        # todos. Un caso en Chihuahua no le sirve a alguien en Puebla, pero
+        # tampoco queremos forzar la ubicación — el usuario decide desde el
+        # front si quiere ver solo lo cercano o el panorama completo.
+        lat = self.request.query_params.get('lat')
+        lng = self.request.query_params.get('lng')
+
+        if not lat or not lng:
+            return qs
+
+        try:
+            punto = Point(float(lng), float(lat), srid=4326)
+            radio_km = float(self.request.query_params.get('radio_km', 10))
+        except (TypeError, ValueError):
+            # Coordenadas basura: se ignora el filtro en vez de tronar. El
+            # mapa prefiere mostrar de más a mostrar un error.
+            return qs
+
+        return qs.filter(
+            ubicacion__distance_lte=(punto, Distance(km=radio_km))
+        )
 
     def get_permissions(self):
         if self.action == 'destroy':
@@ -297,6 +332,18 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         nueva_incidencia = serializer.instance
+        
+        # La confianza del reportante define si el caso entra validado o
+        # queda pendiente de revisión. No lo oculta: solo condiciona si puede
+        # escalar en urgencia (ver evaluar_confianza_reporte).
+
+        estado_inicial, trust = evaluar_confianza_reporte(
+            request.user if request.user.is_authenticated else None
+        )
+        nueva_incidencia.estado = estado_inicial
+        nueva_incidencia.trust_score = trust
+        nueva_incidencia.save(update_fields=['estado', 'trust_score'])
+        calcular_trafico.delay(nueva_incidencia.id)
 
         candidata_descartada = self._resolver_duplicado_en_creacion(request, data, nueva_incidencia)
         if candidata_descartada is not None:
@@ -622,7 +669,21 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             )
 
         incidencia.usuario_reporta = request.user
-        incidencia.save(update_fields=['usuario_reporta'])
+
+        # Al reclamarlo ya hay un historial contra el cual evaluarlo: un
+        # reporte anónimo que entró como PENDIENTE puede pasar a VALIDADO si
+        # quien lo reclama no tiene marcas de fraude. Solo aplica si el caso
+        # sigue en su estado inicial — si ya lo tomó un voluntario o está
+        # cerrado, no se toca.
+        campos = ['usuario_reporta']
+        if incidencia.estado == 'PENDIENTE':
+            from .services import evaluar_confianza_reporte
+            estado_nuevo, trust = evaluar_confianza_reporte(request.user)
+            incidencia.estado = estado_nuevo
+            incidencia.trust_score = trust
+            campos += ['estado', 'trust_score']
+
+        incidencia.save(update_fields=campos)
 
         serializer = self.get_serializer(incidencia)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -264,3 +264,7 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             instance.animal.save()
 
         return super().update(instance, validated_data)
+    def validate_imagen(self, value):
+        from core.validators import validar_imagen
+        validar_imagen(value)
+        return value

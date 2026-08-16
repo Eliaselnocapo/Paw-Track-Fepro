@@ -85,6 +85,9 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
   private mapPreview: any;
   private markerPreview: any;
 
+  private readonly TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  private readonly MAX_MB = 10;
+
   proximosPasos = [
     { id: 1, texto: 'Los rescatistas cercanos reciben una alerta de alta prioridad.' },
     { id: 2, texto: 'Un voluntario acepta el caso y se dirige a la ubicación exacta.' },
@@ -614,22 +617,37 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
 
   onFileSelected(event: any) {
     const files = event.target.files;
-    if (files && files.length > 0) {
-      this.imagenBorradorId = null;
-      this.borradorId = null;
-      Array.from(files).forEach((file: any) => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.archivosSeleccionados.push({
-            archivoFisico: file,
-            preview: e.target.result,
-            nombre: file.name
-          });
-        };
-        reader.readAsDataURL(file);
-      });
-    }
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file: any) => {
+      // Validación de cortesía: el backend revisa los magic bytes de todas
+      // formas. Esto evita que el usuario espere una subida que va a
+      // rechazarse.
+      if (!this.TIPOS_IMAGEN.includes(file.type)) {
+        this.errorEnvio = 'Selecciona una imagen (JPG, PNG, GIF o WEBP).';
+        return;
+      }
+
+      if (file.size > this.MAX_MB * 1024 * 1024) {
+        this.errorEnvio = `La imagen no puede superar ${this.MAX_MB} MB.`;
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.archivosSeleccionados.push({
+          archivoFisico: file,
+          preview: e.target.result,
+          nombre: file.name
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    event.target.value = '';
   }
+
+  
 
   eliminarArchivo(archivo: any) {
     const index = this.archivosSeleccionados.indexOf(archivo);

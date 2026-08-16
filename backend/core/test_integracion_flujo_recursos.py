@@ -11,11 +11,18 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
+import io
+from PIL import Image
 from bd.models import PerfilPatrocinador
 
 Usuario = get_user_model()
 
+def imagen_valida(nombre='evidencia.jpg'):
+    """JPEG real: validar_imagen() revisa los magic bytes, no la extensión."""
+    buffer = io.BytesIO()
+    Image.new('RGB', (10, 10), 'red').save(buffer, format='JPEG')
+    buffer.seek(0)
+    return SimpleUploadedFile(nombre, buffer.read(), content_type='image/jpeg')
 
 class FlujoCompletoRecursosTests(APITestCase):
     def setUp(self):
@@ -82,9 +89,7 @@ class FlujoCompletoRecursosTests(APITestCase):
 
         # 5. Rescatista cierra el rescate con evidencia (GPS + foto)
         self.client.force_authenticate(self.rescatista)
-        foto_evidencia = SimpleUploadedFile(
-            'evidencia.jpg', b'contenido-falso-de-imagen', content_type='image/jpeg',
-        )
+        foto_evidencia = imagen_valida()
         respuesta_cerrar = self.client.post(
             reverse('cerrar-rescate', kwargs={'rescate_id': rescate.id}),
             {'lat': 19.4326, 'lng': -99.1332, 'foto': foto_evidencia},
@@ -130,9 +135,7 @@ class FlujoCompletoRecursosTests(APITestCase):
         from rescates.models import Rescate
         rescate = Rescate.objects.get(incidencia_id=incidencia_id)
 
-        foto_evidencia = SimpleUploadedFile(
-            'evidencia.jpg', b'contenido-falso-de-imagen', content_type='image/jpeg',
-        )
+        foto_evidencia = imagen_valida()
         self.client.post(
             reverse('cerrar-rescate', kwargs={'rescate_id': rescate.id}),
             {'lat': 19.4326, 'lng': -99.1332, 'foto': foto_evidencia},
@@ -147,3 +150,4 @@ class FlujoCompletoRecursosTests(APITestCase):
         })
         self.assertEqual(respuesta.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(respuesta.data['code'], 'resource_not_assignable')
+    

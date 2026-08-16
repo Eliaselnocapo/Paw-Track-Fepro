@@ -112,6 +112,10 @@ export class ProfilePage implements OnInit {
     this.cargarPerfil();
   }
 
+  ionViewWillEnter(): void {
+    this.cargarPerfil();
+  }
+
   @HostListener('window:resize')
   onResize() {
     this.esPantallaGrande = window.innerWidth >= 768;

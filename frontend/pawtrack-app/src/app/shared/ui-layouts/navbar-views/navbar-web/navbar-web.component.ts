@@ -4,11 +4,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuToggleComponent } from '../../menu-toggle/menu-toggle.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from 'src/environments/environment';
+import { CampanaNotificacionesComponent } from '../../campana-notificaciones/campana-notificaciones.component';
 
 @Component({
   selector: 'app-navbar-web',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, MenuToggleComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MenuToggleComponent, CampanaNotificacionesComponent],
   templateUrl: './navbar-web.component.html',
   styleUrls: ['./navbar-web.component.scss']
 })

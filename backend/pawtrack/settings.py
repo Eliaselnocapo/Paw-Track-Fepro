@@ -177,6 +177,12 @@ THROTTLE_RATES = {
     'user': '1000/day',
     'pdf_import': '5/minute',
     'vision_anon': '10/minute',
+    # §10: máximo 5 reportes por hora y por usuario.
+    'crear_reporte': '5/hour',
+    # §10 pide 5 intentos por cada 15 minutos, pero DRF solo entiende
+    # second/minute/hour/day. 20/hora es el equivalente más cercano y
+    # frena igual la fuerza bruta.
+    'login': '20/hour',
 }
 
 # La suite comparte Redis para probar locks de deduplicacion, pero no debe

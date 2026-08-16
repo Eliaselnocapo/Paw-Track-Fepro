@@ -108,7 +108,27 @@ def listar_publicaciones(centro_id):
 def crear_publicacion(centro_id, usuario, contenido, imagen=None):
     centro = obtener_centro(centro_id)
     _verificar_dueno(centro, usuario)
-    return PublicacionCentro.objects.create(centro=centro, contenido=contenido, imagen=imagen)
+    publicacion = PublicacionCentro.objects.create(centro=centro, contenido=contenido, imagen=imagen)
+
+    # Aviso a los seguidores. Va por bulk_create y no por crear_notificacion:
+    # un centro con muchos seguidores generaría un insert y una emisión de
+    # WebSocket por cada uno.
+    from notificaciones.models import Notificacion
+
+    seguidores_ids = centro.seguidores.values_list('usuario_id', flat=True)
+    if seguidores_ids:
+        Notificacion.objects.bulk_create([
+            Notificacion(
+                usuario_id=uid,
+                tipo='centro_publicacion',
+                titulo=f'{centro.nombre} publicó algo nuevo',
+                mensaje=contenido[:120],
+                enlace=f'/centro/{centro.id}',
+            )
+            for uid in seguidores_ids
+        ])
+
+    return publicacion
 
 
 def _obtener_publicacion_del_dueno(centro_id, post_id, usuario):

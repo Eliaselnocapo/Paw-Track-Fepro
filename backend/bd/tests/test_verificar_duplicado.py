@@ -184,7 +184,7 @@ class CrearReporteConDuplicadoTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         nueva = Incidencia.objects.get(id=response.data['id'])
-        self.assertEqual(nueva.estado, 'PENDIENTE')
+        self.assertEqual(nueva.estado, 'VALIDADO')
 
         self.original.refresh_from_db()
         self.assertEqual(self.original.urgency_score, 20)  # sin boost
@@ -213,5 +213,5 @@ class CrearReporteConDuplicadoTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         nueva = Incidencia.objects.get(id=response.data['id'])
-        self.assertEqual(nueva.estado, 'PENDIENTE')
+        self.assertEqual(nueva.estado, 'VALIDADO')
         self.assertFalse(SugerenciaDuplicado.objects.filter(incidencia_nueva=nueva).exists())

@@ -132,6 +132,9 @@ export class UpdateCasePage implements OnInit {
   // Confirmación para acciones definitivas
   modalConfirmarAbierto = false;
 
+  private readonly TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  private readonly MAX_MB = 10;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -350,8 +353,26 @@ export class UpdateCasePage implements OnInit {
   onFotoSeleccionada(event: Event): void {
     const input = event.target as HTMLInputElement;
     const archivo = input.files?.[0] ?? null;
+
+    if (!archivo) return;
+
+    // Validación de cortesía: el backend revisa los magic bytes de todas
+    // formas. Esto solo evita que el usuario espere una subida que va a
+    // rechazarse.
+    if (!this.TIPOS_IMAGEN.includes(archivo.type)) {
+      this.errorAvance = 'Selecciona una imagen (JPG, PNG, GIF o WEBP).';
+      input.value = '';
+      return;
+    }
+
+    if (archivo.size > this.MAX_MB * 1024 * 1024) {
+      this.errorAvance = `La imagen no puede superar ${this.MAX_MB} MB.`;
+      input.value = '';
+      return;
+    }
+
     this.foto = archivo;
-    this.fotoPreview = archivo ? URL.createObjectURL(archivo) : null;
+    this.fotoPreview = URL.createObjectURL(archivo);
   }
 
   private cargarCentrosCercanos(): void {

@@ -73,3 +73,32 @@ def broadcast_urgency_update(incidencia_id: int, zona_key: str, nuevo_score: flo
         "id": incidencia_id,
         "urgency_score": nuevo_score,
     })
+def crear_notificacion(usuario_id, tipo, titulo, mensaje='', enlace=''):
+    """Guarda la notificación y la emite por WebSocket si el usuario está
+    conectado. Las vistas deben llamar a esta, no a notify_user directo:
+    de lo contrario el aviso se pierde para quien no esté en línea.
+    """
+    from .models import Notificacion
+
+    if not usuario_id:
+        return None
+
+    notif = Notificacion.objects.create(
+        usuario_id=usuario_id,
+        tipo=tipo,
+        titulo=titulo,
+        mensaje=mensaje,
+        enlace=enlace,
+    )
+
+    notify_user(usuario_id, {
+        'type': 'notificacion',
+        'tipo': tipo,
+        'id': notif.id,
+        'titulo': titulo,
+        'mensaje': mensaje,
+        'enlace': enlace,
+        'created_at': notif.created_at.isoformat(),
+    })
+
+    return notif

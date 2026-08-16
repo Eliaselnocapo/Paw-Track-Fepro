@@ -1,3 +1,6 @@
+import io
+
+from PIL import Image
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
@@ -7,6 +10,13 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from bd.models import Usuario, Incidencia, Animal, PerfilRescatista
 from rescates.models import Rescate
 
+
+def imagen_valida(nombre='evidencia.jpg'):
+    """JPEG real: validar_imagen() revisa los magic bytes, no la extensión."""
+    buffer = io.BytesIO()
+    Image.new('RGB', (10, 10), 'red').save(buffer, format='JPEG')
+    buffer.seek(0)
+    return SimpleUploadedFile(nombre, buffer.read(), content_type='image/jpeg')
 
 class CancelarRescateTests(APITestCase):
     """POST /rescates/{id}/cancelar/ — el voluntario cancela su propio
@@ -78,14 +88,16 @@ class CancelarRescateTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_estado_view_generico_ya_no_acepta_cancelado(self):
-        """ActualizarEstadoView (PATCH /estado/) ya no debe aceptar CANCELADO
-        — ese estado ahora tiene efectos secundarios que solo maneja
-        CancelarRescateView."""
+        """ActualizarEstadoView (PATCH /estado/) solo acepta avances
+        intermedios. CANCELADO y COMPLETADO tienen efectos secundarios
+        (revertir la incidencia, exigir evidencia) que solo manejan sus
+        endpoints dedicados."""
         self.client.force_authenticate(user=self.rescatista)
         url = reverse('actualizar-estado-rescate', kwargs={'rescate_id': self.rescate.id})
-        response = self.client.patch(url, {'estado': 'CANCELADO'})
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        for estado in ('CANCELADO', 'COMPLETADO'):
+            response = self.client.patch(url, {'estado': estado})
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, estado)
 
 
 class FotoCierreEnHistorialTests(APITestCase):
@@ -114,7 +126,7 @@ class FotoCierreEnHistorialTests(APITestCase):
     def test_historial_completado_incluye_foto_cierre(self):
         self.client.force_authenticate(user=self.rescatista)
         url = reverse('cerrar-rescate', kwargs={'rescate_id': self.rescate.id})
-        foto = SimpleUploadedFile('evidencia.jpg', b'contenido-falso', content_type='image/jpeg')
+        foto = imagen_valida('evidencia.jpg')
 
         response = self.client.post(url, {'lat': 19.0414, 'lng': -98.2062, 'foto': foto}, format='multipart')
 
@@ -123,4 +135,4 @@ class FotoCierreEnHistorialTests(APITestCase):
         entrada = self.rescate.historial[-1]
         self.assertEqual(entrada['estado'], 'COMPLETADO')
         self.assertIsNotNone(entrada['foto_cierre'])
-        self.assertIn('evidencia', entrada['foto_cierre'])
+        self.assertIn('cierres/', entrada['foto_cierre'])   

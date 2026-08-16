@@ -41,7 +41,9 @@
           Iniciar sesion
         </a>
       } @else {
-        <!-- Avatar dinamico -->
+        <app-campana-notificaciones></app-campana-notificaciones>
+
+        <!-- Avatar escritorio -->
         <button routerLink="/profile"
           class="hidden md:flex w-10 h-10 bg-white items-center rounded-full justify-center overflow-hidden border-2 border-[#7DB7FF] hover:border-white hover:bg-blue-50 transition-colors focus:outline-none shadow-sm">
           @if (usuario$ | async; as u) {
@@ -54,20 +56,23 @@
             <span class="material-symbols-outlined text-[#2E5BD8] text-[22px]">person</span>
           }
         </button>
+
+        <!-- Avatar movil: el boton de emergencia ya vive dentro del menu
+             hamburguesa, asi que aqui va el acceso al perfil. -->
+        <button routerLink="/profile"
+          class="flex md:hidden w-9 h-9 bg-white items-center rounded-full justify-center overflow-hidden border-2 border-[#7DB7FF] active:scale-95 transition-transform">
+          @if (usuario$ | async; as u) {
+            @if (fotoUrl(u)) {
+              <img [src]="fotoUrl(u)" alt="" class="w-full h-full object-cover">
+            } @else {
+              <span class="text-[#2E5BD8] font-bold text-xs">{{ iniciales(u) }}</span>
+            }
+          } @else {
+            <span class="material-symbols-outlined text-[#2E5BD8] text-[20px]">person</span>
+          }
+        </button>
       }
 
-      <!-- Boton movil rojo -->
-      <button
-        class="flex md:hidden bg-red-600 text-white px-2.5 py-1.5 font-bold hover:bg-red-700 transition-colors items-center gap-1.5 shadow-sm active:scale-95 rounded-lg"
-        routerLink="/reports/create-report">
-        <span class="w-4 h-4 rounded-full bg-white flex items-center justify-center overflow-hidden">
-          <img src="assets/icon/warning.png" alt="Emergencia" class="w-4 h-4 object-contain" />
-        </span>
-        <span class="flex flex-col text-[10px] leading-[11px] text-left">
-          <span>Reportar</span>
-          <span>Emergencia</span>
-        </span>
-      </button>
 
       <!-- Boton escritorio rojo -->
       <button
