@@ -126,7 +126,7 @@ export class AuthService {
 
   loginConGoogle(idToken: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${this.API}/google/`, { id_token: idToken })
+      .post<AuthResponse>(`${this.API}/google/`, { access_token: idToken, id_token: idToken,  })
       .pipe(
         tap((res) => {
           localStorage.setItem('pawtrack_access', res.access);

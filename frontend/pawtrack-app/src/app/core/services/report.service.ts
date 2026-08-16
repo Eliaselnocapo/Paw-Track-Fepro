@@ -91,6 +91,15 @@ export interface VerificarDuplicadoPayload {
   latitud: number;
   longitud: number;
   imagen: File;
+  borrador_id?: string;
+}
+
+export interface ImagenBorradorResponse {
+  imagen_borrador_id: string;
+}
+
+export interface PrecargaEmbeddingResponse {
+  borrador_id: string;
 }
 
 export interface SeguimientoResponse {
@@ -311,6 +320,7 @@ export class ReportService {
     form.append('latitud',  String(payload.latitud));
     form.append('longitud', String(payload.longitud));
     form.append('imagen', payload.imagen, payload.imagen.name);
+    if (payload.borrador_id) form.append('borrador_id', payload.borrador_id);
 
     return this.http.post<{ candidato: CandidatoDuplicado | null }>(`${this.apiUrl}verificar-duplicado/`, form);
   }
