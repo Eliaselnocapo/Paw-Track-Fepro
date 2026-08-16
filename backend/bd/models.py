@@ -165,6 +165,14 @@ class Animal(models.Model):
 
 # 4. Tabla Incidencia 
 class Incidencia(models.Model):
+    ESTADO_CHOICES = [
+        ('PENDIENTE',    'Pendiente de validar'),
+        ('VALIDADO',     'Validado'),
+        ('ATENDIENDOSE', 'En atención'),
+        ('CERRADO',      'Cerrado'),
+        ('CANCELADO',    'Cancelado'),
+        ('DESESTIMADO',  'Desestimado'),
+    ]
     # Llaves Foráneas (Relaciones)
     usuario_reporta = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='incidencias_reportadas')
     animal = models.ForeignKey(Animal, on_delete=models.CASCADE, related_name='incidencias')
@@ -180,7 +188,7 @@ class Incidencia(models.Model):
     nombre_caso = models.CharField(max_length=150, blank=True, default='')
     nombre_contacto = models.CharField(max_length=150, blank=True, default='')
     telefono_contacto = models.CharField(max_length=20, blank=True, default='')
-    estado = models.CharField(max_length=50, default='PENDIENTE')
+    estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default='PENDIENTE')
     TIPO_INCIDENCIA_CHOICES = [
         ('EMERGENCIA', 'Emergencia'),
         ('EXTRAVIADO',  'Extraviado'),
@@ -192,6 +200,7 @@ class Incidencia(models.Model):
     # Campos calculados por el sistema
     urgency_score = models.FloatField(default=0)
     trust_score = models.FloatField(default=50)
+    trafico_score = models.FloatField(default=0)
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
     direccion   = models.CharField(max_length=255, blank=True, default='')

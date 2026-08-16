@@ -8,7 +8,9 @@ import { environment } from '../../../environments/environment';
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Estados posibles de una Incidencia (el reporte). */
-export type EstadoIncidencia = 'PENDIENTE' | 'ATENDIENDOSE' | 'CERRADO';
+export type EstadoIncidencia =
+  | 'PENDIENTE' | 'VALIDADO' | 'ATENDIENDOSE'
+  | 'CERRADO' | 'CANCELADO' | 'DESESTIMADO';
 
 /**
  * Estados posibles de un Rescate (la "misión" del rescatista).
@@ -313,13 +315,26 @@ export class ReportService {
     return this.http.post<{ candidato: CandidatoDuplicado | null }>(`${this.apiUrl}verificar-duplicado/`, form);
   }
 
-  /**
-   * Lista TODOS los reportes (AllowAny). Útil para el mapa general.
-   * OJO: para el dashboard de voluntario usa listarCasosDisponibles();
-   * para "mis casos aceptados" usa listarMisRescates().
+/**
+   * Lista de reportes.
+   *
+   * El filtro geográfico es opcional a propósito: sin lat/lng el backend
+   * devuelve todos, que es justo lo que necesita la opción "todo el país"
+   * del dashboard de voluntario.
    */
-  listarReportes(): Observable<IncidenciaResponse[]> {
-    return this.http.get<IncidenciaResponse[]>(this.apiUrl);
+  listarReportes(
+    filtro?: { lat: number; lng: number; radio_km: number },
+  ): Observable<IncidenciaResponse[]> {
+    let params = new HttpParams();
+
+    if (filtro) {
+      params = params
+        .set('lat', filtro.lat)
+        .set('lng', filtro.lng)
+        .set('radio_km', filtro.radio_km);
+    }
+
+    return this.http.get<IncidenciaResponse[]>(this.apiUrl, { params });
   }
 
   /** Obtiene un reporte por su ID. */

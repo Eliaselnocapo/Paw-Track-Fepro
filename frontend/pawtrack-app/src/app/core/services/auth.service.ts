@@ -75,9 +75,11 @@ export class AuthService {
     this.limpiarUsuario();
     this.activeRoleSubject.next('');
 
-    this.router.navigate(['/home']);
+    // Recarga completa en vez de router.navigate: Ionic cachea las páginas,
+    // así que con navigate los componentes ya montados conservan los datos
+    // del usuario anterior hasta que se recarga a mano.
+    window.location.href = '/home';
   }
-
   setActiveRole(role: string): void {
     this.activeRoleSubject.next(role);
   }

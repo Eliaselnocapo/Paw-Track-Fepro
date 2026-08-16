@@ -3,6 +3,8 @@ Tests para B3:
   - notificaciones/consumers.py  (MapaConsumer, NotifConsumer — auth y conexión WS)
   - notificaciones/tasks.py      (recalc_urgency_score — lógica de recálculo)
 """
+from datetime import timedelta
+from django.utils import timezone
 from unittest.mock import patch
 
 from asgiref.sync import async_to_sync
@@ -237,10 +239,15 @@ class RecalcUrgencyScoreTests(TestCase):
         )
         PerfilRescatista.objects.create(usuario=rescatista)
 
-        # Forzar score alto via caché de clima y tráfico con valores altos
-        # score = 40 + 0 + 200*0.15 + 200*0.15 = 40 + 30 + 30 = 100 (techo) → delta=100 ≥ 10
-        cache.set(f"clima_{self.incidencia.id}", 200)
-        cache.set(f"trafico_{self.incidencia.id}", 200)
+        # El score se fuerza por condición (ya es 'critico' desde setUp),
+        # tiempo y tráfico — las tres dimensiones que el motor lee hoy.
+        # score = 100*0.45 + 100*0.40 + 100*0.15 = 100 (techo)
+        # created_at va por update(): auto_now_add ignora los save() normales.
+        self.incidencia.trafico_score = 100
+        self.incidencia.save(update_fields=['trafico_score'])
+        Incidencia.objects.filter(pk=self.incidencia.pk).update(
+            created_at=timezone.now() - timedelta(hours=13)
+        )
 
         recalc_urgency_score()
 

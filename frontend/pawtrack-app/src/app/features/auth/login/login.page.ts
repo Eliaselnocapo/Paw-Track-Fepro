@@ -119,13 +119,9 @@ export class LoginPage implements AfterViewInit {
     const returnUrl =
       this.route.snapshot.queryParamMap.get('returnUrl') || '/home';
 
-    if (roles.length > 1) {
-      this.router.navigate(['/home'], {
-        queryParams: { returnUrl },
-      });
-      return;
-    }
-
+    // El rol activo arranca en REPORTERO y se cambia desde el perfil. Antes
+    // los usuarios con varios roles se desviaban al home a "elegir", pero esa
+    // pantalla no existe — el efecto era perder el returnUrl.
     this.auth.setActiveRole(roles[0] ?? 'REPORTERO');
     this.router.navigateByUrl(returnUrl);
   }

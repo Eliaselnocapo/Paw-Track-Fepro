@@ -318,10 +318,10 @@
                     Todavía no has publicado nada.
                   </div>
                 } @else {
-                  <div class="divide-y divide-slate-100">
+                  <div class="p-5 flex flex-col gap-4 bg-slate-50/60">
                     @for (post of perfil.publicaciones; track post.id) {
-                      <article class="hover:bg-slate-50/60 transition-colors">
-                        <div class="p-5 flex items-start justify-between gap-3">
+                      <article class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+                        <div class="p-4 flex items-start justify-between gap-3">
                           <div class="flex-1 min-w-0">
                             <p class="text-xs text-slate-400 mb-1">{{ post.fecha | date:'d MMM y, HH:mm' }}</p>
                             <p class="text-sm text-slate-700 leading-relaxed">{{ post.texto }}</p>
@@ -337,8 +337,15 @@
                             </button>
                           </div>
                         </div>
+
                         @if (post.imagenUrl) {
-                          <img [src]="post.imagenUrl" class="w-full aspect-video object-cover">
+                          <!-- max-h en vez de aspect-video: con imagenes
+                               verticales el aspecto fijo dejaba un bloque
+                               enorme. object-contain sobre fondo neutro
+                               respeta la proporcion original. -->
+                          <div class="bg-slate-100 border-t border-slate-100">
+                            <img [src]="post.imagenUrl" class="w-full max-h-72 object-contain mx-auto">
+                          </div>
                         }
                       </article>
                     }

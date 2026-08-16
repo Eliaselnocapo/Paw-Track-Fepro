@@ -49,7 +49,8 @@ urlpatterns = [
 
     path('api/rescates/', include('rescates.urls')),
     path('api/recursos/', include('recursos.urls')),
-    path('api/centros/', include('centros.urls')),   # <-- agregar esta línea
+    path('api/centros/', include('centros.urls')),
+    path('api/notificaciones/', include('notificaciones.urls')),
 ] 
  
 
