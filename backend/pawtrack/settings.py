@@ -151,9 +151,14 @@ SITE_ID = 1
 
 # JWT
 from datetime import timedelta
+
+INSTALLED_APPS += ['rest_framework_simplejwt.token_blacklist']
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
