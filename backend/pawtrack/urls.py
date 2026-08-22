@@ -16,7 +16,7 @@ router.register(r'animales',    AnimalViewSet,    basename='animal')
 router.register(r'incidencias', IncidenciaViewSet, basename='incidencia')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('portal-gestion-pawtrack-7676/', admin.site.urls),
     
     path('api/procesar-pdf-externo/', ProcesarCartelPDFView.as_view(), name='procesar_pdf'),
     
@@ -51,6 +51,7 @@ urlpatterns = [
     path('api/recursos/', include('recursos.urls')),
     path('api/centros/', include('centros.urls')),
     path('api/notificaciones/', include('notificaciones.urls')),
+    path('api/moderacion/', include('moderacion.urls')),
 ] 
  
 
