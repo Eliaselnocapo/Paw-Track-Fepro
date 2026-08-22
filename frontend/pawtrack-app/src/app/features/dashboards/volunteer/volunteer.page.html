@@ -1,25 +1,24 @@
 <ion-content [fullscreen]="true">
   <div class="w-full min-h-screen bg-blue-50 relative overflow-hidden">
 
-    <!-- FONDO DECORATIVO -->
+<!-- FONDO DECORATIVO -->
 <div class="absolute top-1 md:top-2 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-  <div class="absolute top-[-5%] left-[-10%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 opacity-30"></div>
-  <div class="absolute top-[10%] right-[-3%] w-[180px] h-[180px] md:w-[300px] md:h-[300px] rounded-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-30"></div>
-  <div class="absolute top-[25%] left-[35%] md:left-[45%] w-[110px] h-[110px] md:w-[190px] md:h-[190px] rounded-full bg-gradient-to-r from-cyan-200 to-blue-200 opacity-30"></div>
-<div class="absolute top-[45%] left-[-5%] md:left-[5%] w-[150px] h-[150px] md:w-[250px] md:h-[250px] bg-gradient-to-tr from-rose-200 to-orange-200 opacity-30 rotate-12"></div>
-  <div class="absolute bottom-[-5%] right-[-5%] w-[300px] h-[300px] md:w-[550px] md:h-[550px] rounded-full bg-gradient-to-tl from-blue-200 to-cyan-300 opacity-30"></div>
-  <div class="absolute bottom-[10%] left-[30%] w-[100px] h-[100px] md:w-[150px] md:h-[150px] rounded-full bg-gradient-to-t from-purple-200 to-indigo-200 opacity-30"></div>
-
+  <div class="vol-shape-1 absolute top-[-5%] left-[-10%] w-[clamp(220px,32vw,600px)] h-[clamp(220px,32vw,600px)] rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 opacity-35"></div>
+  <div class="vol-shape-2 absolute top-[10%] right-[-3%] w-[clamp(140px,18vw,300px)] h-[clamp(140px,18vw,300px)] rounded-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-35"></div>
+  <div class="vol-shape-3 absolute top-[25%] left-[36%] w-[clamp(90px,12vw,190px)] h-[clamp(90px,12vw,190px)] rounded-full bg-gradient-to-r from-cyan-200 to-blue-200 opacity-35"></div>
+  <div class="vol-shape-4 absolute top-[45%] left-[-2%] w-[clamp(110px,16vw,250px)] h-[clamp(110px,16vw,250px)] bg-gradient-to-tr from-rose-200 to-orange-200 opacity-35"></div>
+  <div class="vol-shape-5 absolute bottom-[-5%] right-[-5%] w-[clamp(220px,30vw,550px)] h-[clamp(220px,30vw,550px)] rounded-full bg-gradient-to-tl from-blue-200 to-cyan-300 opacity-35"></div>
+  <div class="vol-shape-3 absolute bottom-[10%] left-[30%] w-[clamp(70px,10vw,150px)] h-[clamp(70px,10vw,150px)] rounded-full bg-gradient-to-t from-purple-200 to-indigo-200 opacity-35"></div>
   <!-- cuadrado con picos (esquinas rectas) -->
-  <div class="absolute top-[62%] right-[20%] w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-amber-200 to-rose-200 opacity-30 rotate-[15deg]"></div>
+  <div class="vol-shape-6 absolute top-[62%] right-[20%] w-[clamp(52px,7vw,96px)] h-[clamp(52px,7vw,96px)] bg-gradient-to-br from-amber-200 to-rose-200 opacity-30"></div>
 </div>
 
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
-    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-12">
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-24 pb-12">
 
       <!-- HERO -->
-      <section class="rounded bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8 relative">
+      <section appReveal class="rounded bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8 relative">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
             <div class="flex items-center gap-2 mb-2">
@@ -54,7 +53,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
 
         <!-- COLUMNA PRINCIPAL -->
-        <section class="lg:col-span-8 flex flex-col gap-6">
+        <section appReveal class="lg:col-span-8 flex flex-col gap-6">
 
         <!-- BUSCADOR -->
           <div class="bg-white p-4 shadow-md border border-slate-300 flex flex-col md:flex-row gap-3 mb-6 rounded">
@@ -110,7 +109,7 @@
 
 
           <!-- LISTA DE CASOS -->
-          <div class="flex flex-col gap-5">
+          <div appReveal class="flex flex-col gap-5">
 
             @if (cargando) {
               <div class="bg-white p-12 rounded shadow-md border border-slate-200 flex flex-col items-center text-center">
@@ -146,7 +145,7 @@
             } @else {
 
               @for (caso of casosPaginados; track caso.id) {
-                <article class="group bg-white rounded border border-slate-300 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col sm:flex-row">
+                <article appReveal class="group bg-white rounded border border-slate-300 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col sm:flex-row">
 
                   <div class="relative w-full sm:w-56 h-52 sm:h-auto shrink-0 overflow-hidden">
                     <img
@@ -168,7 +167,7 @@
                     </div>
                   </div>
 
-                  <div class="p-6 flex flex-col flex-grow">
+                  <div appReveal class="p-6 flex flex-col flex-grow">
                     <div class="flex justify-between items-start gap-4 mb-2">
                       <h3 class="text-xl font-bold text-slate-800 line-clamp-1 group-hover:text-blue-700 transition-colors">
                         {{ caso.titulo }}
@@ -252,7 +251,7 @@
 
                 </article>
               } @empty {
-                <div class="bg-white p-12 rounded shadow-md border border-slate-200 flex flex-col items-center text-center">
+                <div appReveal class="bg-white p-12 rounded shadow-md border border-slate-200 flex flex-col items-center text-center">
                   <span class="material-symbols-outlined text-7xl text-slate-300 mb-4 drop-shadow-sm">
                     search_off
                   </span>
@@ -331,7 +330,7 @@
         <!-- ASIDE -->
         <aside class="lg:col-span-4 flex flex-col gap-6">
 
-          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden flex flex-col">
+          <section appReveal class="bg-white rounded shadow-md border border-slate-300 overflow-hidden flex flex-col">
             <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
               <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
                 <span class="material-symbols-outlined text-red-500 animate-pulse">radar</span>
@@ -343,7 +342,7 @@
               </span>
             </div>
 
-            <div class="flex flex-col p-2 gap-2">
+            <div appReveal class="flex flex-col p-2 gap-2">
               <ng-container *ngIf="alertasCercanas.length > 0; else sinAlertasCercanas">
                   <button
                     type="button"
@@ -397,7 +396,7 @@
             </div>
           </section>
 
-          <section class="bg-white rounded shadow-md border border-slate-300 overflow-hidden">
+          <section appReveal class="bg-white rounded shadow-md border border-slate-300 overflow-hidden">
             <div class="p-5 border-b border-slate-200 bg-slate-50">
               <h2 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
                 <span class="material-symbols-outlined text-emerald-500">health_and_safety</span>
@@ -453,7 +452,7 @@
             </div>
           </section>
 
-          <div class="rounded bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-900/20 p-6 relative overflow-hidden">
+          <div appReveal class="rounded bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-900/20 p-6 relative overflow-hidden">
             <span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl opacity-20 transform -rotate-12 pointer-events-none">
               support_agent
             </span>

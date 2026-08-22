@@ -65,7 +65,7 @@
 
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
-    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-12">
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-24 pb-12">
 
       <!-- BOTÓN VOLVER -->
       <button
@@ -137,6 +137,7 @@
                     <span class="material-symbols-outlined text-[16px]">schedule</span>
                     {{ caso.tiempo }}
                   </span>
+                  <app-reportar-fraude-button [folio]="caso.folio"></app-reportar-fraude-button>
 
                 </div>
 

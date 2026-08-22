@@ -14,6 +14,8 @@ import { ReportService, IncidenciaResponse } from '../../../core/services/report
 import { SentenceCasePipe } from '../../../shared/pipes/sentence-case-pipe';
 import { environment } from 'src/environments/environment';
 
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+
 interface CasoVoluntario {
   id: number;
   folio: string;
@@ -52,7 +54,8 @@ interface OpcionRadio {
     TitleCasePipe,
     SentenceCasePipe,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './volunteer.page.html',
   styleUrls: ['./volunteer.page.scss']

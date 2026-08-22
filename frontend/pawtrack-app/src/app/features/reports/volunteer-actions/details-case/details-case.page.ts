@@ -10,6 +10,8 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from 'src/environments/environment';
+import { ReportarFraudeButtonComponent } from 'src/app/shared/components/button-fraude/reportar-fraude-button.component';
+
 
 import * as L from 'leaflet';
 
@@ -43,7 +45,8 @@ interface DetalleCasoVoluntario {
     IonContent,
     TitleCasePipe,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    ReportarFraudeButtonComponent
   ],
   templateUrl: './details-case.page.html',
   styleUrls: ['./details-case.page.scss']

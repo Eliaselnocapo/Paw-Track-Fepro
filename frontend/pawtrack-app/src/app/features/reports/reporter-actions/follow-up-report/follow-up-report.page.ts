@@ -206,7 +206,8 @@ export class FollowUpReportPage implements OnInit {
   // ─────────────────────────────────────────
 
   get puedeCancelar(): boolean {
-    return this.reporte.estado === 'PENDIENTE';
+    const estado = this.reporte?.estado;
+    return estado === 'PENDIENTE' || estado === 'VALIDADO';
   }
 
   cambiarModo(nuevo: ModoFormulario): void {

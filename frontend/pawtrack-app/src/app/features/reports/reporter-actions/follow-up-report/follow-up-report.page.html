@@ -28,7 +28,7 @@
 
     <!-- FORMULARIO -->
     @if (!cargando && reporte.folio) {
-      <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-10 relative z-10">
+      <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-24 md:py-24 relative z-10">
 
         <!-- HERO -->
         <section class="bg-white border border-slate-300 shadow-md p-6 md:p-10 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 rounded">
@@ -227,7 +227,7 @@
                     }
                     {{ guardando ? 'Guardando...' : 'Guardar seguimiento' }}
                   </button>
-                  <button routerLink="/dashboards/reporter" type="button" class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">Volver al dashboard</button>
+                  <button routerLink="/dashboard/reporter" type="button" class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">Volver al dashboard</button>
                 </section>
 
               </aside>

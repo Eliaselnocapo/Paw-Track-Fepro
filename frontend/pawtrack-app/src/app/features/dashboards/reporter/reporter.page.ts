@@ -13,6 +13,8 @@ import { LocalReportCacheService } from '../../../core/services/local-report-cac
 
 import { environment } from 'src/environments/environment';
 
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+
 
 interface ReporterReport {
   id: number;
@@ -47,7 +49,8 @@ interface ReporterReport {
     IonModal,
     RouterLink,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './reporter.page.html',
   styleUrls: ['./reporter.page.scss'],
@@ -403,6 +406,9 @@ private cargarMisReportesDeCuenta(): void {
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       PENDIENTE: 'Pendiente',
+      VALIDADO: 'Validado',
+      ATENDIENDOSE: 'En atención',
+      DESESTIMADO: 'Desestimado',
       EN_REVISION: 'En revisión',
       EN_PROCESO: 'En proceso',
       VALIDANDO: 'Validando',
@@ -418,6 +424,9 @@ private cargarMisReportesDeCuenta(): void {
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
       PENDIENTE: 'bg-slate-100 text-slate-600 border-slate-200',
+      VALIDADO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      ATENDIENDOSE: 'bg-blue-100 text-blue-700 border-blue-200',
+      DESESTIMADO: 'bg-red-100 text-red-700 border-red-200',
       EN_REVISION: 'bg-amber-100 text-amber-700 border-amber-200',
       VALIDANDO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       EN_PROCESO: 'bg-blue-100 text-blue-700 border-blue-200',

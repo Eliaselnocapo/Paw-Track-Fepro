@@ -13,6 +13,7 @@ export interface Usuario {
   foto_perfil?: string | null;
   telefono?: string | null;
   ubicacion?: string | null;
+  is_staff: boolean; 
 }
 
 export interface AuthResponse {

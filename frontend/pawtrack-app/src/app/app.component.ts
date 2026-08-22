@@ -1,4 +1,5 @@
 import { Component, inject, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import {
   IonContent,
@@ -25,6 +26,7 @@ import { ToastContainerComponent } from './shared/toast/toast-container.componen
   styleUrls: ['app.component.scss'],
   standalone: true,
   imports: [
+    CommonModule,
     IonApp,
     IonRouterOutlet,
     IonMenu,
@@ -44,6 +46,8 @@ export class AppComponent implements OnDestroy {
   private inicioY = 0;
   private puedeRefrescar = false;
   refrescando = false;
+
+  usuario$ = this.authService.user$;
 
   private readonly touchStartHandler = (
     event: TouchEvent
@@ -69,10 +73,8 @@ export class AppComponent implements OnDestroy {
       )
       .subscribe(() => {
         requestAnimationFrame(() => {
-          // Reinicia el scroll normal del navegador.
           window.scrollTo(0, 0);
 
-          // Reinicia el scroll interno de Ionic.
           const contenidoActivo = document.querySelector(
             'ion-router-outlet .ion-page:not(.ion-page-hidden) ion-content'
           ) as HTMLIonContentElement | null;
@@ -110,7 +112,6 @@ export class AppComponent implements OnDestroy {
 
   const elementoTocado = event.target as HTMLElement | null;
 
-  // Evita refrescar cuando se desliza dentro del menú lateral.
   if (elementoTocado?.closest('ion-menu')) {
     this.reiniciarGesto();
     return;

@@ -1,0 +1,21 @@
+/* Fade-in sutil de la tarjeta al cargar la página */
+.reveal-card {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: revealCard 0.5s ease forwards;
+}
+
+@keyframes revealCard {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}

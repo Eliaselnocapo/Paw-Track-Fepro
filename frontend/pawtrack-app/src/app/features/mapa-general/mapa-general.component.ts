@@ -10,6 +10,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive'; 
 
 import {
   HttpClient,
@@ -117,7 +118,8 @@ interface IncidenciaMapa {
 
     SentenceCasePipe,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    RevealDirective
   ]
 })
 export class MapaGeneralComponent

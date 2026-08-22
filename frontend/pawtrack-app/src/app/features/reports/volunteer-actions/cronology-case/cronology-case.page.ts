@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+import { Location } from '@angular/common';
 
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
@@ -32,6 +33,7 @@ interface PuntoLinea {
 })
 export class CronologyCasePage implements OnInit {
 
+  private location = inject(Location);
   incidencia: IncidenciaResponse | null = null;
   historial: EntradaHistorial[] = [];
   estadoSeguimiento = '';
@@ -412,6 +414,6 @@ get fichaVoluntario(): { etiqueta: string; valor: string }[] {
   }
 
   volver(): void {
-    this.router.navigate(['/accepted-cases']);
+    this.location.back();
   }
 }
