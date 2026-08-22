@@ -19,8 +19,11 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'ubicacion', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'ubicacion', 'foto_perfil', 'is_staff', 'perfil_rescatista', 'perfil_patrocinador')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_staff': {'read_only': True},
+        }
 
     def validate_roles(self, value):
         validos = set(Usuario.ROLES_VALIDOS)
