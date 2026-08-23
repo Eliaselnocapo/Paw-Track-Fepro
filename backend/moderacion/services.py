@@ -11,9 +11,9 @@ UMBRAL_OCULTAMIENTO = 3
 def reportar_fraude(usuario, folio, motivo=''):
     """Un usuario autenticado denuncia una incidencia ajena como falsa o de
     mal uso. Máximo un reporte por usuario por incidencia (constraint de
-    BD). Al llegar exactamente a UMBRAL_OCULTAMIENTO denuncias únicas, la
-    incidencia se oculta de mapa/disponibles hasta que un admin la resuelva
-    (ver resolver_denuncia)."""
+    BD). Al llegar a UMBRAL_OCULTAMIENTO denuncias únicas (o más — varias
+    pueden llegar casi al mismo tiempo), la incidencia se oculta de
+    mapa/disponibles hasta que un admin la resuelva (ver resolver_denuncia)."""
     try:
         incidencia = Incidencia.objects.select_for_update().get(folio=folio)
     except Incidencia.DoesNotExist:
@@ -36,7 +36,7 @@ def reportar_fraude(usuario, folio, motivo=''):
     incidencia.reportes_fraude_count += 1
     update_fields = ['reportes_fraude_count']
 
-    if incidencia.reportes_fraude_count == UMBRAL_OCULTAMIENTO and not incidencia.oculto_por_fraude:
+    if incidencia.reportes_fraude_count >= UMBRAL_OCULTAMIENTO and not incidencia.oculto_por_fraude:
         incidencia.oculto_por_fraude = True
         update_fields.append('oculto_por_fraude')
 
@@ -64,8 +64,13 @@ def listar_cola():
 @transaction.atomic
 def resolver_denuncia(folio, accion):
     """`descartar`: el admin revisó y el caso es legítimo — vuelve a ser
-    visible normal, sale de la cola. `confirmar_fraude`: el admin confirmó
-    que es falso — queda `DESESTIMADO` (terminal) y sigue oculto."""
+    visible normal, sale de la cola, y el contador de denuncias se reinicia
+    a 0 (las denuncias ya reportadas quedan en el historial de auditoría,
+    pero no vuelven a contar para el umbral). Así, si el caso vuelve a
+    recibir denuncias más adelante, el umbral se evalúa desde cero en vez
+    de quedar permanentemente atorado por encima de UMBRAL_OCULTAMIENTO.
+    `confirmar_fraude`: el admin confirmó que es falso — queda
+    `DESESTIMADO` (terminal) y sigue oculto."""
     try:
         incidencia = Incidencia.objects.select_for_update().get(folio=folio)
     except Incidencia.DoesNotExist:
@@ -73,7 +78,8 @@ def resolver_denuncia(folio, accion):
 
     if accion == 'descartar':
         incidencia.oculto_por_fraude = False
-        incidencia.save(update_fields=['oculto_por_fraude'])
+        incidencia.reportes_fraude_count = 0
+        incidencia.save(update_fields=['oculto_por_fraude', 'reportes_fraude_count'])
     elif accion == 'confirmar_fraude':
         incidencia.estado = 'DESESTIMADO'
         incidencia.oculto_por_fraude = True
