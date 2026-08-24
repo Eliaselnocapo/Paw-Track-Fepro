@@ -167,12 +167,13 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     agresividad_animal = serializers.CharField(source='animal.agresividad',  required=False, allow_blank=True, default='')
 
     rescatista_info  = serializers.SerializerMethodField(read_only=True)
+    usuario_reporta_info = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Incidencia
         fields = (
             'id',
-            'usuario_reporta',
+            'usuario_reporta', 'usuario_reporta_info',
             'patrocinador', 'rescatista_asignado', 'rescatista_info',
             'imagen',
             'latitud', 'longitud',
@@ -220,6 +221,16 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             "id":     u.id,
             "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
             "email":  u.email,
+        }
+        
+    def get_usuario_reporta_info(self, obj):
+        if not obj.usuario_reporta:
+            return None
+        u = obj.usuario_reporta
+        return {
+            "id":     u.id,
+            "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
+            "foto":   u.foto_perfil.url if u.foto_perfil else None,
         }
     
     def get_coincidencias_visuales(self, obj):
