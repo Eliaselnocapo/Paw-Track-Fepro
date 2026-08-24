@@ -17,7 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from bd.models import Animal, Incidencia, PerfilRescatista, Usuario
 from notificaciones.routing import websocket_urlpatterns
-from notificaciones.tasks import recalc_urgency_score
+from notificaciones.tasks import calcular_trafico, recalc_urgency_score
 
 # Usamos InMemoryChannelLayer para no depender de Redis en los tests
 CHANNEL_LAYERS_TEST = {
@@ -208,20 +208,41 @@ class RecalcUrgencyScoreTests(TestCase):
         cache.clear()
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
-    def test_score_se_actualiza_cuando_delta_es_mayor_10(self, mock_broadcast):
-        """Con animal critico el score sube de 0 a ~40 → delta=40 ≥ 10 → actualiza y notifica."""
+    def test_score_se_actualiza_cuando_delta_es_mayor_3(self, mock_broadcast):
+        """Con animal critico y recien creado: score = 100*0.55 + 0*0.45 = 55 → delta=55 ≥ 3 → actualiza y notifica."""
         recalc_urgency_score()
         self.incidencia.refresh_from_db()
-        self.assertGreater(self.incidencia.urgency_score, 0)
+        self.assertAlmostEqual(self.incidencia.urgency_score, 55.0, delta=0.1)
         mock_broadcast.assert_called_once()
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
-    def test_score_no_se_actualiza_cuando_delta_es_menor_10(self, mock_broadcast):
-        """Si el score calculado está a menos de 10 puntos del actual, no hay actualización."""
-        # Con critico y recién creado: score nuevo ≈ 40. Pre-cargamos 36 → delta ≈ 4 < 10
-        Incidencia.objects.filter(pk=self.incidencia.pk).update(urgency_score=36.0)
+    def test_score_no_se_actualiza_cuando_delta_es_menor_3(self, mock_broadcast):
+        """Si el score calculado esta a menos de 3 puntos del actual, no hay actualizacion."""
+        # Con critico y recien creado: score nuevo ≈ 55. Pre-cargamos 54 → delta ≈ 1 < 3
+        Incidencia.objects.filter(pk=self.incidencia.pk).update(urgency_score=54.0)
         recalc_urgency_score()
         mock_broadcast.assert_not_called()
+
+    @patch('notificaciones.tasks.broadcast_urgency_update')
+    def test_trafico_score_ya_no_afecta_el_calculo(self, mock_broadcast):
+        """trafico_score se saco de la formula: dos incidencias identicas salvo por
+        trafico_score deben terminar con el mismo urgency_score."""
+        self.incidencia.trafico_score = 100
+        self.incidencia.save(update_fields=['trafico_score'])
+        recalc_urgency_score()
+        self.incidencia.refresh_from_db()
+        self.assertAlmostEqual(self.incidencia.urgency_score, 55.0, delta=0.1)
+
+    @patch('notificaciones.tasks.broadcast_urgency_update')
+    def test_trust_score_bajo_limita_el_score_a_79(self, mock_broadcast):
+        """Con trust_score < 40 el score queda topado en 79 aunque condicion+tiempo den mas."""
+        Incidencia.objects.filter(pk=self.incidencia.pk).update(
+            trust_score=20,
+            created_at=timezone.now() - timedelta(hours=70),  # tiempo saturado -> score crudo = 100
+        )
+        recalc_urgency_score()
+        self.incidencia.refresh_from_db()
+        self.assertEqual(self.incidencia.urgency_score, 79)
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
     def test_incidencia_cerrada_no_se_recalcula(self, mock_broadcast):
@@ -239,14 +260,12 @@ class RecalcUrgencyScoreTests(TestCase):
         )
         PerfilRescatista.objects.create(usuario=rescatista)
 
-        # El score se fuerza por condición (ya es 'critico' desde setUp),
-        # tiempo y tráfico — las tres dimensiones que el motor lee hoy.
-        # score = 100*0.45 + 100*0.40 + 100*0.15 = 100 (techo)
+        # El score se fuerza por condición (ya es 'critico' desde setUp) y tiempo
+        # — trafico_score ya no pesa en la fórmula.
+        # tiempo satura a 100 desde ~66.7h -> score = 100*0.55 + 100*0.45 = 100 (techo)
         # created_at va por update(): auto_now_add ignora los save() normales.
-        self.incidencia.trafico_score = 100
-        self.incidencia.save(update_fields=['trafico_score'])
         Incidencia.objects.filter(pk=self.incidencia.pk).update(
-            created_at=timezone.now() - timedelta(hours=13)
+            created_at=timezone.now() - timedelta(hours=70)
         )
 
         recalc_urgency_score()
@@ -263,15 +282,70 @@ class RecalcUrgencyScoreTests(TestCase):
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
     def test_multiples_incidencias_solo_actualiza_con_delta_suficiente(self, mock_broadcast):
-        """Dos incidencias: una con delta ≥ 10 y otra sin cambio → solo una llamada a broadcast."""
-        # Segunda incidencia con score ya alto (δ pequeño esperado)
+        """Dos incidencias: una con delta ≥ 3 y otra sin cambio → solo una llamada a broadcast."""
+        # Segunda incidencia con score ya cercano al calculado (δ pequeño esperado)
         Incidencia.objects.create(
             animal=self.animal_estable,
             ubicacion=Point(-99.1332, 19.4326, srid=4326),
             tipo_incidencia='EMERGENCIA',
             estado='PENDIENTE',
-            urgency_score=8.5,  # Con estable: score nuevo ≈ 8.0 → delta ≈ 0.5 < 10
+            urgency_score=8.5,  # Con estable: score nuevo ≈ 20*0.55 = 11 → delta ≈ 2.5 < 3
         )
         recalc_urgency_score()
-        # Solo la primera incidencia (critico, delta=40) debe haber llamado broadcast
+        # Solo la primera incidencia (critico, delta=55) debe haber llamado broadcast
         self.assertEqual(mock_broadcast.call_count, 1)
+
+
+# ---------------------------------------------------------------------------
+# calcular_trafico — consulta a Overpass
+# ---------------------------------------------------------------------------
+
+class CalcularTraficoTests(TestCase):
+    def setUp(self):
+        animal = Animal.objects.create(nombre='Trafico', tipo='perro', salud='estable')
+        self.incidencia = Incidencia.objects.create(
+            animal=animal,
+            ubicacion=Point(-99.1332, 19.4326, srid=4326),
+            tipo_incidencia='EMERGENCIA',
+            estado='PENDIENTE',
+        )
+
+    @patch('notificaciones.tasks.requests.post')
+    def test_envia_user_agent_para_evitar_406(self, mock_post):
+        """Overpass devuelve 406 sin User-Agent; la tarea debe mandarlo siempre."""
+        mock_post.return_value.raise_for_status.return_value = None
+        mock_post.return_value.json.return_value = {"elements": []}
+
+        calcular_trafico(self.incidencia.pk)
+
+        _, kwargs = mock_post.call_args
+        self.assertIn('User-Agent', kwargs.get('headers', {}))
+
+    @patch('notificaciones.tasks.requests.post')
+    def test_guarda_score_de_la_via_mas_peligrosa(self, mock_post):
+        """Con varias vias cercanas, gana la de mayor score (motorway=100 sobre tertiary=40)."""
+        mock_post.return_value.raise_for_status.return_value = None
+        mock_post.return_value.json.return_value = {
+            "elements": [
+                {"tags": {"highway": "tertiary"}},
+                {"tags": {"highway": "motorway"}},
+            ]
+        }
+
+        calcular_trafico(self.incidencia.pk)
+
+        self.incidencia.refresh_from_db()
+        self.assertEqual(self.incidencia.trafico_score, 100)
+
+    @patch('notificaciones.tasks.requests.post')
+    def test_falla_de_overpass_no_rompe_la_tarea(self, mock_post):
+        """Si Overpass falla (timeout, 406, etc.) la tarea no debe propagar la excepcion."""
+        mock_post.side_effect = Exception("406 Client Error")
+
+        calcular_trafico(self.incidencia.pk)  # no debe lanzar
+
+        self.incidencia.refresh_from_db()
+        self.assertEqual(self.incidencia.trafico_score, 0)
+
+    def test_incidencia_inexistente_no_rompe_la_tarea(self):
+        calcular_trafico(999999)  # no debe lanzar

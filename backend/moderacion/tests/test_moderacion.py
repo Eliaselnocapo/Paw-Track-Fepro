@@ -77,6 +77,22 @@ class ReportarFraudeTests(APITestCase):
         response = self.client.post(self.url('ANO-EMG-99999'))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_reporte_que_salta_el_umbral_igual_oculta(self):
+        """Si el contador ya viene por encima del umbral (varias denuncias
+        casi simultaneas, o un estado heredado de una revision anterior),
+        una denuncia mas debe ocultar igual — no depende de tocar el umbral
+        exacto."""
+        self.incidencia.reportes_fraude_count = 5
+        self.incidencia.save(update_fields=['reportes_fraude_count'])
+
+        self.client.force_authenticate(self.denunciante1)
+        response = self.client.post(self.url(self.incidencia.folio))
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.incidencia.refresh_from_db()
+        self.assertEqual(self.incidencia.reportes_fraude_count, 6)
+        self.assertTrue(self.incidencia.oculto_por_fraude)
+
 
 class VisibilidadOcultaPorFraudeTests(APITestCase):
     def setUp(self):
@@ -159,6 +175,28 @@ class ColaModeracionTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.incidencia_oculta.refresh_from_db()
         self.assertFalse(self.incidencia_oculta.oculto_por_fraude)
+        # El contador se reinicia: si el caso vuelve a ser denunciado despues,
+        # el umbral se evalua desde cero en vez de quedar atorado por encima.
+        self.assertEqual(self.incidencia_oculta.reportes_fraude_count, 0)
+
+    def test_caso_descartado_se_puede_re_ocultar_con_denuncias_nuevas(self):
+        self.client.force_authenticate(self.admin)
+        self.client.post(
+            reverse('resolver-denuncia', kwargs={'folio': self.incidencia_oculta.folio}),
+            {'accion': 'descartar'},
+        )
+
+        for i in range(3):
+            denunciante = Usuario.objects.create_user(email=f'nuevo{i}@example.com', password='segura123')
+            self.client.force_authenticate(denunciante)
+            response = self.client.post(
+                reverse('reportar-fraude', kwargs={'folio': self.incidencia_oculta.folio})
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.incidencia_oculta.refresh_from_db()
+        self.assertEqual(self.incidencia_oculta.reportes_fraude_count, 3)
+        self.assertTrue(self.incidencia_oculta.oculto_por_fraude)
 
     def test_confirmar_fraude_desestima_la_incidencia(self):
         self.client.force_authenticate(self.admin)
