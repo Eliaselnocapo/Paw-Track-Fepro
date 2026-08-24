@@ -1,67 +1,40 @@
 <ion-content [fullscreen]="true">
   <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden">
 
-<!-- ===== CÍRCULOS ===== -->
-<div class="absolute top-[-140px] right-[-120px] w-[460px] h-[460px] bg-blue-100/55 rounded-full"></div>
-<div class="absolute bottom-[-120px] left-[-100px] w-[400px] h-[400px] bg-emerald-100/50 rounded-full"></div>
-<div class="absolute top-[30%] left-[-80px] w-[240px] h-[240px] bg-teal-100/45 rounded-full"></div>
-<div class="absolute top-[8%] left-[30%] w-[90px] h-[90px] bg-amber-100/60 rounded-full"></div>
+    <!-- ===== CÍRCULOS Y CUADRADOS, distribuidos, con variedad de color ===== -->
 
-<!-- ===== CUADRADOS INCLINADOS ===== -->
-<div class="absolute top-[15%] left-[-90px] w-[260px] h-[260px] bg-amber-100/50 rotate-[18deg]"></div>
-<div class="absolute bottom-[-60px] right-[-40px] w-[220px] h-[220px] bg-orange-100/50 rotate-[10deg]"></div>
-<div class="absolute top-[45%] right-[8%] w-[130px] h-[130px] bg-emerald-100/50 rotate-12"></div>
-<div class="absolute bottom-[20%] left-[12%] w-[100px] h-[100px] bg-blue-100/55 -rotate-6"></div>
+    <div class="simp-shape-1 absolute top-[-140px] right-[-120px] w-[clamp(260px,36vw,460px)] h-[clamp(260px,36vw,460px)] bg-blue-300/35 rounded-full"></div>
 
-<!-- ===== DIAMANTES (cuadros a 45°) ===== -->
-<div class="absolute top-[52%] right-[16%] w-[110px] h-[110px] bg-emerald-100/50 rotate-45"></div>
-<div class="absolute top-[20%] right-[35%] w-[60px] h-[60px] bg-amber-200/50 rotate-45"></div>
-<div class="absolute bottom-[30%] left-[40%] w-[70px] h-[70px] bg-teal-200/45 rotate-45"></div>
+    <div class="simp-shape-2 absolute bottom-[-120px] left-[-100px] w-[clamp(230px,31vw,400px)] h-[clamp(230px,31vw,400px)] bg-emerald-300/35 rounded-full"></div>
 
-<!-- ===== FRANJAS / BARRAS ===== -->
-<div class="absolute top-[22%] left-[10%] w-[180px] h-[14px] bg-emerald-100/80"></div>
-<div class="absolute top-[26%] left-[14%] w-[130px] h-[14px] bg-teal-100/80"></div>
-<div class="absolute top-[60%] right-[10%] w-[200px] h-[14px] bg-amber-100/75"></div>
-<div class="absolute top-[64%] right-[16%] w-[150px] h-[14px] bg-orange-100/70"></div>
+    <div class="simp-shape-3 absolute top-[30%] left-[-80px] w-[clamp(140px,19vw,240px)] h-[clamp(140px,19vw,240px)] bg-rose-300/35 rounded-full"></div>
 
-<!-- ===== MINI CUADROS DISPERSOS ===== -->
-<div class="absolute top-[16%] left-[42%] w-4 h-4 bg-amber-300/70 rotate-45"></div>
-<div class="absolute top-[70%] left-[30%] w-5 h-5 bg-emerald-300/70 -rotate-12"></div>
-<div class="absolute bottom-[18%] right-[40%] w-4 h-4 bg-teal-300/70 rotate-12"></div>
-<div class="absolute top-[38%] left-[55%] w-6 h-6 bg-blue-300/60 rotate-6"></div>
-<div class="absolute top-[80%] right-[25%] w-5 h-5 bg-orange-300/65 -rotate-6"></div>
+    <div class="simp-shape-4 absolute top-[8%] left-[30%] w-[clamp(56px,7vw,90px)] h-[clamp(56px,7vw,90px)] bg-amber-300/35 rounded-full"></div>
 
-<!-- ===== RECTÁNGULOS TIPO DOCUMENTO ===== -->
-<div class="absolute top-[25%] left-[6%] w-[200px] h-[280px] bg-white/55 border border-white/70 rotate-[-7deg]"></div>
-<div class="absolute top-[28%] left-[9%] w-[180px] h-[260px] bg-emerald-100/45 rotate-[5deg]"></div>
+    <div class="simp-shape-5 absolute top-[1%] left-[-90px] w-[clamp(150px,20vw,260px)] h-[clamp(150px,20vw,260px)] bg-violet-300/35"></div>
 
-<!-- ===== ARCOS CONCÉNTRICOS (SVG) ===== -->
-<svg class="absolute top-[10%] right-[5%] w-[180px] h-[180px] opacity-[0.12]" viewBox="0 0 200 200" aria-hidden="true">
-  <circle cx="200" cy="0" r="160" fill="none" stroke="#94a3b8" stroke-width="14"/>
-  <circle cx="200" cy="0" r="120" fill="none" stroke="#94a3b8" stroke-width="8"/>
-  <circle cx="200" cy="0" r="80"  fill="none" stroke="#94a3b8" stroke-width="4"/>
-</svg>
+    <div class="simp-shape-6 absolute bottom-[-60px] right-[-40px] w-[clamp(130px,17vw,220px)] h-[clamp(130px,17vw,220px)] bg-orange-300/35"></div>
 
-<!-- ===== GRILLA DE PUNTOS (SVG) ===== -->
-<svg class="absolute bottom-[50px] left-[24%] w-[130px] h-[100px] opacity-[0.18]" viewBox="0 0 120 90" aria-hidden="true">
-  <circle cx="10" cy="10" r="3" fill="#64748b"/><circle cx="30" cy="10" r="3" fill="#64748b"/>
-  <circle cx="50" cy="10" r="3" fill="#64748b"/><circle cx="70" cy="10" r="3" fill="#64748b"/>
-  <circle cx="10" cy="30" r="3" fill="#64748b"/><circle cx="30" cy="30" r="3" fill="#64748b"/>
-  <circle cx="50" cy="30" r="3" fill="#64748b"/><circle cx="70" cy="30" r="3" fill="#64748b"/>
-  <circle cx="10" cy="50" r="3" fill="#64748b"/><circle cx="30" cy="50" r="3" fill="#64748b"/>
-  <circle cx="50" cy="50" r="3" fill="#64748b"/><circle cx="70" cy="50" r="3" fill="#64748b"/>
-</svg>
+    <div class="simp-shape-7 absolute top-[45%] right-[8%] w-[clamp(76px,10vw,130px)] h-[clamp(76px,10vw,130px)] bg-teal-300/35"></div>
 
-<!-- ===== ANILLOS (círculo sin relleno) ===== -->
-<div class="absolute top-[40%] left-[25%] w-[120px] h-[120px] rounded-full border-[10px] border-blue-200/40"></div>
-<div class="absolute bottom-[25%] right-[30%] w-[80px] h-[80px] rounded-full border-[8px] border-emerald-200/40"></div>
+    <div class="simp-shape-1 absolute bottom-[20%] left-[12%] w-[clamp(60px,8vw,100px)] h-[clamp(60px,8vw,100px)] bg-sky-300/35"></div>
 
+    <div class="simp-shape-8 absolute top-[52%] right-[16%] w-[clamp(65px,9vw,110px)] h-[clamp(65px,9vw,110px)] bg-fuchsia-300/35 rounded-full"></div>
+
+    <!-- Mini acentos -->
+    <div class="simp-shape-3 absolute top-[16%] left-[42%] w-4 h-4 bg-amber-300/70"></div>
+    <div class="simp-shape-2 absolute top-[70%] left-[30%] w-5 h-5 rounded-full bg-emerald-300/70"></div>
+    <div class="simp-shape-6 absolute bottom-[18%] right-[40%] w-4 h-4 bg-teal-300/70"></div>
+    <div class="simp-shape-4 absolute top-[38%] left-[55%] w-6 h-6 rounded-full bg-blue-300/60"></div>
+    <div class="simp-shape-5 absolute top-[80%] right-[25%] w-5 h-5 bg-orange-300/65"></div>
+    
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
     <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-24 pb-12">
 
       <!-- VOLVER -->
       <button
+        appReveal
         type="button"
         (click)="volver()"
         class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
@@ -71,13 +44,13 @@
 
       <!-- CARGANDO -->
       @if (cargando) {
-        <section class="bg-white border border-slate-300 rounded shadow-md p-12 flex flex-col items-center text-center">
+        <section appReveal class="bg-white border border-slate-300 rounded shadow-md p-12 flex flex-col items-center text-center">
           <span class="material-symbols-outlined text-6xl text-blue-300 mb-4 animate-pulse">hourglass_empty</span>
           <h2 class="text-xl font-bold text-slate-800">Cargando detalle</h2>
           <p class="text-slate-500 mt-1">Estamos consultando la información del caso.</p>
         </section>
       } @else if (errorCarga) {
-        <section class="bg-red-50 border border-red-200 rounded shadow-sm p-8">
+        <section appReveal class="bg-red-50 border border-red-200 rounded shadow-sm p-8">
           <h2 class="text-lg font-bold text-red-700">No se pudo cargar el caso</h2>
           <p class="text-sm text-red-600 mt-1">{{ errorCarga }}</p>
           <button
@@ -90,7 +63,7 @@
       } @else if (rescate) {
 
         <!-- HERO / EXPEDIENTE -->
-        <section class="relative overflow-hidden rounded border border-slate-300 shadow-md bg-slate-900 mb-8">
+        <section appReveal class="relative overflow-hidden rounded border border-slate-300 shadow-md bg-slate-900 mb-8">
           <div class="relative min-h-[420px] md:min-h-[480px]">
             <img [src]="imagenUrl(rescate.incidencia?.imagen)" [alt]="titulo" class="absolute inset-0 w-full h-full object-cover opacity-80">
             <div class="absolute inset-0 bg-slate-950/45"></div>
@@ -159,7 +132,7 @@
           <section class="lg:col-span-8 flex flex-col gap-6">
 
             <!-- REPORTE CIUDADANO -->
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-4">
                 <div>
                   <p class="text-xs font-bold uppercase text-blue-600 mb-1">Reporte ciudadano</p>
@@ -188,7 +161,7 @@
             </article>
 
             <!-- PERFIL DEL ANIMAL (más info) -->
-            <article class="bg-white border border-slate-300 rounded shadow-md p-6">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md p-6">
               <div class="flex items-center justify-between gap-4 mb-5">
                 <div>
                   <p class="text-xs font-bold uppercase text-emerald-600 mb-1">Ficha completa</p>
@@ -197,7 +170,7 @@
                 <span class="material-symbols-outlined text-emerald-500 text-3xl">cruelty_free</span>
               </div>
 
-<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div class="rounded border border-slate-200 bg-slate-50 p-4">
                   <p class="text-xs font-bold text-slate-500 mb-1 uppercase">Especie</p>
                   <p class="text-base font-bold text-slate-900">{{ especie | titlecase }}</p>
@@ -251,7 +224,7 @@
               <!-- Alerta grande: SOLO si hay riesgo real -->
               @if (agresividad === 'agresivo' || agresividad === 'asustadizo') {
                 @if (avisoAgresividad; as aviso) {
-                  <div class="mt-4 border-2 p-5 flex items-start gap-4" [ngClass]="aviso.clase">
+                  <div appReveal class="mt-4 border-2 p-5 flex items-start gap-4" [ngClass]="aviso.clase">
                     <div class="w-12 h-12 grid place-items-center shrink-0 bg-white/70 border" [ngClass]="aviso.clase">
                       <span class="material-symbols-outlined text-[26px]" [ngClass]="aviso.claseTexto">{{ aviso.icono }}</span>
                     </div>
@@ -267,14 +240,14 @@
             </article>
             <!-- EVALUACIÓN DEL VOLUNTARIO -->
             @if (evaluacionItems.length > 0 || notasClinicas) {
-              <article class="bg-white border border-slate-300 rounded shadow-md p-6">
+              <article appReveal class="bg-white border border-slate-300 rounded shadow-md p-6">
                 <div class="flex items-center gap-2 mb-5">
                   <span class="material-symbols-outlined text-emerald-600">stethoscope</span>
                   <h2 class="text-lg font-bold text-slate-900">Evaluación del voluntario</h2>
                 </div>
 
                 @if (evaluacionItems.length > 0) {
-                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                  <div appReveal class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                     @for (item of evaluacionItems; track item.label) {
                       <div class="rounded border border-emerald-100 bg-emerald-50 p-3">
                         <p class="text-xs font-bold uppercase text-emerald-600">{{ item.label }}</p>
@@ -285,7 +258,7 @@
                 }
 
                 @if (notasClinicas) {
-                  <div class="rounded border border-slate-200 bg-slate-50 p-4">
+                  <div appReveal class="rounded border border-slate-200 bg-slate-50 p-4">
                     <p class="text-xs font-bold uppercase text-slate-500 mb-1">Notas clínicas</p>
                     <p class="text-sm text-slate-700 leading-relaxed">{{ notasClinicas }}</p>
                   </div>
@@ -294,7 +267,7 @@
             }
 
             <!-- UBICACIÓN -->
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-4">
                 <div>
                   <p class="text-xs font-bold uppercase text-red-500 mb-1">Punto reportado</p>
@@ -335,7 +308,7 @@
           <!-- ACCIÓN PRINCIPAL -->
             @if (yaRescatado) {
               <!-- Panel RESCATADO -->
-              <article class="bg-white border border-emerald-300 shadow-md overflow-hidden lg:sticky lg:top-24">
+              <article appReveal class="bg-white border border-emerald-300 shadow-md overflow-hidden lg:sticky lg:top-24">
                 <div class="h-1 bg-emerald-500"></div>
                 <div class="p-6">
                   <div class="flex items-center gap-2 mb-2">
@@ -355,8 +328,7 @@
               </article>
             } @else {
               <!-- Panel MISIÓN EN CURSO (el que ya tenías) -->
-              <article class="bg-white border border-blue-300 shadow-md overflow-hidden lg:sticky lg:top-24">
-                <div class="h-1 bg-blue-600"></div>
+              <article appReveal class="bg-white border border-blue-300 shadow-md overflow-hidden lg:sticky lg:top-24">
                 <div class="p-6">
                   <p class="text-xs font-bold uppercase text-blue-600 mb-1">Misión en curso</p>
                   <h3 class="text-xl font-bold text-slate-900 mb-2">Este caso es tuyo</h3>
@@ -372,7 +344,7 @@
               </article>
             }
 
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <div class="p-5">
                 <div class="flex items-center gap-2 mb-3">
                   <span class="material-symbols-outlined text-blue-600 text-[20px]">picture_as_pdf</span>
@@ -403,101 +375,101 @@
               </div>
             </article>
 
-    <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
-      <!-- cabecera fija (sin toggle) -->
-      <div class="p-6 border-b border-slate-100">
-        <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-          <span class="material-symbols-outlined text-blue-600">timeline</span>
-          Progreso de la misión
-        </h3>
-        <p class="text-xs text-slate-400 mt-1">Toca un paso para ver sus notas.</p>
-      </div>
-
-      <div class="p-4">
-        <div class="relative flex flex-col">
-          <!-- línea vertical de fondo -->
-          <div class="absolute left-[27px] top-6 bottom-6 w-0.5 bg-slate-100"></div>
-
-          <!-- Punto inicial: Reporte creado (siempre completado) -->
-          <div class="relative">
-            <div class="flex items-center gap-4 py-2 px-2">
-              <div class="relative z-10 w-11 h-11 rounded-full grid place-items-center shrink-0 shadow-sm bg-emerald-500 text-white">
-                <span class="material-symbols-outlined text-[22px]">flag</span>
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+              <!-- cabecera fija (sin toggle) -->
+              <div class="p-6 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                  <span class="material-symbols-outlined text-blue-600">timeline</span>
+                  Progreso de la misión
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">Toca un paso para ver sus notas.</p>
               </div>
-              <div>
-            <p class="font-bold text-sm text-slate-800">Reporte creado</p>
-            @if (fechaReporte) {
-              <p class="text-xs text-slate-400 mt-0.5">{{ fechaReporte | date:'dd MMM, HH:mm' }}</p>
-            }
-            <p class="text-xs text-slate-500 mt-0.5">Un ciudadano reportó este caso.</p>
-          </div>
-        </div>
-      </div>
 
-      @for (paso of pasos; track paso; let i = $index) {
-        <div class="relative">
-          <!-- fila del paso -->
-          <button type="button"
-            (click)="entradasDePaso(i).length > 0 ? togglePaso(i) : null"
-            class="w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors"
-            [ngClass]="{
-              'hover:bg-slate-50 cursor-pointer': entradasDePaso(i).length > 0,
-              'cursor-default': entradasDePaso(i).length === 0
-            }">
+              <div class="p-4">
+                <div class="relative flex flex-col">
+                  <!-- línea vertical de fondo -->
+                  <div class="absolute left-[27px] top-6 bottom-6 w-0.5 bg-slate-100"></div>
 
-            <div class="relative z-10 w-11 h-11 rounded-full grid place-items-center shrink-0 shadow-sm transition-all"
-              [ngClass]="{
-                'bg-emerald-500 text-white': esPasoCompletado(i),
-                'bg-blue-600 text-white ring-4 ring-blue-100': esPasoActivo(i),
-                'bg-slate-100 text-slate-400': !esPasoCompletado(i) && !esPasoActivo(i)
-              }">
-              <span class="material-symbols-outlined text-[22px]">{{ esPasoCompletado(i) ? 'check' : iconoPaso(i) }}</span>
-            </div>
+                  <!-- Punto inicial: Reporte creado (siempre completado) -->
+                  <div class="relative">
+                    <div class="flex items-center gap-4 py-2 px-2">
+                      <div class="relative z-10 w-11 h-11 rounded-full grid place-items-center shrink-0 shadow-sm bg-emerald-500 text-white">
+                        <span class="material-symbols-outlined text-[22px]">flag</span>
+                      </div>
+                      <div>
+                    <p class="font-bold text-sm text-slate-800">Reporte creado</p>
+                    @if (fechaReporte) {
+                      <p class="text-xs text-slate-400 mt-0.5">{{ fechaReporte | date:'dd MMM, HH:mm' }}</p>
+                    }
+                    <p class="text-xs text-slate-500 mt-0.5">Un ciudadano reportó este caso.</p>
+                  </div>
+                </div>
+              </div>
 
-            <div class="flex-grow">
-              <p class="font-bold text-sm"
-                [ngClass]="esPasoActivo(i) || esPasoCompletado(i) ? 'text-slate-800' : 'text-slate-400'">
-                {{ paso }}
-              </p>
-              @if (entradasDePaso(i).length > 0) {
-                <p class="text-xs text-slate-400 mt-0.5">
-                  {{ entradasDePaso(i).length }} nota{{ entradasDePaso(i).length === 1 ? '' : 's' }} registrada{{ entradasDePaso(i).length === 1 ? '' : 's' }}
-                </p>
-              }
-            </div>
+              @for (paso of pasos; track paso; let i = $index) {
+                <div class="relative">
+                  <!-- fila del paso -->
+                  <button type="button"
+                    (click)="entradasDePaso(i).length > 0 ? togglePaso(i) : null"
+                    class="w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors"
+                    [ngClass]="{
+                      'hover:bg-slate-50 cursor-pointer': entradasDePaso(i).length > 0,
+                      'cursor-default': entradasDePaso(i).length === 0
+                    }">
 
-            @if (entradasDePaso(i).length > 0) {
-              <span class="material-symbols-outlined text-slate-400 text-[22px] transition-transform shrink-0"
-                [class.rotate-180]="pasoExpandido === i">expand_more</span>
-            }
-          </button>
+                    <div class="relative z-10 w-11 h-11 rounded-full grid place-items-center shrink-0 shadow-sm transition-all"
+                      [ngClass]="{
+                        'bg-emerald-500 text-white': esPasoCompletado(i),
+                        'bg-blue-600 text-white ring-4 ring-blue-100': esPasoActivo(i),
+                        'bg-slate-100 text-slate-400': !esPasoCompletado(i) && !esPasoActivo(i)
+                      }">
+                      <span class="material-symbols-outlined text-[22px]">{{ esPasoCompletado(i) ? 'check' : iconoPaso(i) }}</span>
+                    </div>
 
-          <!-- detalle desplegado -->
-          @if (pasoExpandido === i && entradasDePaso(i).length > 0) {
-            <div class="ml-[54px] mr-2 mb-3 mt-1 flex flex-col gap-3">
-              @for (entrada of entradasDePaso(i); track $index) {
-                <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <p class="text-xs text-blue-600 font-bold flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[14px]">schedule</span>
-                    {{ entrada.timestamp | date:'dd MMM, HH:mm' }}
-                  </p>
-                  <p class="text-sm text-slate-700 mt-1 leading-relaxed">{{ entrada.nota || 'Sin nota registrada.' }}</p>
+                    <div class="flex-grow">
+                      <p class="font-bold text-sm"
+                        [ngClass]="esPasoActivo(i) || esPasoCompletado(i) ? 'text-slate-800' : 'text-slate-400'">
+                        {{ paso }}
+                      </p>
+                      @if (entradasDePaso(i).length > 0) {
+                        <p class="text-xs text-slate-400 mt-0.5">
+                          {{ entradasDePaso(i).length }} nota{{ entradasDePaso(i).length === 1 ? '' : 's' }} registrada{{ entradasDePaso(i).length === 1 ? '' : 's' }}
+                        </p>
+                      }
+                    </div>
+
+                    @if (entradasDePaso(i).length > 0) {
+                      <span class="material-symbols-outlined text-slate-400 text-[22px] transition-transform shrink-0"
+                        [class.rotate-180]="pasoExpandido === i">expand_more</span>
+                    }
+                  </button>
+
+                  <!-- detalle desplegado -->
+                  @if (pasoExpandido === i && entradasDePaso(i).length > 0) {
+                    <div class="ml-[54px] mr-2 mb-3 mt-1 flex flex-col gap-3">
+                      @for (entrada of entradasDePaso(i); track $index) {
+                        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                          <p class="text-xs text-blue-600 font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">schedule</span>
+                            {{ entrada.timestamp | date:'dd MMM, HH:mm' }}
+                          </p>
+                          <p class="text-sm text-slate-700 mt-1 leading-relaxed">{{ entrada.nota || 'Sin nota registrada.' }}</p>
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
               }
             </div>
-          }
-        </div>
-      }
-    </div>
-  </div>
+          </div>
 
-  <div class="px-6 py-3 border-t border-slate-100 bg-slate-50">
-    <p class="text-xs text-slate-400">Avanza el estado desde "Actualizar caso".</p>
-  </div>
-</article>
+          <div class="px-6 py-3 border-t border-slate-100 bg-slate-50">
+            <p class="text-xs text-slate-400">Avanza el estado desde "Actualizar caso".</p>
+          </div>
+            </article>
 
             <!-- CONTACTO -->
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50">
                 <h3 class="font-bold text-slate-800 flex items-center gap-2">
                   <span class="material-symbols-outlined text-slate-500">person</span>

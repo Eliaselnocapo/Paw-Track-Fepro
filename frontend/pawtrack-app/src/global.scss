@@ -487,6 +487,15 @@ html, body {
   transform: translateY(0);
 }
 
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.reveal-fade.is-visible {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;

@@ -14,6 +14,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 import * as L from 'leaflet';
 
@@ -60,6 +61,7 @@ interface CambioAplicado {
     FooterWebComponent,
     TitleCasePipe,
     DecimalPipe,
+    RevealDirective
   ],
   templateUrl: './update-report.page.html',
   styleUrls: ['./update-report.page.scss'],

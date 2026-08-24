@@ -72,15 +72,13 @@ export class AppComponent implements OnDestroy {
         )
       )
       .subscribe(() => {
-        requestAnimationFrame(() => {
-          window.scrollTo(0, 0);
-
+        setTimeout(() => {
           const contenidoActivo = document.querySelector(
             'ion-router-outlet .ion-page:not(.ion-page-hidden) ion-content'
           ) as HTMLIonContentElement | null;
 
           contenidoActivo?.scrollToTop(0);
-        });
+        }, 350);
       });
 
       document.addEventListener(

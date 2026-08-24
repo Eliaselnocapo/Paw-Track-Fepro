@@ -2,10 +2,12 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ErrorHandler } from '@angular/core';
+import { ErrorHandler, inject, provideAppInitializer } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 import { GlobalErrorHandler } from './app/core/error-handling/global-error-handler';
+import { AuthService } from './app/core/services/auth.service';
 
 
 import { routes } from './app/app.routes';
@@ -27,5 +29,10 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    provideAppInitializer(() => {
+      const authService = inject(AuthService);
+      if (!authService.isLoggedIn()) return Promise.resolve();
+      return firstValueFrom(authService.refrescarUsuario());
+    }),
   ],
 });

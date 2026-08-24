@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { IonContent, IonModal } from '@ionic/angular/standalone';
@@ -56,6 +56,7 @@ interface ReporterReport {
   styleUrls: ['./reporter.page.scss'],
 })
 export class ReporterPage implements OnInit {
+  @ViewChildren(RevealDirective) revealElements!: QueryList<RevealDirective>;
   reports: ReporterReport[] = [];
   reportesPorPagina = 5;
   paginaActualReportes = 1;
@@ -77,6 +78,8 @@ export class ReporterPage implements OnInit {
   errorReclamo: string | null = null;
   errorPdf: string | null = null;
 
+  mostrarContenido = true;
+
   constructor(
     private reportService: ReportService,
     private localReportCache: LocalReportCacheService,
@@ -90,8 +93,17 @@ export class ReporterPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.cargarReportes();
-  }
 
+    // Fuerza que Angular destruya y vuelva a crear todo el contenido
+    // (incluyendo las directivas appReveal), ya que Ionic cachea la
+    // página y ngOnInit/ngAfterViewInit no vuelven a correr solos.
+    this.mostrarContenido = false;
+
+    setTimeout(() => {
+      this.mostrarContenido = true;
+    }, 0);
+  }
+  
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     this.errorPdf = null;

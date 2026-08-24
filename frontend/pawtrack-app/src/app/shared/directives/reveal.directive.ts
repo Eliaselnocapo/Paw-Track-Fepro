@@ -1,11 +1,12 @@
-import { Directive, ElementRef, Input, OnInit, OnDestroy } from '@angular/core';
+import { Directive, ElementRef, Input, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 
 @Directive({
   selector: '[appReveal]',
   standalone: true,
 })
-export class RevealDirective implements OnInit, OnDestroy {
-  @Input() revealDelay: number = 0; // en ms, opcional: appReveal="200"
+export class RevealDirective implements OnInit, AfterViewInit, OnDestroy {
+  @Input() revealDelay: number = 0;
+  @Input() revealVariant: 'default' | 'fade' = 'default';
 
   private observer?: IntersectionObserver;
 
@@ -13,11 +14,36 @@ export class RevealDirective implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const element = this.el.nativeElement;
-    element.classList.add('reveal');
+    element.classList.add(this.revealVariant === 'fade' ? 'reveal-fade' : 'reveal');
 
     if (this.revealDelay) {
       element.style.transitionDelay = `${this.revealDelay}ms`;
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.observarElemento();
+  }
+
+  /**
+   * Reinicia la animación desde cero y vuelve a observar. Pensado para
+   * llamarse desde ionViewWillEnter() de la página, ya que Ionic cachea
+   * componentes y ngOnInit/ngAfterViewInit no vuelven a correr al
+   * navegar de regreso a una página ya visitada.
+   */
+  replay(): void {
+    const element = this.el.nativeElement;
+
+    this.observer?.disconnect();
+    element.classList.remove('is-visible');
+
+    void element.offsetHeight; // reflow forzado
+
+    this.observarElemento();
+  }
+
+  private observarElemento(): void {
+    const element = this.el.nativeElement;
 
     this.observer = new IntersectionObserver(
       (entries) => {
@@ -28,7 +54,7 @@ export class RevealDirective implements OnInit, OnDestroy {
           }
         });
       },
-      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0, rootMargin: '0px 0px 100px 0px' }
     );
 
     this.observer.observe(element);

@@ -3,40 +3,29 @@
 
     <app-navbar-web class="relative z-30"></app-navbar-web>
 
-<!-- FONDO DECORATIVO -->
-<div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+  <!-- FONDO DECORATIVO -->
+  <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
 
-  <div class="absolute left-[-150px] top-[50px] w-[520px] h-[520px] rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 opacity-55"></div>
+    <div class="vd-shape-1 absolute left-[-150px] top-[50px] w-[clamp(320px,42vw,520px)] h-[clamp(320px,42vw,520px)] rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 opacity-55"></div>
 
-  <div class="absolute right-[-140px] top-[320px] w-[360px] h-[360px] rounded-full bg-gradient-to-bl from-cyan-200 to-sky-300 opacity-35"></div>
+    <div class="vd-shape-2 absolute right-[-140px] top-[320px] w-[clamp(220px,29vw,360px)] h-[clamp(220px,29vw,360px)] rounded-full bg-gradient-to-bl from-cyan-200 to-sky-300 opacity-35"></div>
 
-  <div class="absolute left-[7%] bottom-[110px] w-[160px] h-[160px] bg-gradient-to-tr from-indigo-200 to-blue-300 opacity-35 rotate-[12deg]"></div>
+    <div class="vd-shape-3 absolute left-[7%] bottom-[110px] w-[clamp(100px,13vw,160px)] h-[clamp(100px,13vw,160px)] bg-gradient-to-tr from-indigo-200 to-blue-300 opacity-35"></div>
 
-  <div class="absolute left-[38%] top-[5%] w-[80px] h-[80px] rounded-full bg-gradient-to-tr from-fuchsia-200 to-purple-300 opacity-35"></div>
+    <div class="vd-shape-4 absolute left-[38%] top-[5%] w-[clamp(50px,7vw,80px)] h-[clamp(50px,7vw,80px)] rounded-full bg-gradient-to-tr from-fuchsia-200 to-purple-300 opacity-40"></div>
 
-  <div class="absolute right-[14%] top-[10%] w-14 h-14 bg-gradient-to-br from-rose-200 to-red-200 opacity-35 rotate-[18deg]"></div>
+    <div class="vd-shape-5 absolute right-[14%] top-[10%] w-[clamp(40px,5vw,60px)] h-[clamp(40px,5vw,60px)] bg-gradient-to-br from-amber-200 to-orange-300 opacity-40"></div>
 
-  <div class="absolute right-[4%] bottom-[8%] w-[200px] h-[200px] rounded-full bg-gradient-to-tl from-sky-200 to-cyan-300 opacity-35"></div>
+    <div class="vd-shape-6 absolute right-[4%] bottom-[8%] w-[clamp(140px,18vw,200px)] h-[clamp(140px,18vw,200px)] rounded-full bg-gradient-to-tl from-emerald-200 to-teal-300 opacity-40"></div>
 
-  <!-- Grupitos de burbujas -->
-  <div class="absolute top-[47%] left-[5%]">
-    <span class="absolute w-4 h-4 rounded-full bg-gradient-to-br from-blue-300 to-indigo-400 opacity-45" style="top:0; left:0;"></span>
-    <span class="absolute w-2.5 h-2.5 rounded-full bg-gradient-to-br from-cyan-300 to-blue-400 opacity-45" style="top:16px; left:22px;"></span>
-    <span class="absolute w-5 h-5 rounded-full bg-gradient-to-br from-indigo-300 to-violet-400 opacity-35" style="top:34px; left:6px;"></span>
+    <!-- Grupito de burbujas, más grande, uno solo -->
+    <div class="absolute top-[48%] right-[5%]">
+      <span class="vd-burbuja-1 absolute w-8 h-8 rounded-full bg-gradient-to-br from-violet-300 to-purple-400 opacity-45" style="top:0; left:0;"></span>
+      <span class="vd-burbuja-2 absolute w-5 h-5 rounded-full bg-gradient-to-br from-pink-300 to-rose-400 opacity-45" style="top:32px; left:38px;"></span>
+      <span class="vd-burbuja-1 absolute w-9 h-9 rounded-full bg-gradient-to-br from-blue-300 to-cyan-400 opacity-35" style="top:60px; left:10px;"></span>
+    </div>
+
   </div>
-
-  <div class="absolute top-[52%] right-[6%]">
-    <span class="absolute w-3 h-3 rounded-full bg-gradient-to-br from-sky-300 to-cyan-400 opacity-45" style="top:0; left:12px;"></span>
-    <span class="absolute w-5 h-5 rounded-full bg-gradient-to-br from-blue-300 to-indigo-400 opacity-35" style="top:16px; left:0;"></span>
-    <span class="absolute w-2.5 h-2.5 rounded-full bg-gradient-to-br from-cyan-400 to-sky-500 opacity-45" style="top:40px; left:24px;"></span>
-  </div>
-
-  <div class="absolute bottom-[22%] left-[32%]">
-    <span class="absolute w-3.5 h-3.5 rounded-full bg-gradient-to-br from-violet-300 to-purple-400 opacity-40" style="top:0; left:0;"></span>
-    <span class="absolute w-2 h-2 rounded-full bg-gradient-to-br from-rose-300 to-pink-400 opacity-40" style="top:14px; left:18px;"></span>
-  </div>
-
-</div>
 
     @if (cargando) {
       <main class="flex-1 flex items-center justify-center relative z-10">
@@ -55,7 +44,7 @@
       <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-24 md:py-24 relative z-10">
 
         <!-- VOLVER -->
-        <button type="button" (click)="volver()"
+        <button appReveal type="button" (click)="volver()"
           class="mb-6 inline-flex items-center gap-2 px-4 py-2  border border-slate-200 text-slate-700 text-sm font-bold shadow-sm  hover:border-blue-300 hover:text-blue-700 transition-all active:scale-95">
           <span class="material-symbols-outlined text-[19px]">arrow_back</span>
           Volver a mis reportes
@@ -63,7 +52,7 @@
 
         <!-- BANNER RESCATADO (solo si cerrado) -->
         @if (estaCerrado) {
-          <div class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md">
+          <div appReveal class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md">
             <span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[130px] opacity-15 pointer-events-none">verified</span>
             <div class="relative z-10 p-6 flex flex-col md:flex-row md:items-center gap-4 md:justify-between">
               <div class="flex items-start gap-4">
@@ -85,7 +74,7 @@
         }
 
         <!-- ===================== HEADER RASTREO CON FOTO ===================== -->
-        <section class="bg-white border border-slate-300 shadow-md overflow-hidden mb-8">
+        <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden mb-8">
           <div class="grid grid-cols-1 md:grid-cols-3">
             <div class="md:col-span-2 relative overflow-hidden min-h-[280px] flex">
               <img [src]="imagenUrl(incidencia.imagen)" [alt]="titulo" class="absolute inset-0 w-full h-full object-cover">
@@ -137,7 +126,7 @@
         <!-- BANNER QUIEN LO ATIENDE (solo si NO cerrado) -->
         @if (!estaCerrado) {
           @if (tieneRescatista) {
-            <section class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md p-6">
+            <section appReveal class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md p-6">
               <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-15 pointer-events-none">volunteer_activism</span>
               <div class="relative z-10 flex items-start gap-4">
                 <div class="w-11 h-11 bg-white/20 grid place-items-center shrink-0">
@@ -152,7 +141,7 @@
               </div>
             </section>
           } @else {
-            <section class="mb-8 bg-white border border-blue-100 shadow-sm p-6 flex items-start gap-4">
+            <section appReveal class="mb-8 bg-white border border-blue-100 shadow-sm p-6 flex items-start gap-4">
               <div class="w-11 h-11 bg-blue-50 text-blue-700 grid place-items-center shrink-0">
                 <span class="material-symbols-outlined">hourglass_top</span>
               </div>
@@ -168,7 +157,7 @@
 
         <!-- ===================== CUERPO 2 COLUMNAS ===================== -->
         <!-- BANNER RESUMEN -->
-        <div class="bg-white border border-slate-300 shadow-md mb-8 grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100">
+        <div appReveal class="bg-white border border-slate-300 shadow-md mb-8 grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100">
           <div class="p-5">
             <p class="text-[11px] font-bold uppercase text-slate-400">Estado</p>
             <p class="text-sm font-bold mt-1"
@@ -191,13 +180,13 @@
         </div>
 
         <!-- GRID 2x2 ADAPTABLE (7/5) -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
 
           <!-- Izq: Mensajes + Evaluación, DOS tarjetas separadas con espacio entre ellas -->
           <div class="lg:col-span-7 flex flex-col gap-6">
 
             <!-- Mensajes del voluntario -->
-            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-6 border-b border-slate-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-600 text-white grid place-items-center shrink-0 shadow-sm">
                   <span class="material-symbols-outlined">forum</span>
@@ -236,7 +225,7 @@
             </article>
 
             <!-- Evaluación del voluntario -->
-            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-6 border-b border-slate-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
                   <span class="material-symbols-outlined">stethoscope</span>
@@ -278,7 +267,7 @@
           </div>
 
           <!-- Der: Mapa (si cerrado) + Tu reporte + Aviso -->
-          <aside class="lg:col-span-5 flex flex-col gap-6">
+          <aside appReveal class="lg:col-span-5 flex flex-col gap-6">
 
             @if (ubicacionFinal) {
               <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
@@ -355,7 +344,7 @@
 
             <!-- Aviso de solo lectura -->
             @if (!estaCerrado) {
-              <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg p-6">
+              <div appReveal class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg p-6">
                 <span class="material-symbols-outlined absolute -right-3 -bottom-3 text-[100px] opacity-15 pointer-events-none">lock</span>
                 <div class="relative z-10 flex gap-3 items-start">
                   <span class="material-symbols-outlined mt-0.5">info</span>

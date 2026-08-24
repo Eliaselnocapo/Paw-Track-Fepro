@@ -2,11 +2,11 @@
   <div class="min-h-screen w-full bg-blue-50 flex flex-col font-body text-slate-800 relative overflow-hidden">
   <!-- FONDO DECORATIVO -->
   <div class="absolute top-1 md:top-2 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-[-5%] left-[-10%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-br from-indigo-500 to-violet-400 opacity-30"></div>
-    <div class="absolute top-[12%] right-0 w-[120px] h-[350px] md:w-[200px] md:h-[500px] rounded-l-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-30"></div>
-    <div class="absolute top-[48%] left-[-5%] md:left-[3%] w-[150px] h-[150px] md:w-[250px] md:h-[250px] rounded-3xl bg-gradient-to-tr from-rose-200 to-orange-200 opacity-30 rotate-12"></div>
-    <div class="absolute bottom-[-5%] right-[-5%] w-[300px] h-[300px] md:w-[550px] md:h-[550px] rounded-tl-full bg-gradient-to-tl from-blue-200 to-cyan-300 opacity-30"></div>
-    <div class="absolute bottom-[8%] left-[28%] w-[100px] h-[100px] md:w-[150px] md:h-[150px] rounded-full bg-gradient-to-t from-purple-200 to-indigo-200 opacity-30"></div>
+    <div class="cr-shape-1 absolute top-[-5%] left-[-10%] w-[clamp(220px,32vw,600px)] h-[clamp(220px,32vw,600px)] rounded-full bg-gradient-to-br from-indigo-500 to-violet-400 opacity-30"></div>
+    <div class="cr-shape-2 absolute top-[12%] right-0 w-[clamp(90px,13vw,200px)] h-[clamp(260px,36vw,500px)] rounded-l-full bg-gradient-to-l from-emerald-200 to-teal-300 opacity-30"></div>
+    <div class="cr-shape-3 absolute top-[48%] left-[-2%] w-[clamp(110px,16vw,250px)] h-[clamp(110px,16vw,250px)] bg-gradient-to-tr from-rose-200 to-orange-200 opacity-30"></div>
+    <div class="cr-shape-4 absolute bottom-[-5%] right-[-5%] w-[clamp(220px,30vw,550px)] h-[clamp(220px,30vw,550px)] rounded-tl-full bg-gradient-to-tl from-blue-200 to-cyan-300 opacity-30"></div>
+    <div class="cr-shape-5 absolute bottom-[8%] left-[28%] w-[clamp(70px,10vw,150px)] h-[clamp(70px,10vw,150px)] rounded-full bg-gradient-to-t from-purple-200 to-indigo-200 opacity-30"></div>
   </div>
 
   <app-navbar-web class="w-full relative z-20"></app-navbar-web>
@@ -15,7 +15,7 @@
     <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 pt-24 pb-16 relative z-10">
 
       <!-- ============ HERO ============ -->
-      <section class="border border-slate-300 shadow-md overflow-hidden mb-6 bg-white rounded">
+      <section appReveal class="border border-slate-300 shadow-md overflow-hidden mb-6 bg-white rounded">
         <div class="relative overflow-hidden bg-gradient-to-r from-blue-100 via-indigo-100 to-blue-200 border-b border-slate-200 px-6 md:px-10 py-8">
           <span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[140px] text-blue-300/40 pointer-events-none select-none">pets</span>
 
@@ -32,7 +32,7 @@
         </div>
 
         <!-- ============ STEPPER ============ -->
-        <div class="px-6 md:px-10 py-6 bg-white border-t border-slate-100 rounded">
+        <div appReveal class="px-6 md:px-10 py-6 bg-white border-t border-slate-100 rounded">
           <div class="flex items-center">
 
             <!-- Paso 1 -->
@@ -111,7 +111,7 @@
       <div class="flex flex-col md:flex-row gap-6 md:gap-8">
 
         <!-- ============ COLUMNA DE AYUDA ============ -->
-        <div class="w-full md:w-1/3 flex flex-col gap-6 md:sticky md:top-6 self-start">
+        <div appReveal class="w-full md:w-1/3 flex flex-col gap-6 md:sticky md:top-6 self-start">
 
           @if (pasoActual === 1) {
             <div class="bg-white shadow-md border border-slate-300 ">
@@ -224,14 +224,14 @@
 
           <!-- ---------- PASO 1: EVIDENCIA ---------- -->
           @if (pasoActual === 1) {
-            <div class="bg-white p-6 md:p-8 shadow-md border border-slate-300 rounded">
+            <div appReveal class="bg-white p-6 md:p-8 shadow-md border border-slate-300 rounded">
 
               <div class="w-full border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-6 py-14 cursor-pointer transition-colors duration-200 hover:border-blue-600 hover:bg-blue-50/40">
                 <div class="w-16 h-16 bg-blue-100 grid place-items-center mb-4">
                   <span class="material-symbols-outlined text-[32px] text-blue-700" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
                 </div>
                 <h3 class="text-lg font-bold text-slate-900 mb-1 text-center">Sube la evidencia del animal</h3>
-                <p class="text-xs text-slate-500 text-center mb-5">JPG, PNG o MP4. Tamano maximo 50MB.</p>
+                <p class="text-xs text-slate-500 text-center mb-5">JPG, PNG o MP4. Tamaño maximo 50MB.</p>
 
                 <input type="file" #inputCamara class="hidden" accept="image/jpeg,image/png,image/gif,image/webp" capture="environment" (change)="onFileSelected($event)">
                 <input type="file" #inputGaleria class="hidden" accept="image/jpeg,image/png,image/gif,image/webp" multiple (change)="onFileSelected($event)">
@@ -293,7 +293,7 @@
 
           <!-- ---------- PASO 2: DETALLES DEL ANIMAL ---------- -->
           @if (pasoActual === 2) {
-            <div class="w-full bg-white p-6 md:p-8 shadow-md border border-slate-300 flex flex-col gap-8 rounded">
+            <div appReveal class="w-full bg-white p-6 md:p-8 shadow-md border border-slate-300 flex flex-col gap-8 rounded">
 
               <section>
                 <label class="block text-sm font-bold text-slate-900 mb-2">Nombre del caso</label>
@@ -323,7 +323,7 @@
               <hr class="border-slate-100">
 
               <section>
-                <h2 class="text-base font-bold text-slate-900 mb-4">Que tipo de animal es?</h2>
+                <h2 class="text-base font-bold text-slate-900 mb-4">¿Qué tipo de animal es?</h2>
                 <div class="grid grid-cols-2 gap-4">
 
                   <button (click)="seleccionarTipo('perro')" class="relative flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tipoAnimal === 'perro', 'border-slate-200 bg-white hover:border-slate-300': tipoAnimal !== 'perro'}">
@@ -345,7 +345,7 @@
 
               <section [class.opacity-50]="!tipoAnimal" [class.pointer-events-none]="!tipoAnimal" class="transition-opacity duration-300">
                 <div class="flex justify-between items-center mb-4">
-                  <h2 class="text-base font-bold text-slate-900">Tamano aproximado</h2>
+                  <h2 class="text-base font-bold text-slate-900">Tamaño aproximado</h2>
                   @if (!tipoAnimal) {
                     <span class="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-1 uppercase tracking-wider">Selecciona animal primero</span>
                   }
@@ -374,7 +374,7 @@
                     <button (click)="seleccionarTamano('pequeño')" class="relative flex items-center p-4 border-2 transition-all duration-200 text-left hover:shadow-sm rounded" [ngClass]="{'border-blue-600 bg-blue-50/50': tamanoAproximado === 'pequeño', 'border-slate-200 bg-white hover:border-slate-300': tamanoAproximado !== 'pequeño'}">
                       <img src="assets/icon/small_dog.png" alt="Pequeño" class="w-10 h-10 mr-3 object-contain transition-all" [ngClass]="{'opacity-100 grayscale-0': tamanoAproximado === 'pequeño', 'opacity-50 grayscale': tamanoAproximado !== 'pequeño'}">
                       <div>
-                        <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'pequeño', 'text-slate-700': tamanoAproximado !== 'pequeño'}">Pequeno</span>
+                        <span class="block font-bold text-sm" [ngClass]="{'text-blue-800': tamanoAproximado === 'pequeño', 'text-slate-700': tamanoAproximado !== 'pequeño'}">Pequeño</span>
                         <span class="block text-xs font-medium mt-0.5" [ngClass]="{'text-blue-600/80': tamanoAproximado === 'pequeño', 'text-slate-500': tamanoAproximado !== 'pequeño'}">&lt; 10 kg</span>
                       </div>
                     </button>
@@ -435,7 +435,7 @@
               <hr class="border-slate-100">
 
               <section>
-                <h2 class="text-base font-bold text-slate-900 mb-1">Como reacciono al verte?</h2>
+                <h2 class="text-base font-bold text-slate-900 mb-1">¿Cómo reacciono al verte?</h2>
                 <p class="text-xs text-slate-500 mb-4">
                   Esto le dice al rescatista con que precauciones debe acercarse. Se honesto:
                   un animal asustado puede parecer agresivo.
@@ -585,7 +585,7 @@
 
           <!-- ---------- PASO 3: UBICACION ---------- -->
           @if (pasoActual === 3) {
-            <div class="w-full flex flex-col gap-6 bg-white p-4 md:p-8 shadow-md border border-slate-300 rounded">
+            <div appReveal class="w-full flex flex-col gap-6 bg-white p-4 md:p-8 shadow-md border border-slate-300 rounded">
 
               <div class="w-full relative overflow-hidden shadow-sm border border-slate-300 h-[400px] md:h-[500px] bg-[#e5e3df]">
                 <div id="mapa-interactivo" class="absolute inset-0 w-full h-full z-10 cursor-move"></div>
@@ -653,7 +653,7 @@
 
           <!-- ---------- PASO 4: REVISION ---------- -->
           @if (pasoActual === 4) {
-            <div class="w-full flex flex-col gap-6 rounded">
+            <div appReveal class="w-full flex flex-col gap-6 rounded">
               <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
                 <div class="lg:col-span-7 flex flex-col gap-6">
@@ -927,6 +927,7 @@
                        responda si es el mismo caso o no — no se puede cerrar sin
                        contestar (backdropDismiss="false"). -->
                   <ion-modal
+                    appReveal
                     class="modal-duplicado"
                     [isOpen]="!!candidatoDuplicado && duplicadoConfirmado === null"
                     [backdropDismiss]="false"
@@ -1058,7 +1059,7 @@
       <div class="confetti-piece" style="left: 85%; animation-delay: 0.3s; background-color: #8b5cf6;"></div>
     </div>
 
-    <div class="flex-grow w-full max-w-4xl mx-auto py-10 px-4 flex items-center justify-center relative z-10 animate-fade-in">
+    <div appReveal class="flex-grow w-full max-w-4xl mx-auto py-24 px-4 flex items-center justify-center relative z-10 animate-fade-in">
       <div class="w-full bg-white shadow-xl border border-slate-300 overflow-hidden flex flex-col md:flex-row">
 
         <div class="w-full md:w-5/12 bg-gradient-to-br from-emerald-500 to-teal-600 flex flex-col items-center justify-center p-10 text-center relative overflow-hidden rounded-r-none">

@@ -6,7 +6,8 @@ import { Subscription } from 'rxjs';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../../environments/environment';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 @Component({
   selector: 'app-case-accepted-success',
@@ -17,6 +18,7 @@ import { environment } from 'src/environments/environment';
     IonContent,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './case-accepted-success.page.html',
   styleUrls: ['./case-accepted-success.page.scss'],

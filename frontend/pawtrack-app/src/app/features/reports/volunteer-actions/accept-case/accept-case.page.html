@@ -1,80 +1,65 @@
 <ion-content [fullscreen]="true">
-  <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden">
+  <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden flex flex-col">
 
-<!-- FONDO DECORATIVO — MOVIL -->
-<!-- En movil las tarjetas ocupan todo el ancho: las figuras solo se ven si
-     sangran por los bordes laterales. Nada en el centro. -->
-<div class="md:hidden absolute inset-0 pointer-events-none z-0 overflow-hidden">
-  <div class="absolute top-[70px] right-[-90px] w-[220px] h-[220px] rounded-full bg-violet-200/50"></div>
-  <div class="absolute top-[24%] left-[-80px] w-[190px] h-[190px] bg-sky-200/50 rotate-[10deg]"></div>
-  <div class="absolute top-[46%] right-[-70px] w-[180px] h-[180px] rounded-full bg-emerald-200/45"></div>
-  <div class="absolute top-[68%] left-[-90px] w-[210px] h-[210px] bg-rose-200/40 -rotate-6"></div>
-  <div class="absolute bottom-[3%] right-[-80px] w-[200px] h-[200px] rounded-full bg-cyan-200/45"></div>
+  <div class="md:hidden absolute inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="ac-shape-1 absolute top-[70px] right-[-90px] w-[clamp(160px,45vw,220px)] h-[clamp(160px,45vw,220px)] rounded-full bg-violet-200/50"></div>
+    <div class="ac-shape-2 absolute top-[24%] left-[-80px] w-[clamp(140px,40vw,190px)] h-[clamp(140px,40vw,190px)] bg-sky-200/50"></div>
+    <div class="ac-shape-3 absolute top-[46%] right-[-70px] w-[clamp(130px,38vw,180px)] h-[clamp(130px,38vw,180px)] rounded-full bg-emerald-200/45"></div>
+    <div class="ac-shape-4 absolute top-[68%] left-[-90px] w-[clamp(150px,42vw,210px)] h-[clamp(150px,42vw,210px)] bg-rose-200/40"></div>
+    <div class="ac-shape-5 absolute bottom-[3%] right-[-80px] w-[clamp(140px,40vw,200px)] h-[clamp(140px,40vw,200px)] rounded-full bg-cyan-200/45"></div>
 
-  <div class="absolute top-[36%] left-[6px] w-5 h-5 bg-amber-300/55 rotate-12"></div>
-  <div class="absolute top-[58%] right-[8px] w-4 h-4 rounded-full bg-indigo-300/55"></div>
-  <div class="absolute top-[80%] left-[10px] w-6 h-6 bg-teal-300/45 -rotate-12"></div>
-</div>
+    <div class="ac-shape-6 absolute top-[36%] left-[6px] w-5 h-5 bg-amber-300/55"></div>
+    <div class="ac-shape-7 absolute top-[58%] right-[8px] w-4 h-4 rounded-full bg-indigo-300/55"></div>
+    <div class="ac-shape-8 absolute top-[80%] left-[10px] w-6 h-6 bg-teal-300/45"></div>
+  </div>
 
-<!-- FONDO DECORATIVO CON CUADRADOS PASTEL VISIBLES -->
-<div class="hidden md:block absolute inset-0 pointer-events-none z-0 overflow-hidden">
+  <!-- FONDO DECORATIVO CON CUADRADOS PASTEL VISIBLES -->
+  <div class="hidden md:block absolute inset-0 pointer-events-none z-0 overflow-hidden">
 
-  <!-- CUADRADO SUPERIOR IZQUIERDO MÁS GRANDE -->
-  <div class="absolute top-[-70px] left-[-70px] w-[260px] h-[260px] bg-pink-200/80 rotate-12 shadow-[0_12px_30px_rgba(244,114,182,0.1)]"></div>
+    <!-- CUADRADO SUPERIOR IZQUIERDO MÁS GRANDE -->
+    <div class="ac-shape-2 absolute top-[-70px] left-[-70px] w-[clamp(180px,20vw,260px)] h-[clamp(180px,20vw,260px)] bg-pink-200/80 shadow-[0_12px_30px_rgba(244,114,182,0.1)]"></div>
 
-  <!-- CUADRADO SUPERIOR DERECHO GRANDE -->
-  <div class="absolute top-[-80px] right-[-70px] w-[260px] h-[260px] bg-blue-200/75 -rotate-12 shadow-[0_14px_35px_rgba(96,165,250,0.1)]"></div>
+    <!-- CUADRADO SUPERIOR DERECHO GRANDE -->
+    <div class="ac-shape-7 absolute top-[-80px] right-[-70px] w-[clamp(180px,20vw,260px)] h-[clamp(180px,20vw,260px)] bg-blue-200/75 shadow-[0_14px_35px_rgba(96,165,250,0.1)]"></div>
 
-  <!-- CUADRADO DERECHO MEDIO -->
-  <div class="absolute top-[18%] right-[8%] w-[170px] h-[170px] bg-cyan-200/75 rotate-6 shadow-[0_10px_28px_rgba(103,232,249,0.18)]"></div>
+    <!-- CUADRADO DERECHO MEDIO -->
+    <div class="ac-shape-6 absolute top-[18%] right-[8%] w-[clamp(120px,14vw,170px)] h-[clamp(120px,14vw,170px)] bg-cyan-200/75 shadow-[0_10px_28px_rgba(103,232,249,0.18)]"></div>
 
-  <!-- CUADRADO IZQUIERDO MEDIO TIPO DOCUMENTO -->
-  <div class="absolute top-[18%] left-[10%] w-[260px] h-[340px] bg-white/70 border border-white/80 rotate-[-8deg] shadow-[0_18px_45px_rgba(255,255,255,0.35)]"></div>
+    <!-- CUADRADO IZQUIERDO MEDIO TIPO DOCUMENTO -->
+    <div class="ac-shape-9 absolute top-[18%] left-[10%] w-[clamp(190px,20vw,260px)] h-[clamp(250px,27vw,340px)] bg-white/70 border border-white/80 shadow-[0_18px_45px_rgba(255,255,255,0.35)]"></div>
 
-  <!-- CUADRADO DETRÁS DEL DOCUMENTO -->
-  <div class="absolute top-[22%] left-[13%] w-[240px] h-[320px] bg-blue-100/70 rotate-[6deg] shadow-[0_10px_30px_rgba(191,219,254,0.28)]"></div>
+    <!-- CUADRADO DETRÁS DEL DOCUMENTO -->
+    <div class="ac-shape-10 absolute top-[22%] left-[13%] w-[clamp(175px,19vw,240px)] h-[clamp(235px,25vw,320px)] bg-blue-100/70 shadow-[0_10px_30px_rgba(191,219,254,0.28)]"></div>
 
-  <!-- CUADRADO CENTRAL SUAVE -->
-  <div class="absolute top-[50%] left-[42%] -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-emerald-100/70 rotate-12 shadow-[0_10px_28px_rgba(110,231,183,0.18)]"></div>
+    <!-- CUADRADO CENTRAL SUAVE -->
+    <div class="ac-shape-1 absolute top-[50%] left-[42%] -translate-x-1/2 -translate-y-1/2 w-[clamp(150px,17vw,220px)] h-[clamp(150px,17vw,220px)] bg-emerald-100/70 shadow-[0_10px_28px_rgba(110,231,183,0.18)]"></div>
 
-  <!-- CUADRADO CENTRAL PEQUEÑO -->
-  <div class="absolute top-[46%] left-[53%] w-[90px] h-[90px] bg-yellow-100/80 -rotate-6 shadow-[0_8px_20px_rgba(253,224,71,0.15)]"></div>
+    <!-- CUADRADO CENTRAL PEQUEÑO -->
+    <div class="ac-shape-4 absolute top-[46%] left-[53%] w-[clamp(60px,7vw,90px)] h-[clamp(60px,7vw,90px)] bg-yellow-100/80 shadow-[0_8px_20px_rgba(253,224,71,0.15)]"></div>
 
-  <!-- CUADRADO INFERIOR IZQUIERDO GIGANTE -->
-  <div class="absolute bottom-[-90px] left-[-70px] w-[280px] h-[280px] bg-emerald-200/75 rotate-[8deg] shadow-[0_14px_35px_rgba(110,231,183,0.2)]"></div>
+    <!-- CUADRADO INFERIOR IZQUIERDO GIGANTE -->
+    <div class="ac-shape-3 absolute bottom-[-90px] left-[-70px] w-[clamp(190px,21vw,280px)] h-[clamp(190px,21vw,280px)] bg-emerald-200/75 shadow-[0_14px_35px_rgba(110,231,183,0.2)]"></div>
 
-  <!-- CUADRADO INFERIOR DERECHO -->
-  <div class="absolute bottom-[10%] right-[16%] w-[170px] h-[170px] bg-orange-200/75 rotate-12 shadow-[0_12px_28px_rgba(253,186,116,0.2)]"></div>
+    <!-- CUADRADO INFERIOR DERECHO -->
+    <div class="ac-shape-5 absolute bottom-[10%] right-[16%] w-[clamp(120px,14vw,170px)] h-[clamp(120px,14vw,170px)] bg-orange-200/75 shadow-[0_12px_28px_rgba(253,186,116,0.2)]"></div>
 
-  <!-- CUADRADO DERECHO ABAJO MÁS CHICO -->
-  <div class="absolute bottom-[22%] right-[6%] w-[110px] h-[110px] bg-violet-200/75 -rotate-12 shadow-[0_10px_24px_rgba(196,181,253,0.22)]"></div>
+    <!-- CUADRADO DERECHO ABAJO MÁS CHICO -->
+    <div class="ac-shape-8 absolute bottom-[22%] right-[6%] w-[clamp(78px,9vw,110px)] h-[clamp(78px,9vw,110px)] bg-violet-200/75 shadow-[0_10px_24px_rgba(196,181,253,0.22)]"></div>
 
-  <!-- FRANJAS RECTANGULARES DECORATIVAS -->
-  <div class="absolute top-[38%] right-[12%] w-[220px] h-[18px] bg-blue-100/85"></div>
-  <div class="absolute top-[43%] right-[18%] w-[170px] h-[18px] bg-emerald-100/85"></div>
-  <div class="absolute top-[48%] right-[10%] w-[200px] h-[18px] bg-pink-100/85"></div>
+    <!-- FRANJAS RECTANGULARES DECORATIVAS -->
+    <div class="ac-shape-6 absolute top-[38%] right-[12%] w-[clamp(150px,17vw,220px)] h-[18px] bg-blue-100/85"></div>
+    <div class="ac-shape-2 absolute top-[43%] right-[18%] w-[clamp(120px,13vw,170px)] h-[18px] bg-emerald-100/85"></div>
+    <div class="ac-shape-9 absolute top-[48%] right-[10%] w-[clamp(140px,15vw,200px)] h-[18px] bg-pink-100/85"></div>
 
-  <!-- MINI CUADROS DECORATIVOS -->
-  <div class="absolute left-[6%] top-[58%] w-5 h-5 bg-blue-300/85 rotate-12"></div>
-  <div class="absolute left-[9%] top-[64%] w-4 h-4 bg-emerald-300/85 -rotate-6"></div>
-  <div class="absolute left-[14%] top-[54%] w-6 h-6 bg-orange-300/80 rotate-12"></div>
-  <div class="absolute right-[28%] top-[22%] w-4 h-4 bg-pink-300/85 rotate-45"></div>
-  <div class="absolute right-[32%] top-[27%] w-6 h-6 bg-cyan-300/80 -rotate-12"></div>
+    <!-- MINI CUADROS DECORATIVOS -->
+    <div class="ac-shape-1 absolute left-[6%] top-[58%] w-5 h-5 bg-blue-300/85"></div>
+    <div class="ac-shape-7 absolute left-[9%] top-[64%] w-4 h-4 bg-emerald-300/85"></div>
+    <div class="ac-shape-3 absolute left-[14%] top-[54%] w-6 h-6 bg-orange-300/80"></div>
+    <div class="ac-shape-8 absolute right-[28%] top-[22%] w-4 h-4 bg-pink-300/85 rotate-45"></div>
+    <div class="ac-shape-10 absolute right-[32%] top-[27%] w-6 h-6 bg-cyan-300/80"></div>
 
-</div>
+  </div>
 
-    <!-- ========== FONDO DECORATIVO — MOVIL ========== -->
-    <div class="md:hidden absolute inset-0 pointer-events-none z-0 overflow-hidden">
-      <div class="absolute top-[70px] right-[-90px] w-[220px] h-[220px] rounded-full bg-violet-200/40"></div>
-      <div class="absolute top-[24%] left-[-80px] w-[190px] h-[190px] bg-sky-200/40 rotate-[10deg]"></div>
-      <div class="absolute top-[46%] right-[-70px] w-[180px] h-[180px] rounded-full bg-emerald-200/40"></div>
-      <div class="absolute top-[68%] left-[-90px] w-[210px] h-[210px] bg-rose-200/30 -rotate-6"></div>
-      <div class="absolute bottom-[3%] right-[-80px] w-[200px] h-[200px] rounded-full bg-cyan-200/40"></div>
-
-      <div class="absolute top-[36%] left-[6px] w-5 h-5 bg-amber-300/50 rotate-12"></div>
-      <div class="absolute top-[58%] right-[8px] w-4 h-4 rounded-full bg-indigo-300/50"></div>
-      <div class="absolute top-[80%] left-[10px] w-6 h-6 bg-teal-300/40 -rotate-12"></div>
-    </div>
 
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
@@ -82,6 +67,7 @@
 
       <!-- BOTÓN VOLVER -->
       <button
+        appReveal
         type="button"
         (click)="cancelar()"
         class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
@@ -89,16 +75,8 @@
         Volver a casos
       </button>
 
-      <button
-        type="button"
-        (click)="cancelar()"
-        class="hidden md:inline-flex mb-5 items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
-        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-        Volver al detalle
-      </button>
-
       @if (cargando) {
-        <section class="bg-white border border-slate-300 rounded shadow-md p-12 flex flex-col items-center text-center">
+        <section appReveal class="bg-white border border-slate-300 rounded shadow-md p-12 flex flex-col items-center text-center">
           <span class="material-symbols-outlined text-6xl text-blue-300 mb-4 animate-pulse">hourglass_empty</span>
           <h2 class="text-xl font-bold text-slate-800">Cargando caso</h2>
           <p class="text-slate-500 mt-1">Estamos preparando el acta de aceptación.</p>
@@ -106,7 +84,7 @@
       }
 
       @else if (errorCarga) {
-        <section class="bg-red-50 border border-red-200 rounded shadow-sm p-8">
+        <section appReveal class="bg-red-50 border border-red-200 rounded shadow-sm p-8">
           <h2 class="text-lg font-bold text-red-700">No se pudo cargar el caso</h2>
           <p class="text-sm text-red-600 mt-1">{{ errorCarga }}</p>
 
@@ -120,161 +98,160 @@
       }
 
       @else if (caso) {
+      <!-- ENCABEZADO DE ACTA -->
+      <section class="border border-slate-300 rounded shadow-md overflow-hidden mb-8 bg-white">
+        <div appReveal class="grid grid-cols-1 lg:grid-cols-12">
 
-<!-- ENCABEZADO DE ACTA -->
-<section class="border border-slate-300 rounded shadow-md overflow-hidden mb-8 bg-white">
-  <div class="grid grid-cols-1 lg:grid-cols-12">
+          <!-- LADO IZQUIERDO CON IMAGEN -->
+          <div class="lg:col-span-8 relative overflow-hidden min-h-[200px] md:min-h-[360px]">
+            <!-- IMAGEN DE FONDO SOLO IZQUIERDA -->
+            <div class="absolute inset-0 pointer-events-none">
+              <img
+                [src]="caso.fotoUrl"
+                [alt]="caso.titulo"
+                class="w-full h-full object-cover blur-[1px] scale-105 opacity-45">
 
-    <!-- LADO IZQUIERDO CON IMAGEN -->
-    <div class="lg:col-span-8 relative overflow-hidden min-h-[200px] md:min-h-[360px]">
-      <!-- IMAGEN DE FONDO SOLO IZQUIERDA -->
-      <div class="absolute inset-0 pointer-events-none">
-        <img
-          [src]="caso.fotoUrl"
-          [alt]="caso.titulo"
-          class="w-full h-full object-cover blur-[1px] scale-105 opacity-45">
+              <!-- CAPAS PARA QUE SE SIGA LEYENDO -->
+              <div class="absolute inset-0 bg-slate-950/25"></div>
+              <div class="absolute inset-0 bg-gradient-to-r from-slate-950/55 via-slate-900/30 to-white/10"></div>
+            </div>
 
-        <!-- CAPAS PARA QUE SE SIGA LEYENDO -->
-        <div class="absolute inset-0 bg-slate-950/25"></div>
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/55 via-slate-900/30 to-white/10"></div>
-      </div>
+            <!-- CONTENIDO -->
+            <div class="relative z-10 p-6 md:p-8 h-full flex flex-col justify-center">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-white/90 border border-white/70 text-blue-700 text-xs font-bold uppercase mb-5 w-fit shadow-sm">
+                <span class="material-symbols-outlined text-[17px]">assignment_turned_in</span>
+                Acta de compromiso
+              </div>
 
-      <!-- CONTENIDO -->
-      <div class="relative z-10 p-6 md:p-8 h-full flex flex-col justify-center">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-white/90 border border-white/70 text-blue-700 text-xs font-bold uppercase mb-5 w-fit shadow-sm">
-          <span class="material-symbols-outlined text-[17px]">assignment_turned_in</span>
-          Acta de compromiso
-        </div>
+              <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight drop-shadow-sm">
+                Aceptar misión
+              </h1>
 
-        <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight drop-shadow-sm">
-          Aceptar misión
-        </h1>
+              <p class="mt-3 text-lg text-white/95 font-semibold">
+                Caso #{{ caso.folio }} · {{ caso.titulo }}
+              </p>
 
-        <p class="mt-3 text-lg text-white/95 font-semibold">
-          Caso #{{ caso.folio }} · {{ caso.titulo }}
-        </p>
+              <p class="mt-5 max-w-2xl text-sm md:text-base text-white/90 leading-relaxed">
+                Estás por tomar responsabilidad sobre este caso. Antes de continuar,
+                confirma que puedes dar seguimiento y actuar con cuidado.
+              </p>
 
-        <p class="mt-5 max-w-2xl text-sm md:text-base text-white/90 leading-relaxed">
-          Estás por tomar responsabilidad sobre este caso. Antes de continuar,
-          confirma que puedes dar seguimiento y actuar con cuidado.
-        </p>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold border shadow-sm"
+                  [ngClass]="prioridadClase">
+                  <span class="material-symbols-outlined text-[16px]">
+                    {{ caso.prioridad === 'Urgente' ? 'emergency' : 'priority_high' }}
+                  </span>
+                  {{ caso.prioridad }}
+                </span>
 
-        <div class="mt-5 flex flex-wrap gap-2">
-          <span
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold border shadow-sm"
-            [ngClass]="prioridadClase">
-            <span class="material-symbols-outlined text-[16px]">
-              {{ caso.prioridad === 'Urgente' ? 'emergency' : 'priority_high' }}
-            </span>
-            {{ caso.prioridad }}
-          </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-white/90 text-slate-700 border border-white/80 shadow-sm">
+                  <span class="material-symbols-outlined text-[16px]">schedule</span>
+                  {{ caso.tiempo }}
+                </span>
 
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-white/90 text-slate-700 border border-white/80 shadow-sm">
-            <span class="material-symbols-outlined text-[16px]">schedule</span>
-            {{ caso.tiempo }}
-          </span>
-
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-emerald-50/95 text-emerald-700 border border-emerald-100 shadow-sm">
-            <span class="material-symbols-outlined text-[16px]">pets</span>
-            {{ caso.especie }}
-          </span>
-        </div>
-      </div>
-    </div>
-    <!-- LADO DERECHO LIMPIO / PANEL DE PROGRESO -->
-    <div class="lg:col-span-4 relative overflow-hidden bg-blue-50 border-t lg:border-t-0 lg:border-l border-blue-100 p-6 md:p-8 flex flex-col justify-center">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold bg-emerald-50/95 text-emerald-700 border border-emerald-100 shadow-sm">
+                  <span class="material-symbols-outlined text-[16px]">pets</span>
+                  {{ caso.especie }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <!-- LADO DERECHO LIMPIO / PANEL DE PROGRESO -->
+          <div class="lg:col-span-4 relative overflow-hidden bg-blue-50 border-t lg:border-t-0 lg:border-l border-blue-100 p-6 md:p-8 flex flex-col justify-center">
 
 
-      <div class="relative z-10 bg-white border border-blue-200 rounded shadow-sm p-5">
-        <div class="flex items-start justify-between gap-4 mb-5">
-          <div>
-            <p class="text-xs font-bold uppercase text-blue-700 mb-1">
-              Estado del compromiso
+            <div class="relative z-10 bg-white border border-blue-200 rounded shadow-sm p-5">
+              <div class="flex items-start justify-between gap-4 mb-5">
+                <div>
+                  <p class="text-xs font-bold uppercase text-blue-700 mb-1">
+                    Estado del compromiso
+                  </p>
+
+                  <h3 class="text-lg font-bold leading-tight text-slate-900">
+                    {{ puedeConfirmar ? 'Listo para confirmar' : 'Confirmación pendiente' }}
+                  </h3>
+                </div>
+
+                <div class="w-12 h-12 rounded bg-blue-100 text-blue-700 grid place-items-center shrink-0">
+                  <span class="material-symbols-outlined text-[25px]">
+                    {{ puedeConfirmar ? 'verified' : 'assignment_late' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex items-end gap-2 mb-3">
+                <span class="text-5xl font-bold text-slate-900 leading-none">
+                  {{ progresoCompromiso | number:'1.0-0' }}
+                </span>
+                <span class="text-sm font-bold text-slate-500 mb-1">%</span>
+              </div>
+
+              <div class="h-3 bg-blue-100 rounded overflow-hidden mb-4">
+                <div
+                  class="h-full bg-blue-600 rounded transition-all duration-300"
+                  [style.width.%]="progresoCompromiso">
+                </div>
+              </div>
+
+              <div
+                class="rounded border p-3"
+                [ngClass]="puedeConfirmar
+                  ? 'bg-emerald-50 border-emerald-200'
+                  : 'bg-slate-50 border-slate-200'">
+
+                <p
+                  class="text-sm font-bold"
+                  [ngClass]="puedeConfirmar ? 'text-emerald-700' : 'text-slate-700'">
+                  {{ puedeConfirmar ? 'Compromiso completo' : 'Compromiso incompleto' }}
+                </p>
+
+                <p
+                  class="text-xs mt-1 leading-relaxed"
+                  [ngClass]="puedeConfirmar ? 'text-emerald-600' : 'text-slate-500'">
+                  {{ puedeConfirmar
+                    ? 'Ya puedes confirmar y tomar esta misión.'
+                    : 'Marca todos los puntos para poder continuar.' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 4 PUNTOS REQUERIDOS, LIMPIOS Y SIN FIGURAS ENCIMA -->
+            <div class="relative z-10 mt-4 grid grid-cols-4 gap-2">
+              <div
+                class="h-2 rounded"
+                [ngClass]="revisoInformacion ? 'bg-blue-600' : 'bg-blue-100'">
+              </div>
+
+              <div
+                class="h-2 rounded"
+                [ngClass]="tieneDisponibilidad ? 'bg-blue-600' : 'bg-blue-100'">
+              </div>
+
+              <div
+                class="h-2 rounded"
+                [ngClass]="aceptaSeguimiento ? 'bg-blue-600' : 'bg-blue-100'">
+              </div>
+
+              <div
+                class="h-2 rounded"
+                [ngClass]="aceptaSeguridad ? 'bg-blue-600' : 'bg-blue-100'">
+              </div>
+            </div>
+
+            <p class="relative z-10 text-xs text-slate-500 mt-3 text-center">
+              {{ progresoCompromiso | number:'1.0-0' }}% completado · 4 puntos requeridos
             </p>
-
-            <h3 class="text-lg font-bold leading-tight text-slate-900">
-              {{ puedeConfirmar ? 'Listo para confirmar' : 'Confirmación pendiente' }}
-            </h3>
           </div>
 
-          <div class="w-12 h-12 rounded bg-blue-100 text-blue-700 grid place-items-center shrink-0">
-            <span class="material-symbols-outlined text-[25px]">
-              {{ puedeConfirmar ? 'verified' : 'assignment_late' }}
-            </span>
-          </div>
         </div>
-
-        <div class="flex items-end gap-2 mb-3">
-          <span class="text-5xl font-bold text-slate-900 leading-none">
-            {{ progresoCompromiso | number:'1.0-0' }}
-          </span>
-          <span class="text-sm font-bold text-slate-500 mb-1">%</span>
-        </div>
-
-        <div class="h-3 bg-blue-100 rounded overflow-hidden mb-4">
-          <div
-            class="h-full bg-blue-600 rounded transition-all duration-300"
-            [style.width.%]="progresoCompromiso">
-          </div>
-        </div>
-
-        <div
-          class="rounded border p-3"
-          [ngClass]="puedeConfirmar
-            ? 'bg-emerald-50 border-emerald-200'
-            : 'bg-slate-50 border-slate-200'">
-
-          <p
-            class="text-sm font-bold"
-            [ngClass]="puedeConfirmar ? 'text-emerald-700' : 'text-slate-700'">
-            {{ puedeConfirmar ? 'Compromiso completo' : 'Compromiso incompleto' }}
-          </p>
-
-          <p
-            class="text-xs mt-1 leading-relaxed"
-            [ngClass]="puedeConfirmar ? 'text-emerald-600' : 'text-slate-500'">
-            {{ puedeConfirmar
-              ? 'Ya puedes confirmar y tomar esta misión.'
-              : 'Marca todos los puntos para poder continuar.' }}
-          </p>
-        </div>
-      </div>
-
-      <!-- 4 PUNTOS REQUERIDOS, LIMPIOS Y SIN FIGURAS ENCIMA -->
-      <div class="relative z-10 mt-4 grid grid-cols-4 gap-2">
-        <div
-          class="h-2 rounded"
-          [ngClass]="revisoInformacion ? 'bg-blue-600' : 'bg-blue-100'">
-        </div>
-
-        <div
-          class="h-2 rounded"
-          [ngClass]="tieneDisponibilidad ? 'bg-blue-600' : 'bg-blue-100'">
-        </div>
-
-        <div
-          class="h-2 rounded"
-          [ngClass]="aceptaSeguimiento ? 'bg-blue-600' : 'bg-blue-100'">
-        </div>
-
-        <div
-          class="h-2 rounded"
-          [ngClass]="aceptaSeguridad ? 'bg-blue-600' : 'bg-blue-100'">
-        </div>
-      </div>
-
-      <p class="relative z-10 text-xs text-slate-500 mt-3 text-center">
-        {{ progresoCompromiso | number:'1.0-0' }}% completado · 4 puntos requeridos
-      </p>
-    </div>
-
-  </div>
-</section>
+      </section>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
 
           <!-- RESUMEN IZQUIERDO -->
-          <aside class="lg:col-span-4 flex flex-col gap-6">
+          <aside appReveal class="lg:col-span-4 flex flex-col gap-6">
 
             <!-- RESUMEN COMPACTO -->
             <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
@@ -325,7 +302,7 @@
             </article>
 
             <!-- DATOS CLAVE -->
-            <article class="bg-white border border-slate-300 rounded shadow-md p-5">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md p-5">
               <p class="text-xs font-bold uppercase text-slate-500 mb-4">
                 Datos clave
               </p>
@@ -366,10 +343,10 @@
           </aside>
 
           <!-- ACTA PRINCIPAL -->
-          <section class="lg:col-span-8 flex flex-col gap-6">
+          <section appReveal class="lg:col-span-8 flex flex-col gap-6">
           <!-- AVISO DE SEGURIDAD: como reacciono el animal -->
             @if (avisoAgresividad; as aviso) {
-              <article class="bg-white border border-slate-300 rounded shadow-md p-5 flex items-start gap-4 animate-fade-in-up">
+              <article  class="bg-white border border-slate-300 rounded shadow-md p-5 flex items-start gap-4 animate-fade-in-up">
                 <div class="w-11 h-11 rounded grid place-items-center shrink-0" [ngClass]="aviso.clase">
                   <span class="material-symbols-outlined text-[22px]" [ngClass]="aviso.claseTexto">{{ aviso.icono }}</span>
                 </div>
@@ -384,7 +361,7 @@
             }
 
             <!-- COMPROMISO -->
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <!-- CABECERA COMPROMISO DEL VOLUNTARIO -->
               <div class="relative overflow-hidden p-6 border-b border-blue-300 bg-blue-600 text-white">
                 <div class="relative z-10 max-w-3xl">
@@ -485,86 +462,8 @@
 
               </div>
             </article>
-
-            <!-- QUÉ PASA DESPUÉS 
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
-              <div class="p-6 border-b border-slate-200 bg-slate-50">
-                <p class="text-xs font-bold uppercase text-blue-600 mb-1">
-                  Después de aceptar
-                </p>
-
-                <h2 class="text-xl font-bold text-slate-900">
-                  Tu ruta de seguimiento
-                </h2>
-
-                <p class="text-sm text-slate-600 mt-2">
-                  Estos son los pasos que se habilitan cuando confirmas la misión.
-                </p>
-              </div>
-
-              <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                <div class="rounded border border-blue-100 bg-blue-50 p-4">
-                  <div class="flex items-start gap-3">
-                    <div class="w-9 h-9 rounded bg-blue-600 text-white grid place-items-center font-bold shrink-0">
-                      1
-                    </div>
-                    <div>
-                      <p class="font-bold text-slate-900">El caso pasa a tus misiones</p>
-                      <p class="text-sm text-slate-600 mt-1">
-                        Quedará registrado como un caso activo bajo tu seguimiento.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="rounded border border-emerald-100 bg-emerald-50 p-4">
-                  <div class="flex items-start gap-3">
-                    <div class="w-9 h-9 rounded bg-emerald-600 text-white grid place-items-center font-bold shrink-0">
-                      2
-                    </div>
-                    <div>
-                      <p class="font-bold text-slate-900">Revisas la situación real</p>
-                      <p class="text-sm text-slate-600 mt-1">
-                        Podrás consultar ubicación, contacto y datos del reporte.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="rounded border border-amber-100 bg-amber-50 p-4">
-                  <div class="flex items-start gap-3">
-                    <div class="w-9 h-9 rounded bg-amber-500 text-white grid place-items-center font-bold shrink-0">
-                      3
-                    </div>
-                    <div>
-                      <p class="font-bold text-slate-900">Registras avances</p>
-                      <p class="text-sm text-slate-600 mt-1">
-                        Podrás actualizar el estado del animal y agregar observaciones.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="rounded border border-slate-200 bg-slate-50 p-4">
-                  <div class="flex items-start gap-3">
-                    <div class="w-9 h-9 rounded bg-slate-700 text-white grid place-items-center font-bold shrink-0">
-                      4
-                    </div>
-                    <div>
-                      <p class="font-bold text-slate-900">Cierras o escalas el caso</p>
-                      <p class="text-sm text-slate-600 mt-1">
-                        Si el rescate requiere apoyo adicional, podrás reportarlo.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </article>-->
-
             <!-- ACCIONES -->
-            <article class="bg-white border border-slate-300 rounded shadow-md p-5">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md p-5">
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                 <div>
@@ -627,7 +526,7 @@
     </footer>
     <!-- ============ MODAL DE ERROR AL ACEPTAR ============ -->
     @if (modalErrorAbierto) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60"
+      <div appReveal class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60"
         (click)="cerrarModalError()">
 
         <div class="w-full max-w-md bg-white border border-slate-300 shadow-xl" (click)="$event.stopPropagation()">

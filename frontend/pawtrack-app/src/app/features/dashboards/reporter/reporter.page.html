@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true">
-  <div class="w-full min-h-screen bg-blue-50 relative overflow-hidden">
+  <div class="w-full min-h-screen bg-[#f7f9ff] relative overflow-hidden">
     
 <!-- FONDO ESCRITORIO -->
 <div class="hidden md:block absolute top-20 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -38,7 +38,7 @@
 </div>
 
     <app-navbar-web class="relative z-50"></app-navbar-web>
-
+    @if (mostrarContenido) {
     <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-24 pb-8">
       <section appReveal class="rounded bg-white/80 backdrop-blur-xl border border-slate-300 shadow-md p-6 md:p-8 mb-8 overflow-hidden relative">
 
@@ -247,7 +247,7 @@
 
           </div>
           @if (reports.length > reportesPorPagina) {
-              <div class="mt-6 bg-white border border-slate-300 shadow-md p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div appReveal class="mt-6 bg-white border border-slate-300 shadow-md p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                 <p class="text-sm text-slate-500 font-semibold">
                   Mostrando
@@ -515,7 +515,7 @@
       </div>
 
     </main>
-
+    }
     <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
       <app-footer-web></app-footer-web>
     </footer>

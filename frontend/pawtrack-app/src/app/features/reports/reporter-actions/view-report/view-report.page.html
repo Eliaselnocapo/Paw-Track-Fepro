@@ -3,49 +3,49 @@
 
     <app-navbar-web></app-navbar-web>
 
-<!-- FONDO — figuras dispersas, top mínimo 80px, opacidades bajas -->
-<div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+  <!-- FONDO — figuras dispersas, top mínimo 80px, opacidades bajas, responsivas -->
+  <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
 
-  <!-- ZONA SUPERIOR -->
-  <div class="absolute top-[90px] left-[-140px] w-[340px] h-[340px] bg-rose-200/50 rounded-full"></div>
-  <div class="absolute top-[100px] left-[32%] w-[90px] h-[90px] bg-amber-200/40 rotate-[20deg]"></div>
-  <div class="absolute top-[110px] right-[-100px] w-[280px] h-[280px] bg-violet-200/45 rotate-[12deg]"></div>
+    <!-- ZONA SUPERIOR -->
+    <div class="esp-shape-1 absolute top-[90px] left-[-140px] w-[clamp(200px,26vw,340px)] h-[clamp(200px,26vw,340px)] bg-rose-200/50 rounded-full"></div>
+    <div class="esp-shape-2 absolute top-[100px] left-[32%] w-[clamp(56px,7vw,90px)] h-[clamp(56px,7vw,90px)] bg-amber-200/40"></div>
+    <div class="esp-shape-3 absolute top-[110px] right-[-100px] w-[clamp(170px,22vw,280px)] h-[clamp(170px,22vw,280px)] bg-violet-200/45"></div>
 
-  <!-- ZONA SUPERIOR MEDIA -->
-  <div class="absolute top-[24%] left-[16%] w-[80px] h-[80px] bg-cyan-200/45 rotate-[30deg]"></div>
-  <div class="absolute top-[27%] left-[58%] w-[130px] h-[130px] bg-sky-200/35 rounded-full"></div>
+    <!-- ZONA SUPERIOR MEDIA -->
+    <div class="esp-shape-4 absolute top-[24%] left-[16%] w-[clamp(48px,6vw,80px)] h-[clamp(48px,6vw,80px)] bg-cyan-200/45"></div>
+    <div class="esp-shape-5 absolute top-[27%] left-[58%] w-[clamp(80px,10vw,130px)] h-[clamp(80px,10vw,130px)] bg-sky-200/35 rounded-full"></div>
 
-  <!-- ZONA MEDIA -->
-  <div class="absolute top-[38%] left-[26%] w-[65px] h-[65px] bg-purple-200/35 rotate-[25deg]"></div>
-  <div class="absolute top-[42%] right-[10%] w-[100px] h-[100px] bg-orange-200/35 rounded-full"></div>
+    <!-- ZONA MEDIA -->
+    <div class="esp-shape-6 absolute top-[38%] left-[26%] w-[clamp(40px,5vw,65px)] h-[clamp(40px,5vw,65px)] bg-purple-200/35"></div>
+    <div class="esp-shape-7 absolute top-[42%] right-[10%] w-[clamp(60px,8vw,100px)] h-[clamp(60px,8vw,100px)] bg-orange-200/35 rounded-full"></div>
 
-  <!-- ZONA MEDIA BAJA -->
-  <div class="absolute top-[54%] left-[6%] w-[85px] h-[85px] bg-fuchsia-200/40 rotate-[18deg]"></div>
-  <div class="absolute top-[58%] right-[-60px] w-[170px] h-[170px] bg-indigo-100/45 rotate-[-8deg]"></div>
+    <!-- ZONA MEDIA BAJA -->
+    <div class="esp-shape-8 absolute top-[54%] left-[6%] w-[clamp(52px,7vw,85px)] h-[clamp(52px,7vw,85px)] bg-fuchsia-200/40"></div>
+    <div class="esp-shape-9 absolute top-[58%] right-[-60px] w-[clamp(100px,14vw,170px)] h-[clamp(100px,14vw,170px)] bg-indigo-100/45"></div>
 
-  <!-- ZONA BAJA -->
-  <div class="absolute top-[70%] left-[-50px] w-[150px] h-[150px] bg-emerald-200/40 rotate-[10deg]"></div>
-  <div class="absolute top-[74%] left-[42%] w-[85px] h-[85px] bg-amber-200/35 rotate-[35deg]"></div>
-  <div class="absolute top-[68%] right-[16%] w-[75px] h-[75px] bg-violet-200/40 rotate-[-20deg]"></div>
+    <!-- ZONA BAJA -->
+    <div class="esp-shape-10 absolute top-[70%] left-[-50px] w-[clamp(90px,12vw,150px)] h-[clamp(90px,12vw,150px)] bg-emerald-200/40"></div>
+    <div class="esp-shape-11 absolute top-[74%] left-[42%] w-[clamp(52px,7vw,85px)] h-[clamp(52px,7vw,85px)] bg-amber-200/35"></div>
+    <div class="esp-shape-12 absolute top-[68%] right-[16%] w-[clamp(46px,6vw,75px)] h-[clamp(46px,6vw,75px)] bg-violet-200/40"></div>
 
-  <!-- ZONA INFERIOR -->
-  <div class="absolute bottom-[-60px] right-[-50px] w-[240px] h-[240px] bg-teal-200/40 rotate-[-12deg]"></div>
+    <!-- ZONA INFERIOR -->
+    <div class="esp-shape-13 absolute bottom-[-60px] right-[-50px] w-[clamp(150px,20vw,240px)] h-[clamp(150px,20vw,240px)] bg-teal-200/40"></div>
 
-  <!-- MINI ACENTOS DISPERSOS -->
-  <div class="absolute top-[16%] right-[28%] w-3 h-3 bg-purple-300/50 rotate-45"></div>
-  <div class="absolute top-[48%] left-[42%] w-3.5 h-3.5 bg-amber-300/55 rotate-45"></div>
-  <div class="absolute top-[64%] right-[35%] w-4 h-4 bg-fuchsia-300/45 -rotate-8"></div>
+    <!-- MINI ACENTOS DISPERSOS -->
+    <div class="esp-shape-1 absolute top-[16%] right-[28%] w-3 h-3 bg-purple-300/50 rotate-45"></div>
+    <div class="esp-shape-6 absolute top-[48%] left-[42%] w-3.5 h-3.5 bg-amber-300/55 rotate-45"></div>
+    <div class="esp-shape-9 absolute top-[64%] right-[35%] w-4 h-4 bg-fuchsia-300/45 -rotate-[8deg]"></div>
 
-</div>
+  </div>
 
     @if (cargando) {
-      <main class="flex-grow flex items-center justify-center relative z-10">
+      <main appReveal class="flex-grow flex items-center justify-center relative z-10">
         <p class="text-slate-500 animate-pulse">Cargando reporte...</p>
       </main>
     }
 
     @if (!cargando && error) {
-      <main class="flex-grow flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+      <main appReveal class="flex-grow flex flex-col items-center justify-center gap-4 relative z-10 px-6">
         <div class="w-16 h-16 bg-red-50 text-red-600 border border-red-100 flex items-center justify-center">
           <span class="material-symbols-outlined text-[40px]">cloud_off</span>
         </div>
@@ -57,7 +57,7 @@
     @if (!cargando && !error && reporte) {
       <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-12 py-24 relative z-10">
 
-        <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8 rounded">
+        <section appReveal class="bg-white border border-slate-300 shadow-md p-6 md:p-8 mb-8 rounded">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div class="flex items-start gap-4">
               <button (click)="regresar()" class="w-11 h-11 border border-slate-200 bg-white text-slate-500 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-100 transition-colors flex items-center justify-center shrink-0">
@@ -82,7 +82,7 @@
                 </div>
               </div>
             </div>
-          <div class="flex flex-col sm:flex-row flex-wrap gap-3">
+          <div appReveal class="flex flex-col sm:flex-row flex-wrap gap-3">
             @if (puedeEditar()) {
               <button [routerLink]="['/reports', reporte.folio ?? reporte.id, 'update']" class="h-12 px-6 bg-blue-700 text-white font-bold shadow-md hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
                 <span class="material-symbols-outlined">add_comment</span>
@@ -114,7 +114,7 @@
 
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start rounded">
 
-          <div class="lg:col-span-8 flex flex-col gap-6">
+          <div appReveal class="lg:col-span-8 flex flex-col gap-6">
 
             <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
               @if (imagenUrl(reporte.imagen)) {
@@ -135,7 +135,7 @@
             </section>
 
             <section class="grid grid-cols-1 md:grid-cols-3 gap-4 rounded">
-              <article class="bg-white border border-slate-300 shadow-md p-5">
+              <article appReveal class="bg-white border border-slate-300 shadow-md p-5">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Animal</p>
                 <div class="flex items-center gap-3 mb-4">
                   <div class="w-12 h-12 bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
@@ -170,7 +170,7 @@
                 </div>
               </article>
 
-              <article class="bg-white border border-slate-300 shadow-md p-5 md:col-span-2 rounded">
+              <article appReveal class="bg-white border border-slate-300 shadow-md p-5 md:col-span-2 rounded">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Detalles y Seguimiento</p>
                 <div class="flex items-start gap-3">
                   <div class="w-12 h-12 bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shrink-0">
@@ -237,7 +237,7 @@
               </article>
             </section>
 
-            <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+            <section appReveal class="bg-white border border-slate-300 shadow-md p-6 rounded">
               <div class="flex items-center justify-between gap-4 mb-5">
                 <div>
                   <h2 class="text-xl font-bold text-slate-900">Información del incidente</h2>
@@ -279,7 +279,7 @@
 
           <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
 
-            <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
+            <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
               <div class="p-5 border-b border-slate-300 bg-slate-50">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <span class="material-symbols-outlined text-blue-700">location_on</span>
@@ -303,7 +303,7 @@
               </div>
             </section>
 
-            <section class="bg-white border border-slate-300 shadow-md p-5 rounded">
+            <section appReveal class="bg-white border border-slate-300 shadow-md p-5 rounded">
               <h3 class="text-lg font-bold text-slate-900 mb-4">Resumen rápido</h3>
               <div class="grid grid-cols-2 gap-3">
                 <div class="bg-blue-50 border border-blue-100 p-4">
@@ -317,7 +317,7 @@
               </div>
             </section>
 
-            <section class="bg-white border border-slate-300 shadow-md p-5 rounded">
+            <section appReveal class="bg-white border border-slate-300 shadow-md p-5 rounded">
               <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 mb-6">
                 <span class="material-symbols-outlined text-blue-700">history</span>
                 Historial del caso
@@ -325,7 +325,7 @@
               <div class="flex flex-col relative before:absolute before:inset-0 before:ml-[11px] before:h-full before:w-0.5 before:bg-slate-200 pl-8">
                 <div class="relative flex flex-col mb-6 last:mb-0">
                   <div class="absolute -left-8 top-1 w-6 h-6 border-[3px] border-white bg-blue-700 shadow-md z-10 rounded-full">
-                    <div class="absolute inset-0 animate-ping bg-blue-700/30"></div>
+                    <div class="absolute inset-0 animate-ping bg-blue-700/30 rounded-full"></div>
                   </div>
                   <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Ahora</p>
                   <p class="text-sm font-bold text-slate-900">Estado: {{ reporte.estado || 'PENDIENTE' }}</p>

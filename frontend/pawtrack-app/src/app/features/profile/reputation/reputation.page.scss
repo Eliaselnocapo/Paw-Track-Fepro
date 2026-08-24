@@ -15,3 +15,41 @@ details > summary {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
+/* Animación de flotación — fondo de reputación */
+@keyframes float-rep-1 {
+  0%, 100% { transform: translate(0, 0) rotate(10deg); }
+  50% { transform: translate(7px, -9px) rotate(10deg); }
+}
+
+@keyframes float-rep-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-rep-3 {
+  0%, 100% { transform: translate(0, 0) rotate(-18deg); }
+  50% { transform: translate(5px, 6px) rotate(-18deg); }
+}
+
+@keyframes float-rep-4 {
+  0%, 100% { transform: translate(0, 0) rotate(24deg); }
+  50% { transform: translate(-5px, -6px) rotate(24deg); }
+}
+
+@keyframes float-rep-5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 5px); }
+}
+
+.rep-shape-1 { animation: float-rep-1 9s ease-in-out infinite; }
+.rep-shape-2 { animation: float-rep-2 11s ease-in-out infinite; }
+.rep-shape-3 { animation: float-rep-3 8s ease-in-out infinite; }
+.rep-shape-4 { animation: float-rep-4 10s ease-in-out infinite; }
+.rep-shape-5 { animation: float-rep-5 12s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rep-shape-1, .rep-shape-2, .rep-shape-3, .rep-shape-4, .rep-shape-5 {
+    animation: none;
+  }
+}

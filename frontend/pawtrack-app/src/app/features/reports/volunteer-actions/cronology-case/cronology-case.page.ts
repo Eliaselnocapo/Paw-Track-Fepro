@@ -9,6 +9,7 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 
 import { ReportService, IncidenciaResponse, EntradaHistorial } from '../../../../core/services/report.service';
 import { environment } from 'src/environments/environment';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 type TipoPunto = 'inicio' | 'avance' | 'cierre' | 'cancelacion';
 
@@ -27,7 +28,7 @@ interface PuntoLinea {
 @Component({
   selector: 'app-cronology-case',
   standalone: true,
-  imports: [CommonModule, TitleCasePipe, IonContent, NavbarWebComponent, FooterWebComponent],
+  imports: [CommonModule, TitleCasePipe, IonContent, NavbarWebComponent, FooterWebComponent, RevealDirective],
   templateUrl: './cronology-case.page.html',
   styleUrls: ['./cronology-case.page.scss'],
 })

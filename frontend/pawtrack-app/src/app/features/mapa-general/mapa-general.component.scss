@@ -153,3 +153,85 @@ ion-content { --background: transparent; }
     animation: none;
   }
 }
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pop-in {
+  opacity: 0;
+  animation: pop-in 0.4s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-in {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+.ubicacion-punto {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 12px;
+  height: 12px;
+  background: #2563eb;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+.ubicacion-halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  background: rgba(37, 99, 235, 0.2);
+  border-radius: 50%;
+  animation: pulso-ubicacion 2s ease-out infinite;
+}
+
+::ng-deep .ubicacion-punto {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 12px;
+  height: 12px;
+  background: #2563eb;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+::ng-deep .ubicacion-halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  background: rgba(37, 99, 235, 0.2);
+  border-radius: 50%;
+  animation: pulso-ubicacion 2s ease-out infinite;
+}
+
+@keyframes pulso-ubicacion {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}

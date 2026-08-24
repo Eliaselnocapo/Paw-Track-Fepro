@@ -12,6 +12,7 @@ import { environment } from 'src/environments/environment';
 
 import { CentrosAnimalesService } from '../../../../core/services/centros-animales.service';
 import { CentroAnimal } from '../../../../core/models/centro-animal.model';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 type EstadoAvance = '' | 'EN_SITIO' | 'EN_PROCESO' | 'EN_TRASLADO'| 'COMPLETADO' | 'CANCELADO';
 
@@ -33,6 +34,7 @@ interface OpcionEstado {
     RouterLink,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './update-case.page.html',
   styleUrls: ['./update-case.page.scss'],

@@ -151,3 +151,40 @@ google-map {
     --border-radius: 0px;
   }
 }
+
+@keyframes float-cr-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-cr-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-cr-3 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(5px, 6px) rotate(12deg); }
+}
+
+@keyframes float-cr-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, -6px); }
+}
+
+@keyframes float-cr-5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 5px); }
+}
+
+.cr-shape-1 { animation: float-cr-1 9s ease-in-out infinite; }
+.cr-shape-2 { animation: float-cr-2 11s ease-in-out infinite; }
+.cr-shape-3 { animation: float-cr-3 8s ease-in-out infinite; }
+.cr-shape-4 { animation: float-cr-4 10s ease-in-out infinite; }
+.cr-shape-5 { animation: float-cr-5 12s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-shape-1, .cr-shape-2, .cr-shape-3, .cr-shape-4, .cr-shape-5 {
+    animation: none;
+  }
+}

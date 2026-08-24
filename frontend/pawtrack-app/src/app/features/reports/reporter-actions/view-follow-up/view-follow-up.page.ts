@@ -7,8 +7,9 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
 import { ReportService, IncidenciaResponse, EntradaHistorial } from '../../../../core/services/report.service';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../../environments/environment';
 import * as L from 'leaflet';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 @Component({
   selector: 'app-view-follow-up',
@@ -19,6 +20,7 @@ import * as L from 'leaflet';
     IonContent,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './view-follow-up.page.html',
   styleUrls: ['./view-follow-up.page.scss'],
