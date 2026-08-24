@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, of, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 
@@ -95,6 +95,18 @@ export class AuthService {
 
   getCurrentUser(): Usuario | null {
     return this.userSubject.getValue();
+  }
+
+  /**
+   * Trae el usuario completo desde el backend y actualiza la sesión local.
+   * Se usa al arrancar la app para que datos como is_staff no se queden
+   * pegados al valor cacheado en localStorage desde el último login.
+   */
+  refrescarUsuario(): Observable<Usuario | null> {
+    return this.http.get<Usuario>(`${this.API}/user/`).pipe(
+      tap((usuario) => this.setCurrentUser(usuario)),
+      catchError(() => of(null))
+    );
   }
 /** Le da al usuario los roles REPORTERO + RESCATISTA y crea su PerfilRescatista en el back. */
   habilitarRoles(userId: number): Observable<Usuario> {
