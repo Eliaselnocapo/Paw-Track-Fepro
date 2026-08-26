@@ -8,8 +8,8 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
 import { ReportService, IncidenciaResponse, EntradaHistorial } from '../../../../core/services/report.service';
-import { environment } from 'src/environments/environment';
-import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+import { environment } from '../../../../../environments/environment';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 type TipoPunto = 'inicio' | 'avance' | 'cierre' | 'cancelacion';
 
@@ -23,6 +23,7 @@ interface PuntoLinea {
   lat?: number;
   lng?: number;
   fotoCierre?: string | null;
+  centro?: string;
 }
 
 @Component({
@@ -343,6 +344,29 @@ get fichaVoluntario(): { etiqueta: string; valor: string }[] {
           });
           break;
 
+        case 'EN_PROCESO':
+          items.push({
+            titulo: 'En proceso',
+            descripcion: 'El voluntario está atendiendo al animal en el sitio.',
+            timestamp: h.timestamp,
+            nota: h.nota,
+            tipo: 'avance',
+          });
+          break;
+
+        case 'EN_TRASLADO':
+          items.push({
+            titulo: 'En traslado',
+            descripcion: (h as any).centro
+              ? `El animal va en camino a ${(h as any).centro}.`
+              : 'El animal va en camino a un centro de apoyo.',
+            timestamp: h.timestamp,
+            nota: h.nota,
+            tipo: 'avance',
+            centro: (h as any).centro,
+          });
+          break;
+
         default:
           items.push({
             titulo: this.estadoLegible(h.estado),
@@ -397,11 +421,13 @@ get fichaVoluntario(): { etiqueta: string; valor: string }[] {
 
   estadoLegible(estado: string): string {
     switch (estado) {
-      case 'EN_CAMINO':  return 'Voluntario en camino';
-      case 'EN_SITIO':   return 'Voluntario en sitio';
-      case 'COMPLETADO': return 'Rescate completado';
-      case 'CANCELADO':  return 'Rescate cancelado';
-      default:           return estado;
+      case 'EN_CAMINO':   return 'Voluntario en camino';
+      case 'EN_SITIO':    return 'Voluntario en sitio';
+      case 'EN_PROCESO':  return 'En proceso';
+      case 'EN_TRASLADO': return 'En traslado';
+      case 'COMPLETADO':  return 'Rescate completado';
+      case 'CANCELADO':   return 'Rescate cancelado';
+      default:            return estado;
     }
   }
 

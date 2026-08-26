@@ -8,11 +8,11 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
 import { ReportService, RescateResponse, EntradaHistorial } from '../../../../core/services/report.service';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../../environments/environment';
 
 import { CentrosAnimalesService } from '../../../../core/services/centros-animales.service';
 import { CentroAnimal } from '../../../../core/models/centro-animal.model';
-import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 type EstadoAvance = '' | 'EN_SITIO' | 'EN_PROCESO' | 'EN_TRASLADO'| 'COMPLETADO' | 'CANCELADO';
 

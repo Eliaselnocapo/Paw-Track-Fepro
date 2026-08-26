@@ -52,7 +52,7 @@
 
         <!-- BANNER RESCATADO (solo si cerrado) -->
         @if (estaCerrado) {
-          <div appReveal class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md">
+          <div appReveal class="relative overflow-hidden mb-8 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md rounded">
             <span class="material-symbols-outlined absolute -right-4 -bottom-6 text-[130px] opacity-15 pointer-events-none">verified</span>
             <div class="relative z-10 p-6 flex flex-col md:flex-row md:items-center gap-4 md:justify-between">
               <div class="flex items-start gap-4">
@@ -65,7 +65,7 @@
                 </div>
               </div>
               <button type="button" (click)="verCronologia()"
-                class="h-12 px-6 bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0">
+                class="h-12 px-6 bg-white rounded-lg text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0">
                 <span class="material-symbols-outlined text-[20px]">history</span>
                 Ver cronología completa
               </button>
@@ -210,6 +210,12 @@
                         </div>
                         @if (item.nota) {
                           <p class="text-sm text-slate-600 mt-1.5 bg-slate-50 border border-slate-100 p-3">{{ item.nota }}</p>
+                        }
+                        @if (item.centro) {
+                          <p class="text-xs font-semibold text-blue-700 mt-1.5 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[15px]">location_on</span>
+                            Destino: {{ item.centro }}
+                          </p>
                         }
                       </div>
                     }

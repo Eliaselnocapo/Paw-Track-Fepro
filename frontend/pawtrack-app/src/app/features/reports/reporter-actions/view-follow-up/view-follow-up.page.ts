@@ -132,29 +132,34 @@ cargar(): void {
     return this.incidencia?.rescatista_info?.nombre || 'Un voluntario';
   }
 
-  get lineaTiempo(): { estado: string; timestamp: string; nota?: string; esInicio?: boolean }[] {
-    const items: { estado: string; timestamp: string; nota?: string; esInicio?: boolean }[] = [];
+  get lineaTiempo(): { estado: string; timestamp: string; nota?: string; esInicio?: boolean; centro?: string }[] {
+    const items: { estado: string; timestamp: string; nota?: string; esInicio?: boolean; centro?: string }[] = [];
 
-    // Primer punto: reporte creado
     const creado = (this.seguimiento as any)?.created_at || (this.incidencia as any)?.created_at;
     if (creado) {
       items.push({ estado: 'Reporte creado', timestamp: creado, esInicio: true });
     }
 
-    // Avances del voluntario
     for (const h of this.historial) {
-      items.push({ estado: this.estadoLegibleHist(h.estado), timestamp: h.timestamp, nota: h.nota });
+      items.push({
+        estado: this.estadoLegibleHist(h.estado),
+        timestamp: h.timestamp,
+        nota: h.nota,
+        centro: (h as any).centro,
+      });
     }
     return items;
   }
 
   estadoLegibleHist(estado: string): string {
     switch (estado) {
-      case 'EN_CAMINO':  return 'Voluntario en camino';
-      case 'EN_SITIO':   return 'Voluntario en sitio';
-      case 'COMPLETADO': return 'Rescate completado';
-      case 'CANCELADO':  return 'Rescate cancelado';
-      default:           return estado;
+      case 'EN_CAMINO':   return 'Voluntario en camino';
+      case 'EN_SITIO':    return 'Voluntario en sitio';
+      case 'EN_PROCESO':  return 'En proceso';
+      case 'EN_TRASLADO': return 'En traslado';
+      case 'COMPLETADO':  return 'Rescate completado';
+      case 'CANCELADO':   return 'Rescate cancelado';
+      default:            return estado;
     }
   }
 
