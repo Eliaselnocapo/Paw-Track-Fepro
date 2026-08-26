@@ -9,6 +9,7 @@ import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/foote
 import { NavbarWebComponent } from '../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 
 import {ProfileService, UsuarioResponse, IncidenciaResponse} from '../../../core/services/profile.service';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 // Fuente correcta de los casos que YO acepté como rescatista.
 // (la misma que usa accepted-cases y que sí funciona)
@@ -63,7 +64,8 @@ interface UsuarioPerfil {
     RouterLink,
     IonContent,
     FooterWebComponent,
-    NavbarWebComponent
+    NavbarWebComponent,
+    RevealDirective
   ],
 })
 export class ProfilePage implements OnInit {

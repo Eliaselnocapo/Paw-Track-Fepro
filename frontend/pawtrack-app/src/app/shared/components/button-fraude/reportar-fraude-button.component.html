@@ -1,0 +1,91 @@
+<!-- Botón flotante esquina superior derecha, con pulso -->
+<div class="absolute top-4 right-4 z-20 group/tooltip">
+  <button
+    type="button"
+    (click)="abrirModal()"
+    aria-label="Reportar algo raro con este reporte"
+    class="relative w-9 h-9 grid place-items-center rounded-full bg-amber-400 text-white
+           hover:bg-amber-500 hover:scale-110 active:scale-95 transition-all shadow-lg"
+  >
+    <!-- Ondas de pulso -->
+    <span class="pulse-ring absolute inset-0 rounded-full bg-amber-400"></span>
+    <span class="pulse-ring pulse-ring-delay absolute inset-0 rounded-full bg-amber-400"></span>
+
+    <span class="material-symbols-outlined text-[18px] relative z-10">flag</span>
+  </button>
+
+  <!-- Tooltip debajo del botón -->
+  <div
+    class="pointer-events-none absolute right-0 top-11 whitespace-nowrap
+           bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0
+           group-hover/tooltip:opacity-100 transition-opacity"
+  >
+    <div class="absolute right-3 -top-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+    ¿Algo raro? Repórtalo
+  </div>
+</div>
+
+@if (modalAbierto) {
+  <div class="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center p-4" (click)="cerrarModal()">
+    <div class="bg-white rounded p-6 max-w-md w-full" (click)="$event.stopPropagation()">
+
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 shrink-0 rounded-full bg-amber-100 text-amber-700 grid place-items-center">
+          <span class="material-symbols-outlined text-[20px]">flag</span>
+        </div>
+        <h3 class="font-bold text-lg text-slate-900">Reportar este caso</h3>
+      </div>
+
+      <p class="text-sm text-slate-500 mb-4">
+        Explica brevemente por qué crees que este reporte es falso o mal uso (opcional).
+      </p>
+
+      <textarea
+        [(ngModel)]="motivo"
+        (input)="error = ''"
+        rows="3"
+        maxlength="255"
+        class="w-full border rounded-lg p-3 text-sm outline-none transition-colors"
+        [class.border-slate-300]="!error"
+        [class.focus:border-amber-500]="!error"
+        [class.focus:ring-2]="!error"
+        [class.focus:ring-amber-100]="!error"
+        [class.border-red-400]="error"
+        placeholder="Motivo (opcional)"
+      ></textarea>
+
+      <div class="flex justify-between items-start mt-1.5 min-h-[20px]">
+        @if (error) {
+          <p class="text-sm text-red-600 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">error</span>
+            {{ error }}
+          </p>
+        } @else {
+          <span></span>
+        }
+        <span class="text-xs text-slate-400 shrink-0 ml-2">{{ motivo.length }}/255</span>
+      </div>
+
+      @if (exito) {
+        <p class="text-sm text-emerald-600 mt-2 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">check_circle</span>
+          Reporte enviado, gracias.
+        </p>
+      }
+
+      <div class="flex gap-3 mt-5">
+        <button type="button" (click)="cerrarModal()" class="flex-1 h-10 border border-slate-300 rounded-lg font-bold text-sm text-slate-700">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="enviar()"
+          [disabled]="enviando || exito"
+          class="flex-1 h-10 bg-amber-500 text-white rounded-lg font-bold text-sm hover:bg-amber-600 disabled:opacity-60"
+        >
+          {{ enviando ? 'Enviando...' : 'Reportar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

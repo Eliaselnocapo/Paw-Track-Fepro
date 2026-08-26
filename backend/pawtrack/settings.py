@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'deduplicacion',
     'recursos',
     'centros',
+    'moderacion',
     'django_celery_beat',
 ]
 
@@ -151,6 +152,7 @@ SITE_ID = 1
 
 # JWT
 from datetime import timedelta
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -173,20 +175,14 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 THROTTLE_RATES = {
-    'anon': '10/minute',
+    'anon': '60/minute',
     'user': '1000/day',
     'pdf_import': '5/minute',
     'vision_anon': '10/minute',
-    # §10: máximo 5 reportes por hora y por usuario.
     'crear_reporte': '5/hour',
-    # §10 pide 5 intentos por cada 15 minutos, pero DRF solo entiende
-    # second/minute/hour/day. 20/hora es el equivalente más cercano y
-    # frena igual la fuerza bruta.
     'login': '20/hour',
 }
 
-# La suite comparte Redis para probar locks de deduplicacion, pero no debe
-# compartir el limite de 10 requests anonimos entre casos de prueba aislados.
 if 'test' in sys.argv:
     THROTTLE_RATES['anon'] = '100000/minute'
 
@@ -195,7 +191,7 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.exceptions.pawtrack_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardPagination',
     'PAGE_SIZE': 20,
-    
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),

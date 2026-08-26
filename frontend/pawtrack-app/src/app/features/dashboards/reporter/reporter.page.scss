@@ -10,3 +10,48 @@
   font-family: 'Inter', system-ui, sans-serif;
   color: #0b1c30;
 }
+
+/* Animación de flotación para el fondo decorativo de esta página */
+@keyframes float-bg-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(8px, -10px); }
+}
+
+@keyframes float-bg-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-8px, 8px); }
+}
+
+@keyframes float-bg-3 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(5px, -6px) rotate(12deg); }
+}
+
+@keyframes float-bg-4 {
+  0%, 100% { transform: translate(0, 0) rotate(45deg); }
+  50% { transform: translate(-6px, 7px) rotate(45deg); }
+}
+
+@keyframes float-bg-5 {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50% { transform: translate(6px, 5px) rotate(-12deg); }
+}
+
+@keyframes float-bg-6 {
+  0%, 100% { transform: translate(0, 0) rotate(18deg); }
+  50% { transform: translate(-5px, -6px) rotate(18deg); }
+}
+
+.bg-shape-1 { animation: float-bg-1 9s ease-in-out infinite; }
+.bg-shape-2 { animation: float-bg-2 11s ease-in-out infinite; }
+.bg-shape-3 { animation: float-bg-3 8s ease-in-out infinite; }
+.bg-shape-4 { animation: float-bg-4 10s ease-in-out infinite; }
+.bg-shape-5 { animation: float-bg-5 7s ease-in-out infinite; }
+.bg-shape-6 { animation: float-bg-6 12s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-shape-1, .bg-shape-2, .bg-shape-3,
+  .bg-shape-4, .bg-shape-5, .bg-shape-6 {
+    animation: none;
+  }
+}

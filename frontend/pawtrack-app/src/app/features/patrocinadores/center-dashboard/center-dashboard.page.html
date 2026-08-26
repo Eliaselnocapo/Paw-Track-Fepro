@@ -1,30 +1,31 @@
 <ion-content [fullscreen]="true">
   <div class="min-h-screen w-full bg-blue-50 flex flex-col relative overflow-hidden">
 
-    <!-- FONDO DECORATIVO: círculos + cuadrados + triángulos -->
-     <div class="absolute top-[4%] -right-5 w-[150px] h-[150px] rounded-full bg-gradient-to-l bg-purple-300/70 opacity-45"></div>
-    <div class="absolute top-1 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-[-15%] left-[-15%] w-[650px] h-[650px] rounded-full bg-gradient-to-br bg-fuchsia-300/75 opacity-45"></div>
-    <div class="absolute top-[12%] right-0 w-[400px] h-[400px] rounded-full bg-gradient-to-l from-emerald-300 to-teal-300 opacity-25"></div>
-    <div class="absolute bottom-[-8%] right-[-6%] w-[380px] h-[380px] rounded-full bg-gradient-to-tl from-emerald-200 to-blue-300 opacity-20"></div>
+  <!-- FONDO DECORATIVO: círculos + cuadrados + triángulos -->
+  <div class="panel-shape-1 absolute top-[4%] -right-5 w-[clamp(90px,13vw,150px)] h-[clamp(90px,13vw,150px)] rounded-full bg-purple-300/70 opacity-45"></div>
 
-    <!-- cuadrados: más variedad de color -->
-    <div class="absolute top-[28%] left-[4%] w-16 h-16 bg-amber-300/40 rotate-[18deg]"></div>
-    <div class="absolute top-[55%] right-[8%] w-24 h-24 bg-indigo-300/35 rotate-[-12deg]"></div>
-    <div class="absolute bottom-[18%] left-[10%] w-12 h-12 bg-emerald-300/40 rotate-[8deg]"></div>
-    <div class="absolute top-[8%] left-[38%] w-14 h-14 bg-rose-300/40 rotate-[-25deg]"></div>
-    <div class="absolute bottom-[42%] right-[28%] w-10 h-10 bg-pink-300/45 rotate-[30deg]"></div>
-    <div class="absolute top-[70%] left-[46%] w-20 h-20 bg-fuchsia-300/40 rotate-[10deg]"></div>
+  <div class="absolute top-1 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+    <div class="panel-shape-2 absolute top-[-15%] left-[-15%] w-[clamp(320px,45vw,650px)] h-[clamp(320px,45vw,650px)] rounded-full bg-fuchsia-300/75 opacity-45"></div>
+    <div class="panel-shape-3 absolute top-[12%] right-0 w-[clamp(200px,28vw,400px)] h-[clamp(200px,28vw,400px)] rounded-full bg-gradient-to-l from-emerald-300 to-teal-300 opacity-25"></div>
+    <div class="panel-shape-1 absolute bottom-[-8%] right-[-6%] w-[clamp(190px,26vw,380px)] h-[clamp(190px,26vw,380px)] rounded-full bg-gradient-to-tl from-emerald-200 to-blue-300 opacity-20"></div>
 
-    <!-- triángulos: más variedad de color -->
-    <div class="absolute bottom-[30%] left-[24%] w-0 h-0 border-l-[24px] border-l-transparent border-r-[24px] border-r-transparent border-b-[42px] border-b-violet-200/30 rotate-[-20deg]"></div>
-    <div class="absolute top-[62%] right-[38%] w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[52px] border-b-rose-200/30 rotate-[8deg]"></div>
-    <div class="absolute bottom-[6%] right-[16%] w-0 h-0 border-l-[22px] border-l-transparent border-r-[22px] border-r-transparent border-b-[38px] border-b-amber-200/30 rotate-[-35deg]"></div>
+    <!-- cuadrados -->
+    <div class="panel-shape-4 absolute top-[28%] left-[4%] w-[clamp(48px,7vw,64px)] h-[clamp(48px,7vw,64px)] bg-amber-300/40"></div>
+    <div class="panel-shape-5 absolute top-[55%] right-[8%] w-[clamp(70px,10vw,96px)] h-[clamp(70px,10vw,96px)] bg-indigo-300/35"></div>
+    <div class="panel-shape-6 absolute bottom-[18%] left-[10%] w-[clamp(36px,5vw,48px)] h-[clamp(36px,5vw,48px)] bg-emerald-300/40"></div>
+    <div class="panel-shape-7 absolute top-[8%] left-[38%] w-[clamp(42px,6vw,56px)] h-[clamp(42px,6vw,56px)] bg-rose-300/40"></div>
+    <div class="panel-shape-8 absolute bottom-[42%] right-[28%] w-[clamp(30px,4vw,40px)] h-[clamp(30px,4vw,40px)] bg-pink-300/45"></div>
+    <div class="panel-shape-9 absolute top-[70%] left-[46%] w-[clamp(56px,8vw,80px)] h-[clamp(56px,8vw,80px)] bg-fuchsia-300/40"></div>
+
+    <!-- triángulos -->
+    <div class="panel-shape-10 absolute bottom-[30%] left-[24%] w-0 h-0 border-l-[16px] md:border-l-[24px] border-l-transparent border-r-[16px] md:border-r-[24px] border-r-transparent border-b-[28px] md:border-b-[42px] border-b-violet-200/30"></div>
+    <div class="panel-shape-11 absolute top-[62%] right-[38%] w-0 h-0 border-l-[20px] md:border-l-[30px] border-l-transparent border-r-[20px] md:border-r-[30px] border-r-transparent border-b-[35px] md:border-b-[52px] border-b-rose-200/30"></div>
+    <div class="panel-shape-12 absolute bottom-[6%] right-[16%] w-0 h-0 border-l-[14px] md:border-l-[22px] border-l-transparent border-r-[14px] md:border-r-[22px] border-r-transparent border-b-[24px] md:border-b-[38px] border-b-amber-200/30"></div>
   </div>
 
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
-    <main class="relative z-10 w-full max-w-6xl mx-auto px-6 py-10">
+    <main class="relative z-10 w-full max-w-6xl mx-auto px-6 py-24">
 
       @if (cargando) {
         <section class="bg-white/85 backdrop-blur-xl rounded border border-slate-300 shadow-md p-10 text-center text-slate-500 font-semibold">
@@ -37,12 +38,12 @@
         </section>
       } @else if (perfil && centro) {
 
-        <p class="text-sm font-bold text-blue-700 mb-1 px-1">Panel de administración</p>
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-6 px-1">Administrar {{ centro.nombre }}</h1>
+        <p appReveal class="text-sm font-bold text-blue-700 mb-1 px-1">Panel de administración</p>
+        <h1 appReveal class="text-2xl md:text-3xl font-bold text-slate-900 mb-6 px-1">Administrar {{ centro.nombre }}</h1>
 
         @if (!editando) {
 
-          <div class="bg-white border border-slate-300 shadow-md overflow-hidden rounded mb-6">
+          <div appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden rounded mb-6">
 
             <div class="relative h-56 md:h-64 bg-gradient-to-br from-blue-500 to-blue-700 group">
               @if (centro.bannerUrl) {
@@ -123,7 +124,7 @@
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
 
-            <section class="lg:col-span-7 bg-white border border-slate-300 shadow-sm rounded p-6">
+            <section appReveal class="lg:col-span-7 bg-white border border-slate-300 shadow-sm rounded p-6">
               @if (centro.descripcion) {
                 <div class="mb-5">
                   <p class="text-xs font-bold uppercase text-blue-700/70 mb-1.5">Descripción</p>
@@ -161,7 +162,7 @@
             </section>
 
             <aside class="lg:col-span-5">
-              <section class="bg-white border border-slate-300 shadow-sm rounded p-5">
+              <section appReveal class="bg-white border border-slate-300 shadow-sm rounded p-5">
                 <h3 class="text-sm font-bold text-slate-900 mb-4">Información de contacto</h3>
                 <div class="space-y-2.5 text-sm text-slate-600">
                   @if (centro.telefono) {
@@ -192,8 +193,8 @@
               </section>
 
               <section class="grid grid-cols-2 gap-3 mt-4">
-                <button type="button" (click)="abrirSeguidores()"
-                  class="bg-blue-200 border border-slate-200 rounded p-4 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-300  transition-colors text-left">
+                <button appReveal type="button" (click)="abrirSeguidores()"
+                  class="bg-blue-200 border border-slate-200 rounded p-4 flex items-center gap-3 hover:border-blue-300 hover:bg-blue-300 transition-colors text-left">
                   <span class="w-9 h-9 bg-blue-50 text-blue-700 grid place-items-center shrink-0 rounded-full">
                     <span class="material-symbols-outlined text-[18px]">group</span>
                   </span>
@@ -203,7 +204,7 @@
                   </div>
                 </button>
 
-                <div class="bg-cyan-200 border border-cyan-100 rounded p-4 flex items-center gap-3">
+                <div appReveal [revealDelay]="80" class="bg-cyan-200 border border-cyan-100 rounded p-4 flex items-center gap-3">
                   <span class="w-9 h-9 bg-cyan-100 text-cyan-700 grid place-items-center shrink-0 rounded-full">
                     <span class="material-symbols-outlined text-[18px]">campaign</span>
                   </span>
@@ -213,7 +214,7 @@
                   </div>
                 </div>
 
-                <div class="bg-amber-200 border border-amber-100 rounded p-4 flex items-center gap-3">
+                <div appReveal [revealDelay]="160" class="bg-amber-200 border border-amber-100 rounded p-4 flex items-center gap-3">
                   <span class="w-9 h-9 bg-amber-100 text-amber-600 grid place-items-center shrink-0 rounded-full">
                     <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
                   </span>
@@ -223,7 +224,7 @@
                   </div>
                 </div>
 
-                <div class="bg-emerald-200 border border-emerald-100 rounded p-4 flex items-center gap-3">
+                <div appReveal [revealDelay]="240" class="bg-emerald-200 border border-emerald-100 rounded p-4 flex items-center gap-3">
                   <span class="w-9 h-9 bg-emerald-100 text-emerald-700 grid place-items-center shrink-0 rounded-full">
                     <span class="material-symbols-outlined text-[18px]">rate_review</span>
                   </span>
@@ -239,7 +240,7 @@
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            <div class="lg:col-span-8 flex flex-col gap-6">
+            <div appReveal class="lg:col-span-8 flex flex-col gap-6">
 
               <section class="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
                 <div class="p-5 border-b border-blue-100 bg-blue-50/40 flex items-center justify-between">
@@ -259,7 +260,7 @@
                 </div>
 
                 @if (mostrarFormularioPost) {
-                  <div class="p-5">
+                  <div appReveal class="p-5">
                     <textarea [(ngModel)]="textoNuevoPost" rows="4"
                       class="w-full border border-slate-300 bg-slate-50 p-3 text-sm outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all resize-y rounded"
                       placeholder="Comparte una novedad, evento, jornada, o necesidad urgente..."></textarea>
@@ -308,7 +309,7 @@
                 }
               </section>
 
-              <section class="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
+              <section appReveal class="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
                 <div class="p-5 border-b border-slate-100 bg-slate-50">
                   <h2 class="text-lg font-bold text-slate-900">Tus publicaciones</h2>
                 </div>
@@ -355,7 +356,7 @@
 
             </div>
 
-            <aside class="lg:col-span-4">
+            <aside appReveal class="lg:col-span-4">
               <section class="bg-white rounded border border-slate-300 shadow-md overflow-hidden lg:sticky lg:top-6">
                 <div class="p-5 border-b border-amber-100 bg-amber-50/40 flex items-center gap-2">
                   <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 grid place-items-center shrink-0">
@@ -421,7 +422,7 @@
 
         } @else {
 
-          <section class="bg-white rounded border border-slate-300 shadow-xl overflow-hidden">
+          <section appReveal class="bg-white rounded border border-slate-300 shadow-xl overflow-hidden">
             <div class="p-6 md:p-8 flex flex-col gap-6">
 
               @if (errorEdicion) {
@@ -547,7 +548,7 @@
         }
 
         @if (mostrarSeguidores) {
-          <div class="fixed inset-0 bg-slate-950/50 z-[100] flex items-center justify-center p-4" (click)="cerrarSeguidores()">
+          <div appReveal class="fixed inset-0 bg-slate-950/50 z-[100] flex items-center justify-center p-4" (click)="cerrarSeguidores()">
             <div class="bg-white rounded border border-slate-300 shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden" (click)="$event.stopPropagation()">
 
               <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">

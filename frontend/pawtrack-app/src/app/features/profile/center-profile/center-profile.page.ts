@@ -15,6 +15,8 @@ import {
   ResenaCentro as ResenaCentroApi,
 } from '../../../core/services/centros-animales.service';
 
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+
 // ── Interfaces "de vista" — mismo shape que usaba el mock, para no
 // tener que tocar el .html. Se llenan con datos reales mapeados. ──
 
@@ -61,7 +63,7 @@ interface PerfilCentroCompleto {
 @Component({
   selector: 'app-perfil-centro',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, IonContent, NavbarWebComponent, FooterWebComponent],
+  imports: [CommonModule, FormsModule, RouterLink, IonContent, NavbarWebComponent, FooterWebComponent, RevealDirective],
   templateUrl: './center-profile.page.html',
   styleUrls: ['./center-profile.page.scss'],
 })

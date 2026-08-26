@@ -7,11 +7,12 @@ import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/n
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
 import { ReportService, RescateResponse } from '../../../../core/services/report.service';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 @Component({
   selector: 'app-rescue-complete',
   standalone: true,
-  imports: [CommonModule, IonContent, NavbarWebComponent, FooterWebComponent],
+  imports: [CommonModule, IonContent, NavbarWebComponent, FooterWebComponent, RevealDirective],
   templateUrl: './rescue-complete.page.html',
   styleUrls: ['./rescue-complete.page.scss'],
 })

@@ -16,3 +16,60 @@
 ion-content {
   --background: transparent;
 }
+
+/* Animación de flotación para el fondo de profile/reputation/edit-profile */
+@keyframes float-perfil-1 {
+  0%, 100% { transform: translate(0, 0) rotate(8deg); }
+  50% { transform: translate(6px, -8px) rotate(8deg); }
+}
+
+@keyframes float-perfil-2 {
+  0%, 100% { transform: translate(0, 0) rotate(5deg); }
+  50% { transform: translate(-5px, 6px) rotate(5deg); }
+}
+
+@keyframes float-perfil-3 {
+  0%, 100% { transform: translate(0, 0) rotate(22deg); }
+  50% { transform: translate(5px, 5px) rotate(22deg); }
+}
+
+@keyframes float-perfil-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, -7px); }
+}
+
+@keyframes float-perfil-5 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(4px, -5px) rotate(12deg); }
+}
+
+@keyframes float-perfil-6 {
+  0%, 100% { transform: translate(0, 0) rotate(-6deg); }
+  50% { transform: translate(-4px, 5px) rotate(-6deg); }
+}
+
+@keyframes float-perfil-7 {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50% { transform: translate(5px, 6px) rotate(-12deg); }
+}
+
+@keyframes float-perfil-8 {
+  0%, 100% { transform: translate(0, 0) rotate(-15deg); }
+  50% { transform: translate(-5px, -6px) rotate(-15deg); }
+}
+
+.perfil-shape-1 { animation: float-perfil-1 9s ease-in-out infinite; }
+.perfil-shape-2 { animation: float-perfil-2 11s ease-in-out infinite; }
+.perfil-shape-3 { animation: float-perfil-3 8s ease-in-out infinite; }
+.perfil-shape-4 { animation: float-perfil-4 10s ease-in-out infinite; }
+.perfil-shape-5 { animation: float-perfil-5 7s ease-in-out infinite; }
+.perfil-shape-6 { animation: float-perfil-6 12s ease-in-out infinite; }
+.perfil-shape-7 { animation: float-perfil-7 9.5s ease-in-out infinite; }
+.perfil-shape-8 { animation: float-perfil-8 10.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .perfil-shape-1, .perfil-shape-2, .perfil-shape-3, .perfil-shape-4,
+  .perfil-shape-5, .perfil-shape-6, .perfil-shape-7, .perfil-shape-8 {
+    animation: none;
+  }
+}

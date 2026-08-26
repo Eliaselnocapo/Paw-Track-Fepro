@@ -10,6 +10,7 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 import { ProfileService, UsuarioResponse } from '../../../core/services/profile.service';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 @Component({
   selector: 'app-edit-profile',
@@ -20,6 +21,7 @@ import { AuthService } from '../../../core/services/auth.service';
     IonContent,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './edit-profile.page.html',
   styleUrls: ['./edit-profile.page.scss'],

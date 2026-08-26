@@ -1,7 +1,11 @@
-<header class="bg-[#2E5BD8] border-b border-blue-800/40 shadow-lg w-full z-50 h-16 flex items-center">
-  <div class="max-w-[1280px] mx-auto px-3 md:px-12 w-full flex justify-between items-center">
+<header
+  class="fixed top-0 left-0 w-full z-50 bg-[#1138a3] border-b border-blue-800/40 shadow-lg h-16 flex items-center
+         transition-transform duration-300 ease-in-out"
+  [class.-translate-y-full]="isHidden"
+>
+<div class="max-w-[1280px] mx-auto px-2 md:px-1 w-full flex justify-between items-center">
 
-    <div class="flex items-center gap-3 md:gap-16">
+    <div class="flex items-center gap-3 md:gap-14">
 
       <app-menu-toggle class="md:hidden"></app-menu-toggle>
 
@@ -13,7 +17,7 @@
       </div>
 
       <!-- Links escritorio -->
-      <nav class="hidden md:flex gap-1 h-16 items-center">
+      <nav class="hidden md:flex gap-3 h-16 items-center">
 
         <a routerLink="/home" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
           class="nav-link">Inicio</a>
@@ -22,18 +26,19 @@
 
         <a routerLink="/dashboard/reporter" routerLinkActive="nav-active" class="nav-link">Reportes</a>
 
-        @if (isLoggedIn) {
-          <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Apoyo</a>
-          <a routerLink="/patrocinadores" routerLinkActive="nav-active" class="nav-link">Refugios</a>
-        } @else {
-          <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Apoyo</a>
-          <a routerLink="/patrocinadores" routerLinkActive="nav-active" class="nav-link">Refugios</a>
+        <a routerLink="/dashboard/volunteer" routerLinkActive="nav-active" class="nav-link">Apoyo</a>
+        <a routerLink="/patrocinadores" routerLinkActive="nav-active" class="nav-link">Refugios</a>
+        
+        @if ((usuario$ | async)?.is_staff) {
+          <a routerLink="/moderacion" routerLinkActive="nav-active"
+            class="nav-link flex items-center gap-1.5">
+            Moderación
+          </a>
         }
-
       </nav>
     </div>
 
-    <div class="flex items-center gap-2 md:gap-5">
+    <div class="flex items-center gap-3 md:gap-6">
 
       @if (!isLoggedIn) {
         <a routerLink="/login"
@@ -57,8 +62,7 @@
           }
         </button>
 
-        <!-- Avatar movil: el boton de emergencia ya vive dentro del menu
-             hamburguesa, asi que aqui va el acceso al perfil. -->
+        <!-- Avatar movil -->
         <button routerLink="/profile"
           class="flex md:hidden w-9 h-9 bg-white items-center rounded-full justify-center overflow-hidden border-2 border-[#7DB7FF] active:scale-95 transition-transform">
           @if (usuario$ | async; as u) {
@@ -72,7 +76,6 @@
           }
         </button>
       }
-
 
       <!-- Boton escritorio rojo -->
       <button

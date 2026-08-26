@@ -9,13 +9,14 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 
 import { CentrosAnimalesService } from '../../../core/services/centros-animales.service';
 import { TipoCentro, FormaAyuda, RedesSociales } from '../../../core/models/centro-animal.model';
+import { RevealDirective } from '../../../shared/directives/reveal.directive';
 
 import * as L from 'leaflet';
 
 @Component({
   selector: 'app-register-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, NavbarWebComponent, FooterWebComponent],
+  imports: [CommonModule, FormsModule, IonContent, NavbarWebComponent, FooterWebComponent, RevealDirective],
   templateUrl: './register-center.page.html',
   styleUrls: ['./register-center.page.scss'],
 })

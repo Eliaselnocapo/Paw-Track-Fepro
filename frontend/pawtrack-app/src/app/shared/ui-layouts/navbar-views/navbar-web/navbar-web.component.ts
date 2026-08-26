@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuToggleComponent } from '../../menu-toggle/menu-toggle.component';
@@ -17,11 +17,26 @@ export class NavbarWebComponent {
 
   private auth = inject(AuthService);
 
-  // El usuario como observable: si edita su perfil, el avatar se actualiza solo.
   usuario$ = this.auth.user$;
+
+  isHidden = false;
+  private lastScrollTop = 0;
 
   get isLoggedIn(): boolean {
     return this.auth.isLoggedIn();
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const currentScroll = window.scrollY;
+
+    if (currentScroll > this.lastScrollTop && currentScroll > 120) {
+      this.isHidden = true;
+    } else {
+      this.isHidden = false;
+    }
+
+    this.lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
   }
 
   iniciales(u: any): string {
@@ -34,7 +49,6 @@ export class NavbarWebComponent {
     const foto = u?.foto_perfil;
     if (!foto) return null;
     if (foto.startsWith('http')) return foto;
-    // Las imágenes se sirven desde /media/, NO bajo /api/
     const base = environment.apiUrl.replace(/\/api\/?$/, '');
     return `${base}${foto}`;
   }

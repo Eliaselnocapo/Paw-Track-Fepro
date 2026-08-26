@@ -1,0 +1,49 @@
+@keyframes float-vc-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-vc-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-vc-3 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(5px, 6px) rotate(12deg); }
+}
+
+@keyframes float-vc-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, -6px); }
+}
+
+@keyframes float-vc-5 {
+  0%, 100% { transform: translate(0, 0) rotate(-15deg); }
+  50% { transform: translate(6px, 5px) rotate(-15deg); }
+}
+
+@keyframes float-vc-6 {
+  0%, 100% { transform: translate(0, 0) rotate(20deg); }
+  50% { transform: translate(-4px, 6px) rotate(20deg); }
+}
+
+@keyframes float-vc-7 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(4px, -5px); }
+}
+
+.vc-shape-1 { animation: float-vc-1 9s ease-in-out infinite; }
+.vc-shape-2 { animation: float-vc-2 11s ease-in-out infinite; }
+.vc-shape-3 { animation: float-vc-3 8s ease-in-out infinite; }
+.vc-shape-4 { animation: float-vc-4 10s ease-in-out infinite; }
+.vc-shape-5 { animation: float-vc-5 12s ease-in-out infinite; }
+.vc-shape-6 { animation: float-vc-6 9.5s ease-in-out infinite; }
+.vc-shape-7 { animation: float-vc-7 10.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vc-shape-1, .vc-shape-2, .vc-shape-3, .vc-shape-4,
+  .vc-shape-5, .vc-shape-6, .vc-shape-7 {
+    animation: none;
+  }
+}

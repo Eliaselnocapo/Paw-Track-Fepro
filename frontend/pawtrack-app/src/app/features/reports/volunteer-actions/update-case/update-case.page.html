@@ -3,80 +3,47 @@
 
     <app-navbar-web class="relative z-30"></app-navbar-web>
 
-<!-- ========== FONDO DECORATIVO — MOVIL ========== -->
-    <!-- En movil las tarjetas ocupan todo el ancho: las figuras solo se ven
-         si sangran por los bordes. Nada en el centro. -->
-    <div class="md:hidden absolute inset-0 pointer-events-none z-0 overflow-hidden">
 
-      <!-- Sangran por la derecha -->
-      <div class="absolute top-[60px] right-[-90px] w-[220px] h-[220px] rounded-full bg-emerald-200/50"></div>
-      <div class="absolute top-[38%] right-[-70px] w-[170px] h-[170px] bg-teal-200/40 rotate-12"></div>
-      <div class="absolute bottom-[16%] right-[-100px] w-[240px] h-[240px] rounded-full bg-blue-200/40"></div>
-
-      <!-- Sangran por la izquierda -->
-      <div class="absolute top-[20%] left-[-80px] w-[190px] h-[190px] rounded-full bg-blue-200/45"></div>
-      <div class="absolute top-[58%] left-[-90px] w-[210px] h-[210px] bg-indigo-200/35 -rotate-6"></div>
-      <div class="absolute bottom-[4%] left-[-70px] w-[180px] h-[180px] rounded-full bg-emerald-200/45"></div>
-
-      <!-- Zigzag pegados al borde -->
-      <div class="absolute top-[30%] left-[4px]">
-        <span class="absolute w-3 h-3 rounded-full bg-emerald-400/60" style="top:0; left:0;"></span>
-        <span class="absolute w-5 h-5 rounded-full bg-teal-300/50" style="top:26px; left:14px;"></span>
-        <span class="absolute w-2.5 h-2.5 rounded-full bg-emerald-300/60" style="top:60px; left:2px;"></span>
-      </div>
-
-      <div class="absolute top-[72%] right-[6px]">
-        <span class="absolute w-4 h-4 rounded-full bg-blue-400/55" style="top:0; right:14px;"></span>
-        <span class="absolute w-6 h-6 rounded-full bg-indigo-300/45" style="top:28px; right:0;"></span>
-        <span class="absolute w-3 h-3 rounded-full bg-blue-300/60" style="top:66px; right:20px;"></span>
-      </div>
-
-      <div class="absolute top-[48%] left-[8px]">
-        <span class="absolute w-4 h-4 rounded-full bg-amber-300/50" style="top:0; left:8px;"></span>
-        <span class="absolute w-2.5 h-2.5 rounded-full bg-orange-300/50" style="top:24px; left:0;"></span>
-      </div>
-    </div>
-
-<!-- ========== FONDO DECORATIVO — ESCRITORIO ========== -->
-    <div class="hidden md:block absolute inset-0 pointer-events-none z-0 overflow-hidden">
+    <!-- ========== FONDO DECORATIVO (unificado, responsivo) ========== -->
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
 
       <!-- ZONA SUPERIOR -->
-      <div class="absolute top-[20px] left-[-140px] w-[580px] h-[580px] rounded-full bg-violet-200/40"></div>
-      <div class="absolute top-[120px] right-[14%] w-[120px] h-[120px] bg-amber-200/40 rotate-[-12deg]"></div>
+      <div class="uni-shape-1 absolute top-[20px] left-[-140px] w-[clamp(280px,40vw,580px)] h-[clamp(280px,40vw,580px)] rounded-full bg-violet-200/40"></div>
+      <div class="uni-shape-2 absolute top-[120px] right-[14%] w-[clamp(70px,9vw,120px)] h-[clamp(70px,9vw,120px)] bg-amber-200/40"></div>
 
       <!-- ZONA MEDIA ALTA -->
-      <div class="absolute top-[27%] left-[14%] w-[95px] h-[95px] bg-emerald-200/45 rotate-[18deg]"></div>
-      <div class="absolute top-[21%] right-[-70px] w-[240px] h-[240px] rounded-full bg-sky-200/40"></div>
+      <div class="uni-shape-3 absolute top-[27%] left-[14%] w-[clamp(56px,7.5vw,95px)] h-[clamp(56px,7.5vw,95px)] bg-emerald-200/45"></div>
+      <div class="uni-shape-4 absolute top-[21%] right-[-70px] w-[clamp(140px,19vw,240px)] h-[clamp(140px,19vw,240px)] rounded-full bg-sky-200/40"></div>
 
       <!-- ZONA MEDIA -->
-      <div class="absolute top-[45%] left-[-60px] w-[200px] h-[200px] bg-rose-200/35 rotate-[12deg]"></div>
-      <div class="absolute top-[49%] right-[17%] w-[75px] h-[75px] rounded-full bg-teal-300/40"></div>
+      <div class="uni-shape-5 absolute top-[45%] left-[-60px] w-[clamp(120px,16vw,200px)] h-[clamp(120px,16vw,200px)] bg-rose-200/35"></div>
+      <div class="uni-shape-6 absolute top-[49%] right-[17%] w-[clamp(44px,6vw,75px)] h-[clamp(44px,6vw,75px)] rounded-full bg-teal-300/40"></div>
 
       <!-- ZONA MEDIA BAJA -->
-      <div class="absolute top-[65%] left-[19%] w-[130px] h-[130px] rounded-full bg-indigo-200/35"></div>
-      <div class="absolute top-[69%] right-[-80px] w-[240px] h-[240px] bg-cyan-200/40 rotate-[6deg]"></div>
+      <div class="uni-shape-7 absolute top-[65%] left-[19%] w-[clamp(78px,10.5vw,130px)] h-[clamp(78px,10.5vw,130px)] rounded-full bg-indigo-200/35"></div>
+      <div class="uni-shape-8 absolute top-[69%] right-[-80px] w-[clamp(140px,19vw,240px)] h-[clamp(140px,19vw,240px)] bg-cyan-200/40"></div>
 
       <!-- ZONA INFERIOR -->
-      <div class="absolute bottom-[80px] left-[-70px] w-[220px] h-[220px] rounded-full bg-fuchsia-200/30"></div>
-      <div class="absolute bottom-[150px] right-[24%] w-[105px] h-[105px] bg-lime-200/40 rotate-[15deg]"></div>
-      <div class="absolute bottom-[25px] left-[40%] w-[85px] h-[85px] rounded-full bg-purple-200/35"></div>
+      <div class="uni-shape-1 absolute bottom-[80px] left-[-70px] w-[clamp(130px,18vw,220px)] h-[clamp(130px,18vw,220px)] rounded-full bg-fuchsia-200/30"></div>
+      <div class="uni-shape-3 absolute bottom-[150px] right-[24%] w-[clamp(62px,8.5vw,105px)] h-[clamp(62px,8.5vw,105px)] bg-lime-200/40"></div>
+      <div class="uni-shape-5 absolute bottom-[25px] left-[40%] w-[clamp(50px,7vw,85px)] h-[clamp(50px,7vw,85px)] rounded-full bg-purple-200/35"></div>
 
       <!-- PIEZAS SUELTAS -->
-      <div class="absolute top-[15%] left-[43%] w-6 h-6 bg-blue-300/50 rotate-12"></div>
-      <div class="absolute top-[35%] right-[39%] w-5 h-5 rounded-full bg-amber-300/50"></div>
-      <div class="absolute top-[57%] left-[7%] w-7 h-7 bg-violet-300/45 -rotate-12"></div>
-      <div class="absolute top-[79%] right-[11%] w-5 h-5 rounded-full bg-emerald-300/50"></div>
-      <div class="absolute bottom-[26%] left-[31%] w-6 h-6 bg-rose-300/45 -rotate-6"></div>
-      <div class="absolute top-[89%] left-[53%] w-4 h-4 rounded-full bg-cyan-300/50"></div>
+      <div class="uni-shape-2 absolute top-[15%] left-[43%] w-6 h-6 bg-blue-300/50"></div>
+      <div class="uni-shape-6 absolute top-[35%] right-[39%] w-5 h-5 rounded-full bg-amber-300/50"></div>
+      <div class="uni-shape-4 absolute top-[57%] left-[7%] w-7 h-7 bg-violet-300/45"></div>
+      <div class="uni-shape-7 absolute top-[79%] right-[11%] w-5 h-5 rounded-full bg-emerald-300/50"></div>
+      <div class="uni-shape-8 absolute bottom-[26%] left-[31%] w-6 h-6 bg-rose-300/45"></div>
+      <div class="uni-shape-1 absolute top-[89%] left-[53%] w-4 h-4 rounded-full bg-cyan-300/50"></div>
     </div>
 
     <!-- CARGANDO / ERROR -->
     @if (cargando) {
-      <main class="flex-1 flex items-center justify-center relative z-10">
+      <main appReveal class="flex-1 flex items-center justify-center relative z-10">
         <p class="text-slate-500 animate-pulse">Cargando caso...</p>
       </main>
     } @else if (errorCarga) {
-      <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+      <main appReveal class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
         <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
         <p class="text-slate-600 text-center">{{ errorCarga }}</p>
         <button type="button" (click)="volver()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 active:bg-blue-900 active:scale-95 transition-all shadow-md">
@@ -85,16 +52,16 @@
       </main>
     } @else if (rescate) {
 
-      <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10 flex flex-col">
+      <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-24 md:py-24 relative z-10 flex flex-col">
 
         <!-- VOLVER -->
-        <button type="button" (click)="volver()" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+        <button appReveal type="button" (click)="volver()" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
           <span class="material-symbols-outlined text-[20px]">arrow_back</span>
           Volver a mis casos
         </button>
 
         <!-- ===================== HEADER GRANDE ===================== -->
-        <section class="border border-slate-300 shadow-md overflow-hidden mb-8 bg-white rounded">
+        <section appReveal class="border border-slate-300 shadow-md overflow-hidden mb-8 bg-white rounded">
           <div class="relative min-h-[180px] md:min-h-[320px] overflow-hidden">
             <img [src]="imagenUrl(rescate.incidencia?.imagen)" [alt]="titulo"
               class="absolute inset-0 w-full h-full object-cover blur-[1px] scale-105 opacity-45">
@@ -130,7 +97,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 mb-8 order-2 lg:order-1">
 
           <!-- FICHA CLINICA -->
-          <section class="lg:col-span-8 bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
+          <section appReveal class="lg:col-span-8 bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
             <div class="flex items-start gap-4 pb-5 mb-6 border-b border-slate-100">
               <div class="w-12 h-12 bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
                 <span class="material-symbols-outlined">stethoscope</span>
@@ -260,7 +227,7 @@
           <!-- ASIDE -->
           <aside class="lg:col-span-4 flex flex-col gap-6">
             <!-- Resumen del animal -->
-            <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
+            <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-600 text-[20px]">summarize</span>
                 <h3 class="font-bold text-slate-800">Resumen del caso</h3>
@@ -294,7 +261,7 @@
             </section>
 
             <!-- Tips -->
-            <section class="hidden lg:block bg-white border border-slate-300 shadow-md overflow-hidden">
+            <section appReveal class="hidden lg:block bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-600 text-[20px]">lightbulb</span>
                 <h3 class="font-bold text-slate-800">Guia rapida</h3>
@@ -328,7 +295,7 @@
             </section>
 
             <!-- Aviso de seguridad -->
-            <div class="bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg p-5 relative overflow-hidden rounded">
+            <div appReveal class="bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg p-5 relative overflow-hidden rounded">
               <span class="material-symbols-outlined absolute -right-3 -bottom-3 text-[90px] opacity-20 pointer-events-none">health_and_safety</span>
               <div class="relative z-10 flex gap-3 items-start">
                 <span class="material-symbols-outlined mt-0.5">warning</span>
@@ -346,7 +313,7 @@
         </div>
 
         <!-- ============ BLOQUE 2: BITACORA (centro de mando unico) ============ -->
-        <section class="bg-white border border-slate-300 shadow-md order-1 lg:order-2 mb-8 lg:mb-0 rounded">
+        <section appReveal class="bg-white border border-slate-300 shadow-md order-1 lg:order-2 mb-8 lg:mb-0 rounded">
         <button type="button" (click)="toggleBitacora()"
             class="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-slate-50 active:bg-slate-100 transition-colors rounded-t">
             <div class="flex items-center gap-4">
@@ -723,7 +690,7 @@
 
       <!-- ============ MODAL DE CONFIRMACION (acciones definitivas) ============ -->
       @if (modalConfirmarAbierto) {
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60"
+        <div appReveal class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60"
           (click)="cerrarModalConfirmar()">
 
           <div class="w-full max-w-lg bg-white border border-slate-300 shadow-xl rounded animate-fade-in-up" (click)="$event.stopPropagation()">
@@ -775,7 +742,7 @@
 
       <!-- ============ MODAL: DETALLE DEL CENTRO ============ -->
       @if (centroDetalle) {
-        <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/60"
+        <div appReveal class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/60"
           (click)="cerrarDetalleCentro()">
 
           <div class="w-full sm:max-w-md bg-white sm:border sm:border-slate-300 shadow-xl rounded-t-2xl sm:rounded animate-fade-in-up"

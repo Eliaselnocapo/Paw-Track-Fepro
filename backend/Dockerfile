@@ -58,8 +58,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN groupadd -g 1001 pawuser && \
     useradd -u 1001 -g pawuser -s /bin/bash -m pawuser
 
-COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# AQUÍ ESTÁ TU COPY . /app/ (Ajustado para darle permisos al usuario)
+COPY --chown=pawuser:pawuser . .
 
-# Copiamos el código fuente de la aplicación al contenedor
-COPY . .
+USER pawuser

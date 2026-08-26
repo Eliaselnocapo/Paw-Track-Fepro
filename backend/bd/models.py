@@ -201,6 +201,15 @@ class Incidencia(models.Model):
     urgency_score = models.FloatField(default=0)
     trust_score = models.FloatField(default=50)
     trafico_score = models.FloatField(default=0)
+
+    # Denuncias de fraude/mal uso (app `moderacion`). Contador denormalizado
+    # para lectura rápida — la fuente de verdad/auditoría vive en
+    # moderacion.ReporteFraude (1 por usuario por incidencia, ver constraint).
+    reportes_fraude_count = models.IntegerField(default=0)
+    oculto_por_fraude = models.BooleanField(
+        default=False,
+        help_text='Se oculta de mapa/disponibles al llegar a 3 denuncias, hasta que un admin lo resuelva.',
+    )
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
     direccion   = models.CharField(max_length=255, blank=True, default='')

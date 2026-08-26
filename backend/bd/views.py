@@ -270,6 +270,14 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
             'rescatista_asignado__usuario'
         ).order_by('-id')
 
+        # Ocultar del listado público (mapa) los casos con 3+ denuncias de
+        # fraude sin resolver — ver app `moderacion`. Solo aplica a `list`:
+        # retrieve/PATCH/etc. siguen funcionando normal (el reportante o el
+        # rescatista asignado deben poder seguir viendo/gestionando su caso
+        # aunque esté oculto del descubrimiento público).
+        if self.action == 'list':
+            qs = qs.filter(oculto_por_fraude=False)
+
         # Filtro geográfico opcional: si no vienen lat/lng, se devuelven
         # todos. Un caso en Chihuahua no le sirve a alguien en Puebla, pero
         # tampoco queremos forzar la ubicación — el usuario decide desde el

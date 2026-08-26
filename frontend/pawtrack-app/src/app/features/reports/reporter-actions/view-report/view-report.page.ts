@@ -9,6 +9,7 @@ import { ReportService, IncidenciaResponse } from '../../../../core/services/rep
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 import { environment } from '../../../../../environments/environment';
 import { CartelPdf } from '../../../../core/services/cartel-pdf'; // AJUSTA la ruta al lugar real de tu servicio
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 declare const L: any;
 
@@ -20,7 +21,8 @@ declare const L: any;
     RouterLink,
     IonContent,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './view-report.page.html',
   styleUrls: ['./view-report.page.scss'],

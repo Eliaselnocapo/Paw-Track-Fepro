@@ -21,6 +21,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { firstValueFrom } from 'rxjs';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 import {
   CentroAnimal,
@@ -64,7 +65,8 @@ declare let L: any;
 
     NavbarWebComponent,
     FooterWebComponent,
-    SentenceCasePipe
+    SentenceCasePipe,
+    RevealDirective
   ]
 })
 export class PatrocinadoresPage

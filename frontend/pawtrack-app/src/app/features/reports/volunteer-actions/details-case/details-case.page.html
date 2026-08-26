@@ -1,74 +1,56 @@
 <ion-content [fullscreen]="true">
-  <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden">
+    <div class="w-full min-h-screen bg-slate-100 relative overflow-hidden flex flex-col">
 
-<!-- FONDO — volunteer dashboard, details-case, view-report (bg-[#f7f9ff]) -->
-<div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
 
-  <!-- CÍRCULO GIGANTE SUPERIOR IZQUIERDO -->
-  <div class="absolute top-[-160px] left-[-160px] w-[500px] h-[500px] bg-emerald-100/65 rounded-full shadow-[0_20px_60px_rgba(110,231,183,0.12)]"></div>
+    <!-- FONDO — volunteer dashboard, details-case, view-report (bg-[#f7f9ff]) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
 
-  <!-- CÍRCULO MEDIANO SUPERPUESTO -->
-  <div class="absolute top-[-80px] left-[-60px] w-[280px] h-[280px] bg-teal-200/45 rounded-full"></div>
+      <!-- ZONA SUPERIOR -->
+      <div class="vd2-shape-1 absolute top-[-160px] left-[-160px] w-[clamp(300px,42vw,500px)] h-[clamp(300px,42vw,500px)] rounded-full bg-gradient-to-br from-emerald-100 to-teal-200 opacity-85"></div>
 
-  <!-- CUADRADO SUPERIOR DERECHO INCLINADO -->
-  <div class="absolute top-[-70px] right-[-60px] w-[260px] h-[260px] bg-amber-100/70 rotate-[14deg] shadow-[0_14px_35px_rgba(251,191,36,0.10)]"></div>
+      <div class="vd2-shape-2 absolute top-[-70px] right-[-60px] w-[clamp(160px,22vw,260px)] h-[clamp(160px,22vw,260px)] bg-amber-200/55"></div>
 
-  <!-- CÍRCULO MEDIANO DERECHA -->
-  <div class="absolute top-[18%] right-[-80px] w-[320px] h-[320px] bg-orange-100/55 rounded-full shadow-[0_16px_40px_rgba(251,146,60,0.08)]"></div>
+      <div class="vd2-shape-3 absolute top-[18%] right-[-80px] w-[clamp(190px,26vw,320px)] h-[clamp(190px,26vw,320px)] rounded-full bg-orange-200/55"></div>
 
-  <!-- ARCOS CONCÉNTRICOS DECORATIVOS -->
-  <svg class="absolute top-[10%] right-[5%] w-[180px] h-[180px] opacity-[0.12]" viewBox="0 0 200 200" aria-hidden="true">
-    <circle cx="200" cy="0" r="160" fill="none" stroke="#94a3b8" stroke-width="14"/>
-    <circle cx="200" cy="0" r="120" fill="none" stroke="#94a3b8" stroke-width="8"/>
-    <circle cx="200" cy="0" r="80"  fill="none" stroke="#94a3b8" stroke-width="4"/>
-  </svg>
+      <!-- ZONA MEDIA -->
+      <div class="vd2-shape-5 absolute top-[20%] left-[7%] w-[clamp(140px,19vw,220px)] h-[clamp(190px,26vw,300px)] bg-white/85 border border-white/85 shadow-[0_16px_40px_rgba(255,255,255,0.28)]"></div>
+      <div class="vd2-shape-6 absolute top-[24%] left-[10%] w-[clamp(128px,17vw,200px)] h-[clamp(180px,24vw,280px)] bg-emerald-100/85"></div>
 
-  <!-- RECTÁNGULO TIPO DOCUMENTO IZQUIERDA MEDIA -->
-  <div class="absolute top-[20%] left-[7%] w-[220px] h-[300px] bg-white/55 border border-white/70 rotate-[-7deg] shadow-[0_16px_40px_rgba(255,255,255,0.28)]"></div>
-  <div class="absolute top-[24%] left-[10%] w-[200px] h-[280px] bg-emerald-100/50 rotate-[5deg]"></div>
+      <div class="vd2-shape-7 absolute top-[48%] left-[42%] w-[clamp(80px,11vw,130px)] h-[clamp(80px,11vw,130px)] bg-emerald-100/85"></div>
 
-  <!-- FRANJAS DECORATIVAS CENTRO DERECHA -->
-  <div class="absolute top-[40%] right-[12%] w-[210px] h-[16px] bg-emerald-100/85"></div>
-  <div class="absolute top-[45%] right-[18%] w-[165px] h-[16px] bg-amber-100/80"></div>
-  <div class="absolute top-[50%] right-[9%]  w-[190px] h-[16px] bg-teal-100/80"></div>
+      <!-- FRANJAS DECORATIVAS -->
+      <div class="vd2-shape-2 absolute top-[40%] right-[12%] w-[clamp(130px,18vw,210px)] h-[16px] bg-emerald-100/85"></div>
+      <div class="vd2-shape-3 absolute top-[45%] right-[18%] w-[clamp(100px,14vw,165px)] h-[16px] bg-amber-100/80"></div>
 
-  <!-- CUADRADO CENTRAL SUAVE -->
-  <div class="absolute top-[48%] left-[42%] w-[130px] h-[130px] bg-emerald-100/55 rotate-12"></div>
+      <!-- GRILLA DE PUNTOS -->
+      <svg class="vd2-shape-8 absolute bottom-[50px] left-[24%] w-[clamp(90px,13vw,130px)] h-[clamp(70px,10vw,100px)] opacity-[0.18]" viewBox="0 0 120 90" aria-hidden="true">
+        <circle cx="10" cy="10" r="3" fill="#64748b"/><circle cx="30" cy="10" r="3" fill="#64748b"/>
+        <circle cx="50" cy="10" r="3" fill="#64748b"/><circle cx="70" cy="10" r="3" fill="#64748b"/>
+        <circle cx="10" cy="30" r="3" fill="#64748b"/><circle cx="30" cy="30" r="3" fill="#64748b"/>
+        <circle cx="50" cy="30" r="3" fill="#64748b"/><circle cx="70" cy="30" r="3" fill="#64748b"/>
+        <circle cx="10" cy="50" r="3" fill="#64748b"/><circle cx="30" cy="50" r="3" fill="#64748b"/>
+        <circle cx="50" cy="50" r="3" fill="#64748b"/><circle cx="70" cy="50" r="3" fill="#64748b"/>
+      </svg>
 
-  <!-- MINI CUADROS DECORATIVOS -->
-  <div class="absolute top-[22%] right-[30%] w-4  h-4  bg-emerald-300/80 rotate-45"></div>
-  <div class="absolute top-[28%] right-[35%] w-5  h-5  bg-amber-300/75   -rotate-12"></div>
-  <div class="absolute top-[58%] left-[6%]   w-5  h-5  bg-teal-300/80    rotate-12"></div>
-  <div class="absolute top-[64%] left-[10%]  w-4  h-4  bg-emerald-300/75 -rotate-6"></div>
-  <div class="absolute top-[54%] left-[16%]  w-6  h-6  bg-orange-300/65  rotate-12"></div>
+      <!-- ZONA INFERIOR -->
+      <div class="vd2-shape-1 absolute bottom-[-10px] right-[-90px] w-[clamp(230px,32vw,380px)] h-[clamp(230px,32vw,380px)] rounded-full bg-amber-200/55"></div>
 
-  <!-- GRILLA DE PUNTOS INFERIOR -->
-  <svg class="absolute bottom-[50px] left-[24%] w-[130px] h-[100px] opacity-[0.18]" viewBox="0 0 120 90" aria-hidden="true">
-    <circle cx="10" cy="10" r="3" fill="#64748b"/><circle cx="30" cy="10" r="3" fill="#64748b"/>
-    <circle cx="50" cy="10" r="3" fill="#64748b"/><circle cx="70" cy="10" r="3" fill="#64748b"/>
-    <circle cx="10" cy="30" r="3" fill="#64748b"/><circle cx="30" cy="30" r="3" fill="#64748b"/>
-    <circle cx="50" cy="30" r="3" fill="#64748b"/><circle cx="70" cy="30" r="3" fill="#64748b"/>
-    <circle cx="10" cy="50" r="3" fill="#64748b"/><circle cx="30" cy="50" r="3" fill="#64748b"/>
-    <circle cx="50" cy="50" r="3" fill="#64748b"/><circle cx="70" cy="50" r="3" fill="#64748b"/>
-  </svg>
+      <div class="vd2-shape-6 absolute bottom-[-40px] left-[-90px] w-[clamp(150px,20vw,240px)] h-[clamp(150px,20vw,240px)] bg-emerald-200/50"></div>
 
-  <!-- CÍRCULO GRANDE INFERIOR DERECHO -->
-  <div class="absolute bottom-[-100px] right-[-90px] w-[380px] h-[380px] bg-amber-100/55 rounded-full shadow-[0_16px_40px_rgba(251,191,36,0.10)]"></div>
+      <!-- MINI ACENTOS -->
+      <div class="vd2-shape-4 absolute top-[58%] left-[6%] w-5 h-5 bg-teal-300/80 rotate-12"></div>
+      <div class="vd2-shape-5 absolute top-[22%] right-[30%] w-4 h-4 bg-emerald-300/80 rotate-45"></div>
+      <div class="vd2-shape-7 absolute bottom-[100px] right-[8%] w-[30px] h-[30px] bg-amber-300/55 rotate-45"></div>
 
-  <!-- CUADRADO INFERIOR IZQUIERDO -->
-  <div class="absolute bottom-[-70px] left-[-50px] w-[240px] h-[240px] bg-emerald-200/50 rotate-[8deg] shadow-[0_14px_35px_rgba(110,231,183,0.15)]"></div>
-
-  <!-- DIAMANTE INFERIOR DERECHA MEDIA -->
-  <div class="absolute bottom-[100px] right-[8%] w-[30px] h-[30px] bg-amber-300/55 rotate-45"></div>
-
-</div>
+    </div>
 
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
-    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-8 pb-12">
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-24 pb-12">
 
       <!-- BOTÓN VOLVER -->
       <button
+        appReveal
         type="button"
         (click)="volver()"
         class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
@@ -78,7 +60,7 @@
 
       <!-- ESTADO CARGANDO -->
       @if (cargando) {
-        <section class="bg-white border border-slate-300 rounded shadow-md p-12 flex flex-col items-center text-center">
+        <section appReveal class="bg-white border border-slate-300 rounded shadow-md p-12 flex flex-col items-center text-center">
           <span class="material-symbols-outlined text-6xl text-blue-300 mb-4 animate-pulse">hourglass_empty</span>
           <h2 class="text-xl font-bold text-slate-800">Cargando detalle</h2>
           <p class="text-slate-500 mt-1">Estamos consultando la información del caso.</p>
@@ -87,7 +69,7 @@
 
       <!-- ERROR -->
       @else if (errorCarga) {
-        <section class="bg-red-50 border border-red-200 rounded shadow-sm p-8">
+        <section appReveal class="bg-red-50 border border-red-200 rounded shadow-sm p-8">
           <h2 class="text-lg font-bold text-red-700">No se pudo cargar el caso</h2>
           <p class="text-sm text-red-600 mt-1">{{ errorCarga }}</p>
 
@@ -104,7 +86,7 @@
       @else if (caso) {
 
         <!-- HERO / EXPEDIENTE -->
-        <section class="relative overflow-hidden rounded border border-slate-300 shadow-md bg-slate-900 mb-8">
+        <section appReveal class="relative overflow-hidden rounded border border-slate-300 shadow-md bg-slate-900 mb-8">
 
           <div class="relative min-h-[430px] md:min-h-[500px]">
             <img
@@ -137,6 +119,7 @@
                     <span class="material-symbols-outlined text-[16px]">schedule</span>
                     {{ caso.tiempo }}
                   </span>
+                  <app-reportar-fraude-button [folio]="caso.folio"></app-reportar-fraude-button>
 
                 </div>
 
@@ -211,7 +194,7 @@
           <section class="lg:col-span-8 flex flex-col gap-6">
 
             <!-- REPORTE CIUDADANO -->
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-4">
                 <div>
                   <p class="text-xs font-bold uppercase text-blue-600 mb-1">Reporte ciudadano</p>
@@ -244,17 +227,16 @@
             </article>
 
             <!-- PERFIL DEL ANIMAL -->
-            <article class="bg-white border border-slate-300 rounded shadow-md p-6">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md p-6">
               <div class="flex items-center justify-between gap-4 mb-5">
                 <div>
                   <p class="text-xs font-bold uppercase text-emerald-600 mb-1">Evaluación inicial</p>
                   <h2 class="text-xl font-bold text-slate-900">Perfil del animal</h2>
                 </div>
 
-                <span class="material-symbols-outlined text-emerald-500 text-3xl">cruelty_free</span>
               </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
                 <div class="rounded border border-slate-200 bg-slate-50 p-4">
                   <p class="text-xs font-bold text-slate-500 mb-2 uppercase">Especie</p>
@@ -296,7 +278,7 @@
 
               <!-- AVISO DE SEGURIDAD: como reacciono el animal -->
               @if (avisoAgresividad; as aviso) {
-                <div class="mt-4 border-2 p-5 flex items-start gap-4" [ngClass]="aviso.clase">
+                <div appReveal class="mt-4 border-2 p-5 flex items-start gap-4" [ngClass]="aviso.clase">
                   <div class="w-12 h-12 grid place-items-center shrink-0 bg-white/70 border" [ngClass]="aviso.clase">
                     <span class="material-symbols-outlined text-[26px]" [ngClass]="aviso.claseTexto">{{ aviso.icono }}</span>
                   </div>
@@ -312,7 +294,7 @@
             </article>
 
             <!-- UBICACIÓN -->
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-4">
                 <div>
                   <p class="text-xs font-bold uppercase text-red-500 mb-1">Punto reportado</p>
@@ -352,10 +334,9 @@
           <aside class="lg:col-span-4 flex flex-col gap-6">
 
             <!-- PANEL DECISIÓN -->
-            <article class="bg-white border border-blue-300 rounded shadow-md overflow-hidden lg:sticky lg:top-24">
-              <div class="h-1 bg-blue-600"></div>
+            <article appReveal class="bg-white border border-blue-300 rounded shadow-md overflow-hidden lg:sticky lg:top-24">
 
-              <div class="p-6">
+              <div appReveal class="p-6">
                 <p class="text-xs font-bold uppercase text-blue-600 mb-1">Decisión del voluntario</p>
 
                 <h3 class="text-xl font-bold text-slate-900 mb-2">
@@ -403,7 +384,7 @@
             </article>
 
             <!-- CONTACTO -->
-            <article class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50">
                 <h3 class="font-bold text-slate-800 flex items-center gap-2">
                   <span class="material-symbols-outlined text-slate-500">person</span>
@@ -413,8 +394,12 @@
 
               <div class="p-5">
                 <div class="flex items-start gap-4">
-                  <div class="w-12 h-12 rounded bg-slate-200 grid place-items-center shrink-0">
-                    <span class="material-symbols-outlined text-slate-500">person</span>
+                  <div class="w-12 h-12 bg-slate-200 shrink-0 rounded-full overflow-hidden grid place-items-center">
+                    @if (fotoReportante) {
+                      <img [src]="fotoReportante" alt="" class="w-full h-full object-cover">
+                    } @else {
+                      <span class="material-symbols-outlined text-slate-500">person</span>
+                    }
                   </div>
 
                   <div>
@@ -432,7 +417,7 @@
             </article>
 
             <!-- ESTADO DEL CASO -->
-            <article class="bg-white border border-slate-300 rounded shadow-md p-6">
+            <article appReveal class="bg-white border border-slate-300 rounded shadow-md p-6">
               <p class="text-xs font-bold uppercase text-slate-500 mb-3">Estado operativo</p>
 
               <div class="relative pl-7 flex flex-col gap-5">

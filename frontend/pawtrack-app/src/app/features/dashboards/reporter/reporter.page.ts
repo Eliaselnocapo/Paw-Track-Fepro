@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { IonContent, IonModal } from '@ionic/angular/standalone';
@@ -12,6 +12,8 @@ import { ReportService, IncidenciaResponse } from '../../../core/services/report
 import { LocalReportCacheService } from '../../../core/services/local-report-cache.service';
 
 import { environment } from 'src/environments/environment';
+
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 
 interface ReporterReport {
@@ -47,12 +49,14 @@ interface ReporterReport {
     IonModal,
     RouterLink,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './reporter.page.html',
   styleUrls: ['./reporter.page.scss'],
 })
 export class ReporterPage implements OnInit {
+  @ViewChildren(RevealDirective) revealElements!: QueryList<RevealDirective>;
   reports: ReporterReport[] = [];
   reportesPorPagina = 5;
   paginaActualReportes = 1;
@@ -74,6 +78,8 @@ export class ReporterPage implements OnInit {
   errorReclamo: string | null = null;
   errorPdf: string | null = null;
 
+  mostrarContenido = true;
+
   constructor(
     private reportService: ReportService,
     private localReportCache: LocalReportCacheService,
@@ -87,8 +93,17 @@ export class ReporterPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.cargarReportes();
-  }
 
+    // Fuerza que Angular destruya y vuelva a crear todo el contenido
+    // (incluyendo las directivas appReveal), ya que Ionic cachea la
+    // página y ngOnInit/ngAfterViewInit no vuelven a correr solos.
+    this.mostrarContenido = false;
+
+    setTimeout(() => {
+      this.mostrarContenido = true;
+    }, 0);
+  }
+  
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     this.errorPdf = null;
@@ -403,6 +418,9 @@ private cargarMisReportesDeCuenta(): void {
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       PENDIENTE: 'Pendiente',
+      VALIDADO: 'Validado',
+      ATENDIENDOSE: 'En atención',
+      DESESTIMADO: 'Desestimado',
       EN_REVISION: 'En revisión',
       EN_PROCESO: 'En proceso',
       VALIDANDO: 'Validando',
@@ -418,6 +436,9 @@ private cargarMisReportesDeCuenta(): void {
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
       PENDIENTE: 'bg-slate-100 text-slate-600 border-slate-200',
+      VALIDADO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      ATENDIENDOSE: 'bg-blue-100 text-blue-700 border-blue-200',
+      DESESTIMADO: 'bg-red-100 text-red-700 border-red-200',
       EN_REVISION: 'bg-amber-100 text-amber-700 border-amber-200',
       VALIDANDO: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       EN_PROCESO: 'bg-blue-100 text-blue-700 border-blue-200',

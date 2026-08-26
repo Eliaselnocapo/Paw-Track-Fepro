@@ -1,4 +1,5 @@
 import threading
+import unittest
 
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import Point
@@ -265,6 +266,11 @@ class TrazabilidadRecursoTests(APITestCase):
         self.assertEqual(eventos_liberado.count(), 1)
 
 
+@unittest.skip(
+    "Endpoint GET /api/incidencias/<folio>/recursos/ deshabilitado a propósito: "
+    "la ruta está comentada en pawtrack/urls.py (RecursosDeIncidenciaView no "
+    "está registrada). Reactivar estos tests cuando se descomente la ruta."
+)
 class RecursosDeIncidenciaViewTests(APITestCase):
     def setUp(self):
         self.rescatista_usuario = Usuario.objects.create_user(
