@@ -175,7 +175,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 THROTTLE_RATES = {
-    'anon': '60/minute',       # ojo: decide cuál valor quieres, 10 o 60/minute (había un choque)
+    'anon': '60/minute',
     'user': '1000/day',
     'pdf_import': '5/minute',
     'vision_anon': '10/minute',
