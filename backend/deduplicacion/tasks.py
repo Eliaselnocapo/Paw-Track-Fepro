@@ -70,14 +70,24 @@ def calcular_embedding_borrador(borrador_id, ruta_temporal, especie):
     resultado se cachea en Redis con TTL de 30 min; verificar_duplicado()
     lo busca ahí primero y solo recalcula si no lo encuentra (usuario muy
     rápido, o esta tarea aún no terminó) -- nunca bloquea, solo acelera.
+
+    La llave del cache incluye la especie (no solo el borrador_id): si el
+    usuario cambia de especie en el wizard y el frontend llega a mandar un
+    borrador_id desfasado junto con el tipo_animal nuevo,
+    verificar_duplicado() debe fallar el cache-hit y recalcular con el
+    modelo correcto, en vez de comparar en silencio contra el índice
+    equivocado (bug real: los embeddings de perro y gato tienen la misma
+    dimensión, así que un cruce de especie no truena, solo ensucia el
+    resultado sin ningún error visible).
     """
     from django.core.cache import cache
 
     vision_ai = VisionService()
     try:
         emb = vision_ai._get_embedding(ruta_temporal, especie)
-        cache.set(f'embedding_borrador:{borrador_id}', emb.astype('float32').tobytes(), timeout=1800)
-        logger.info("Embedding de borrador %s precalculado y cacheado.", borrador_id)
+        cache.set(f'embedding_borrador:{borrador_id}:{especie.lower()}',
+                   emb.astype('float32').tobytes(), timeout=1800)
+        logger.info("Embedding de borrador %s (%s) precalculado y cacheado.", borrador_id, especie)
     except ValueError as e:
         logger.warning("calcular_embedding_borrador: %s", e)
     finally:
@@ -85,3 +95,42 @@ def calcular_embedding_borrador(borrador_id, ruta_temporal, especie):
             os.remove(ruta_temporal)
         except OSError:
             pass
+
+
+@shared_task(queue='dedup')
+def detectar_especie_borrador(imagen_borrador_id, ruta_temporal):
+    """
+    Corre YOLO (clases COCO) sobre la foto apenas se sube en Modo 1 de
+    precargar_imagen, en paralelo a que el usuario llena el resto del
+    wizard -- NO decide la especie del reporte (eso lo sigue eligiendo el
+    reportante en el paso 2), solo deja cacheado un veredicto barato de
+    "¿esto parece perro o gato?" para que el frontend consulte
+    (IncidenciaViewSet.deteccion_especie) y decida si mostrar un aviso
+    antes de enviar.
+
+    A diferencia de calcular_embedding_borrador, esta task NO borra
+    ruta_temporal al terminar: es el mismo archivo que después necesita
+    calcular_embedding_borrador (Modo 2) para el embedding real -- borrarlo
+    aquí rompería ese flujo. El borrado del temporal sigue siendo
+    responsabilidad exclusiva de calcular_embedding_borrador.
+
+    Nunca bloquea ni hace fallar nada: si la detección falla o no ha
+    terminado cuando el usuario llega a revisión, el endpoint de consulta
+    regresa "sin información" y el reporte sigue su curso normal.
+    """
+    from django.core.cache import cache
+    from deduplicacion.services import DeteccionEspecieService
+
+    try:
+        servicio = DeteccionEspecieService()
+        resultado = servicio.detectar(ruta_temporal)
+    except Exception:
+        logger.exception("detectar_especie_borrador: fallo inesperado para borrador %s", imagen_borrador_id)
+        return "Error al detectar especie"
+
+    if resultado is None:
+        return "Sin resultado (ver logs)"
+
+    cache.set(f'deteccion_especie:{imagen_borrador_id}', resultado, timeout=1800)
+    logger.info("Detección de especie para borrador %s: %s", imagen_borrador_id, resultado)
+    return f"Detección cacheada para {imagen_borrador_id}: {resultado}"

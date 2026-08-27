@@ -17,9 +17,30 @@ def _similitud(a: str, b: str) -> float:
 
 
 class RankingService:
-    UMBRAL_FUSION = float(os.environ.get('DEDUP_UMBRAL_FUSION', 0.75))
-    UMBRAL_REVISION = float(os.environ.get('DEDUP_UMBRAL_REVISION', 0.55))
     RADIO_REFERENCIA_M = float(os.environ.get('DEDUP_RADIO_METROS', 10000))
+
+    # Umbral de revisión por especie -- calibrado con optimizar_umbral_revision.py
+    # sobre datos reales (ver RESUMEN_prueba_deduplicacion.md): a diferencia de
+    # los pesos (que sí convergieron a un valor único para ambas especies), el
+    # punto de corte óptimo SÍ difiere por especie -- perro tiene un techo de
+    # recall que no se mueve subiendo/bajando el umbral en un rango amplio
+    # (0.72-0.78 da el mismo F1=0.677 exacto), mientras que gato tiene una
+    # curva con pico definido en 0.70 (F1=0.882) que cae rápido a ambos lados.
+    # UMBRAL_FUSION quedó sin uso real en el flujo actual (era de una feature
+    # anterior) -- no se recalibró, solo se conserva por compatibilidad.
+    UMBRAL_REVISION = float(os.environ.get('DEDUP_UMBRAL_REVISION', 0.75))
+    UMBRAL_REVISION_POR_ESPECIE = {
+        'PERRO': float(os.environ.get('DEDUP_UMBRAL_REVISION_PERRO', 0.72)),
+        'GATO':  float(os.environ.get('DEDUP_UMBRAL_REVISION_GATO', 0.70)),
+    }
+
+    @classmethod
+    def umbral_revision_para(cls, especie):
+        """Umbral de revisión para la especie dada, con fallback a
+        UMBRAL_REVISION (env var genérica) si la especie no está mapeada
+        arriba -- para no romper si algún día se agrega una especie nueva
+        sin haber corrido antes la calibración correspondiente."""
+        return cls.UMBRAL_REVISION_POR_ESPECIE.get((especie or '').upper(), cls.UMBRAL_REVISION)
 
     @staticmethod
     def calcular_score_final(candidatos, similitud_visual, nueva):
@@ -28,6 +49,8 @@ class RankingService:
         # 1. ¿Qué tan confiable es el texto?
         texto_nueva = (nueva.caracteristicas or "").strip().lower()
         es_texto_confiable = len(texto_nueva.split()) > 10
+
+        especie_animal = (nueva.animal.tipo or '').upper()
 
         for cand in candidatos:
             # --- GEO ---
@@ -83,11 +106,26 @@ class RankingService:
             score_meta = (suma_validos / total_validos) if total_validos > 0 else 0.0
 
             # --- DISTRIBUCIÓN DE PESOS ---
+            # Pesos únicos (ya NO diferenciados por especie): la búsqueda
+            # sobre datos reales, bloqueando geo/meta a los valores máximos
+            # que nos atrevemos a confiar (0.15/0.20 -- su AUC en pruebas
+            # viene inflado por sesgos de simulación, ver
+            # RESUMEN_prueba_deduplicacion.md), convergió al mismo óptimo
+            # de forma INDEPENDIENTE para perro y gato: w_foto=0.60,
+            # w_texto=0.05. Que dos búsquedas separadas lleguen solas al
+            # mismo punto es la señal más confiable de esta calibración —
+            # no hay necesidad de mantener dos tablas de pesos.
+            #
+            # geo+meta+texto máximos (0.15+0.20+0.05=0.40) NUNCA alcanzan
+            # UMBRAL_REVISION (ver umbral_revision_para() en RankingService)
+            # por sí solos — la foto está obligada a aportar algo real para
+            # que se dispare cualquier sugerencia de duplicado.
             if es_texto_confiable:
-                w_geo, w_meta, w_foto, w_texto = 0.15, 0.20, 0.45, 0.20
+                w_geo, w_meta, w_foto, w_texto = 0.15, 0.20, 0.60, 0.05
             else:
-                # Mayoría absoluta a la foto
-                w_geo, w_meta, w_foto, w_texto = 0.15, 0.40, 0.45, 0.0
+                # Sin texto confiable, ese 0.05 se reasigna a foto en vez
+                # de perderse (mismo patrón que ya usaba este archivo).
+                w_geo, w_meta, w_foto, w_texto = 0.15, 0.20, 0.65, 0.00
 
             # --- HARD GATING (La magia antimanchas) ---
             # Si la similitud en su propia categoría es menor al 50%, se anula (0.0).
@@ -97,8 +135,14 @@ class RankingService:
             # igual que foto/meta/texto la volvía binaria (todo lo que cae
             # fuera de la mitad del radio puntúa 0 por igual, sin importar si
             # son 200m o 9km) y le quitaba a distancia_m su poder de discriminar.
-            especie_animal = nueva.animal.tipo.upper()
-            umbral_foto = 0.75 if especie_animal == 'PERRO' else 0.40
+            # Gate de foto por especie. PERRO bajó de 0.75 -> 0.50 tras
+            # confirmar con barrer_gate_foto.py que 0.75 descartaba 35 de 78
+            # duplicados reales (recall 0.512 -> 0.929) SIN generar ni un
+            # falso positivo nuevo en todo el rango 0.30-0.55 -- no era un
+            # trade-off, el gate viejo simplemente estaba de más. GATO se
+            # dejó igual (0.40): nunca se corrió la misma prueba para gato,
+            # no asumir que también está mal calibrado sin medirlo.
+            umbral_foto = 0.50 if especie_animal == 'PERRO' else 0.40
 
             if score_foto < umbral_foto:
                 val_foto = 0.0
@@ -124,10 +168,23 @@ class RankingService:
                 f"  -> TEXTO: Raw={score_texto:.2f} | Gate={val_texto:.2f} | Peso={w_texto:.2f} | Contribuyó: {contrib_texto:.3f}"
             )
 
-
             resultados.append({
                 "incidencia": cand,
-                "score": score_final
+                "score": score_final,
+                # Solo para tooling de análisis/tuning (ver
+                # deduplicacion/management/commands/test_deduplicacion.py y
+                # analizar_pesos.py). No lo consume nada en producción — es
+                # una llave adicional, no cambia el contrato existente
+                # ("incidencia"/"score") que ya usan tasks.py y las vistas.
+                "_debug": {
+                    "score_geo": score_geo, "score_meta": score_meta,
+                    "score_foto": score_foto, "score_texto": score_texto,
+                    "val_geo": val_geo, "val_meta": val_meta,
+                    "val_foto": val_foto, "val_texto": val_texto,
+                    "w_geo": w_geo, "w_meta": w_meta,
+                    "w_foto": w_foto, "w_texto": w_texto,
+                    "es_texto_confiable": es_texto_confiable,
+                },
             })
 
         return sorted(resultados, key=lambda x: x['score'], reverse=True)
