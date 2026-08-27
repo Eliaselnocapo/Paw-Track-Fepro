@@ -175,7 +175,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 THROTTLE_RATES = {
-    'anon': '60/minute',
+    'anon': '60/minute',       # ojo: decide cuál valor quieres, 10 o 60/minute (había un choque)
     'user': '1000/day',
     'pdf_import': '5/minute',
     'vision_anon': '10/minute',
@@ -200,11 +200,7 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
     ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '60/minute',  # Protege tu API de ataques de fuerza bruta
-        'user': '1000/day',
-	'vision_anon': '10/minute'
-    }
+    'DEFAULT_THROTTLE_RATES': THROTTLE_RATES,
 }
 
 REST_AUTH = {
