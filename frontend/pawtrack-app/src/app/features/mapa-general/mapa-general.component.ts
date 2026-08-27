@@ -10,10 +10,10 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+import { RevealDirective } from '../../../../src/app/shared/directives/reveal.directive';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { ReportService, RescateResponse } from 'src/app/core/services/report.service';
+import { ReportService, RescateResponse } from '../../../../src/app/core/services/report.service';
 import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
 
 import {
@@ -45,7 +45,7 @@ import {
 import { NavbarWebComponent } from '../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { SentenceCasePipe } from '../../shared/pipes/sentence-case-pipe';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../src/environments/environment';
 
 import * as L from 'leaflet';
 
@@ -274,8 +274,8 @@ export class MapaGeneralComponent
     }).setView([19.0042, -98.2012], 14); // BUAP, fijo, siempre al inicio
 
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      { attribution: '&copy; OpenStreetMap contributors' }
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { attribution: '&copy; OpenStreetMap contributors', maxZoom: 19 }
     ).addTo(this.mapaCasos);
 
     this.capaMarcadores = L.layerGroup().addTo(this.mapaCasos);
