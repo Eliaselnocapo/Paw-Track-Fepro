@@ -3,15 +3,16 @@ import { CommonModule, DecimalPipe} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
-import { FooterWebComponent } from 'src/app/shared/ui-layouts/footer-views/footer-web/footer-web.component';
+import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, CandidatoDuplicado } from '../../../../core/services/report.service';
 import { LocalReportCacheService } from '../../../../core/services/local-report-cache.service';
 import { CartelPdf } from '../../../../core/services/cartel-pdf';
 import { IonContent, IonModal } from '@ionic/angular/standalone';
 import { AuthService } from '../../../../core/services/auth.service';
-import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 import * as L from 'leaflet';
+
 
 @Component({
   selector: 'app-create-report',
@@ -73,10 +74,19 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
   private subiendoImagenBorrador = false;
   private precargandoEmbedding = false;
 
+  //para saber si es un animal o no
+  avisoEspecieNoDetectada = false;
+  consultandoDeteccion = false;
+  private intentosDeteccion = 0;
+  private readonly MAX_INTENTOS_DETECCION = 6; // ~12 segundos si el intervalo es 2s
+
+
   // === Chequeo de posible duplicado (paso 4, antes de enviar) ===
   verificandoDuplicado = false;
   candidatoDuplicado: CandidatoDuplicado | null = null;
   duplicadoConfirmado: boolean | null = null; // null = sin responder todavía
+  mostrarModalNoAnimal = false;
+  esUsuarioAnonimo = false; // ajusta según cómo determines sesión (this.auth.isLoggedIn())
 
   descargandoCartelManual = false;
 
@@ -403,6 +413,44 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     });
   }
 
+  private iniciarConsultaDeteccionEspecie(imagenBorradorId: string): void {
+    this.avisoEspecieNoDetectada = false;
+    this.consultandoDeteccion = true;
+    this.intentosDeteccion = 0;
+    this.consultarDeteccionRecursivo(imagenBorradorId);
+  }
+
+  private consultarDeteccionRecursivo(imagenBorradorId: string): void {
+    this.reportService.consultarDeteccionEspecie(imagenBorradorId).subscribe({
+      next: (resultado) => {
+        if (!resultado.listo) {
+          this.intentosDeteccion++;
+          if (this.intentosDeteccion < this.MAX_INTENTOS_DETECCION) {
+            setTimeout(() => this.consultarDeteccionRecursivo(imagenBorradorId), 2000);
+          } else {
+            // La task tardó demasiado o falló: no bloqueamos al usuario,
+            // simplemente dejamos de intentar.
+            this.consultandoDeteccion = false;
+          }
+          return;
+        }
+
+        this.consultandoDeteccion = false;
+        // Si YOLO detectó algo con confianza razonable y NO es mascota,
+        // mostramos el aviso. Umbral de 0.5 como referencia razonable.
+        if (resultado.es_mascota === false) {
+          this.avisoEspecieNoDetectada = true;
+          this.mostrarModalNoAnimal = true;
+          this.esUsuarioAnonimo = !this.auth.isLoggedIn();
+        }
+      },
+      error: () => {
+        // Silencioso: es informativo, no debe romper el flujo del wizard.
+        this.consultandoDeteccion = false;
+      },
+    });
+  }
+
     /** Fase A: sube la foto sola, apenas se selecciona (antes de conocer la especie). */
   subirImagenBorrador(): void {
     const imagen = this.archivosSeleccionados[0]?.archivoFisico;
@@ -413,11 +461,24 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
       next: (res) => {
         this.imagenBorradorId = res.imagen_borrador_id;
         this.subiendoImagenBorrador = false;
+        this.iniciarConsultaDeteccionEspecie(this.imagenBorradorId);
         // Si el usuario ya había elegido especie mientras esto subía, dispara Fase B ya.
         if (this.tipoAnimal) this.activarPrecargaEmbedding();
       },
       error: () => { this.subiendoImagenBorrador = false; },
     });
+  }
+
+  reintentarSubidaImagen(): void {
+    this.mostrarModalNoAnimal = false;
+    this.avisoEspecieNoDetectada = false;
+    this.archivosSeleccionados = [];
+    this.imagenBorradorId = null;
+    this.borradorId = null;
+  }
+
+  cerrarModalAdvertencia(): void {
+    this.mostrarModalNoAnimal = false;
   }
 
   /** Fase B: dispara el cómputo async en el instante en que se conoce la especie. */
@@ -832,19 +893,86 @@ onFileSelected(event: any) {
   return `/seguimiento/${this.folioGenerado}`;
 }
 
-copiarEnlaceSeguimiento(): void {
-  if (!this.folioGenerado) {
-    return;
+  copiarEnlaceSeguimiento(): void {
+    if (!this.folioGenerado) {
+      return;
+    }
+
+    const enlaceCompleto = `${window.location.origin}${this.enlaceSeguimiento}`;
+
+    navigator.clipboard.writeText(enlaceCompleto)
+      .then(() => {
+        console.log('Enlace copiado:', enlaceCompleto);
+      })
+      .catch((err) => {
+        console.error('No se pudo copiar el enlace:', err);
+      });
   }
 
-  const enlaceCompleto = `${window.location.origin}${this.enlaceSeguimiento}`;
+  ionViewWillEnter(): void {
+    this.destroyInteractiveMap();
+    this.destroyPreviewMap();
+    this.resetearFormulario();
+  }
+  private resetearFormulario(): void {
+    // Paso del wizard
+    this.pasoActual = 1;
 
-  navigator.clipboard.writeText(enlaceCompleto)
-    .then(() => {
-      console.log('Enlace copiado:', enlaceCompleto);
-    })
-    .catch((err) => {
-      console.error('No se pudo copiar el enlace:', err);
-    });
-}
+    // Paso 2: animal
+    this.tipoAnimal = '';
+    this.colorAnimal = '';
+    this.razaAnimal = '';
+    this.agresividadAnimal = '';
+    this.tamanoAproximado = '';
+    this.condicionesVisibles = [];
+    this.condicionesTexto = 'Ninguna';
+    this.notasAdicionales = '';
+    this.nombreCaso = '';
+
+    // Paso 1: archivos
+    this.archivosSeleccionados = [];
+
+    // Contacto: NO reseteamos nombreUsuario/telefonoUsuario si vienen del
+    // perfil, se vuelven a autocompletar; solo el flag de edición manual.
+    this.editandoContactoManualmente = false;
+
+    // Paso 3: ubicación — vuelve al fallback (Puebla/CU), se recalculará
+    // con geolocalización real si el usuario da permiso.
+    this.direccionActual = 'Av. San Manuel, Puebla (Cerca de CU)';
+    this.ciudadActual = 'Puebla, México';
+    this.latActual = 19.0042;
+    this.lngActual = -98.2012;
+    this.cargandoDireccion = false;
+
+    // Resultado del envío anterior
+    this.folioGenerado = null;
+    this.enviando = false;
+    this.errorEnvio = null;
+    this.duplicadoDescartado = false;
+    this.folioExistente = null;
+
+    // Precarga de imagen / embedding — CLAVE para que puedas subir de nuevo
+    this.imagenBorradorId = null;
+    this.borradorId = null;
+    this.subiendoImagenBorrador = false;
+    this.precargandoEmbedding = false;
+
+    // Detección de especie
+    this.avisoEspecieNoDetectada = false;
+    this.consultandoDeteccion = false;
+    this.intentosDeteccion = 0;
+
+    // Duplicados
+    this.verificandoDuplicado = false;
+    this.candidatoDuplicado = null;
+    this.duplicadoConfirmado = null;
+
+    this.descargandoCartelManual = false;
+    
+    this.mostrarModalNoAnimal = false;
+    this.esUsuarioAnonimo = false;
+
+    // Vuelve a autocompletar contacto desde perfil, ya que lo limpiamos arriba
+    this.autocompletarContactoDesdePerfil();
+  }
 }

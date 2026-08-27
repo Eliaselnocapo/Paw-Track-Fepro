@@ -280,6 +280,21 @@
                     Necesitas al menos una foto para continuar. Es lo que permite evaluar la urgencia del caso.
                   </p>
                 </div>
+              }@if (consultandoDeteccion) {
+                <p class="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>
+                  Verificando la imagen...
+                </p>
+              }
+
+              @if (avisoEspecieNoDetectada) {
+                <div class="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
+                  <span class="material-symbols-outlined text-[18px] shrink-0">warning</span>
+                  <p>
+                    La imagen no parece mostrar un perro o gato claramente. Puedes continuar de todas formas,
+                    pero verifica que sea la foto correcta del animal.
+                  </p>
+                </div>
               }
 
               <div class="flex justify-end mt-8 border-t border-slate-200 pt-6">
@@ -1187,9 +1202,62 @@
     </div>
   }
 
-    <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
-      <app-footer-web></app-footer-web>
-    </footer>
+  <footer class="hidden md:block w-full bg-white mt-auto border-t border-slate-200 relative z-10">
+    <app-footer-web></app-footer-web>
+  </footer>
 
 </div>
+
+@if (mostrarModalNoAnimal) {
+  <div class="fixed inset-0 z-[200] bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded max-w-md w-full p-6 shadow-2xl">
+
+      @if (esUsuarioAnonimo) {
+        <!-- ANÓNIMO: bloqueo total -->
+        <div class="w-14 h-14 rounded bg-red-100 text-red-600 grid place-items-center mb-4">
+          <span class="material-symbols-outlined text-[28px]">block</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Esto no parece un animal</h3>
+        <p class="text-sm text-slate-600 leading-relaxed mb-6">
+          La imagen que subiste no parece mostrar un perro o gato. Para reportes anónimos, solo
+          aceptamos evidencia clara del animal en riesgo. Sube una foto distinta para continuar.
+        </p>
+        <button
+          type="button"
+          (click)="reintentarSubidaImagen()"
+          class="w-full h-12 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors"
+        >
+          Subir otra foto
+        </button>
+      } @else {
+        <!-- CON SESIÓN: advertencia, pero deja continuar -->
+        <div class="w-14 h-14 rounded bg-amber-100 text-amber-700 grid place-items-center mb-4">
+          <span class="material-symbols-outlined text-[28px]">warning</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">¿Seguro que es un perro o gato?</h3>
+        <p class="text-sm text-slate-600 leading-relaxed mb-6">
+          La imagen no parece mostrar claramente un animal. Puedes continuar si estás seguro,
+          pero recuerda que los reportes falsos afectan tu reputación en la plataforma.
+        </p>
+        <div class="flex gap-3">
+          <button
+            type="button"
+            (click)="reintentarSubidaImagen()"
+            class="flex-1 h-12 border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Subir otra foto
+          </button>
+          <button
+            type="button"
+            (click)="cerrarModalAdvertencia()"
+            class="flex-1 h-12 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors"
+          >
+            Sí, continuar
+          </button>
+        </div>
+      }
+
+    </div>
+  </div>
+}
 </ion-content>

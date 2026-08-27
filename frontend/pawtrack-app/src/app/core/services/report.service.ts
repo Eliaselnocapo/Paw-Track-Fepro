@@ -158,6 +158,13 @@ export interface DuplicadoDescartadoResponse {
   folio_existente: string;
 }
 
+export interface DeteccionEspecieResponse {
+  listo: boolean;
+  es_mascota?: boolean;
+  especie_detectada?: string | null;
+  confianza?: number | null;
+}
+
 export interface ActualizarReportePayload {
   nombre_caso?:      string;
   tipo_animal?:      string;
@@ -348,6 +355,14 @@ subirImagenBorrador(imagen: File): Observable<ImagenBorradorResponse> {
   const form = new FormData();
   form.append('imagen', imagen, imagen.name);
   return this.http.post<ImagenBorradorResponse>(`${this.apiUrl}precargar-imagen/`, form);
+}
+
+consultarDeteccionEspecie(imagenBorradorId: string): Observable<DeteccionEspecieResponse> {
+  const params = new HttpParams().set('imagen_borrador_id', imagenBorradorId);
+  return this.http.get<DeteccionEspecieResponse>(
+    `${environment.apiUrl}/incidencias/deteccion-especie/`,
+    { params }
+  );
 }
 
 activarPrecargaEmbedding(imagenBorradorId: string, tipoAnimal: string): Observable<PrecargaEmbeddingResponse> {
