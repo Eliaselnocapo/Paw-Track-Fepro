@@ -1,3 +1,39 @@
 ion-content {
   --background: #f7f9ff;
 }
+@keyframes float-sh-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-sh-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-sh-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, 6px); }
+}
+
+@keyframes float-sh-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, -6px); }
+}
+
+@keyframes float-sh-5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 5px); }
+}
+
+.sh-shape-1 { animation: float-sh-1 9s ease-in-out infinite; }
+.sh-shape-2 { animation: float-sh-2 11s ease-in-out infinite; }
+.sh-shape-3 { animation: float-sh-3 8s ease-in-out infinite; }
+.sh-shape-4 { animation: float-sh-4 10s ease-in-out infinite; }
+.sh-shape-5 { animation: float-sh-5 12s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-shape-1, .sh-shape-2, .sh-shape-3, .sh-shape-4, .sh-shape-5 {
+    animation: none;
+  }
+}

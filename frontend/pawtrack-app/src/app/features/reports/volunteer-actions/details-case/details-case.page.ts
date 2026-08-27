@@ -10,6 +10,8 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from 'src/environments/environment';
+import { ReportarFraudeButtonComponent } from 'src/app/shared/components/button-fraude/reportar-fraude-button.component';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 import * as L from 'leaflet';
 
@@ -43,7 +45,9 @@ interface DetalleCasoVoluntario {
     IonContent,
     TitleCasePipe,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    ReportarFraudeButtonComponent,
+    RevealDirective
   ],
   templateUrl: './details-case.page.html',
   styleUrls: ['./details-case.page.scss']
@@ -341,5 +345,17 @@ cargarCaso(): void {
       default:
         return null;
     }
+  }
+  get fotoReportante(): string | null {
+    const foto = this.caso?.raw?.usuario_reporta_info?.foto;
+    if (!foto) return null;
+    if (foto.startsWith('http')) return foto;
+
+    const base = environment.apiUrl.replace(/\/api\/?$/, '');
+    return `${base}${foto}`;
+  }
+
+  get nombreReportante(): string {
+    return this.caso?.raw?.usuario_reporta_info?.nombre || this.caso?.contactoNombre || 'Reportante';
   }
 }

@@ -15,3 +15,89 @@
 ion-content {
   --background: transparent;
 }
+@keyframes float-esp-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-esp-2 {
+  0%, 100% { transform: translate(0, 0) rotate(20deg); }
+  50% { transform: translate(-5px, 6px) rotate(20deg); }
+}
+
+@keyframes float-esp-3 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(5px, 6px) rotate(12deg); }
+}
+
+@keyframes float-esp-4 {
+  0%, 100% { transform: translate(0, 0) rotate(30deg); }
+  50% { transform: translate(-4px, -5px) rotate(30deg); }
+}
+
+@keyframes float-esp-5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 5px); }
+}
+
+@keyframes float-esp-6 {
+  0%, 100% { transform: translate(0, 0) rotate(25deg); }
+  50% { transform: translate(-5px, 5px) rotate(25deg); }
+}
+
+@keyframes float-esp-7 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(4px, -6px); }
+}
+
+@keyframes float-esp-8 {
+  0%, 100% { transform: translate(0, 0) rotate(18deg); }
+  50% { transform: translate(-4px, 6px) rotate(18deg); }
+}
+
+@keyframes float-esp-9 {
+  0%, 100% { transform: translate(0, 0) rotate(-8deg); }
+  50% { transform: translate(5px, 5px) rotate(-8deg); }
+}
+
+@keyframes float-esp-10 {
+  0%, 100% { transform: translate(0, 0) rotate(10deg); }
+  50% { transform: translate(-5px, -6px) rotate(10deg); }
+}
+
+@keyframes float-esp-11 {
+  0%, 100% { transform: translate(0, 0) rotate(35deg); }
+  50% { transform: translate(4px, 5px) rotate(35deg); }
+}
+
+@keyframes float-esp-12 {
+  0%, 100% { transform: translate(0, 0) rotate(-20deg); }
+  50% { transform: translate(-4px, 6px) rotate(-20deg); }
+}
+
+@keyframes float-esp-13 {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50% { transform: translate(6px, -4px) rotate(-12deg); }
+}
+
+.esp-shape-1 { animation: float-esp-1 9s ease-in-out infinite; }
+.esp-shape-2 { animation: float-esp-2 11s ease-in-out infinite; }
+.esp-shape-3 { animation: float-esp-3 8s ease-in-out infinite; }
+.esp-shape-4 { animation: float-esp-4 10s ease-in-out infinite; }
+.esp-shape-5 { animation: float-esp-5 12s ease-in-out infinite; }
+.esp-shape-6 { animation: float-esp-6 9.5s ease-in-out infinite; }
+.esp-shape-7 { animation: float-esp-7 10.5s ease-in-out infinite; }
+.esp-shape-8 { animation: float-esp-8 8.5s ease-in-out infinite; }
+.esp-shape-9 { animation: float-esp-9 11.5s ease-in-out infinite; }
+.esp-shape-10 { animation: float-esp-10 9s ease-in-out infinite; }
+.esp-shape-11 { animation: float-esp-11 7s ease-in-out infinite; }
+.esp-shape-12 { animation: float-esp-12 8s ease-in-out infinite; }
+.esp-shape-13 { animation: float-esp-13 7.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .esp-shape-1, .esp-shape-2, .esp-shape-3, .esp-shape-4, .esp-shape-5, .esp-shape-6,
+  .esp-shape-7, .esp-shape-8, .esp-shape-9, .esp-shape-10, .esp-shape-11,
+  .esp-shape-12, .esp-shape-13 {
+    animation: none;
+  }
+}

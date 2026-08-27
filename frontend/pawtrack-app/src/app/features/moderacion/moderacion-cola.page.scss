@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+@keyframes float-mod-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, -8px); }
+}
+
+@keyframes float-mod-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-mod-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, 5px); }
+}
+
+.mod-shape-1 { animation: float-mod-1 9s ease-in-out infinite; }
+.mod-shape-2 { animation: float-mod-2 11s ease-in-out infinite; }
+.mod-shape-3 { animation: float-mod-3 8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mod-shape-1, .mod-shape-2, .mod-shape-3 {
+    animation: none;
+  }
+}

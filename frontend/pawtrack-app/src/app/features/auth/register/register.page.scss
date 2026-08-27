@@ -1,0 +1,91 @@
+/* Fade-in sutil de la tarjeta al cargar la página */
+.reveal-card {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: revealCard 0.5s ease forwards;
+}
+
+@keyframes revealCard {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+@keyframes float-reg-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, -7px); }
+}
+
+@keyframes float-reg-2 {
+  0%, 100% { transform: translate(0, 0) rotate(20deg); }
+  50% { transform: translate(-5px, 6px) rotate(20deg); }
+}
+
+@keyframes float-reg-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, 5px); }
+}
+
+@keyframes float-reg-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, -5px); }
+}
+
+@keyframes float-reg-5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 6px); }
+}
+
+@keyframes float-reg-6 {
+  0%, 100% { transform: translate(0, 0) rotate(30deg); }
+  50% { transform: translate(-5px, 5px) rotate(30deg); }
+}
+
+@keyframes float-reg-7 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(4px, -6px); }
+}
+
+@keyframes float-huella-1 {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50% { transform: translate(5px, -6px) rotate(-12deg); }
+}
+
+@keyframes float-huella-2 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(-5px, 5px) rotate(12deg); }
+}
+
+@keyframes float-huella-3 {
+  0%, 100% { transform: translate(0, 0) rotate(45deg); }
+  50% { transform: translate(4px, 6px) rotate(45deg); }
+}
+
+.reg-shape-1 { animation: float-reg-1 9s ease-in-out infinite; }
+.reg-shape-2 { animation: float-reg-2 11s ease-in-out infinite; }
+.reg-shape-3 { animation: float-reg-3 8s ease-in-out infinite; }
+.reg-shape-4 { animation: float-reg-4 10s ease-in-out infinite; }
+.reg-shape-5 { animation: float-reg-5 12s ease-in-out infinite; }
+.reg-shape-6 { animation: float-reg-6 9.5s ease-in-out infinite; }
+.reg-shape-7 { animation: float-reg-7 10.5s ease-in-out infinite; }
+
+.huella-1 { animation: float-huella-1 13s ease-in-out infinite; }
+.huella-2 { animation: float-huella-2 14s ease-in-out infinite; }
+.huella-3 { animation: float-huella-3 12s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reg-shape-1, .reg-shape-2, .reg-shape-3, .reg-shape-4,
+  .reg-shape-5, .reg-shape-6, .reg-shape-7,
+  .huella-1, .huella-2, .huella-3 {
+    animation: none;
+  }
+}

@@ -1,84 +1,42 @@
-<!-- NAVBAR MÓVIL -->
-<ion-header class="md:hidden">
-  <ion-toolbar class="navbar-mobile">
-
-    <ion-buttons slot="start">
-      <ion-menu-button
-        [autoHide]="false"
-        aria-label="Abrir menú"
-      ></ion-menu-button>
-    </ion-buttons>
-
-    <ion-title>
-      <div class="mobile-brand">
-        <div class="mobile-logo">
-          <img
-            src="assets/icon/pawtrack-logo.png"
-            alt="PawTrack"
-          >
-        </div>
-
-        <span>PawTrack</span>
-      </div>
-    </ion-title>
-
-    <ion-buttons slot="end">
-      <a
-        routerLink="/reports/create-report"
-        class="boton-emergencia-mobile"
-      >
-        <span class="material-symbols-outlined">
-          error
-        </span>
-
-        <span>
-          Reportar
-          <small>Emergencia</small>
-        </span>
-      </a>
-    </ion-buttons>
-
-  </ion-toolbar>
-</ion-header>
 
 <ion-content [scrollY]="true">
   <div class="min-h-screen flex flex-col bg-[#f7f9ff] text-slate-900 relative overflow-x-hidden">
 
     <!-- NAVBAR WEB -->
-    <app-navbar-web class="relative z-30 hidden md:block"></app-navbar-web>
+    <app-navbar-web class="relative z-30"></app-navbar-web>
 
     <!-- FONDO DECORATIVO ESCRITORIO -->
     <div class="hidden md:block absolute inset-0 pointer-events-none overflow-hidden z-0">
-      <div class="absolute top-[25px] left-[-50px] w-[450px] h-[450px] bg-fuchsia-200/55 rotate-[8deg]"></div>
-      <div class="absolute top-[42%] left-[7%] w-[190px] h-[190px] bg-amber-200/35 rotate-[5deg]"></div>
-      <div class="absolute top-[16%] left-[46%] w-[90px] h-[90px] bg-emerald-200/50 rotate-[22deg]"></div>
-      <div class="absolute top-[14%] right-[-70px] w-[280px] h-[280px] bg-violet-200/50 rounded-full"></div>
-      <div class="absolute top-[54%] right-[-50px] w-[170px] h-[170px] bg-violet-200/40 rotate-[-6deg]"></div>
-      <div class="absolute bottom-[-80px] left-[-60px] w-[280px] h-[280px] bg-indigo-200/50 rotate-[8deg]"></div>
-      <div class="absolute bottom-[-60px] right-[-50px] w-[240px] h-[240px] bg-purple-200/45 rounded-full"></div>
+      <div class="org-shape-1 absolute top-[25px] left-[-50px] w-[450px] h-[450px] bg-fuchsia-200/55"></div>
+      <div class="org-shape-2 absolute top-[42%] left-[7%] w-[190px] h-[190px] bg-amber-200/35"></div>
+      <div class="org-shape-3 absolute top-[16%] left-[46%] w-[90px] h-[90px] bg-emerald-200/50"></div>
+      <div class="org-shape-4 absolute top-[14%] right-[-70px] w-[280px] h-[280px] bg-violet-200/50 rounded-full"></div>
+      <div class="org-shape-5 absolute top-[54%] right-[-50px] w-[170px] h-[170px] bg-violet-200/40"></div>
+      <div class="org-shape-4 absolute bottom-[-80px] left-[-60px] w-[280px] h-[280px] bg-indigo-200/50"></div>
+      <div class="org-shape-4 absolute bottom-[-60px] right-[-50px] w-[240px] h-[240px] bg-purple-200/45 rounded-full"></div>
 
       <!-- acentos nuevos, para variar forma sin saturar -->
-      <div class="absolute top-[46%] left-[30%] w-14 h-14 bg-rose-200/40 rotate-[-15deg]"></div>
-      <div class="absolute top-[68%] left-[16%] w-0 h-0
+      <div class="org-shape-6 absolute top-[46%] left-[30%] w-14 h-14 bg-rose-200/40"></div>
+      <div class="org-shape-7 absolute top-[68%] left-[16%] w-0 h-0
         border-l-[22px] border-l-transparent
         border-r-[22px] border-r-transparent
-        border-b-[38px] border-b-cyan-200/40 rotate-[12deg]"></div>
-      <div class="absolute top-[38%] right-[18%] w-10 h-10 bg-sky-200/40 rotate-[25deg]"></div>
+        border-b-[38px] border-b-cyan-200/40"></div>
+      <div class="org-shape-8 absolute top-[38%] right-[18%] w-10 h-10 bg-sky-200/40"></div>
     </div>
 
     <!-- FONDO DECORATIVO MÓVIL -->
     <div class="md:hidden absolute inset-0 pointer-events-none overflow-hidden z-0">
-      <div class="absolute top-[10px] left-[-40px] w-[220px] h-[220px] bg-fuchsia-200/55 rotate-[8deg]"></div>
-      <div class="absolute top-[24%] right-[-50px] w-[150px] h-[150px] bg-violet-200/50 rounded-full"></div>
-      <div class="absolute top-[46%] left-[10%] w-9 h-9 bg-rose-200/40 rotate-[-15deg]"></div>
-      <div class="absolute bottom-[-50px] left-[-40px] w-[180px] h-[180px] bg-indigo-200/50 rotate-[8deg]"></div>
-      <div class="absolute bottom-[-40px] right-[-40px] w-[160px] h-[160px] bg-purple-200/45 rounded-full"></div>
+      <div class="org-shape-1 absolute top-[10px] left-[-40px] w-[220px] h-[220px] bg-fuchsia-200/55"></div>
+      <div class="org-shape-4 absolute top-[24%] right-[-50px] w-[150px] h-[150px] bg-violet-200/50 rounded-full"></div>
+      <div class="org-shape-6 absolute top-[46%] left-[10%] w-9 h-9 bg-rose-200/40"></div>
+      <div class="org-shape-4 absolute bottom-[-50px] left-[-40px] w-[180px] h-[180px] bg-indigo-200/50"></div>
+      <div class="org-shape-4 absolute bottom-[-40px] right-[-40px] w-[160px] h-[160px] bg-purple-200/45 rounded-full"></div>
     </div>
 
-    <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-8 py-6 md:py-10 relative z-10 flex flex-col gap-6">
+    <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-8 py-24 md:py-24 relative z-10 flex flex-col gap-6">
 
       <!-- HERO -->
-      <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
+      <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden rounded">
         <div class="p-6 md:p-8 flex flex-col md:flex-row md:items-end md:justify-between gap-5">
           <div>
             <p class="text-xs font-bold uppercase text-blue-700 mb-1">
@@ -104,7 +62,7 @@
       </section>
 
       <!-- CONTENIDO -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div appReveal class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
         <!-- COLUMNA DE RESULTADOS -->
         <div class="lg:col-span-5 flex flex-col gap-6">
@@ -182,7 +140,7 @@
 
           <!-- SIN RESULTADOS -->
           @if (!cargandoUbicacion && !cargandoCentros && !error && centros.length === 0) {
-            <div class="m-5 p-4 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-3">
+            <div appReveal class="m-5 p-4 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-3">
               <span class="material-symbols-outlined text-blue-700 text-[20px] shrink-0 mt-0.5">pets</span>
               <div class="flex-1">
                 <p class="font-bold text-slate-900 text-sm">No encontramos refugios</p>
@@ -204,7 +162,7 @@
 
           <!-- LISTA -->
           @if (!cargandoUbicacion && !cargandoCentros && !error && centros.length > 0) {
-            <div class="divide-y divide-slate-100 overflow-y-auto max-h-[420px] lista-scroll">
+            <div appReveal class="divide-y divide-slate-100 overflow-y-auto max-h-[420px] lista-scroll">
 
               @for (centro of centrosVisibles; track centro.id) {
                 <article class="p-5 hover:bg-slate-50/70 transition-colors">

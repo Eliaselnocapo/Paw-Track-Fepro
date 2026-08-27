@@ -10,6 +10,7 @@ import { ReportService, RescateResponse } from '../../../../core/services/report
 import { environment } from 'src/environments/environment';
 
 import { CartelPdf } from '../../../../core/services/cartel-pdf';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 import * as L from 'leaflet';
 
@@ -22,6 +23,7 @@ import * as L from 'leaflet';
     IonContent,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './details-case-accepted.page.html',
   styleUrls: ['./details-case-accepted.page.scss'],

@@ -26,6 +26,9 @@ export class LoginPage implements AfterViewInit {
 
   cargandoGoogle = false;
 
+  // Mostrar/ocultar contraseña en texto plano
+  mostrarPassword = false;
+
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -34,6 +37,10 @@ export class LoginPage implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.inicializarBotonGoogle();
+  }
+
+  togglePassword(): void {
+    this.mostrarPassword = !this.mostrarPassword;
   }
 
   onSubmit(): void {

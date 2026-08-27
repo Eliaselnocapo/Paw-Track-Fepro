@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'deduplicacion',
     'recursos',
     'centros',
+    'moderacion',
     'django_celery_beat',
 ]
 

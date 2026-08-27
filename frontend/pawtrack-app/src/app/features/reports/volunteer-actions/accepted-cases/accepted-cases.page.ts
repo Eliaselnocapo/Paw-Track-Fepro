@@ -8,6 +8,7 @@ import { ReportService, RescateResponse } from '../../../../core/services/report
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { environment } from 'src/environments/environment';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 // ─────────────────────────────────────────
 // Tipos
@@ -72,6 +73,7 @@ const FILTROS: FiltroEstado[] = ['Todos', 'Aceptado', 'En camino', 'En sitio', '
     IonContent,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './accepted-cases.page.html',
   styleUrls: ['./accepted-cases.page.scss'],

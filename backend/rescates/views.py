@@ -57,6 +57,15 @@ class AceptarRescateView(APIView):
                 f"La incidencia ya no está disponible. Estado actual: {incidencia.estado}"
             )
 
+        # Oculto por 3+ denuncias de fraude sin resolver (app `moderacion`):
+        # no se acepta aunque alguien tenga el folio directo, aunque no
+        # aparezca en /disponibles/.
+        if incidencia.oculto_por_fraude:
+            raise ValidationError(
+                "Esta incidencia está bajo revisión por posibles reportes de fraude.",
+                code='incidencia_oculta_por_fraude',
+            )
+
         # 4. Manejo de Condición de Carrera (Dos rescatistas al mismo tiempo).
         # Savepoint propio: si el create() truena, no debe tumbar la transacción
         # atómica de toda la vista, solo revertir hasta aquí para poder lanzar
@@ -140,9 +149,12 @@ class DisponiblesView(ListAPIView):
             raise ValidationError("Coordenadas inválidas. Deben ser numéricas.")
 
         # Magia PostGIS: filtramos PENDIENTE y calculamos la distancia
-        # geométrica en un solo query
+        # geométrica en un solo query. oculto_por_fraude=False: casos con
+        # 3+ denuncias de fraude sin resolver no se ofrecen para aceptar
+        # (ver app `moderacion`).
         return Incidencia.objects.filter(
             estado__in=('PENDIENTE', 'VALIDADO'),
+            oculto_por_fraude=False,
             ubicacion__distance_lte=(punto, Distance(km=10))
         ).select_related('animal', 'usuario_reporta').order_by('-urgency_score')
 

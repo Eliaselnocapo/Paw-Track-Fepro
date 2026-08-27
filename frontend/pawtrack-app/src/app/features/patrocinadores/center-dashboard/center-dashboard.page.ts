@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -11,7 +11,7 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 import { SolicitudCentroApoyo, TipoCentro, FormaAyuda, RedesSociales } from '../../../core/models/centro-animal.model';
 import { CentrosAnimalesService, PublicacionCentro as PublicacionCentroApi, ResenaCentro as ResenaCentroApi, SeguidorCentro as SeguidorCentroApi } from '../../../core/services/centros-animales.service';
 import { ToastService } from '../../../core/services/toast.service';
-
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 // ── Interfaces "de vista" — mismo shape que usaba el mock ──
 
 interface PublicacionCentro {
@@ -61,11 +61,13 @@ interface PerfilCentroCompleto {
 @Component({
   selector: 'app-center-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, IonContent, NavbarWebComponent, FooterWebComponent],
+  imports: [CommonModule, FormsModule, RouterLink, IonContent, NavbarWebComponent, FooterWebComponent, RevealDirective],
   templateUrl: './center-dashboard.page.html',
   styleUrls: ['./center-dashboard.page.scss'],
 })
 export class CenterDashboardPage implements OnInit {
+
+   @ViewChild(IonContent) ionContent!: IonContent;
 
   cargando = true;
   error: string | null = null;
@@ -245,10 +247,13 @@ export class CenterDashboardPage implements OnInit {
 
     this.errorEdicion = null;
     this.editando = true;
+
+    this.ionContent?.scrollToTop(300);
   }
 
   cancelarEdicion(): void {
     this.editando = false;
+    this.ionContent?.scrollToTop(300);
   }
 
   toggleFormaAyuda(valor: FormaAyuda): void {

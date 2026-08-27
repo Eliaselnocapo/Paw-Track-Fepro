@@ -1,0 +1,80 @@
+@keyframes float-panel-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-panel-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-panel-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, 6px); }
+}
+
+@keyframes float-panel-4 {
+  0%, 100% { transform: translate(0, 0) rotate(18deg); }
+  50% { transform: translate(-5px, -6px) rotate(18deg); }
+}
+
+@keyframes float-panel-5 {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50% { transform: translate(6px, 5px) rotate(-12deg); }
+}
+
+@keyframes float-panel-6 {
+  0%, 100% { transform: translate(0, 0) rotate(8deg); }
+  50% { transform: translate(-4px, 6px) rotate(8deg); }
+}
+
+@keyframes float-panel-7 {
+  0%, 100% { transform: translate(0, 0) rotate(-25deg); }
+  50% { transform: translate(5px, -5px) rotate(-25deg); }
+}
+
+@keyframes float-panel-8 {
+  0%, 100% { transform: translate(0, 0) rotate(30deg); }
+  50% { transform: translate(-5px, 5px) rotate(30deg); }
+}
+
+@keyframes float-panel-9 {
+  0%, 100% { transform: translate(0, 0) rotate(10deg); }
+  50% { transform: translate(4px, -6px) rotate(10deg); }
+}
+
+@keyframes float-panel-10 {
+  0%, 100% { transform: translate(0, 0) rotate(-20deg); }
+  50% { transform: translate(-6px, 4px) rotate(-20deg); }
+}
+
+@keyframes float-panel-11 {
+  0%, 100% { transform: translate(0, 0) rotate(8deg); }
+  50% { transform: translate(5px, 5px) rotate(8deg); }
+}
+
+@keyframes float-panel-12 {
+  0%, 100% { transform: translate(0, 0) rotate(-35deg); }
+  50% { transform: translate(-4px, -5px) rotate(-35deg); }
+}
+
+.panel-shape-1 { animation: float-panel-1 9s ease-in-out infinite; }
+.panel-shape-2 { animation: float-panel-2 11s ease-in-out infinite; }
+.panel-shape-3 { animation: float-panel-3 8s ease-in-out infinite; }
+.panel-shape-4 { animation: float-panel-4 10s ease-in-out infinite; }
+.panel-shape-5 { animation: float-panel-5 7s ease-in-out infinite; }
+.panel-shape-6 { animation: float-panel-6 12s ease-in-out infinite; }
+.panel-shape-7 { animation: float-panel-7 9.5s ease-in-out infinite; }
+.panel-shape-8 { animation: float-panel-8 10.5s ease-in-out infinite; }
+.panel-shape-9 { animation: float-panel-9 8.5s ease-in-out infinite; }
+.panel-shape-10 { animation: float-panel-10 11.5s ease-in-out infinite; }
+.panel-shape-11 { animation: float-panel-11 9s ease-in-out infinite; }
+.panel-shape-12 { animation: float-panel-12 10s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-shape-1, .panel-shape-2, .panel-shape-3, .panel-shape-4,
+  .panel-shape-5, .panel-shape-6, .panel-shape-7, .panel-shape-8,
+  .panel-shape-9, .panel-shape-10, .panel-shape-11, .panel-shape-12 {
+    animation: none;
+  }
+}

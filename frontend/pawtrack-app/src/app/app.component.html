@@ -101,6 +101,20 @@
             </a>
           </ion-menu-toggle>
 
+          @if ((usuario$ | async)?.is_staff) {
+            <ion-menu-toggle autoHide="true">
+              <a
+                routerLink="/moderacion"
+                routerLinkActive="bg-blue-50 text-blue-700"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-800 font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                <span class="material-symbols-outlined text-[24px] text-blue-700">
+                  shield_person
+                </span>
+                Moderación
+              </a>
+            </ion-menu-toggle>
+          }
+
           @if (isLoggedIn) {
             <ion-menu-toggle autoHide="true">
               <a

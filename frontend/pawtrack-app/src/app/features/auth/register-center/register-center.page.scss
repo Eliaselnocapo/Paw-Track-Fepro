@@ -1,0 +1,43 @@
+@keyframes float-nv-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-nv-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-nv-3 {
+  0%, 100% { transform: translate(0, 0) rotate(15deg); }
+  50% { transform: translate(5px, 6px) rotate(15deg); }
+}
+
+@keyframes float-nv-4 {
+  0%, 100% { transform: translate(0, 0) rotate(-10deg); }
+  50% { transform: translate(-5px, -6px) rotate(-10deg); }
+}
+
+@keyframes float-nv-5 {
+  0%, 100% { transform: translate(0, 0) rotate(20deg); }
+  50% { transform: translate(6px, 5px) rotate(20deg); }
+}
+
+@keyframes float-nv-6 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-4px, 6px); }
+}
+
+.nv-shape-1 { animation: float-nv-1 9s ease-in-out infinite; }
+.nv-shape-2 { animation: float-nv-2 11s ease-in-out infinite; }
+.nv-shape-3 { animation: float-nv-3 8s ease-in-out infinite; }
+.nv-shape-4 { animation: float-nv-4 10s ease-in-out infinite; }
+.nv-shape-5 { animation: float-nv-5 12s ease-in-out infinite; }
+.nv-shape-6 { animation: float-nv-6 9.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-shape-1, .nv-shape-2, .nv-shape-3,
+  .nv-shape-4, .nv-shape-5, .nv-shape-6 {
+    animation: none;
+  }
+}

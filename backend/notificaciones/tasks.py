@@ -40,17 +40,17 @@ def recalc_urgency_score():
         condicion = calcular_condicion(salud)
 
         horas = (timezone.now() - inc.created_at).total_seconds() / 3600
-        tiempo = min(100, horas * 8)
+        tiempo = min(100, horas * 1.5)  # tope a ~66 horas en vez de 12.5
 
-        # Clima y tráfico desde caché Redis; 0 si no hay valor cacheado
-        trafico = inc.trafico_score or 0
-
-        new_score = min(100.0, (condicion * 0.45) + (tiempo * 0.40) + (trafico * 0.15))
+        # trafico_score se quitó de la fórmula (ver decisión de producto);
+        # el campo se conserva en el modelo por si se reintroduce después,
+        # pero ya no pesa en el cálculo.
+        new_score = min(100.0, (condicion * 0.55) + (tiempo * 0.45))
         if (inc.trust_score or 0) < 40:
             new_score = min(new_score, 79)
         old_score = inc.urgency_score
 
-        if abs(new_score - old_score) < 10:
+        if abs(new_score - old_score) < 3:
             continue
 
         Incidencia.objects.filter(pk=inc.pk).update(urgency_score=new_score)
@@ -78,7 +78,12 @@ def recalc_urgency_score():
 @shared_task
 def calcular_trafico(incidencia_id):
     """Consulta Overpass para saber si el reporte está junto a una vialidad
-    principal. Se dispara una sola vez, al crear la incidencia."""
+    principal. Se dispara una sola vez, al crear la incidencia.
+
+    NOTA: trafico_score ya no se usa en recalc_urgency_score() (ver arriba),
+    pero se sigue calculando y guardando por si se vuelve a necesitar más
+    adelante — no cuesta nada mantenerlo actualizado.
+    """
     try:
         inc = Incidencia.objects.get(pk=incidencia_id)
     except Incidencia.DoesNotExist:
@@ -101,6 +106,7 @@ def calcular_trafico(incidencia_id):
         resp = requests.post(
             'https://overpass-api.de/api/interpreter',
             data={'data': consulta},
+            headers={'User-Agent': 'PawTrack/1.0 (contacto@pawtrack.app)'},
             timeout=20,
         )
         resp.raise_for_status()
