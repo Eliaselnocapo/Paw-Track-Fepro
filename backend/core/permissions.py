@@ -19,9 +19,13 @@ class IsSelf(BasePermission):
         return obj.id == request.user.id
 
 class IsAuthorOrRescatistaAsignado(BasePermission):
-    """PATCH: autor mientras PENDIENTE, o rescatista asignado durante rescate."""
+    """PATCH: el autor puede editar mientras nadie haya aceptado el caso.
+    Una vez asignado un rescatista, solo ese rescatista puede seguir
+    actualizándolo (el estado VALIDADO/PENDIENTE ya no es el criterio,
+    porque un caso puede validarse automáticamente sin que eso signifique
+    que alguien lo esté atendiendo)."""
     def has_object_permission(self, request, view, obj):
-        if obj.usuario_reporta_id == request.user.id and obj.estado == 'PENDIENTE':
+        if obj.usuario_reporta_id == request.user.id and obj.rescatista_asignado_id is None:
             return True
         perfil = getattr(request.user, 'perfil_rescatista', None)
         return perfil is not None and obj.rescatista_asignado_id == perfil.id

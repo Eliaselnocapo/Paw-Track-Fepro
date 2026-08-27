@@ -19,8 +19,11 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'ubicacion', 'foto_perfil', 'perfil_rescatista', 'perfil_patrocinador')
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'roles', 'telefono', 'ubicacion', 'foto_perfil', 'is_staff', 'perfil_rescatista', 'perfil_patrocinador')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_staff': {'read_only': True},
+        }
 
     def validate_roles(self, value):
         validos = set(Usuario.ROLES_VALIDOS)
@@ -164,12 +167,13 @@ class IncidenciaSerializer(serializers.ModelSerializer):
     agresividad_animal = serializers.CharField(source='animal.agresividad',  required=False, allow_blank=True, default='')
 
     rescatista_info  = serializers.SerializerMethodField(read_only=True)
+    usuario_reporta_info = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Incidencia
         fields = (
             'id',
-            'usuario_reporta',
+            'usuario_reporta', 'usuario_reporta_info',
             'patrocinador', 'rescatista_asignado', 'rescatista_info',
             'imagen',
             'latitud', 'longitud',
@@ -217,6 +221,16 @@ class IncidenciaSerializer(serializers.ModelSerializer):
             "id":     u.id,
             "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
             "email":  u.email,
+        }
+        
+    def get_usuario_reporta_info(self, obj):
+        if not obj.usuario_reporta:
+            return None
+        u = obj.usuario_reporta
+        return {
+            "id":     u.id,
+            "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
+            "foto":   u.foto_perfil.url if u.foto_perfil else None,
         }
     
     def get_coincidencias_visuales(self, obj):

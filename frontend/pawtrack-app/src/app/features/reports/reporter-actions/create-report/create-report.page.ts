@@ -9,6 +9,7 @@ import { LocalReportCacheService } from '../../../../core/services/local-report-
 import { CartelPdf } from '../../../../core/services/cartel-pdf';
 import { IonContent, IonModal } from '@ionic/angular/standalone';
 import { AuthService } from '../../../../core/services/auth.service';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 import * as L from 'leaflet';
 
@@ -24,7 +25,8 @@ import * as L from 'leaflet';
     IonContent,
     IonModal,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    RevealDirective
   ],
   standalone: true,
 })
@@ -119,6 +121,7 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     }
  
     this.autocompletarContactoDesdePerfil();
+    this.obtenerUbicacionInicial();
   }
  
   /**
@@ -233,7 +236,7 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     if (!direccion || direccion.trim().length < 3) return;
     
     this.cargandoDireccion = true;
-    const query = encodeURIComponent(direccion + ', Puebla');
+    const query = encodeURIComponent(direccion);
 
     // /search devuelve un ARRAY con lat/lon, pero NO trae el objeto 'address'
     // desglosado (ese solo viene de /reverse). Por eso tomamos las coordenadas
@@ -612,6 +615,28 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     const regexTelefono = /^\d{10}$/;
 
     return regexTelefono.test(telefono);
+  }
+
+  private obtenerUbicacionInicial(): void {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (posicion) => {
+        this.latActual = posicion.coords.latitude;
+        this.lngActual = posicion.coords.longitude;
+
+        if (this.mapInteractive && this.markerInteractive) {
+          this.mapInteractive.flyTo([this.latActual, this.lngActual], 16, { animate: true, duration: 1 });
+          this.markerInteractive.setLatLng([this.latActual, this.lngActual]);
+        }
+
+        this.obtenerDireccionDesdeCoordenadas(this.latActual, this.lngActual);
+      },
+      () => {
+        // Sin permiso o falla: se queda con el fallback de CU, sin romper nada.
+      },
+      { timeout: 8000 }
+    );
   }
 
 

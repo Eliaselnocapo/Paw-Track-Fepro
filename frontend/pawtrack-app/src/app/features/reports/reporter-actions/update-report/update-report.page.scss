@@ -1,0 +1,43 @@
+@keyframes float-form-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-form-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-form-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, 6px); }
+}
+
+@keyframes float-form-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, -6px); }
+}
+
+@keyframes float-form-5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 5px); }
+}
+
+@keyframes float-form-6 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-4px, 6px); }
+}
+
+.form-shape-1 { animation: float-form-1 9s ease-in-out infinite; }
+.form-shape-2 { animation: float-form-2 11s ease-in-out infinite; }
+.form-shape-3 { animation: float-form-3 8s ease-in-out infinite; }
+.form-shape-4 { animation: float-form-4 10s ease-in-out infinite; }
+.form-shape-5 { animation: float-form-5 12s ease-in-out infinite; }
+.form-shape-6 { animation: float-form-6 9.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .form-shape-1, .form-shape-2, .form-shape-3,
+  .form-shape-4, .form-shape-5, .form-shape-6 {
+    animation: none;
+  }
+}

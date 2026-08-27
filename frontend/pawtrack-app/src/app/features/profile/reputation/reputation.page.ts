@@ -10,6 +10,8 @@ import { FooterWebComponent } from '../../../shared/ui-layouts/footer-views/foot
 // GET /api/usuarios/{id}/reputacion/
 import { ReputacionService, ReputacionResponse, LogroTimeline, HistorialCaso, EstadoValidacion } from '../../../core/services/reputation.service';
 // (mismo import, sin cambios — se deja explícito para claridad)
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+
 
 interface NivelReputacion {
   clave: string;
@@ -31,6 +33,7 @@ interface NivelReputacion {
     IonContent,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './reputation.page.html',
   styleUrls: ['./reputation.page.scss'],
@@ -42,6 +45,9 @@ export class ReputationPage implements OnInit {
   vistaTecnica = false;
 
   datos: ReputacionResponse | null = null;
+
+  paginaActualHistorial = 1;
+  historialPorPagina = 6;
 
   // ─────────────────────────────────────────
   // Definición de niveles (ajustable a futuro)
@@ -231,5 +237,32 @@ export class ReputationPage implements OnInit {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.user_id ?? null;
     } catch { return null; }
+  }
+
+  get historialPaginado(): HistorialCaso[] {
+    const inicio = (this.paginaActualHistorial - 1) * this.historialPorPagina;
+    return this.historialCasos.slice(inicio, inicio + this.historialPorPagina);
+  }
+
+  get totalPaginasHistorial(): number {
+    return Math.ceil(this.historialCasos.length / this.historialPorPagina) || 1;
+  }
+
+  get paginasHistorial(): number[] {
+    return Array.from({ length: this.totalPaginasHistorial }, (_, i) => i + 1);
+  }
+
+  get inicioPaginaHistorial(): number {
+    return this.historialCasos.length === 0 ? 0 : (this.paginaActualHistorial - 1) * this.historialPorPagina + 1;
+  }
+
+  get finPaginaHistorial(): number {
+    return Math.min(this.paginaActualHistorial * this.historialPorPagina, this.historialCasos.length);
+  }
+
+  cambiarPaginaHistorial(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginasHistorial) {
+      this.paginaActualHistorial = pagina;
+    }
   }
 }

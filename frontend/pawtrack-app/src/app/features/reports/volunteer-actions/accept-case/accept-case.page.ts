@@ -10,6 +10,7 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from 'src/environments/environment';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 interface CasoAceptacion {
   id: number;
@@ -42,6 +43,7 @@ interface CasoAceptacion {
     TitleCasePipe,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './accept-case.page.html',
   styleUrls: ['./accept-case.page.scss'],

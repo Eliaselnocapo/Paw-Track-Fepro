@@ -3,44 +3,38 @@
 
     <app-navbar-web class="relative z-30"></app-navbar-web>
 
-    <!-- FONDO DECORATIVO -->
-    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-      <div class="absolute left-[-150px] top-[120px] w-[440px] h-[440px] bg-emerald-100/60 rounded-full"></div>
-      <div class="absolute right-[-130px] top-[340px] w-[380px] h-[380px] bg-blue-100/55 rounded-full"></div>
-      <div class="absolute left-[9%] bottom-[130px] w-[170px] h-[170px] bg-teal-100/50 rotate-[12deg]"></div>
-      <div class="absolute top-[18%] left-[6%]">
-        <span class="absolute w-4 h-4 rounded-full bg-emerald-300/60" style="top:0; left:0;"></span>
-        <span class="absolute w-2.5 h-2.5 rounded-full bg-teal-300/60" style="top:16px; left:22px;"></span>
-        <span class="absolute w-5 h-5 rounded-full bg-emerald-400/50" style="top:34px; left:6px;"></span>
-      </div>
-      <div class="absolute top-[58%] right-[7%]">
-        <span class="absolute w-3 h-3 rounded-full bg-blue-300/60" style="top:0; left:12px;"></span>
-        <span class="absolute w-5 h-5 rounded-full bg-indigo-300/50" style="top:16px; left:0;"></span>
-        <span class="absolute w-2.5 h-2.5 rounded-full bg-blue-400/60" style="top:40px; left:24px;"></span>
-      </div>
-    </div>
+  <!-- FONDO DECORATIVO -->
+  <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="vc-shape-1 absolute left-[-150px] top-[120px] w-[clamp(260px,36vw,440px)] h-[clamp(260px,36vw,440px)] bg-emerald-100/60 rounded-full"></div>
+    <div class="vc-shape-2 absolute right-[-130px] top-[340px] w-[clamp(220px,31vw,380px)] h-[clamp(220px,31vw,380px)] bg-blue-100/55 rounded-full"></div>
+    <div class="vc-shape-3 absolute left-[9%] bottom-[130px] w-[clamp(100px,14vw,170px)] h-[clamp(100px,14vw,170px)] bg-teal-100/50"></div>
+    <div class="vc-shape-4 absolute right-[10%] top-[8%] w-[clamp(90px,12vw,140px)] h-[clamp(90px,12vw,140px)] bg-rose-100/55 rounded-full"></div>
+    <div class="vc-shape-5 absolute left-[38%] top-[4%] w-[clamp(70px,9vw,110px)] h-[clamp(70px,9vw,110px)] bg-amber-100/55"></div>
+    <div class="vc-shape-6 absolute left-[4%] bottom-[-40px] w-[clamp(120px,16vw,190px)] h-[clamp(120px,16vw,190px)] bg-purple-100/50 rounded-full"></div>
+    <div class="vc-shape-7 absolute right-[36%] bottom-[46%] w-[clamp(100px,13vw,160px)] h-[clamp(100px,13vw,160px)] bg-cyan-100/75"></div>
+  </div>
 
     @if (cargando) {
-      <main class="flex-1 flex items-center justify-center relative z-10">
+      <main appReveal class="flex-1 flex items-center justify-center relative z-10">
         <p class="text-slate-500 animate-pulse">Cargando expediente...</p>
       </main>
     } @else if (errorCarga) {
-      <main class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
+      <main appReveal class="flex-1 flex flex-col items-center justify-center gap-4 relative z-10 px-6">
         <span class="material-symbols-outlined text-red-600 text-[48px]">cloud_off</span>
         <p class="text-slate-600 text-center">{{ errorCarga }}</p>
         <button type="button" (click)="volver()" class="h-12 px-6 bg-blue-700 text-white font-bold hover:bg-blue-800 transition-colors shadow-md">Volver</button>
       </main>
     } @else if (incidencia) {
 
-      <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-10 relative z-10">
+      <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-10 py-24 md:py-24 relative z-10">
 
-        <button type="button" (click)="volver()" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
+        <button appReveal type="button" (click)="volver()" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors">
           <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-          Volver a mis misiones
+          Volver
         </button>
 
         <!-- ============ CARATULA DEL EXPEDIENTE ============ -->
-        <section class="border shadow-md mb-8 overflow-hidden"
+        <section appReveal class="border shadow-md mb-8 overflow-hidden"
           [ngClass]="estaCancelado
             ? 'border-red-200 bg-gradient-to-br from-red-50 via-white to-rose-50'
             : estaCerrado
@@ -173,7 +167,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
 
           <!-- ===================== COLUMNA IZQUIERDA ===================== -->
-          <div class="lg:col-span-7 flex flex-col gap-6">
+          <div appReveal class="lg:col-span-7 flex flex-col gap-6">
 
             <!-- CRONOLOGIA (crece libre, notas desplegables) -->
             <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
@@ -288,8 +282,7 @@
             </section>
 
             <!-- FICHA CLINICA (baja de la derecha para llenar este espacio) -->
-<!-- FICHA CLINICA -->
-            <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-emerald-600 text-[20px]">stethoscope</span>
                 <h3 class="font-bold text-slate-800">Ficha clinica del animal</h3>
@@ -374,7 +367,7 @@
             </section>
 
             <!-- DESCRIPCION DEL REPORTANTE (tambien baja de la derecha) -->
-            <section class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-600 text-[20px]">description</span>
                 <h3 class="font-bold text-slate-800">Descripcion del reportante</h3>
@@ -387,11 +380,11 @@
           </div>
 
           <!-- ===================== COLUMNA DERECHA ===================== -->
-          <aside class="lg:col-span-5 flex flex-col gap-6">
+          <aside appReveal class="lg:col-span-5 flex flex-col gap-6">
 
             <!-- Evidencia de cierre -->
             @if (puntoCierre) {
-              <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <article appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
                 <div class="p-5 border-b border-slate-200 bg-emerald-50 flex items-center gap-2">
                   <span class="material-symbols-outlined text-emerald-600 text-[20px]">task_alt</span>
                   <h3 class="font-bold text-emerald-800">Evidencia de cierre</h3>
@@ -443,7 +436,7 @@
 
             <!-- Cancelacion -->
             @if (estaCancelado && puntoCancelacion) {
-              <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+              <article appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
                 <div class="p-5 border-b border-slate-200 bg-red-50 flex items-center gap-2">
                   <span class="material-symbols-outlined text-red-600 text-[20px]">cancel</span>
                   <h3 class="font-bold text-red-800">Rescate cancelado</h3>
@@ -464,7 +457,7 @@
             }
 
             <!-- Recorrido -->
-            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-600 text-[20px]">route</span>
                 <h3 class="font-bold text-slate-800">Recorrido del caso</h3>
@@ -505,7 +498,7 @@
             </article>
 
             <!-- Personas involucradas -->
-            <article class="bg-white border border-slate-300 shadow-md overflow-hidden">
+            <article appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden">
               <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-600 text-[20px]">groups</span>
                 <h3 class="font-bold text-slate-800">Personas involucradas</h3>

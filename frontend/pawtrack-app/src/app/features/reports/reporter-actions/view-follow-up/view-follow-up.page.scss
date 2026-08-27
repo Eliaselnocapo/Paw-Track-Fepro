@@ -1,0 +1,56 @@
+@keyframes float-vd-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-vd-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-vd-3 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(5px, 6px) rotate(12deg); }
+}
+
+@keyframes float-vd-4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, -6px); }
+}
+
+@keyframes float-vd-5 {
+  0%, 100% { transform: translate(0, 0) rotate(18deg); }
+  50% { transform: translate(6px, 5px) rotate(18deg); }
+}
+
+@keyframes float-vd-6 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-4px, 6px); }
+}
+
+@keyframes float-burbuja-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(4px, -5px); }
+}
+
+@keyframes float-burbuja-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-4px, 5px); }
+}
+
+.vd-shape-1 { animation: float-vd-1 9s ease-in-out infinite; }
+.vd-shape-2 { animation: float-vd-2 11s ease-in-out infinite; }
+.vd-shape-3 { animation: float-vd-3 8s ease-in-out infinite; }
+.vd-shape-4 { animation: float-vd-4 10s ease-in-out infinite; }
+.vd-shape-5 { animation: float-vd-5 12s ease-in-out infinite; }
+.vd-shape-6 { animation: float-vd-6 9.5s ease-in-out infinite; }
+
+.vd-burbuja-1 { animation: float-burbuja-1 7s ease-in-out infinite; }
+.vd-burbuja-2 { animation: float-burbuja-2 8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vd-shape-1, .vd-shape-2, .vd-shape-3, .vd-shape-4, .vd-shape-5, .vd-shape-6,
+  .vd-burbuja-1, .vd-burbuja-2 {
+    animation: none;
+  }
+}

@@ -1,125 +1,39 @@
 <ion-content [fullscreen]="true">
   <div class="w-full min-h-screen bg-blue-50 relative font-body overflow-hidden">
 
-<!-- ================= FONDOS DECORATIVOS: SOFT WAVES FULL SCREEN ================= -->
+    <!-- FONDO DECORATIVO -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden isolate">
 
-<div class="absolute inset-0 z-0 pointer-events-none overflow-hidden isolate">
+      <!-- Fondo base -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#eef6ff] via-[#ecfeff] to-[#f0fdf4]"></div>
 
-  <!-- Fondo base -->
-  <div class="absolute inset-0 bg-gradient-to-br from-[#eef6ff] via-[#ecfeff] to-[#f0fdf4]"></div>
+      <!-- FIGURAS DECORATIVAS (gradientes pastel, responsive con clamp) -->
+      <div class="reg-shape-1 absolute top-[-10%] left-[4%] w-[clamp(180px,25vw,300px)] h-[clamp(180px,25vw,300px)] rounded-full bg-gradient-to-br from-sky-200 to-blue-300 opacity-35 z-[5]"></div>
 
-  <!-- BLOBS GRANDES -->
+      <div class="reg-shape-2 absolute top-[6%] right-[-6%] w-[clamp(150px,21vw,260px)] h-[clamp(150px,21vw,260px)] bg-gradient-to-bl from-rose-200 to-pink-300 opacity-35 z-[5]"></div>
 
-  <!-- Arriba izquierda -->
-  <div
-    class="absolute -top-[6%] -left-[10%] w-[42vw] h-[42vw] min-w-[420px] min-h-[420px] bg-[#dbeafe] z-[1]"
-    style="border-radius: 71% 29% 36% 64% / 45% 36% 64% 55%;">
-  </div>
+      <div class="reg-shape-3 absolute top-[36%] left-[-4%] w-[clamp(56px,8vw,96px)] h-[clamp(56px,8vw,96px)] rounded-full bg-gradient-to-tr from-lime-200 to-emerald-300 opacity-35 z-[5]"></div>
 
-  <!-- Arriba centro -->
-  <div
-    class="absolute -top-[20%] left-[26%] w-[42vw] h-[24vw] min-w-[440px] min-h-[250px] bg-[#d1fae5] z-[2]"
-    style="border-radius: 32% 68% 21% 79% / 54% 28% 72% 46%;">
-  </div>
+      <div class="reg-shape-4 absolute top-[48%] right-[4%] w-[clamp(100px,15vw,180px)] h-[clamp(100px,15vw,180px)] rounded-full bg-gradient-to-l from-violet-200 to-purple-300 opacity-35 z-[5]"></div>
 
-  <!-- Arriba derecha -->
-  <div
-    class="absolute -top-[10%] right-[8%] w-[30vw] h-[42vw] min-w-[320px] min-h-[420px] bg-[#cffafe] z-[3]"
-    style="border-radius: 48% 52% 28% 72% / 64% 43% 57% 36%;">
-  </div>
+      <div class="reg-shape-5 absolute bottom-[-8%] left-[8%] w-[clamp(200px,28vw,340px)] h-[clamp(200px,28vw,340px)] rounded-full bg-gradient-to-tr from-amber-200 to-yellow-300 opacity-35 z-[5]"></div>
 
-  <!-- Derecha media -->
-  <div
-    class="absolute top-[-2%] right-[-10%] w-[30vw] h-[28vw] min-w-[430px] min-h-[260px] bg-[#cfe3ff] z-[2]"
-    style="border-radius: 60% 40% 25% 75% / 45% 60% 40% 55%;">
-  </div>
+      <div class="reg-shape-6 absolute bottom-[4%] right-[10%] w-[clamp(64px,9vw,112px)] h-[clamp(64px,9vw,112px)] bg-gradient-to-tl from-teal-200 to-cyan-300 opacity-35 z-[5]"></div>
 
-  <!-- Abajo izquierda -->
-  <div
-    class="absolute bottom-[-10%] left-[-8%] w-[38vw] h-[24vw] min-w-[380px] min-h-[240px] bg-[#d1fae5] z-[2]"
-    style="border-radius: 65% 35% 74% 26% / 38% 66% 34% 62%;">
-  </div>
+      <div class="reg-shape-7 absolute top-[70%] left-[30%] w-[clamp(40px,6vw,64px)] h-[clamp(40px,6vw,64px)] rounded-full bg-gradient-to-br from-orange-200 to-red-200 opacity-35 z-[5]"></div>
 
-  <!-- Abajo centro -->
-  <div
-    class="absolute bottom-[-16%] left-[25%] w-[30vw] h-[20vw] min-w-[320px] min-h-[220px] bg-[#dcfce7] z-[3]"
-    style="border-radius: 42% 58% 63% 37% / 48% 36% 64% 52%;">
-  </div>
+      <!-- Huellitas (acento) -->
+      <span class="huella-1 absolute top-[8%] left-[6%] material-symbols-outlined text-[clamp(28px,4vw,46px)] text-blue-400/15 z-[6]"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
 
-  <!-- Abajo derecha -->
-  <div
-    class="absolute bottom-[-8%] right-[-8%] w-[40vw] h-[30vw] min-w-[420px] min-h-[260px] bg-[#dbeafe] z-[4]"
-    style="border-radius: 20% 80% 30% 70% / 60% 30% 70% 40%;">
-  </div>
+      <span class="huella-2 absolute bottom-[10%] right-[6%] material-symbols-outlined text-[clamp(32px,4.5vw,54px)] text-blue-400/15 z-[6]"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
 
-  <!-- Blob pequeño medio izquierda -->
-  <div
-    class="absolute top-[55%] left-[5%] w-[16vw] h-[12vw] min-w-[160px] min-h-[120px] bg-[#e0f2fe] z-[4]"
-    style="border-radius: 55% 45% 70% 30% / 40% 60% 40% 60%;">
-  </div>
+      <span class="huella-3 absolute top-[58%] right-[4%] material-symbols-outlined text-[clamp(24px,3.5vw,38px)] text-blue-400/15 z-[6]"
+        style="font-variation-settings: 'FILL' 1;">pets</span>
 
-  <!-- Blob pequeño centro -->
-  <div
-    class="absolute top-[18%] left-[58%] w-[14vw] h-[10vw] min-w-[150px] min-h-[100px] bg-[#d9f99d] z-[1]"
-    style="border-radius: 58% 42% 34% 66% / 47% 55% 45% 53%;">
-  </div>
+    </div>
 
-  <!-- Blob pequeño abajo centro derecha -->
-  <div
-    class="absolute bottom-[10%] right-[22%] w-[14vw] h-[9vw] min-w-[140px] min-h-[90px] bg-[#e0f2fe] z-[3]"
-    style="border-radius: 34% 66% 58% 42% / 51% 38% 62% 49%;">
-  </div>
-
-</div>
-<!-- CAPA DE HUELLITAS ENCIMA DE LAS FIGURAS -->
-<div class="absolute inset-0 z-[10] pointer-events-none">
-
-  <span class="absolute top-[8%] left-[7%] material-symbols-outlined text-[58px] text-blue-400/20 -rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[18%] left-[16%] material-symbols-outlined text-[40px] text-blue-400/20 rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[7%] left-[48%] material-symbols-outlined text-[56px] text-blue-400/20 -rotate-6"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[14%] right-[12%] material-symbols-outlined text-[60px] text-blue-400/20 rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[34%] left-[4%] material-symbols-outlined text-[46px] text-blue-400/20 rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[42%] left-[62%] material-symbols-outlined text-[42px] text-blue-400/20 -rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[45%] right-[5%] material-symbols-outlined text-[50px] text-blue-400/20 rotate-6"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[60%] left-[8%] material-symbols-outlined text-[62px] text-blue-400/20 -rotate-45"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[68%] left-[38%] material-symbols-outlined text-[40px] text-blue-400/20 rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute top-[64%] right-[10%] material-symbols-outlined text-[54px] text-blue-400/20 rotate-45"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute bottom-[14%] left-[12%] material-symbols-outlined text-[48px] text-blue-400/20 rotate-45"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute bottom-[8%] left-[30%] material-symbols-outlined text-[58px] text-blue-400/20 -rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute bottom-[6%] left-[55%] material-symbols-outlined text-[42px] text-blue-400/20 rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute bottom-[10%] right-[26%] material-symbols-outlined text-[50px] text-blue-400/20 -rotate-45"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-  <span class="absolute bottom-[14%] right-[8%] material-symbols-outlined text-[72px] text-blue-400/20 -rotate-12"
-    style="font-variation-settings: 'FILL' 1;">pets</span>
-
-</div>
     <!-- Header Original -->
     <header class="w-full h-16 flex items-center justify-between px-8 z-50 absolute top-0 left-0">
       <div class="text-2xl font-bold text-blue-700 flex items-center gap-2 cursor-pointer" routerLink="/home">
@@ -135,7 +49,7 @@
 
     <div class="relative z-10 w-full min-h-screen px-6 pt-24 pb-10 flex justify-center items-center">
 
-      <div class="w-full max-w-[1000px] bg-white flex flex-col md:flex-row shadow-2xl rounded border border-slate-300 overflow-hidden">
+      <div class="reveal-card w-full max-w-[1000px] bg-white flex flex-col md:flex-row shadow-2xl rounded border border-slate-300 overflow-hidden">
 
         <!-- Lado Izquierdo: Imagen Original -->
         <div class="hidden md:block md:w-5/12 relative bg-slate-800">

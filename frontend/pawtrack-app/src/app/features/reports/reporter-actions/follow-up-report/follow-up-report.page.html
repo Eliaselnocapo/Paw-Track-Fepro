@@ -5,10 +5,11 @@
 
     <!-- FORMAS DECORATIVAS RESPONSIVAS -->
     <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-      <div class="absolute left-[-130px] top-[160px] w-[260px] h-[260px] sm:left-[-150px] sm:top-[150px] sm:w-[340px] sm:h-[340px] md:left-[-18vw] md:top-[120px] md:w-[clamp(360px,38vw,560px)] md:h-[clamp(360px,38vw,560px)] bg-blue-100 rounded-full opacity-70 md:opacity-100"></div>
-      <div class="absolute right-[-130px] top-[420px] w-[250px] h-[250px] sm:right-[-150px] sm:top-[420px] sm:w-[320px] sm:h-[320px] md:right-[-14vw] md:top-[360px] md:w-[clamp(300px,32vw,460px)] md:h-[clamp(300px,32vw,460px)] bg-emerald-100 rounded-full opacity-70 md:opacity-100"></div>
-      <div class="absolute right-[24px] top-[300px] w-[120px] h-[120px] sm:right-[80px] sm:top-[280px] sm:w-[150px] sm:h-[150px] lg:left-[52%] lg:right-auto lg:top-[190px] lg:w-[clamp(140px,14vw,210px)] lg:h-[clamp(140px,14vw,210px)] bg-sky-100 rounded-full opacity-75"></div>
-      <div class="absolute left-[-80px] top-[760px] w-[180px] h-[180px] sm:left-[40px] sm:top-[760px] sm:w-[210px] sm:h-[210px] lg:left-auto lg:right-[18%] lg:top-[720px] lg:w-[clamp(150px,16vw,230px)] lg:h-[clamp(150px,16vw,230px)] bg-violet-100 rounded-full opacity-65 md:opacity-90"></div>
+      <div class="sh-shape-1 absolute left-[-130px] top-[160px] w-[260px] h-[260px] sm:left-[-150px] sm:top-[150px] sm:w-[340px] sm:h-[340px] md:left-[-18vw] md:top-[120px] md:w-[clamp(360px,38vw,560px)] md:h-[clamp(360px,38vw,560px)] bg-blue-100 rounded-full opacity-70 md:opacity-100"></div>
+      <div class="sh-shape-2 absolute right-[-130px] top-[420px] w-[250px] h-[250px] sm:right-[-150px] sm:top-[420px] sm:w-[320px] sm:h-[320px] md:right-[-14vw] md:top-[360px] md:w-[clamp(300px,32vw,460px)] md:h-[clamp(300px,32vw,460px)] bg-emerald-100 rounded-full opacity-70 md:opacity-100"></div>
+      <div class="sh-shape-3 absolute right-[24px] top-[300px] w-[120px] h-[120px] sm:right-[80px] sm:top-[280px] sm:w-[150px] sm:h-[150px] lg:left-[52%] lg:right-auto lg:top-[190px] lg:w-[clamp(140px,14vw,210px)] lg:h-[clamp(140px,14vw,210px)] bg-sky-100 rounded-full opacity-75"></div>
+      <div class="sh-shape-4 absolute left-[-80px] top-[760px] w-[180px] h-[180px] sm:left-[40px] sm:top-[760px] sm:w-[210px] sm:h-[210px] lg:left-auto lg:right-[18%] lg:top-[720px] lg:w-[clamp(150px,16vw,230px)] lg:h-[clamp(150px,16vw,230px)] bg-violet-100 rounded-full opacity-65 md:opacity-90"></div>
+      <div class="sh-shape-5 absolute left-[20px] top-[1000px] w-[100px] h-[100px] sm:left-[60px] sm:top-[980px] sm:w-[130px] sm:h-[130px] lg:left-[8%] lg:top-[920px] lg:w-[clamp(120px,12vw,180px)] lg:h-[clamp(120px,12vw,180px)] bg-amber-100 rounded-full opacity-70"></div>
     </div>
 
     <!-- CARGANDO -->
@@ -28,10 +29,10 @@
 
     <!-- FORMULARIO -->
     @if (!cargando && reporte.folio) {
-      <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-10 relative z-10">
+      <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-24 md:py-24 relative z-10">
 
         <!-- HERO -->
-        <section class="bg-white border border-slate-300 shadow-md p-6 md:p-10 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 rounded">
+        <section appReveal class="bg-white border border-slate-300 shadow-md p-6 md:p-10 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 rounded">
           <div class="max-w-2xl">
             <p class="text-blue-700 font-bold text-sm mb-3">Seguimiento del reportante</p>
             <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3 leading-tight">Agregar seguimiento al reporte</h1>
@@ -55,7 +56,7 @@
 
         <!-- MENSAJE ÉXITO -->
         @if (mensajeExito) {
-          <section class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 text-sm font-semibold flex items-center gap-2">
+          <section appReveal class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 text-sm font-semibold flex items-center gap-2">
             <span class="material-symbols-outlined text-[20px]">check_circle</span>
             {{ mensajeExito }}
           </section>
@@ -64,7 +65,7 @@
         @if (!reporteCancelado) {
 
           <!-- TOGGLE DE MODO -->
-          <section class="bg-white border border-slate-300 shadow-md mb-4 grid grid-cols-2 divide-x divide-slate-200 overflow-hidden rounded">
+          <section appReveal class="bg-white border border-slate-300 shadow-md mb-4 grid grid-cols-2 divide-x divide-slate-200 overflow-hidden rounded">
             <button
               type="button"
               (click)="cambiarModo('actualizar')"
@@ -88,7 +89,7 @@
           </section>
 
           @if (!puedeCancelar) {
-            <section class="mb-4 bg-amber-50 border border-amber-200 px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3">
+            <section appReveal class="mb-4 bg-amber-50 border border-amber-200 px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3">
               <span class="material-symbols-outlined text-amber-700 mt-0.5 text-[20px]">info</span>
               <p class="text-sm text-slate-700">
                 Este caso ya tiene un voluntario asignado, así que no se puede cancelar desde aquí.
@@ -102,7 +103,7 @@
 
             <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-              <div class="lg:col-span-8 flex flex-col gap-6">
+              <div appReveal class="lg:col-span-8 flex flex-col gap-6">
 
                 <section class="bg-white border border-slate-300 shadow-md p-4 sm:p-6 md:p-8 rounded">
                   <div class="flex items-start justify-between gap-4 mb-5 sm:mb-6">
@@ -136,7 +137,7 @@
                 </section>
 
                 <!-- 1. INTERVENCIÓN CIUDADANA -->
-                <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
+                <section appReveal class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
                   <h2 class="text-lg font-bold text-slate-900 mb-2">1. Intervención Ciudadana</h2>
                   <p class="text-sm text-slate-500 mb-4">¿Qué acciones has tomado hasta el momento?</p>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -160,7 +161,7 @@
                 </section>
 
                 <!-- 2. RIESGO DEL ENTORNO -->
-                <section class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
+                <section appReveal class="bg-white border border-slate-300 shadow-md p-6 md:p-8 rounded">
                   <h2 class="text-lg font-bold text-slate-900 mb-2">2. Riesgo del Entorno</h2>
                   <p class="text-sm text-slate-500 mb-4">¿Dónde se encuentra exactamente?</p>
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -184,7 +185,7 @@
               <!-- PANEL LATERAL: actualizar -->
               <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
 
-                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                <section appReveal class="bg-white border border-slate-300 shadow-md p-6 rounded">
                   <h2 class="text-xl font-bold text-slate-900 mb-5">Caso original</h2>
                   <div class="space-y-4">
                     <div>
@@ -206,7 +207,7 @@
                   </div>
                 </section>
 
-                <section class="bg-blue-700 text-white shadow-md p-6 rounded">
+                <section appReveal class="bg-blue-700 text-white shadow-md p-6 rounded">
                   <div class="flex items-start gap-3">
                     <span class="material-symbols-outlined mt-0.5">edit_note</span>
                     <div>
@@ -216,7 +217,7 @@
                   </div>
                 </section>
 
-                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                <section appReveal class="bg-white border border-slate-300 shadow-md p-6 rounded">
                   @if (error) {
                     <p class="text-red-600 text-sm mb-4">{{ error }}</p>
                   }
@@ -227,7 +228,7 @@
                     }
                     {{ guardando ? 'Guardando...' : 'Guardar seguimiento' }}
                   </button>
-                  <button routerLink="/dashboards/reporter" type="button" class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">Volver al dashboard</button>
+                  <button routerLink="/dashboard/reporter" type="button" class="w-full h-12 mt-3 border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors">Volver al dashboard</button>
                 </section>
 
               </aside>
@@ -239,7 +240,7 @@
 
             <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-              <div class="lg:col-span-8 flex flex-col gap-6">
+              <div appReveal class="lg:col-span-8 flex flex-col gap-6">
 
                 <section class="bg-white border border-slate-300 shadow-md p-4 sm:p-6 md:p-8 rounded">
                   <div class="flex items-center gap-3 mb-5 sm:mb-6">
@@ -286,7 +287,7 @@
               <!-- PANEL LATERAL: cancelar -->
               <aside class="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24">
 
-                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                <section appReveal class="bg-white border border-slate-300 shadow-md p-6 rounded">
                   <h2 class="text-xl font-bold text-slate-900 mb-5">Caso original</h2>
                   <div class="space-y-4">
                     <div>
@@ -304,7 +305,7 @@
                   </div>
                 </section>
 
-                <section class="bg-red-600 text-white shadow-md p-6 rounded">
+                <section appReveal class="bg-red-600 text-white shadow-md p-6 rounded">
                   <div class="flex items-start gap-3">
                     <span class="material-symbols-outlined mt-0.5">warning</span>
                     <div>
@@ -314,7 +315,7 @@
                   </div>
                 </section>
 
-                <section class="bg-white border border-slate-300 shadow-md p-6 rounded">
+                <section appReveal class="bg-white border border-slate-300 shadow-md p-6 rounded">
                   @if (error) {
                     <p class="text-red-600 text-sm mb-4">{{ error }}</p>
                   }
@@ -336,7 +337,7 @@
 
         <!-- ESTADO: reporte ya cancelado -->
         @if (reporteCancelado) {
-          <section class="bg-white border border-slate-300 shadow-sm p-10 text-center flex flex-col items-center">
+          <section appReveal class="bg-white border border-slate-300 shadow-sm p-10 text-center flex flex-col items-center">
             <div class="w-16 h-16 bg-slate-100 text-slate-500 flex items-center justify-center mb-4">
               <span class="material-symbols-outlined text-[32px]">cancel</span>
             </div>

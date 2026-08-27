@@ -4,67 +4,89 @@
 <!-- FONDO DECORATIVO — paleta distinta a patrocinadores/profile (rosa/cian/cielo) -->
 <div class="hidden md:block absolute inset-0 pointer-events-none overflow-hidden z-0">
   <!-- esquina superior izquierda -->
-  <div class="absolute top-[-40px] left-[-70px] w-[420px] h-[420px] bg-rose-200/50 rotate-[10deg]"></div>
+  <div class="decor-shape-1 absolute top-[-40px] left-[-70px] w-[420px] h-[420px] bg-rose-200/50"></div>
 
   <!-- zona superior centro-izquierda, separada del círculo grande -->
-  <div class="absolute top-[38%] left-[5%] w-[130px] h-[130px] bg-cyan-200/45 rotate-[18deg]"></div>
+  <div class="decor-shape-2 absolute top-[38%] left-[5%] w-[130px] h-[130px] bg-cyan-200/45"></div>
 
   <!-- zona superior centro, más abajo para no chocar con la derecha -->
-  <div class="absolute top-[6%] left-[42%] w-[70px] h-[70px] bg-sky-200/45 rotate-[25deg]"></div>
+  <div class="decor-shape-3 absolute top-[6%] left-[42%] w-[70px] h-[70px] bg-sky-200/45"></div>
 
   <!-- esquina superior derecha -->
-  <div class="absolute top-[8%] right-[-70px] w-[260px] h-[260px] bg-blue-200/45 rounded-full"></div>
+  <div class="decor-shape-4 absolute top-[8%] right-[-70px] w-[260px] h-[260px] bg-blue-200/45 rounded-full"></div>
 
   <!-- zona media derecha -->
-  <div class="absolute top-[55%] right-[-50px] w-[190px] h-[190px] bg-cyan-100/50 rotate-[-8deg]"></div>
+  <div class="decor-shape-5 absolute top-[55%] right-[-50px] w-[190px] h-[190px] bg-cyan-100/50"></div>
 
   <!-- esquina inferior izquierda -->
-  <div class="absolute bottom-[-80px] left-[-60px] w-[260px] h-[260px] bg-sky-200/45 rotate-[6deg]"></div>
+  <div class="decor-shape-6 absolute bottom-[-80px] left-[-60px] w-[260px] h-[260px] bg-sky-200/45"></div>
 
   <!-- esquina inferior derecha -->
-  <div class="absolute bottom-[-60px] right-[-50px] w-[220px] h-[220px] bg-rose-100/45 rounded-full"></div>
+  <div class="decor-shape-7 absolute bottom-[-60px] right-[-50px] w-[220px] h-[220px] bg-rose-100/45 rounded-full"></div>
 
   <!-- piezas nuevas: variedad de forma sin amontonar -->
-  <div class="absolute top-[30%] right-[16%] w-14 h-14 bg-indigo-200/40 rotate-[-15deg]"></div>
-  <div class="absolute bottom-[22%] left-[24%] w-10 h-10 bg-rose-200/45 rotate-[22deg]"></div>
-  <div class="absolute top-[62%] left-[14%] w-0 h-0
+  <div class="decor-shape-8 absolute top-[30%] right-[16%] w-14 h-14 bg-indigo-200/40"></div>
+  <div class="decor-shape-9 absolute bottom-[22%] left-[24%] w-10 h-10 bg-rose-200/45"></div>
+  <div class="decor-shape-10 absolute top-[62%] left-[14%] w-0 h-0
     border-l-[26px] border-l-transparent
     border-r-[26px] border-r-transparent
-    border-b-[45px] border-b-cyan-200/40 rotate-[-10deg]"></div>
+    border-b-[45px] border-b-cyan-200/40"></div>
 </div>
 
 <div class="md:hidden absolute inset-0 pointer-events-none overflow-hidden z-0">
-  <div class="absolute top-[-20px] left-[-50px] w-[200px] h-[200px] bg-rose-200/50 rotate-[10deg]"></div>
-  <div class="absolute top-[24%] right-[-40px] w-[130px] h-[130px] bg-sky-200/45 rounded-full"></div>
-  <div class="absolute top-[45%] left-[8%] w-9 h-9 bg-indigo-200/40 rotate-[-15deg]"></div>
-  <div class="absolute bottom-[-50px] left-[-40px] w-[160px] h-[160px] bg-cyan-200/45 rotate-[6deg]"></div>
-  <div class="absolute bottom-[-40px] right-[-40px] w-[140px] h-[140px] bg-rose-100/45 rounded-full"></div>
+  <div class="decor-shape-1 absolute top-[-20px] left-[-50px] w-[200px] h-[200px] bg-rose-200/50"></div>
+  <div class="decor-shape-4 absolute top-[24%] right-[-40px] w-[130px] h-[130px] bg-sky-200/45 rounded-full"></div>
+  <div class="decor-shape-8 absolute top-[45%] left-[8%] w-9 h-9 bg-indigo-200/40"></div>
+  <div class="decor-shape-6 absolute bottom-[-50px] left-[-40px] w-[160px] h-[160px] bg-cyan-200/45"></div>
+  <div class="decor-shape-7 absolute bottom-[-40px] right-[-40px] w-[140px] h-[140px] bg-rose-100/45 rounded-full"></div>
 </div>
 
     <app-navbar-web class="relative z-30"></app-navbar-web>
 
-    <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-8 py-6 md:py-10 relative z-10 flex flex-col gap-6">
+    <main class="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-8 py-24 md:py-24 relative z-10 flex flex-col gap-6">
 
       <!-- HERO / ENCABEZADO -->
-      <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded p-6 md:p-8">
-        <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase bg-red-50 text-red-600 border border-red-100 px-2.5 py-1 mb-3">
-          Actualizado ahora
-        </span>
-        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">Mapa General</h1>
-        <p class="text-sm md:text-base text-slate-500 mt-2 max-w-xl">
-          Todos los casos activos de la red, geolocalizados en un solo lugar.
-        </p>
+      <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden rounded p-6 md:p-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase bg-red-50 text-red-600 border border-red-100 px-2.5 py-1 mb-3">
+              Actualizado ahora
+            </span>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">Mapa General</h1>
+            <p class="text-sm md:text-base text-slate-500 mt-2 max-w-xl">
+              @if (cargandoUbicacion) {
+                Detectando tu ubicación...
+              } @else if (verTodoElPais) {
+                Mostrando todos los casos activos del país.
+              } @else {
+                Mostrando casos cercanos a tu ubicación ({{ radioKm }} km).
+              }
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="toggleVerTodoElPais()"
+            class="shrink-0 h-11 px-5 border border-blue-200 bg-blue-50 text-blue-700 text-sm font-bold rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2"
+          >
+            <span class="material-symbols-outlined text-[18px]">
+              {{ verTodoElPais ? 'near_me' : 'public' }}
+            </span>
+            {{ verTodoElPais ? 'Ver solo cerca de mí' : 'Ver todo el país' }}
+          </button>
+        </div>
       </section>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         <!-- MAPA -->
-        <section #seccionMapa class="lg:col-span-7 bg-white border border-slate-300 shadow-md overflow-hidden rounded scroll-mt-24">
+        <section appReveal #seccionMapa class="lg:col-span-7 bg-white border border-slate-300 shadow-md overflow-hidden rounded scroll-mt-24">
           <div id="mapa-casos" class="w-full h-[420px] lg:h-[660px] bg-slate-100"></div>
         </section>
 
         <!-- ALERTAS RECIENTES -->
         <section
+          appReveal
           class="lg:col-span-5 bg-white border border-slate-300 shadow-md overflow-hidden rounded flex flex-col"
           [class.max-h-[64px]]="!mostrarAlertasMobile"
         >
@@ -138,7 +160,7 @@
             </div>
 
             <!-- LISTA DE CASOS -->
-            <div class="flex-1 overflow-y-auto max-h-[490px] p-4 flex flex-col gap-3 lista-con-scroll">
+            <div appReveal class="flex-1 overflow-y-auto max-h-[490px] p-4 flex flex-col gap-3 lista-con-scroll">
 
               @if (cargandoCasos) {
                 <div class="py-10 text-center">
@@ -162,9 +184,10 @@
                 </div>
               }
 
-              @for (caso of casosActivos; track caso.id) {
+              @for (caso of casosActivos; track filtro + '-' + caso.id; let i = $index) {
                 <article
-                  class="group relative border border-slate-200 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer p-4 rounded bg-white flex gap-3.5"
+                  class="pop-in group relative border border-slate-200 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer p-4 rounded bg-white flex gap-3.5"
+                  [style.animation-delay.ms]="i * 80"
                   tabindex="0"
                   role="button"
                   (click)="centrarCaso(caso)"
@@ -181,7 +204,7 @@
 
                   <div class="min-w-0 flex-1">
                     <div class="flex items-start justify-between gap-3 mb-2">
-                      <span class="inline-block text-[10px] font-bold uppercase bg-blue-700 text-white px-2 py-0.5 rounded-full">
+                      <span class="inline-block text-[10px] font-bold uppercase bg-blue-700 text-white px-2 py-0.5 rounded">
                         {{ caso.tipo_incidencia | sentenceCase }}
                       </span>
 
@@ -230,7 +253,7 @@
       </div>
 
       <!-- ESTADÍSTICAS -->
-      <section class="bg-white border border-slate-300 shadow-md overflow-hidden rounded p-6 md:p-8">
+      <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden rounded p-6 md:p-8">
         <h2 class="text-2xl font-bold text-slate-900">Impacto en vivo.</h2>
         <p class="text-sm text-slate-500 mt-1 mb-5">Datos en tiempo real sobre nuestra red de rescate.</p>
 

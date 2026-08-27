@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
+import { Location } from '@angular/common';
 
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 
 import { ReportService, IncidenciaResponse, EntradaHistorial } from '../../../../core/services/report.service';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../../environments/environment';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 type TipoPunto = 'inicio' | 'avance' | 'cierre' | 'cancelacion';
 
@@ -21,17 +23,19 @@ interface PuntoLinea {
   lat?: number;
   lng?: number;
   fotoCierre?: string | null;
+  centro?: string;
 }
 
 @Component({
   selector: 'app-cronology-case',
   standalone: true,
-  imports: [CommonModule, TitleCasePipe, IonContent, NavbarWebComponent, FooterWebComponent],
+  imports: [CommonModule, TitleCasePipe, IonContent, NavbarWebComponent, FooterWebComponent, RevealDirective],
   templateUrl: './cronology-case.page.html',
   styleUrls: ['./cronology-case.page.scss'],
 })
 export class CronologyCasePage implements OnInit {
 
+  private location = inject(Location);
   incidencia: IncidenciaResponse | null = null;
   historial: EntradaHistorial[] = [];
   estadoSeguimiento = '';
@@ -340,6 +344,29 @@ get fichaVoluntario(): { etiqueta: string; valor: string }[] {
           });
           break;
 
+        case 'EN_PROCESO':
+          items.push({
+            titulo: 'En proceso',
+            descripcion: 'El voluntario está atendiendo al animal en el sitio.',
+            timestamp: h.timestamp,
+            nota: h.nota,
+            tipo: 'avance',
+          });
+          break;
+
+        case 'EN_TRASLADO':
+          items.push({
+            titulo: 'En traslado',
+            descripcion: (h as any).centro
+              ? `El animal va en camino a ${(h as any).centro}.`
+              : 'El animal va en camino a un centro de apoyo.',
+            timestamp: h.timestamp,
+            nota: h.nota,
+            tipo: 'avance',
+            centro: (h as any).centro,
+          });
+          break;
+
         default:
           items.push({
             titulo: this.estadoLegible(h.estado),
@@ -394,11 +421,13 @@ get fichaVoluntario(): { etiqueta: string; valor: string }[] {
 
   estadoLegible(estado: string): string {
     switch (estado) {
-      case 'EN_CAMINO':  return 'Voluntario en camino';
-      case 'EN_SITIO':   return 'Voluntario en sitio';
-      case 'COMPLETADO': return 'Rescate completado';
-      case 'CANCELADO':  return 'Rescate cancelado';
-      default:           return estado;
+      case 'EN_CAMINO':   return 'Voluntario en camino';
+      case 'EN_SITIO':    return 'Voluntario en sitio';
+      case 'EN_PROCESO':  return 'En proceso';
+      case 'EN_TRASLADO': return 'En traslado';
+      case 'COMPLETADO':  return 'Rescate completado';
+      case 'CANCELADO':   return 'Rescate cancelado';
+      default:            return estado;
     }
   }
 
@@ -412,6 +441,6 @@ get fichaVoluntario(): { etiqueta: string; valor: string }[] {
   }
 
   volver(): void {
-    this.router.navigate(['/accepted-cases']);
+    this.location.back();
   }
 }

@@ -56,6 +56,12 @@ export interface RescatistaInfo {
   email: string;
 }
 
+export interface UsuarioReportaInfo {
+  id: number;
+  nombre: string;
+  foto: string | null;
+}
+
 export interface SeguimientoHistorial {
   folio: string;
   estado: string;
@@ -107,6 +113,7 @@ export interface SeguimientoResponse {
 export interface IncidenciaResponse {
   id:                  number;
   usuario_reporta:     number | null;
+  usuario_reporta_info: UsuarioReportaInfo | null;  // ← nuevo
   animal:              number | null;
   patrocinador:        number | null;
   rescatista_asignado: number | null;

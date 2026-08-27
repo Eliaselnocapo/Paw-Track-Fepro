@@ -7,6 +7,7 @@ import { IonContent } from '@ionic/angular/standalone';
 import { NavbarWebComponent } from '../../../../shared/ui-layouts/navbar-views/navbar-web/navbar-web.component';
 import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/footer-web/footer-web.component';
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
 
 type SituacionActual = '' | 'sigue_en_lugar' | 'se_movio' | 'empeoro';
 
@@ -63,6 +64,7 @@ interface FollowUpReportViewModel {
     RouterLink,
     NavbarWebComponent,
     FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './follow-up-report.page.html',
   styleUrls: ['./follow-up-report.page.scss'],
@@ -206,7 +208,8 @@ export class FollowUpReportPage implements OnInit {
   // ─────────────────────────────────────────
 
   get puedeCancelar(): boolean {
-    return this.reporte.estado === 'PENDIENTE';
+    const estado = this.reporte?.estado;
+    return estado === 'PENDIENTE' || estado === 'VALIDADO';
   }
 
   cambiarModo(nuevo: ModoFormulario): void {

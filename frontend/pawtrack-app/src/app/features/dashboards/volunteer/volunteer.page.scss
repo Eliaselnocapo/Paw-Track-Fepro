@@ -1,0 +1,44 @@
+/* Animación de flotación para este fondo decorativo */
+@keyframes float-vol-1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -8px); }
+}
+
+@keyframes float-vol-2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-6px, 7px); }
+}
+
+@keyframes float-vol-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5px, 6px); }
+}
+
+@keyframes float-vol-4 {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(-5px, -6px) rotate(12deg); }
+}
+
+@keyframes float-vol-5 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, -5px); }
+}
+
+@keyframes float-vol-6 {
+  0%, 100% { transform: translate(0, 0) rotate(15deg); }
+  50% { transform: translate(-4px, 5px) rotate(15deg); }
+}
+
+.vol-shape-1 { animation: float-vol-1 9s ease-in-out infinite; }
+.vol-shape-2 { animation: float-vol-2 11s ease-in-out infinite; }
+.vol-shape-3 { animation: float-vol-3 8s ease-in-out infinite; }
+.vol-shape-4 { animation: float-vol-4 10s ease-in-out infinite; }
+.vol-shape-5 { animation: float-vol-5 12s ease-in-out infinite; }
+.vol-shape-6 { animation: float-vol-6 7s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vol-shape-1, .vol-shape-2, .vol-shape-3,
+  .vol-shape-4, .vol-shape-5, .vol-shape-6 {
+    animation: none;
+  }
+}

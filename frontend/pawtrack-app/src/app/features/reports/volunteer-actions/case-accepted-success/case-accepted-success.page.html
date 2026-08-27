@@ -18,32 +18,31 @@
 
     <!-- FONDO DECORATIVO — mismo estilo que accept-case para continuidad de flujo -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
-      <div class="absolute top-[-70px] left-[-70px] w-[260px] h-[260px] bg-emerald-200/80 rotate-12"></div>
-      <div class="absolute top-[-80px] right-[-70px] w-[260px] h-[260px] bg-blue-200/75 -rotate-12"></div>
-      <div class="absolute top-[18%] right-[8%] w-[170px] h-[170px] bg-cyan-200/75 rotate-6"></div>
-      <div class="absolute top-[18%] left-[10%] w-[260px] h-[340px] bg-white/70 border border-white/80 rotate-[-8deg] shadow-[0_18px_45px_rgba(255,255,255,0.35)]"></div>
-      <div class="absolute top-[22%] left-[13%] w-[240px] h-[320px] bg-emerald-100/70 rotate-[6deg]"></div>
-      <div class="absolute top-[50%] left-[42%] -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-blue-100/70 rotate-12"></div>
-      <div class="absolute top-[46%] left-[53%] w-[90px] h-[90px] bg-yellow-100/80 -rotate-6"></div>
-      <div class="absolute bottom-[-90px] left-[-70px] w-[280px] h-[280px] bg-emerald-200/75 rotate-[8deg]"></div>
-      <div class="absolute bottom-[10%] right-[16%] w-[170px] h-[170px] bg-teal-200/75 rotate-12"></div>
-      <div class="absolute bottom-[22%] right-[6%] w-[110px] h-[110px] bg-violet-200/75 -rotate-12"></div>
-      <div class="absolute top-[38%] right-[12%] w-[220px] h-[18px] bg-blue-100/85"></div>
-      <div class="absolute top-[43%] right-[18%] w-[170px] h-[18px] bg-emerald-100/85"></div>
-      <div class="absolute top-[48%] right-[10%] w-[200px] h-[18px] bg-teal-100/85"></div>
-      <div class="absolute left-[6%] top-[58%] w-5 h-5 bg-emerald-300/85 rotate-12"></div>
-      <div class="absolute left-[9%] top-[64%] w-4 h-4 bg-blue-300/85 -rotate-6"></div>
-      <div class="absolute left-[14%] top-[54%] w-6 h-6 bg-teal-300/80 rotate-12"></div>
-      <div class="absolute right-[28%] top-[22%] w-4 h-4 bg-emerald-300/85 rotate-45"></div>
-      <div class="absolute right-[32%] top-[27%] w-6 h-6 bg-cyan-300/80 -rotate-12"></div>
+      <div class="doc-shape-1 absolute top-[-10px] left-[-10px] w-[clamp(180px,20vw,260px)] h-[clamp(180px,20vw,260px)] bg-emerald-200/80"></div>
+
+      <div class="doc-shape-2 absolute top-[-80px] right-[-70px] w-[clamp(180px,20vw,260px)] h-[clamp(180px,20vw,260px)] bg-blue-200/75"></div>
+
+      <div class="doc-shape-3 absolute top-[28%] right-[18%] w-[clamp(120px,14vw,170px)] h-[clamp(120px,14vw,170px)] bg-cyan-200/75"></div>
+
+      <div class="doc-shape-4 absolute top-[50%] left-[42%] -translate-x-1/2 -translate-y-1/2 w-[clamp(150px,17vw,220px)] h-[clamp(150px,17vw,220px)] rounded-full bg-blue-100/70"></div>
+
+      <div class="doc-shape-5 absolute bottom-[-90px] left-[-70px] w-[clamp(190px,21vw,280px)] h-[clamp(190px,21vw,280px)] bg-emerald-200/75"></div>
+
+      <div class="doc-shape-6 absolute bottom-[10%] right-[16%] w-[clamp(120px,14vw,170px)] h-[clamp(120px,14vw,170px)] rounded-full bg-teal-200/75"></div>
+
+      <div class="doc-shape-7 absolute bottom-[22%] right-[6%] w-[clamp(78px,9vw,110px)] h-[clamp(78px,9vw,110px)] bg-violet-200/75"></div>
+
+      <!-- Mini acentos -->
+      <div class="doc-shape-3 absolute left-[6%] top-[38%] w-[clamp(100px,21vw,180px)] h-[clamp(100px,21vw,180px)] rounded-full bg-emerald-200/55"></div>
+      <div class="doc-shape-1 absolute right-[28%] top-[22%] w-[clamp(120px,14vw,170px)] h-[clamp(120px,14vw,170px)] rounded-full bg-cyan-300/80"></div>
     </div>
 
     <app-navbar-web class="relative z-20"></app-navbar-web>
 
-    <main class="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12 flex flex-col items-center">
+    <main class="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 pt-24 sm:pt-24 pb-12 flex flex-col items-center">
 
       <!-- TARJETA PRINCIPAL -->
-      <div class="w-full bg-white border border-slate-300 shadow-md rounded overflow-hidden">
+      <div appReveal class="w-full bg-white border border-slate-300 shadow-md rounded overflow-hidden">
 
         <!-- Cabecera verde, con el ícono de éxito integrado adentro -->
         <div class="relative bg-emerald-600 px-6 sm:px-10 pt-10 sm:pt-12 pb-8 sm:pb-9 text-white text-center overflow-hidden">

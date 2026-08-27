@@ -14,6 +14,8 @@ import { ReportService, IncidenciaResponse } from '../../../core/services/report
 import { SentenceCasePipe } from '../../../shared/pipes/sentence-case-pipe';
 import { environment } from 'src/environments/environment';
 
+import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+
 interface CasoVoluntario {
   id: number;
   folio: string;
@@ -52,7 +54,8 @@ interface OpcionRadio {
     TitleCasePipe,
     SentenceCasePipe,
     NavbarWebComponent,
-    FooterWebComponent
+    FooterWebComponent,
+    RevealDirective
   ],
   templateUrl: './volunteer.page.html',
   styleUrls: ['./volunteer.page.scss']
@@ -82,6 +85,8 @@ export class VolunteerPage implements OnInit {
 
   /** null = sin límite de distancia (todos los casos del país). */
   radioKm: number | null = 10;
+
+  mostrarContenido = true;
 
   readonly opcionesRadio: OpcionRadio[] = [
     { valor: 5,    etiqueta: 'Hasta 5 km',   ayuda: 'Solo lo más cercano' },
@@ -118,6 +123,11 @@ export class VolunteerPage implements OnInit {
     if (this.ubicacion !== null || this.radioKm === null) {
       this.cargarCasos();
     }
+    this.mostrarContenido = false;
+
+    setTimeout(() => {
+      this.mostrarContenido = true;
+    }, 0);
   }
 
   // ── Ubicación ──────────────────────────────────────────────────────────
