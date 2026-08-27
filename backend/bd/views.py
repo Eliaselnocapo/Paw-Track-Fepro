@@ -421,7 +421,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         import uuid
         from django.core.files.storage import default_storage
         from django.core.cache import cache
-        from deduplicacion.tasks import calcular_embedding_borrador
+        from deduplicacion.tasks import calcular_embedding_borrador, detectar_especie_borrador
     
         imagen_borrador_id = request.data.get('imagen_borrador_id')
         tipo = (request.data.get('tipo_animal') or '').strip()
@@ -443,8 +443,40 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         ruta_relativa = default_storage.save(f'borradores_temp/{imagen_borrador_id}_{imagen.name}', imagen)
         ruta_absoluta = default_storage.path(ruta_relativa)
         cache.set(f'imagen_borrador_path:{imagen_borrador_id}', ruta_absoluta, timeout=1800)
-    
+
+        # Corre en paralelo a que el usuario llena el resto del wizard -- no
+        # decide la especie del reporte, solo deja un veredicto cacheado que
+        # el frontend consulta vía GET .../deteccion-especie/ (ver abajo).
+        detectar_especie_borrador.delay(imagen_borrador_id, ruta_absoluta)
+
         return Response({'imagen_borrador_id': imagen_borrador_id}, status=status.HTTP_202_ACCEPTED)
+
+    @action(detail=False, methods=['get'], url_path='deteccion-especie', permission_classes=[AllowAny])
+    def deteccion_especie(self, request):
+        """
+        Consulta el resultado de detectar_especie_borrador() para un
+        imagen_borrador_id (el que regresa precargar_imagen Modo 1).
+        Puramente informativo: el frontend decide qué hacer con la
+        respuesta (mostrar aviso, ignorar). 'listo': False no es un error,
+        es "la task async todavía no termina (o falló)" -- el reporte
+        sigue su curso normal sin este dato.
+
+        Respuestas:
+          {'listo': False}
+          {'listo': True, 'es_mascota': True,  'especie_detectada': 'perro', 'confianza': 0.87}
+          {'listo': True, 'es_mascota': False, 'especie_detectada': None,    'confianza': None}
+        """
+        from django.core.cache import cache
+
+        imagen_borrador_id = request.query_params.get('imagen_borrador_id')
+        if not imagen_borrador_id:
+            return Response({'error': 'Falta imagen_borrador_id.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        resultado = cache.get(f'deteccion_especie:{imagen_borrador_id}')
+        if resultado is None:
+            return Response({'listo': False}, status=status.HTTP_200_OK)
+
+        return Response({'listo': True, **resultado}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='verificar-duplicado', permission_classes=[AllowAny])
     def verificar_duplicado(self, request):
@@ -506,7 +538,12 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         emb = None
         borrador_id = request.data.get('borrador_id')
         if borrador_id:
-            emb_bytes = cache.get(f'embedding_borrador:{borrador_id}')
+            # Misma llave que calcular_embedding_borrador (borrador_id +
+            # especie). Si el tipo_animal que llega aquí no coincide con el
+            # que se usó para precalcular el embedding, esto da cache-miss
+            # a propósito y cae al fallback de abajo (_get_embedding con el
+            # tipo correcto) en vez de comparar contra el índice equivocado.
+            emb_bytes = cache.get(f'embedding_borrador:{borrador_id}:{tipo.lower()}')
             if emb_bytes is not None:
                 emb = np.frombuffer(emb_bytes, dtype=np.float32)
 
