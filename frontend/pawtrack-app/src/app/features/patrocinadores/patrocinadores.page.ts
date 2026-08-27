@@ -21,7 +21,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { firstValueFrom } from 'rxjs';
-import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+import { RevealDirective } from '../../../../src/app/shared/directives/reveal.directive';
 
 import {
   CentroAnimal,
@@ -646,16 +646,10 @@ get centrosVisibles(): CentroAnimal[] {
   private agregarCapaBase(
     mapa: any
   ): void {
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      {
-        attribution:
-          '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20
-      }
-    ).addTo(mapa);
-  }
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { attribution: '&copy; OpenStreetMap contributors' }
+  ).addTo(mapa);}
 
   private crearPopupCentro(
     centro: CentroAnimal
