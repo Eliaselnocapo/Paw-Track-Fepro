@@ -133,6 +133,8 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     this.autocompletarContactoDesdePerfil();
     this.obtenerUbicacionInicial();
   }
+
+  
  
   /**
    * Si hay sesión iniciada y el perfil ya tiene nombre + teléfono
@@ -968,7 +970,7 @@ onFileSelected(event: any) {
     this.duplicadoConfirmado = null;
 
     this.descargandoCartelManual = false;
-    
+
     this.mostrarModalNoAnimal = false;
     this.esUsuarioAnonimo = false;
 
