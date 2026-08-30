@@ -87,6 +87,13 @@ interface IncidenciaMapa {
   folio: string;
 }
 
+interface EstadisticasGlobales {
+  casos_activos: number;
+  rescates_completados: number;
+  voluntarios_activos: number;
+}
+
+
 @Component({
   selector: 'app-mapa-general',
   templateUrl: './mapa-general.component.html',
@@ -162,6 +169,19 @@ export class MapaGeneralComponent
     });
   }
 
+  estadisticas: EstadisticasGlobales = {
+    casos_activos: 0,
+    rescates_completados: 0,
+    voluntarios_activos: 0,
+  };
+
+  private cargarEstadisticasGlobales(): void {
+  this.http.get<EstadisticasGlobales>(`${environment.apiUrl}/estadisticas/`).subscribe({
+    next: (data) => { this.estadisticas = data; },
+    error: () => { /* silencioso, no bloquea la página si falla */ },
+  });
+}
+
   seleccionarFiltro(filtro: 'pendientes' | 'aceptados' | 'todos'): void {
     if (this.filtro === filtro) return;
     this.filtro = filtro;
@@ -222,6 +242,7 @@ export class MapaGeneralComponent
 
   ngOnInit(): void {
     this.obtenerUbicacionUsuario();
+    this.cargarEstadisticasGlobales();
   }
 
   ngAfterViewInit(): void {
