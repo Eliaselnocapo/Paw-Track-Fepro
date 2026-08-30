@@ -65,7 +65,11 @@ class RankingScoreEstrucTests(TestCase):
         # geo=1.0 (mismo punto, sin gate), meta=1.0 (tipo/tamano/color/raza
         # coinciden), foto=0 (gateado), texto=0 (gateado, sin confiable) →
         # score_final == score_geo*w_geo + score_meta*w_meta
-        esperado_min = 0.15 * 1.0 + 0.40 * 1.0  # sin texto confiable: w_meta=0.40
+        # w_meta es FIJO en 0.20 (con o sin texto confiable, ver
+        # RESUMEN_calibracion_final.md) -- lo único que cambia sin texto
+        # confiable es que el 0.05 de w_texto se reasigna a w_foto (0.60 ->
+        # 0.65), w_meta no se mueve.
+        esperado_min = 0.15 * 1.0 + 0.20 * 1.0
         self.assertAlmostEqual(resultados[0]['score'], esperado_min, places=4)
 
     def test_score_estruc_tamano_es_case_insensitive(self):
@@ -84,8 +88,8 @@ class RankingScoreEstrucTests(TestCase):
         resultados = RankingService.calcular_score_final(candidatos, {}, nueva)
         # geo=1.0 (mismo punto, sin gate); meta: tipo y tamano (case-insensitive)
         # coinciden, color vacío en ambos lados no cuenta (ver _similitud) →
-        # meta=2/2=1.0
-        esperado = 0.15 * 1.0 + 0.40 * 1.0
+        # meta=2/2=1.0. w_meta es FIJO en 0.20 (ver RESUMEN_calibracion_final.md).
+        esperado = 0.15 * 1.0 + 0.20 * 1.0
         self.assertAlmostEqual(resultados[0]['score'], esperado, places=4)
 
     def test_score_estruc_raza_con_typo_penaliza_pero_no_anula(self):

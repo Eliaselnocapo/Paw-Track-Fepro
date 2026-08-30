@@ -313,6 +313,13 @@ class DeteccionEspecieService:
             logger.exception("DeteccionEspecieService: fallo al procesar %s", ruta_imagen)
             return None
 
+# Boost chico (con tope, ver min(100, ...) abajo) que se le da a
+# original.urgency_score cuando alguien confirma un reporte como
+# duplicado -- más gente reportando el mismo animal es señal real de
+# que más gente lo está viendo/le importa.
+BOOST_URGENCIA_POR_DUPLICADO = float(os.environ.get('DEDUP_BOOST_URGENCIA', 5))
+
+
 def descartar_duplicado(original, duplicado):
     """
     Borra por completo `duplicado` (la Incidencia recién creada que el
