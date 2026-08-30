@@ -112,8 +112,9 @@ export class PerfilCentroPage implements OnInit {
       publicaciones: this.centrosAnimalesService.listarPublicaciones(this.centroIdNumerico),
       resenas: this.centrosAnimalesService.listarResenas(this.centroIdNumerico),
       seguidores: this.centrosAnimalesService.listarSeguidores(this.centroIdNumerico),
+      siguiendo: this.centrosAnimalesService.obtenerEstadoSeguimiento(this.centroIdNumerico),
     }).subscribe({
-      next: ({ centro, publicaciones, resenas, seguidores }) => {
+      next: ({ centro, publicaciones, resenas, seguidores, siguiendo }) => {
         const publicacionesVM = publicaciones.map((p) => this.mapearPublicacion(p));
         const resenasVM = resenas.map((r) => this.mapearResena(r));
 
@@ -128,6 +129,7 @@ export class PerfilCentroPage implements OnInit {
           publicaciones: publicacionesVM,
           resenas: resenasVM,
         };
+        this.siguiendoLocal = siguiendo.siguiendo;
         this.cargando = false;
       },
       error: () => {

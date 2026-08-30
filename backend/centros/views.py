@@ -176,6 +176,11 @@ class SeguirCentroView(APIView):
     """POST .../seguir/ — toggle: sigue si no lo seguia, deja de seguir si ya lo seguia."""
     permission_classes = [IsAuthenticated]
 
+    # Arreglo de Seguir / dejar de seguir segun que hecho por yo
+    def get(self, request, centro_id):
+        siguiendo = services.esta_siguiendo(centro_id, request.user)
+        return Response({'siguiendo': siguiendo})
+
     def post(self, request, centro_id):
         siguiendo = services.toggle_seguir(centro_id, request.user)
         return Response({'siguiendo': siguiendo})

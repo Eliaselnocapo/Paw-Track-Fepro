@@ -502,6 +502,13 @@ export class CentrosAnimalesService {
       .pipe(map((lista) => lista.map((s) => this.mapearSeguidor(s))));
   }
 
+  //Arrelgo del seuigr
+  obtenerEstadoSeguimiento(centroId: number): Observable<{ siguiendo: boolean }> {
+    return this.http.get<{ siguiendo: boolean }>(
+      `${environment.apiUrl}/centros/${centroId}/seguir/`
+    );
+  }
+
   toggleSeguir(centroId: number): Observable<{ siguiendo: boolean }> {
     return this.http.post<{ siguiendo: boolean }>(
       `${environment.apiUrl}/centros/${centroId}/seguir/`, {},
