@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
 
-from bd.views import AnimalViewSet, IncidenciaViewSet, UsuarioViewSet, GoogleLogin, LoginView, MiPerfilView, ProcesarCartelPDFView
+from bd.views import AnimalViewSet, IncidenciaViewSet, UsuarioViewSet, GoogleLogin, LoginView, MiPerfilView, ProcesarCartelPDFView, estadisticas_globales
 from rescates.views import SeguimientoHistorialView #RecursosDeIncidenciaView
 
 
@@ -52,6 +52,7 @@ urlpatterns = [
     path('api/centros/', include('centros.urls')),
     path('api/notificaciones/', include('notificaciones.urls')),
     path('api/moderacion/', include('moderacion.urls')),
+    path('api/estadisticas/', estadisticas_globales),
 ] 
  
 

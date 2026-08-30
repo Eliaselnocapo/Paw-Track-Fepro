@@ -4,7 +4,7 @@ from django.contrib.gis.measure import Distance
 import pdfplumber
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.generics import RetrieveUpdateAPIView
 
@@ -26,7 +26,7 @@ from dj_rest_auth.registration.views import SocialLoginView
 
 from notificaciones.services import notify_user
 
-from .models import Usuario, Animal, Incidencia
+from .models import Usuario, Animal, Incidencia, PerfilRescatista
 from .serializers import UsuarioSerializer, AnimalSerializer, IncidenciaSerializer, EditarPerfilSerializer
 from notificaciones.tasks import calcular_trafico
 from .services import evaluar_confianza_reporte
@@ -809,3 +809,19 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
                 'rescatista_asignado': inc.rescatista_asignado is not None,
                 'tipo_animal': inc.animal.tipo if inc.animal else None,
                 })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def estadisticas_globales(request):
+    """Estadísticas públicas de la plataforma, para mostrar en el mapa/home."""
+    terminados = ['CERRADO', 'CANCELADO', 'DESESTIMADO']
+
+    casos_activos = Incidencia.objects.exclude(estado__in=terminados).count()
+    rescates_completados = Incidencia.objects.filter(estado='CERRADO').count()
+    voluntarios_activos = PerfilRescatista.objects.count()
+
+    return Response({
+        'casos_activos': casos_activos,
+        'rescates_completados': rescates_completados,
+        'voluntarios_activos': voluntarios_activos,
+    })
