@@ -33,12 +33,12 @@ def calcular_reputacion(usuario) -> dict:
     fraud_flags = usuario.fraud_flags or 0
     impacto_fraude = fraud_flags * PUNTOS_POR_FRAUD_FLAG
 
-    score = max(0, (
-        reportes_validos * PUNTOS_REPORTE_VALIDO
-        + rescates_completados * PUNTOS_RESCATE_COMPLETADO
-        + seguimientos * PUNTOS_SEGUIMIENTO
-        + impacto_fraude
-    ))
+    score = min(100, max(0, (
+    reportes_validos * PUNTOS_REPORTE_VALIDO
+    + rescates_completados * PUNTOS_RESCATE_COMPLETADO
+    + seguimientos * PUNTOS_SEGUIMIENTO
+    + impacto_fraude
+    )))
 
     timeline = []
     for inc in incidencias.order_by('-created_at')[:20]:

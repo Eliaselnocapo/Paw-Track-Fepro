@@ -247,6 +247,76 @@ class VisionService:
 
         return scores
 
+
+class DeteccionEspecieService:
+    """
+    Detección de especie usando YOLOv8 exportado a ONNX puro.
+    Sin NMS ni PyTorch, inferencia en milisegundos sin "Cold Start" pesado.
+    """
+    _instance = None
+
+    CLASE_GATO = 15
+    CLASE_PERRO = 16
+    CONFIANZA_MINIMA = float(os.environ.get('YOLO_ESPECIE_CONFIANZA', 0.40))
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(DeteccionEspecieService, cls).__new__(cls)
+            cls._instance._cargar_modelo()
+        return cls._instance
+
+    def _cargar_modelo(self):
+        # NOTA: Asegúrate de tener el archivo yolov8n.onnx en tu carpeta ml_models
+        ruta = getattr(settings, 'YOLO_ESPECIE_MODEL_PATH', None) \
+            or os.path.join(settings.DEDUP_MODELS_DIR, 'yolov8n.onnx')
+
+        logger.info("DeteccionEspecieService: cargando modelo ONNX desde %s...", ruta)
+        self.session = ort.InferenceSession(ruta, providers=['CPUExecutionProvider'])
+        self.input_name = self.session.get_inputs()[0].name
+        logger.info("DeteccionEspecieService: modelo ONNX listo.")
+
+    def detectar(self, ruta_imagen):
+        try:
+            # 1. Preprocesamiento manual 
+            img = Image.open(ruta_imagen).convert("RGB")
+            img_resized = img.resize((640, 640)) 
+            
+            img_data = np.array(img_resized, dtype=np.float32) / 255.0
+            img_data = np.transpose(img_data, (2, 0, 1))
+            img_data = np.expand_dims(img_data, axis=0)
+
+            # 2. Inferencia ultra rápida
+            outputs = self.session.run(None, {self.input_name: img_data})
+            preds = outputs[0][0] # Matriz cruda (84, 8400)
+
+            # 3. Extraer predicciones
+            probabilidades_gato = preds[4 + self.CLASE_GATO, :]
+            probabilidades_perro = preds[4 + self.CLASE_PERRO, :]
+
+            max_gato = float(np.max(probabilidades_gato))
+            max_perro = float(np.max(probabilidades_perro))
+
+            if max_gato > max_perro:
+                mejor_confianza = max_gato
+                especie = 'gato'
+            else:
+                mejor_confianza = max_perro
+                especie = 'perro'
+
+            # 4. Veredicto final
+            if mejor_confianza >= self.CONFIANZA_MINIMA:
+                return {'es_mascota': True, 'especie_detectada': especie, 'confianza': mejor_confianza}
+            else:
+                return {'es_mascota': False, 'especie_detectada': None, 'confianza': None}
+
+        except Exception:
+            logger.exception("DeteccionEspecieService: fallo al procesar %s", ruta_imagen)
+            return None
+
+# Boost chico (con tope, ver min(100, ...) abajo) que se le da a
+# original.urgency_score cuando alguien confirma un reporte como
+# duplicado -- más gente reportando el mismo animal es señal real de
+# que más gente lo está viendo/le importa.
 BOOST_URGENCIA_POR_DUPLICADO = float(os.environ.get('DEDUP_BOOST_URGENCIA', 5))
 
 

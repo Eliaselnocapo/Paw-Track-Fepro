@@ -195,6 +195,19 @@ def listar_seguidores(centro_id):
     return centro.seguidores.select_related('usuario').all()
 
 
+# ---Arreglo de Seguir / dejar de seguir yomerotomero--------------------------------------------
+def esta_siguiendo(centro_id, usuario):
+    centro = obtener_perfil_publico(centro_id)
+
+    if not usuario.is_authenticated:
+        return False
+
+    return SeguidorCentro.objects.filter(
+        centro=centro,
+        usuario=usuario
+    ).exists()
+
+
 @transaction.atomic
 def toggle_seguir(centro_id, usuario):
     """Devuelve True si al terminar la operacion el usuario sigue al

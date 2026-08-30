@@ -4,7 +4,7 @@ from django.contrib.gis.measure import Distance
 import pdfplumber
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.generics import RetrieveUpdateAPIView
 
@@ -26,7 +26,7 @@ from dj_rest_auth.registration.views import SocialLoginView
 
 from notificaciones.services import notify_user
 
-from .models import Usuario, Animal, Incidencia
+from .models import Usuario, Animal, Incidencia, PerfilRescatista
 from .serializers import UsuarioSerializer, AnimalSerializer, IncidenciaSerializer, EditarPerfilSerializer
 from notificaciones.tasks import calcular_trafico
 from .services import evaluar_confianza_reporte
@@ -429,7 +429,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         import uuid
         from django.core.files.storage import default_storage
         from django.core.cache import cache
-        from deduplicacion.tasks import calcular_embedding_borrador
+        from deduplicacion.tasks import calcular_embedding_borrador, detectar_especie_borrador
     
         imagen_borrador_id = request.data.get('imagen_borrador_id')
         tipo = (request.data.get('tipo_animal') or '').strip()
@@ -451,8 +451,40 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         ruta_relativa = default_storage.save(f'borradores_temp/{imagen_borrador_id}_{imagen.name}', imagen)
         ruta_absoluta = default_storage.path(ruta_relativa)
         cache.set(f'imagen_borrador_path:{imagen_borrador_id}', ruta_absoluta, timeout=1800)
-    
+
+        # Corre en paralelo a que el usuario llena el resto del wizard -- no
+        # decide la especie del reporte, solo deja un veredicto cacheado que
+        # el frontend consulta vía GET .../deteccion-especie/ (ver abajo).
+        detectar_especie_borrador.delay(imagen_borrador_id, ruta_absoluta)
+
         return Response({'imagen_borrador_id': imagen_borrador_id}, status=status.HTTP_202_ACCEPTED)
+
+    @action(detail=False, methods=['get'], url_path='deteccion-especie', permission_classes=[AllowAny])
+    def deteccion_especie(self, request):
+        """
+        Consulta el resultado de detectar_especie_borrador() para un
+        imagen_borrador_id (el que regresa precargar_imagen Modo 1).
+        Puramente informativo: el frontend decide qué hacer con la
+        respuesta (mostrar aviso, ignorar). 'listo': False no es un error,
+        es "la task async todavía no termina (o falló)" -- el reporte
+        sigue su curso normal sin este dato.
+
+        Respuestas:
+          {'listo': False}
+          {'listo': True, 'es_mascota': True,  'especie_detectada': 'perro', 'confianza': 0.87}
+          {'listo': True, 'es_mascota': False, 'especie_detectada': None,    'confianza': None}
+        """
+        from django.core.cache import cache
+
+        imagen_borrador_id = request.query_params.get('imagen_borrador_id')
+        if not imagen_borrador_id:
+            return Response({'error': 'Falta imagen_borrador_id.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        resultado = cache.get(f'deteccion_especie:{imagen_borrador_id}')
+        if resultado is None:
+            return Response({'listo': False}, status=status.HTTP_200_OK)
+
+        return Response({'listo': True, **resultado}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='verificar-duplicado', permission_classes=[AllowAny])
     def verificar_duplicado(self, request):
@@ -514,7 +546,12 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         emb = None
         borrador_id = request.data.get('borrador_id')
         if borrador_id:
-            emb_bytes = cache.get(f'embedding_borrador:{borrador_id}')
+            # Misma llave que calcular_embedding_borrador (borrador_id +
+            # especie). Si el tipo_animal que llega aquí no coincide con el
+            # que se usó para precalcular el embedding, esto da cache-miss
+            # a propósito y cae al fallback de abajo (_get_embedding con el
+            # tipo correcto) en vez de comparar contra el índice equivocado.
+            emb_bytes = cache.get(f'embedding_borrador:{borrador_id}:{tipo.lower()}')
             if emb_bytes is not None:
                 emb = np.frombuffer(emb_bytes, dtype=np.float32)
 
@@ -772,3 +809,19 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
                 'rescatista_asignado': inc.rescatista_asignado is not None,
                 'tipo_animal': inc.animal.tipo if inc.animal else None,
                 })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def estadisticas_globales(request):
+    """Estadísticas públicas de la plataforma, para mostrar en el mapa/home."""
+    terminados = ['CERRADO', 'CANCELADO', 'DESESTIMADO']
+
+    casos_activos = Incidencia.objects.exclude(estado__in=terminados).count()
+    rescates_completados = Incidencia.objects.filter(estado='CERRADO').count()
+    voluntarios_activos = PerfilRescatista.objects.count()
+
+    return Response({
+        'casos_activos': casos_activos,
+        'rescates_completados': rescates_completados,
+        'voluntarios_activos': voluntarios_activos,
+    })
