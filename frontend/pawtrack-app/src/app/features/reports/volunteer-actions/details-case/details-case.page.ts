@@ -9,11 +9,12 @@ import { FooterWebComponent } from '../../../../shared/ui-layouts/footer-views/f
 
 import { ReportService, IncidenciaResponse } from '../../../../core/services/report.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { environment } from 'src/environments/environment';
-import { ReportarFraudeButtonComponent } from 'src/app/shared/components/button-fraude/reportar-fraude-button.component';
-import { RevealDirective } from 'src/app/shared/directives/reveal.directive';
+import { environment } from '../../../../../environments/environment';
+import { ReportarFraudeButtonComponent } from '../../../../shared/components/button-fraude/reportar-fraude-button.component';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 import * as L from 'leaflet';
+
 
 interface DetalleCasoVoluntario {
   id: number;
@@ -357,5 +358,11 @@ cargarCaso(): void {
 
   get nombreReportante(): string {
     return this.caso?.raw?.usuario_reporta_info?.nombre || this.caso?.contactoNombre || 'Reportante';
+  }
+
+  get reputacionReportante(): number | null {
+    const score = this.caso?.raw?.usuario_reporta_info?.reputacion_score ?? null;
+    if (score === null) return null;
+    return Math.min(score, 100);
   }
 }
