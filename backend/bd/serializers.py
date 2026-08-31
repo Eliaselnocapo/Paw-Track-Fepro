@@ -227,10 +227,16 @@ class IncidenciaSerializer(serializers.ModelSerializer):
         if not obj.usuario_reporta:
             return None
         u = obj.usuario_reporta
+
+        from .services import calcular_reputacion_resumen
+        reputacion = calcular_reputacion_resumen(u)
+
         return {
-            "id":     u.id,
+            "id": u.id,
             "nombre": f"{u.first_name} {u.last_name}".strip() or u.email,
-            "foto":   u.foto_perfil.url if u.foto_perfil else None,
+            "foto": u.foto_perfil.url if u.foto_perfil else None,
+            "reputacion_score": reputacion['score'],
+            "reportes_validos": reputacion['reportesValidos'],
         }
     
     def get_coincidencias_visuales(self, obj):

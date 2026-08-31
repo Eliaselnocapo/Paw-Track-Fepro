@@ -7,7 +7,6 @@ from notificaciones.services import broadcast_urgency_update, notify_user
 from core.zona import compute_zona_key
 
 
-CONDICION_MAP = {"critico": 100, "herido": 70, "estable": 20}
 RADIO_VIALIDAD_M = 50
 VIAS_PELIGROSAS = {
     'motorway': 100, 'trunk': 100,
@@ -16,16 +15,52 @@ VIAS_PELIGROSAS = {
     'tertiary': 40,
 }
 
-def calcular_condicion(salud_texto):
+# ─────────────────────────────────────────
+# Urgencia por condición + tiempo de abandono. Cada condición arranca en
+# un punto base distinto y sube a velocidad distinta hasta tocar 100 —
+# un caso "estable" ignorado el tiempo suficiente puede volverse tan
+# urgente como uno crítico recién reportado, solo que tarda mucho más.
+# ─────────────────────────────────────────
+
+CONDICION_BASE = {
+    "critico": 60,
+    "herido": 40,
+    "estable": 15,
+}
+
+DIAS_HASTA_MAXIMA_URGENCIA = {
+    "critico": 1.5,
+    "herido": 4,
+    "estable": 8,
+}
+
+
+def calcular_condicion_clave(salud_texto):
     """Animal.salud puede traer varios valores separados por coma (ej.
     "herido, callejero"), asi que se busca por substring en vez de match
     exacto — en orden de gravedad descendente para que gane la condicion
     mas grave si el texto trae varias."""
     texto = (salud_texto or "estable").lower()
-    for clave, valor in CONDICION_MAP.items():
+    for clave in ("critico", "herido"):
         if clave in texto:
-            return valor
-    return 20
+            return clave
+    return "estable"
+
+
+def _calcular_velocidad(condicion_base, dias_objetivo):
+    puntos_a_subir = 100 - condicion_base
+    horas_objetivo = dias_objetivo * 24
+    return puntos_a_subir / horas_objetivo
+
+
+def calcular_urgencia(salud_texto, horas_transcurridas):
+    clave = calcular_condicion_clave(salud_texto)
+    base = CONDICION_BASE[clave]
+    dias_objetivo = DIAS_HASTA_MAXIMA_URGENCIA[clave]
+    velocidad = _calcular_velocidad(base, dias_objetivo)
+
+    score = base + (horas_transcurridas * velocidad)
+    return min(100.0, score)
 
 
 @shared_task
@@ -36,16 +71,14 @@ def recalc_urgency_score():
     )
 
     for inc in incidencias:
-        salud = (inc.animal.salud or "estable").lower() if inc.animal else "estable"
-        condicion = calcular_condicion(salud)
+        salud = inc.animal.salud if inc.animal else "estable"
 
         horas = (timezone.now() - inc.created_at).total_seconds() / 3600
-        tiempo = min(100, horas * 1.5)  # tope a ~66 horas en vez de 12.5
 
         # trafico_score se quitó de la fórmula (ver decisión de producto);
         # el campo se conserva en el modelo por si se reintroduce después,
         # pero ya no pesa en el cálculo.
-        new_score = min(100.0, (condicion * 0.55) + (tiempo * 0.45))
+        new_score = calcular_urgencia(salud, horas)
         if (inc.trust_score or 0) < 40:
             new_score = min(new_score, 79)
         old_score = inc.urgency_score
@@ -74,6 +107,7 @@ def recalc_urgency_score():
                     "urgency_score": new_score,
                     "tipo_animal": tipo_animal,
                 })
+
 
 @shared_task
 def calcular_trafico(incidencia_id):

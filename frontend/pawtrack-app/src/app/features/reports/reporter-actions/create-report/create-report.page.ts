@@ -477,6 +477,7 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     this.archivosSeleccionados = [];
     this.imagenBorradorId = null;
     this.borradorId = null;
+    this.pasoActual = 1; // regresa al paso de subir evidencia
   }
 
   cerrarModalAdvertencia(): void {

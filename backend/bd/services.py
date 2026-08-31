@@ -129,3 +129,29 @@ def evaluar_confianza_reporte(usuario) -> tuple[str, float]:
 
     # Historial de fraude confirmado: entra, pero marcado.
     return 'PENDIENTE', 15.0
+
+def calcular_reputacion_resumen(usuario) -> dict:
+    """Versión ligera de calcular_reputacion, solo el score — para mostrar
+    en tarjetas pequeñas (detalle de caso) sin cargar timeline/historial."""
+    from rescates.models import Rescate
+
+    incidencias = Incidencia.objects.filter(usuario_reporta=usuario)
+    reportes_totales = incidencias.count()
+    reportes_invalidos = incidencias.filter(estado__in=ESTADOS_INCIDENCIA_INVALIDOS).count()
+    reportes_validos = reportes_totales - reportes_invalidos
+
+    rescates = Rescate.objects.filter(rescatista=usuario)
+    rescates_completados = rescates.filter(estado='COMPLETADO').count()
+    seguimientos = sum(len(r.historial or []) for r in rescates)
+
+    fraud_flags = usuario.fraud_flags or 0
+    impacto_fraude = fraud_flags * PUNTOS_POR_FRAUD_FLAG
+
+    score = max(0, (
+        reportes_validos * PUNTOS_REPORTE_VALIDO
+        + rescates_completados * PUNTOS_RESCATE_COMPLETADO
+        + seguimientos * PUNTOS_SEGUIMIENTO
+        + impacto_fraude
+    ))
+
+    return {'score': score, 'reportesValidos': reportes_validos}
