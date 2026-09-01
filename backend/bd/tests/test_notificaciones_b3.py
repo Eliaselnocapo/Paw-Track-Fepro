@@ -194,6 +194,31 @@ class NotifConsumerTests(TransactionTestCase):
 @override_settings(CHANNEL_LAYERS=CHANNEL_LAYERS_TEST)
 class RecalcUrgencyScoreTests(TestCase):
     def setUp(self):
+        # 1. Congelamos el tiempo para evitar los decimales (60.000001...)
+        #    IMPORTANTE: la hora real se captura ANTES de iniciar el patch.
+        #    `django.utils.timezone` es un módulo cacheado en sys.modules,
+        #    así que volver a importarlo después de patchear no da una
+        #    copia "limpia" de now(): devuelve el mismo módulo ya parcheado.
+        #    Si se llama a timezone.now() después de start() sin haber
+        #    fijado return_value, el mock se devuelve a sí mismo (otro
+        #    MagicMock) en vez de un datetime real, y ese MagicMock queda
+        #    grabado como return_value para todas las llamadas futuras.
+        self.tiempo_fijo = timezone.now()
+
+        # 2. Parcheamos ya con el return_value fijado desde el inicio,
+        #    para que nunca exista una llamada "sin configurar" al mock.
+        self.time_patcher = patch('django.utils.timezone.now', return_value=self.tiempo_fijo)
+        self.mock_now = self.time_patcher.start()
+
+        # 3. addCleanup en vez de depender solo de tearDown(): esto se
+        #    ejecuta SIEMPRE, incluso si algo más abajo en setUp() lanza
+        #    una excepción. Si no se hace así y setUp() falla, tearDown()
+        #    nunca se llama, el patch de django.utils.timezone.now queda
+        #    pegado para el resto del proceso, y CUALQUIER modelo con
+        #    created_at/auto_now_add en cualquier otra app empieza a
+        #    fallar con el mismo error — como pasó aquí.
+        self.addCleanup(self.time_patcher.stop)
+
         self.animal_critico = Animal.objects.create(nombre='Test', tipo='perro', salud='critico')
         self.animal_estable = Animal.objects.create(nombre='Stable', tipo='gato', salud='estable')
         self.incidencia = Incidencia.objects.create(
@@ -209,29 +234,28 @@ class RecalcUrgencyScoreTests(TestCase):
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
     def test_score_se_actualiza_cuando_delta_es_mayor_3(self, mock_broadcast):
-        """Con animal critico y recien creado: score = 100*0.55 + 0*0.45 = 55 → delta=55 ≥ 3 → actualiza y notifica."""
+        """Con animal crítico recién creado: score base es 60 → delta=60 ≥ 3 → actualiza y notifica."""
         recalc_urgency_score()
         self.incidencia.refresh_from_db()
-        self.assertAlmostEqual(self.incidencia.urgency_score, 55.0, delta=0.1)
+        self.assertAlmostEqual(self.incidencia.urgency_score, 60.0, delta=0.1)
         mock_broadcast.assert_called_once()
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
     def test_score_no_se_actualiza_cuando_delta_es_menor_3(self, mock_broadcast):
-        """Si el score calculado esta a menos de 3 puntos del actual, no hay actualizacion."""
-        # Con critico y recien creado: score nuevo ≈ 55. Pre-cargamos 54 → delta ≈ 1 < 3
-        Incidencia.objects.filter(pk=self.incidencia.pk).update(urgency_score=54.0)
+        """Si el score calculado está a menos de 3 puntos del actual, no hay actualización."""
+        # El score nuevo será 60. Ponemos 58.5 inicial -> delta de 1.5 (< 3)
+        Incidencia.objects.filter(pk=self.incidencia.pk).update(urgency_score=58.5)
         recalc_urgency_score()
         mock_broadcast.assert_not_called()
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
     def test_trafico_score_ya_no_afecta_el_calculo(self, mock_broadcast):
-        """trafico_score se saco de la formula: dos incidencias identicas salvo por
-        trafico_score deben terminar con el mismo urgency_score."""
+        """El tráfico ya no pesa: debe terminar con el mismo urgency_score (60.0)."""
         self.incidencia.trafico_score = 100
         self.incidencia.save(update_fields=['trafico_score'])
         recalc_urgency_score()
         self.incidencia.refresh_from_db()
-        self.assertAlmostEqual(self.incidencia.urgency_score, 55.0, delta=0.1)
+        self.assertAlmostEqual(self.incidencia.urgency_score, 60.0, delta=0.1)
 
     @patch('notificaciones.tasks.broadcast_urgency_update')
     def test_trust_score_bajo_limita_el_score_a_79(self, mock_broadcast):
@@ -283,16 +307,16 @@ class RecalcUrgencyScoreTests(TestCase):
     @patch('notificaciones.tasks.broadcast_urgency_update')
     def test_multiples_incidencias_solo_actualiza_con_delta_suficiente(self, mock_broadcast):
         """Dos incidencias: una con delta ≥ 3 y otra sin cambio → solo una llamada a broadcast."""
-        # Segunda incidencia con score ya cercano al calculado (δ pequeño esperado)
+        # La condición "estable" tiene base 15. Ponemos 13.5 inicial -> delta de 1.5 (< 3)
         Incidencia.objects.create(
             animal=self.animal_estable,
             ubicacion=Point(-99.1332, 19.4326, srid=4326),
             tipo_incidencia='EMERGENCIA',
             estado='PENDIENTE',
-            urgency_score=8.5,  # Con estable: score nuevo ≈ 20*0.55 = 11 → delta ≈ 2.5 < 3
+            urgency_score=13.5, 
         )
         recalc_urgency_score()
-        # Solo la primera incidencia (critico, delta=55) debe haber llamado broadcast
+        # Solo la primera (crítico, pasa de 0 a 60) debe llamar al broadcast
         self.assertEqual(mock_broadcast.call_count, 1)
 
 
