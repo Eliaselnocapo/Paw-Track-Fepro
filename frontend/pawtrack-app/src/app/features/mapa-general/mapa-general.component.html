@@ -324,7 +324,7 @@
     class="modal-caso-animal"
     [isOpen]="modalCasoAbierto"
     [backdropDismiss]="true"
-    (didDismiss)="cerrarModalCaso()"
+    (didDismiss)="onModalCasoCerrado()"
   >
     <ng-template>
 
@@ -346,7 +346,7 @@
 
             <button
               type="button"
-              class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 grid place-items-center shadow-sm"
+              class="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-white/90 grid place-items-center shadow-sm"
               aria-label="Cerrar"
               (click)="cerrarModalCaso()"
             >
@@ -357,7 +357,7 @@
               {{ caso.tipo_incidencia | sentenceCase }}
             </span>
 
-            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+            <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
 
             <div class="absolute bottom-4 left-4 right-4 text-white">
               <p class="text-xs font-bold uppercase text-white/80">{{ caso.tipo_animal | sentenceCase }}</p>

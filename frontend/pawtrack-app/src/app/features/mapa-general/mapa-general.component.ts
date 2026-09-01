@@ -366,7 +366,7 @@ export class MapaGeneralComponent
       });
     }
   }
-  
+
   private cargarCasosActivos(): void {
     this.cargandoCasos = true;
     this.errorCasos = '';
@@ -517,7 +517,13 @@ export class MapaGeneralComponent
     this.modalCasoAbierto = true;
   }
 
-  cerrarModalCaso(): void {
+  async cerrarModalCaso(): Promise<void> {
+    if (this.modalCaso) {
+      await this.modalCaso.dismiss();
+    }
+  }
+
+  onModalCasoCerrado(): void {
     this.modalCasoAbierto = false;
     this.casoSeleccionado = null;
   }

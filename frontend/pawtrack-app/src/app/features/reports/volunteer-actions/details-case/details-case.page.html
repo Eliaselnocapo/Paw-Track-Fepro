@@ -165,7 +165,7 @@
             <div class="p-4 border-r border-slate-200">
               <p class="text-xs font-bold uppercase text-slate-500 mb-1">Condición</p>
               <p class="font-bold text-slate-900">
-                {{ caso.condicion }}
+                {{ caso.condicion | sentenceCase}}
               </p>
             </div>
 
@@ -252,7 +252,7 @@
 
                 <div class="rounded border border-amber-100 bg-amber-50 p-4">
                   <p class="text-xs font-bold text-amber-600 mb-2 uppercase">Condición</p>
-                  <p class="text-lg font-bold text-amber-800">{{ caso.condicion }}</p>
+                  <p class="text-lg font-bold text-amber-800">{{ caso.condicion | sentenceCase }}</p>
                   <p class="text-xs text-amber-700 mt-1">Revisar antes de acercarse</p>
                 </div>
 
