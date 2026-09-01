@@ -411,6 +411,15 @@
                       <span class="material-symbols-outlined text-[18px] text-blue-600">call</span>
                       {{ caso.contactoTelefono }}
                     </p>
+                    @if (reputacionReportante !== null) {
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                      <p class="text-xs font-bold text-slate-500 uppercase">Reputación del reportante</p>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="material-symbols-outlined text-emerald-600 text-[20px]">verified</span>
+                        <p class="font-bold text-slate-800">{{ reputacionReportante }} pts</p>
+                      </div>
+                    </div>
+                  }
                   </div>
                 </div>
               </div>

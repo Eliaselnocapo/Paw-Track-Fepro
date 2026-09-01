@@ -60,6 +60,8 @@ export interface UsuarioReportaInfo {
   id: number;
   nombre: string;
   foto: string | null;
+  reputacion_score: number;
+  reportes_validos: number;
 }
 
 export interface SeguimientoHistorial {
