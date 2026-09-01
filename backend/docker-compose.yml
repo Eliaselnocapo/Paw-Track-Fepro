@@ -1,5 +1,4 @@
 services:
-  # Servicio de la Base de Datos
   db:
     image: postgis/postgis:15-3.3-alpine
     volumes:
@@ -13,20 +12,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
+ 
   redis:
     image: redis:7-alpine
-    # PUERTOS ELIMINADOS POR SEGURIDAD
-
-  # Servicio de la Aplicación Django
+ 
   backend:
-    build: .
+    build:
+      context: .
     env_file:
       - .env
     command: daphne -b 0.0.0.0 -p 8000 pawtrack.asgi:application
     volumes:
       - .:/app
-    # PUERTOS ELIMINADOS POR SEGURIDAD - Todo el tráfico debe pasar por Nginx
+    ports:
+      - "8000:8000"
     environment:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
@@ -44,10 +43,11 @@ services:
       redis:
         condition: service_started
     restart: on-failure
-
+ 
   celery-worker:
-    build: .
-    command: celery -A pawtrack worker -l info -Q dedup,celery 
+    build:
+      context: .
+    command: celery -A pawtrack worker -l info -Q dedup,celery
     volumes:
       - .:/app
     environment:
@@ -64,9 +64,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-  
+ 
   celery-beat:
-    build: .
+    build:
+      context: .
     command: celery -A pawtrack beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app
@@ -84,22 +85,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/logs:/var/log/nginx
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/proxy_params:/etc/nginx/proxy_params:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /opt/pawtrack/frontend/pawtrack-app/www:/usr/share/nginx/html:ro
-      - ./staticfiles:/opt/pawtrack/staticfiles:ro
-      - ./media:/opt/pawtrack/media:ro
-    depends_on:
-      - backend
-
+ 
+  # nginx queda fuera a propósito en desarrollo: se accede
+  # directo a http://localhost:8000
+ 
 volumes:
   postgres_data:

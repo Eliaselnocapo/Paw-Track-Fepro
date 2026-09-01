@@ -113,8 +113,10 @@ class CalcularEmbeddingBorradorTests(TestCase):
         instancia._get_embedding.assert_called_once_with(ruta, "PERRO")
         
         # Verificamos que se guardó en Redis con un TTL de 30 mins (1800s)
+        # La key incluye la especie (en minúsculas) para no mezclar
+        # embeddings de distintas especies bajo el mismo borrador_id.
         mock_cache.set.assert_called_once_with(
-            f"embedding_borrador:{borrador_id}", 
+            f"embedding_borrador:{borrador_id}:perro",
             b"fake_vector_bytes", 
             timeout=1800
         )

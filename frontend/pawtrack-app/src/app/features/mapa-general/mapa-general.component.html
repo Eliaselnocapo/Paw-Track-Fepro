@@ -252,63 +252,45 @@
 
       </div>
 
-      <!-- ESTADÍSTICAS -->
-      <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden rounded p-6 md:p-8">
-        <h2 class="text-2xl font-bold text-slate-900">Impacto en vivo.</h2>
-        <p class="text-sm text-slate-500 mt-1 mb-5">Datos en tiempo real sobre nuestra red de rescate.</p>
+    <!-- ESTADÍSTICAS -->
+    <section appReveal class="bg-white border border-slate-300 shadow-md overflow-hidden p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-slate-900">Impacto en vivo.</h2>
+      <p class="text-sm text-slate-500 mt-1 mb-5">Datos en tiempo real sobre nuestra red de rescate.</p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-          <div class="border border-blue-100 bg-blue-50/60 p-5 flex items-center gap-4">
-            <div class="w-14 h-14 shrink-0 bg-blue-700 grid place-items-center text-white">
-              <img
-                src="assets/icon/stats/casos-activos.png"
-                alt="Casos activos"
-                class="w-7 h-7 object-contain"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-              />
-              <span class="material-symbols-outlined text-[27px]" style="display:none;">pets</span>
-            </div>
-            <div>
-              <h3 class="text-3xl font-bold text-slate-900 leading-none">{{ casosActivos.length }}</h3>
-              <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Casos activos</p>
-            </div>
+        <div class="border border-blue-100 bg-blue-50/60 p-5 flex items-center gap-4">
+          <div class="w-14 h-14 shrink-0 bg-blue-700 grid place-items-center text-white rounded">
+            <span class="material-symbols-outlined text-[27px]">pets</span>
           </div>
-
-          <div class="border border-emerald-100 bg-emerald-50/60 p-5 flex items-center gap-4">
-            <div class="w-14 h-14 shrink-0 bg-emerald-600 grid place-items-center text-white">
-              <img
-                src="assets/icon/stats/voluntarios.png"
-                alt="Voluntarios activos"
-                class="w-7 h-7 object-contain"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-              />
-              <span class="material-symbols-outlined text-[27px]" style="display:none;">volunteer_activism</span>
-            </div>
-            <div>
-              <h3 class="text-3xl font-bold text-slate-900 leading-none">1</h3>
-              <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Voluntarios activos</p>
-            </div>
+          <div>
+            <h3 class="text-3xl font-bold text-slate-900 leading-none">{{ estadisticas.casos_activos }}</h3>
+            <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Casos activos</p>
           </div>
-
-          <div class="border border-amber-100 bg-amber-50/60 p-5 flex items-center gap-4">
-            <div class="w-14 h-14 shrink-0 bg-amber-500 grid place-items-center text-white">
-              <img
-                src="assets/icon/stats/cobertura.png"
-                alt="Cobertura activa"
-                class="w-7 h-7 object-contain"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-              />
-              <span class="material-symbols-outlined text-[27px]" style="display:none;">emergency</span>
-            </div>
-            <div>
-              <h3 class="text-3xl font-bold text-slate-900 leading-none">24/7</h3>
-              <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Cobertura activa</p>
-            </div>
-          </div>
-
         </div>
-      </section>
+
+        <div class="border border-emerald-100 bg-emerald-50/60 p-5 flex items-center gap-4">
+          <div class="w-14 h-14 shrink-0 bg-emerald-600 grid place-items-center text-white rounded">
+            <span class="material-symbols-outlined text-[27px]">volunteer_activism</span>
+          </div>
+          <div>
+            <h3 class="text-3xl font-bold text-slate-900 leading-none">{{ estadisticas.voluntarios_activos }}</h3>
+            <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Voluntarios activos</p>
+          </div>
+        </div>
+
+        <div class="border border-amber-100 bg-amber-50/60 p-5 flex items-center gap-4">
+          <div class="w-14 h-14 shrink-0 bg-amber-500 grid place-items-center text-white rounded">
+            <span class="material-symbols-outlined text-[27px]">task_alt</span>
+          </div>
+          <div>
+            <h3 class="text-3xl font-bold text-slate-900 leading-none">{{ estadisticas.rescates_completados }}</h3>
+            <p class="text-xs font-bold uppercase text-slate-500 mt-1.5">Rescates completados</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
 
     </main>
 

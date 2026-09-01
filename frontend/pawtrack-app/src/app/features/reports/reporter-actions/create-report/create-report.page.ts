@@ -133,6 +133,8 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     this.autocompletarContactoDesdePerfil();
     this.obtenerUbicacionInicial();
   }
+
+  
  
   /**
    * Si hay sesión iniciada y el perfil ya tiene nombre + teléfono
@@ -475,6 +477,7 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
     this.archivosSeleccionados = [];
     this.imagenBorradorId = null;
     this.borradorId = null;
+    this.pasoActual = 1; // regresa al paso de subir evidencia
   }
 
   cerrarModalAdvertencia(): void {
@@ -968,7 +971,7 @@ onFileSelected(event: any) {
     this.duplicadoConfirmado = null;
 
     this.descargandoCartelManual = false;
-    
+
     this.mostrarModalNoAnimal = false;
     this.esUsuarioAnonimo = false;
 
