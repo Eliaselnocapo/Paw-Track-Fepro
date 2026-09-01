@@ -1,3 +1,4 @@
+import { SentenceCasePipe } from './../../../../shared/pipes/sentence-case-pipe';
 import { AfterViewInit, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,6 +13,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
 import { ReportarFraudeButtonComponent } from '../../../../shared/components/button-fraude/reportar-fraude-button.component';
 import { RevealDirective } from '../../../../shared/directives/reveal.directive';
+
 
 import * as L from 'leaflet';
 
@@ -48,7 +50,8 @@ interface DetalleCasoVoluntario {
     NavbarWebComponent,
     FooterWebComponent,
     ReportarFraudeButtonComponent,
-    RevealDirective
+    RevealDirective,
+    SentenceCasePipe
   ],
   templateUrl: './details-case.page.html',
   styleUrls: ['./details-case.page.scss']
@@ -359,6 +362,7 @@ cargarCaso(): void {
   get nombreReportante(): string {
     return this.caso?.raw?.usuario_reporta_info?.nombre || this.caso?.contactoNombre || 'Reportante';
   }
+
 
   get reputacionReportante(): number | null {
     const score = this.caso?.raw?.usuario_reporta_info?.reputacion_score ?? null;
