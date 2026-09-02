@@ -43,3 +43,5 @@ backend/deduplicacion/ml_models/*.onnx
 backend/deduplicacion/ml_models/*_map.json
 backend/deduplicacion/ml_models/*.onnx.data
 >>>>>>> develop
+*.pem
+*.pem

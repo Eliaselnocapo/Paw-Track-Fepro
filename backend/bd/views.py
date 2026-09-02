@@ -496,7 +496,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         crear el reporte, pero aquí:
           - no persiste nada (ni Incidencia ni Animal),
           - no muta el índice HNSW (solo lectura, buscar_similares),
-          - regresa el mejor candidato (si supera UMBRAL_REVISION) para que
+          - regresa el mejor candidato (si supera umbral_revision_para(especie)) para que
             el front le pregunte al reportante "¿es este tu caso?" antes de
             que exista un registro nuevo.
 
@@ -530,11 +530,10 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         )
         incidencia_temp = Incidencia(animal=animal_temp, ubicacion=Point(lng, lat, srid=4326), caracteristicas='')
 
+        if not imagen or not tipo:
+            return Response({'candidato': None})
 
         candidatos = [c for c in candidatos_por_metadatos(incidencia_temp) if c.imagen]
-        
-        if not imagen or not tipo or lat is None or lng is None:
-            return Response({'candidato': None})
 
         if not candidatos:
             return Response({'candidato': None})
@@ -568,7 +567,7 @@ class IncidenciaViewSet(viewsets.ModelViewSet):
         similitud_visual = vision_ai.buscar_similares(emb, tipo, candidatos_ids)
 
         resultados = RankingService.calcular_score_final(candidatos, similitud_visual, incidencia_temp)
-        if not resultados or resultados[0]['score'] < RankingService.UMBRAL_REVISION:
+        if not resultados or resultados[0]['score'] < RankingService.umbral_revision_para(tipo):
             return Response({'candidato': None})
 
         mejor = resultados[0]
