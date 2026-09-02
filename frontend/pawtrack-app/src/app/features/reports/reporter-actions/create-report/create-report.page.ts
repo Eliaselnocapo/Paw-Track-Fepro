@@ -406,9 +406,12 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
         this.verificandoDuplicado = false;
         this.candidatoDuplicado = res.candidato;
       },
-      error: () => {
-        // Falla silenciosa a propósito: si el chequeo no responde, no
-        // queremos bloquear al reportante de enviar su reporte por esto.
+      error: (err) => {
+        // Falla silenciosa a propósito de cara al usuario: si el chequeo no
+        // responde, no queremos bloquear al reportante de enviar su reporte
+        // por esto. Sí lo logueamos para poder depurar (antes se perdía por
+        // completo y parecía que "no pasaba nada").
+        console.error('verificarDuplicado() falló:', err);
         this.verificandoDuplicado = false;
         this.candidatoDuplicado = null;
       },
@@ -536,8 +539,10 @@ export class CreateReportPage implements OnInit, AfterViewInit, OnDestroy  {
 
         this.siguientePaso();
       },
-      error: () => {
-        // Falla en silencio: no bloquea el envío por un problema del chequeo.
+      error: (err) => {
+        // Falla en silencio de cara al usuario: no bloquea el envío por un
+        // problema del chequeo. Sí lo logueamos para depurar.
+        console.error('intentarEnviar(): re-chequeo de duplicado falló:', err);
         this.verificandoDuplicado = false;
         this.siguientePaso();
       },
