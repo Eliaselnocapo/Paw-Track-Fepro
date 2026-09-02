@@ -45,3 +45,4 @@ backend/deduplicacion/ml_models/*.onnx.data
 >>>>>>> develop
 *.pem
 *.pem
+*.pem
